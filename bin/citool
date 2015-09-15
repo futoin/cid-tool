@@ -1,0 +1,5 @@
+#!/usr/bin/python
+
+import citool.cli as cli
+
+cli.run()
