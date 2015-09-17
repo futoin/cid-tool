@@ -1,9 +1,23 @@
 
-from collections import OrderedDict
 import os
+import subprocess
+import importlib
+from collections import OrderedDict
 
 class CITool :
     def __init__( self, overrides ) :
+        self._tools = {
+            'php' : None,
+            'python' : None,
+            'nodejs' : None,
+            'svn' : None,
+            'git' : None,
+            'hg' : None,
+            'composer' : None,
+            'npm' : None,
+            'grunt' : None,
+            'gulp' : None
+        }
         self._overrides = overrides
         self._initConfig()
         
@@ -37,7 +51,7 @@ class CITool :
         self._project_config = pc = self._loadJSON( 'futoin.json', {} )
         merged = OrderedDict( pc )
         
-        if mc.has_key( 'env' ):
+        if pc.has_key( 'env' ):
             raise InputError( '.env node is set in project config' )
         
         if not uc.has_key( 'env' ) or len( uc ) != 1:
@@ -46,12 +60,12 @@ class CITool :
         if not gc.has_key( 'env' ) or len( gc ) != 1:
             raise InputError( 'Glboal config must have only .env node' )
         
-        env = OrderedDict( uc.env )
+        env = OrderedDict( uc['env'] )
         
         for ( k, v ) in gc.items():
-            if not env.has_key( k ) :
-                env[k] = v
-            
+            env.setdefault( k, v )
+        
+        self._initEnv( env )
         merged['env'] = env
         self._config = merged
     
@@ -63,4 +77,28 @@ class CITool :
                 return json.loads( content, object_pairs_hook=object_pairs_hook )
         except IOError:
             return defvalue
+        
+    def _initEnv( self, env ) :
+        env.setdefault( 'type', 'dev' )
+        env.setdefault( 'init', 'cron' )
+        env.setdefault( 'webServer', 'nginx' )
+        env.setdefault( 'vars', {} )
+
+        tools = self._tools
+        
+        for ( k, v ) in tools.items() :
+            if v is None :
+                pkg = 'citool.tool.' + k + 'tool'
+                m = importlib.import_module( pkg )
+                tools[ k ] = getattr( m, k + 'Tool' )( k )
+        
+        if env.has_key( 'plugins' ) :
+            for ( k, v ) in env['plugins'] :
+                m = importlib.import_module( v )
+                tools[ k ] = getattr( m, k + 'Tool' )( k )
+            
+        
+        for t in tools.values():
+            t.initEnv( env )
+            
             
