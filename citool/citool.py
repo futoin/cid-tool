@@ -2,6 +2,7 @@
 import os
 import subprocess
 import importlib
+import json
 from collections import OrderedDict
 
 class CITool :
@@ -20,6 +21,7 @@ class CITool :
             'npm' : None,
             'grunt' : None,
             'gulp' : None,
+            'bower' : None,
             'sftp' : None,
             'archiva' : None,
             'artifactory' : None,
@@ -124,6 +126,22 @@ class CITool :
 
             config['tools'] = tools
 
+        # add all deps
+        #--
+        deps = set( tools )
+        l = 0
+        while len( deps ) != l :
+            l = len( deps )
+            moredeps = set()
+            for t in deps :
+                t = tool_impl[t]
+                moredeps.update( set( t.getDeps() ) )
+            deps.update( moredeps )
+            
+        deps -= set( tools )
+        tools.extend( deps )
+
+        #--
         for t in tools :
             t = tool_impl[t]
             t.requireInstalled( config )

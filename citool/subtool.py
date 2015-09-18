@@ -34,10 +34,22 @@ class SubTool:
             return True
         
         return False
+    
+    def _autoDetectByCfg( self, config, file_name ) :
+        if self._name in config.get( 'tools', [] ) :
+            return True
+        
+        if type( file_name ) is type( '' ):
+            file_name = [ file_name ]
 
+        for f in file_name :
+            if os.path.exists( f ) :
+                return True
+        
+        return False
     
     def _installTool( self ):
-        raise NotImplementedError()
+        raise NotImplementedError( "Tool (%s) must be manually installed"  % self._name )
     
     def initEnv( self, env ) :
         name = self._name
@@ -50,7 +62,7 @@ class SubTool:
                 self._have_tool = True
                 
     def getType( self ):
-        raise NotImplementedError()
+        raise NotImplementedError( self._name )
     
     def autoDetect( self, config ) :
         return False
@@ -61,4 +73,7 @@ class SubTool:
             self.initEnv( config['env'] )
             
             if not self._have_tool:
-                raise RuntimeError()
+                raise RuntimeError( "Failed to install " + self._name )
+            
+    def getDeps( self ) :
+        return []
