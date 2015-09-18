@@ -23,7 +23,18 @@ class SubTool:
         if config.get( 'vcs', None ) == self._name :
             return True
         
-        return os.path.isdir( vcsDir )
+        if os.path.isdir( vcsDir ) :
+            config['vcs'] = self._name
+            return True
+        
+        return False
+    
+    def _autoDetectRMS( self, config ) :
+        if config.get( 'rms', None ) == self._name :
+            return True
+        
+        return False
+
     
     def _installTool( self ):
         raise NotImplementedError()
