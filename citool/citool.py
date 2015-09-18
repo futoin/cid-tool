@@ -6,17 +6,24 @@ from collections import OrderedDict
 
 class CITool :
     def __init__( self, overrides ) :
-        self._tools = {
+        self._tool_impl = {
+            'nvm' : None,
+            'rvm' : None,
             'php' : None,
             'python' : None,
             'nodejs' : None,
+            'ruby' : None,
             'svn' : None,
             'git' : None,
             'hg' : None,
             'composer' : None,
             'npm' : None,
             'grunt' : None,
-            'gulp' : None
+            'gulp' : None,
+            'sftp' : None,
+            'archiva' : None,
+            'artifactory' : None,
+            'nexus' : None,
         }
         self._overrides = overrides
         self._initConfig()
@@ -68,6 +75,8 @@ class CITool :
         self._initEnv( env )
         merged['env'] = env
         self._config = merged
+        
+        self._initTools()
     
     def _loadJSON( self, file_name, defvalue ):
         try :
@@ -84,21 +93,43 @@ class CITool :
         env.setdefault( 'webServer', 'nginx' )
         env.setdefault( 'vars', {} )
 
-        tools = self._tools
+        tool_impl = self._tool_impl
         
-        for ( k, v ) in tools.items() :
+        for ( k, v ) in tool_impl.items() :
             if v is None :
                 pkg = 'citool.tool.' + k + 'tool'
                 m = importlib.import_module( pkg )
-                tools[ k ] = getattr( m, k + 'Tool' )( k )
+                tool_impl[ k ] = getattr( m, k + 'Tool' )( k )
         
         if env.has_key( 'plugins' ) :
             for ( k, v ) in env['plugins'] :
                 m = importlib.import_module( v )
-                tools[ k ] = getattr( m, k + 'Tool' )( k )
+                tool_impl[ k ] = getattr( m, k + 'Tool' )( k )
             
         
-        for t in tools.values():
+        for t in tool_impl.values():
             t.initEnv( env )
             
+    def _initTools( self ):
+        config = self._config
+        tools = config.get( 'tools', None )
+        tool_impl = self._tool_impl
+        
+        if tools is None :
+            tools = []
+            
+            for ( n, t ) in tool_impl.items():
+                if t.autoDetect( config ) :
+                    tools.append( n )
+
+            config['tools'] = tools
+
+        for t in tools :
+            t = tool_impl[t]
+            t.requireInstalled( config )
+            
+        
+            
+        
+        
             

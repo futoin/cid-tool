@@ -1,6 +1,6 @@
 
 from citool.subtool import SubTool
 
-class gulpTool( SubTool ):
+class archivaTool( SubTool ):
     def getType( self ):
-        return self.TYPE_BUILD
+        return self.TYPE_RMS
