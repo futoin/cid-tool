@@ -30,8 +30,51 @@ class CITool :
         self._overrides = overrides
         self._initConfig()
         
+    def _forEachTool( self, cb ) :
+        config = self._config
+        tool_impl = self._tool_impl
+        tools = config.get( 'tools' )
+
+        for t in tools :
+            t = tool_impl[t]
+            cb( config, t )
+        
     def tag( self, branch, next_version=None ):
-        pass
+        config = self._config
+        vcstool = config['vcs']
+        vcstool = self._tool_impl[vcstool]
+        
+        # make a clean checkout
+        vcstool.vcsCheckout( config, branch )
+        self._initConfig()
+        
+        # Set new version
+        if next_version is None:
+            next_version = config['version']
+            next_version = next_version.split('.')
+            next_version = '.'.join( next_version )
+            next_version[-1] = int( next_version[-1] ) + 1
+        config['version'] = next_version
+        
+        # Update files for release
+        to_commit = []        
+        self._forEachTool(
+            lambda config, t: to_commit.extend(
+                t.updateProjectConfig( config, { 'version' : next_version } )
+            )
+        )
+        
+        # Commit updated files
+        message = "Updated for release %s %s" % ( config['name'], config['version'] )
+        vcstool.vcsCommit( config, message, to_commit )
+        
+        # Craete a tag
+        tag = "v%s" % next_version
+        message = "Release %s %s" % ( config['name'], config['version'] )
+        vcstool.vcsTag( config, branch, tag, message )
+
+        # Push changes for DVCS
+        vcstool.vcsPush( config, [ branch, tag ] )
     
     def prepare( self, vcs_ref ):
         pass

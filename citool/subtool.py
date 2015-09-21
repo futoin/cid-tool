@@ -1,6 +1,7 @@
 
 import subprocess
 import os
+import json
 
 class SubTool:
     TYPE_RUNENV = 'runenv'
@@ -77,3 +78,39 @@ class SubTool:
             
     def getDeps( self ) :
         return []
+    
+    def _updateJSONConfig( self, file_name, updater ) :
+        with open(file_name, 'r') as content_file:
+            content = content_file.read()
+            object_pairs_hook = lambda pairs: OrderedDict( pairs )
+            content = json.loads( content, object_pairs_hook=object_pairs_hook )
+            
+        updater( content )
+        
+        with open(file_name, 'w') as content_file:
+            content =  json.puts( content, indent=4 )
+            content_file.write( content )
+            
+        return [ file_name ]
+    
+    def updateProjectConfig( self, config, updates ) :
+        """
+updates = {
+    name : '...',
+    version : '...',
+}
+@return a list of files to be committed
+"""
+        return []
+    
+    def vcsCheckout( self, config, branch ):
+        raise NotImplementedError( self._name )
+    
+    def vcsCommit( self, config, message, files ):
+        raise NotImplementedError( self._name )
+    
+    def vcsTag( self, config, branch, tag, message ):
+        raise NotImplementedError( self._name )
+    
+    def vcsPush( self, config, refs ):
+        raise NotImplementedError( self._name )
