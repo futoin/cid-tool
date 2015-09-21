@@ -5,10 +5,13 @@ import os
 
 
 class Test_CITool_SVN ( citool_UTBase ) :
-    def setUpClass():
+    VCS_REPO = 'svn:file//repo'
+    @classmethod
+    def setUpClass( cls ):
         subprocess.check_output( "rm test_svn -rf && tar xf tests/test_svn.tar ", shell=True )
         os.chdir( 'test_svn' )
     
-    def tearDownClass():
+    @classmethod
+    def tearDownClass( cls ):
         os.chdir( '..' )
     

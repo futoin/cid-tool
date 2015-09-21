@@ -50,7 +50,11 @@ class CITool :
         
         # Set new version
         if next_version is None:
-            next_version = config['version']
+            if 'version' in config :
+                next_version = config['version']
+            else :
+                raise RuntimeError( 'current version is unknown' )
+
             next_version = next_version.split('.')
             next_version = '.'.join( next_version )
             next_version[-1] = int( next_version[-1] ) + 1
@@ -71,7 +75,7 @@ class CITool :
         # Craete a tag
         tag = "v%s" % next_version
         message = "Release %s %s" % ( config['name'], config['version'] )
-        vcstool.vcsTag( config, branch, tag, message )
+        vcstool.vcsTag( config, tag, message )
 
         # Push changes for DVCS
         vcstool.vcsPush( config, [ branch, tag ] )
@@ -104,13 +108,13 @@ class CITool :
         merged = OrderedDict( pc )
         
         if pc.has_key( 'env' ):
-            raise InputError( '.env node is set in project config' )
+            raise RuntimeError( '.env node is set in project config' )
         
         if not uc.has_key( 'env' ) or len( uc ) != 1:
-            raise InputError( 'User config must have only .env node' )
+            raise RuntimeError( 'User config must have only .env node' )
         
         if not gc.has_key( 'env' ) or len( gc ) != 1:
-            raise InputError( 'Glboal config must have only .env node' )
+            raise RuntimeError( 'Glboal config must have only .env node' )
         
         env = OrderedDict( uc['env'] )
         
@@ -119,6 +123,7 @@ class CITool :
         
         self._initEnv( env )
         merged['env'] = env
+        merged.update( self._overrides )
         self._config = merged
         
         self._initTools()
@@ -188,6 +193,7 @@ class CITool :
         for t in tools :
             t = tool_impl[t]
             t.requireInstalled( config )
+            t.loadConfig( config )
             
         
             

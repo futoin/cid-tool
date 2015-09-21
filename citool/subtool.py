@@ -76,6 +76,9 @@ class SubTool:
             if not self._have_tool:
                 raise RuntimeError( "Failed to install " + self._name )
             
+    def loadConfig( self, config ) :
+        pass
+            
     def getDeps( self ) :
         return []
     
@@ -109,7 +112,7 @@ updates = {
     def vcsCommit( self, config, message, files ):
         raise NotImplementedError( self._name )
     
-    def vcsTag( self, config, branch, tag, message ):
+    def vcsTag( self, config, tag, message ):
         raise NotImplementedError( self._name )
     
     def vcsPush( self, config, refs ):

@@ -5,10 +5,13 @@ import os
 
 
 class Test_CITool_Git ( citool_UTBase ) :
-    def setUpClass():
+    VCS_REPO = 'git:repo'
+    @classmethod
+    def setUpClass( cls ):
         subprocess.check_output( "rm test_git -rf && tar xf tests/test_git.tar ", shell=True )
         os.chdir( 'test_git' )
-    
-    def tearDownClass():
+        
+    @classmethod
+    def tearDownClass( cls ):
         os.chdir( '..' )
     
