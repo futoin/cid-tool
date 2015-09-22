@@ -14,4 +14,10 @@ class citool_UTBase ( unittest.TestCase ) :
         
     def test_tag( self ):
         self._call_citool( [ 'tag', 'branch_A', '--vcsRepo', self.VCS_REPO ] )
+        
+    def test_tag_ver( self ):
+        self._call_citool( [
+            'tag', 'branch_A', '1.3.0',
+            '--vcsRepo', self.VCS_REPO,
+            '--wcDir', 'build_ver' ] )
     

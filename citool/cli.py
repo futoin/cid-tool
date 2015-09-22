@@ -2,8 +2,8 @@
 """FutoIn Continuous Integration Tool.
 
 Usage:
-    citool tag <branch> [<next_version>] [--vcsRepo vcs_url]
-    citool prepare [<vcs_ref>] [--vcsRepo vcs_url]
+    citool tag <branch> [<next_version>] [--vcsRepo vcs_url] [--wcDir wc_dir]
+    citool prepare [<vcs_ref>] [--vcsRepo vcs_url] [--wcDir wc_dir]
     citool build
     citool package
     citool promote <package> <rms_pool> [--rmsRepo rms_url] [--hash type_value]
@@ -14,6 +14,7 @@ Usage:
 Options:
     --vcsRepo vcs_type:vcs_url
     --rmsRepo rms_type:rms_url
+    --wcDir wc_dir
     --hash has_type:value
 """
 
@@ -40,6 +41,8 @@ def run():
         if rmsArg:
             (overrides['rms'],
              overrides['rmsRepo']) = rmsArg.split(':', 1)
+        #---
+        overrides['wcDir'] = args['--wcDir'] or 'build'
         
         #---
         cit = CITool( overrides = overrides )

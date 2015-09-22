@@ -10,5 +10,6 @@ class Test_CITool_SVN ( citool_UTBase ) :
 
     @classmethod
     def setUpClass( cls ):
+        cls.VCS_REPO = 'svn:file://' + os.path.realpath( cls.TEST_DIR + '/repo' )
         subprocess.check_output( "rm ../test_svn -rf && tar xf tests/test_svn.tar -C ..", shell=True )
     

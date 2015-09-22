@@ -11,14 +11,17 @@ class gitTool( SubTool ):
 
     def vcsCheckout( self, config, branch ):
         gitBin = config['env']['gitBin']
+        wc_dir = config['wcDir']
         
         if os.path.isdir( '.git' ):
             remote_info = self._callExternal( [ gitBin, 'remote', '-v' ] )
             if remote_info.find( config['vcsRepo'] ) < 0 :
-                raise RuntimeError( "Git remote mismatch: " + remote_info)
-        else:
-            self._callExternal( [ gitBin, 'clone', config['vcsRepo'], 'build' ] )
-            os.chdir( 'build' )
+                raise RuntimeError( "Git remote mismatch: " + remote_info )
+        elif os.path.exists( wc_dir ):
+            raise RuntimeError( "Path already exists: " + wc_dir )
+        else :
+            self._callExternal( [ gitBin, 'clone', config['vcsRepo'], wc_dir ] )
+            os.chdir( wc_dir )
 
         self._callExternal( [ gitBin, 'checkout', '--track', '-B', branch, 'origin/'+branch ] )
     
