@@ -1,6 +1,7 @@
 
 from citool.subtool import SubTool
 import os
+import re
 
 class svnTool( SubTool ):
     def getType( self ):
@@ -9,11 +10,32 @@ class svnTool( SubTool ):
     def autoDetect( self, config ) :
         return self._autoDetectVCS( config, '.svn' )
     
-    def vcsCheckout( self, config, branch ):
+    def vcsCheckout( self, config, vcs_ref ):
         svnBin = config['env']['svnBin']
         wc_dir = config['wcDir']
-        svn_repo_path = '%s/branches/%s' % ( config['vcsRepo'], branch )
+            
+        if os.path.isdir( wc_dir + '/.svn' ):
+            os.chdir( wc_dir )
+            
+        if 'vcsRepo' not in config:
+            svn_info = self._callExternal( [ svnBin, 'info' ] ).split("\n")
+            
+            for si in svn_info:
+                si = si.split( ': ', 1 )
+                if si[0] == 'URL':
+                    config['vcsRepo'] = re.sub( '/(trunk|branches|tags).+$', '', si[1] )
+                    break
+            
+        branch_path = '%s/branches/%s' % ( config['vcsRepo'], vcs_ref )
+        tag_path = '%s/tags/%s' % ( config['vcsRepo'], vcs_ref )
         
+        if self._callExternal( [ 'bash', '-c', '%s ls %s 2>/dev/null' % ( svnBin, branch_path ) ] ) :
+            svn_repo_path = branch_path
+        elif self._callExternal( [ svnBin, 'ls', tag_path ] ) :
+            svn_repo_path = tag_path
+        else:
+            raise RuntimeError( "VCS ref was not found: " + vcs_ref )
+
         if os.path.isdir( '.svn' ):
             self._callExternal( [ svnBin, 'switch', svn_repo_path ] )
         elif os.path.exists( wc_dir ):
@@ -45,3 +67,5 @@ class svnTool( SubTool ):
     
     def vcsPush( self, config, refs ):
         pass
+
+

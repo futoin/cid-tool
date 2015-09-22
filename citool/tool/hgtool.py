@@ -9,14 +9,19 @@ class hgTool( SubTool ):
     def autoDetect( self, config ) :
         return self._autoDetectVCS( config, '.hg' )
 
-    def vcsCheckout( self, config, branch ):
+    def vcsCheckout( self, config, vcs_ref ):
         hgBin = config['env']['hgBin']
         wc_dir = config['wcDir']
-        
+
+        if os.path.isdir( wc_dir + '/.hg' ):
+            os.chdir( wc_dir )
+
         if os.path.isdir( '.hg' ):
-            remote_info = self._callExternal( [ hgBin, 'paths', branch ] ).strip()
-            if remote_info.find( config['vcsRepo'] ) < 0 :
-                raise RuntimeError( "Hg remote mismatch: " + remote_info )
+            if 'vcsRepo' in config:
+                remote_info = self._callExternal( [ hgBin, 'paths', vcs_ref ] ) or ''
+                if remote_info.find( config['vcsRepo'] ) < 0 :
+                    raise RuntimeError( "Hg remote mismatch: " + remote_info )
+
             self._callExternal( [ hgBin, 'pull' ] )
         elif os.path.exists( wc_dir ):
             raise RuntimeError( "Path already exists: " + wc_dir )
@@ -24,7 +29,7 @@ class hgTool( SubTool ):
             self._callExternal( [ hgBin, 'clone', config['vcsRepo'], wc_dir ] )
             os.chdir( wc_dir )
 
-        self._callExternal( [ hgBin, 'checkout', '--check', branch ] )
+        self._callExternal( [ hgBin, 'checkout', '--check', vcs_ref ] )
     
     def vcsCommit( self, config, message, files ):
         hgBin = config['env']['hgBin']

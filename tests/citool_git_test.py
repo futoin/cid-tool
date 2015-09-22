@@ -1,6 +1,7 @@
 
 from .citool_utbase import citool_UTBase
 import subprocess
+import os
 
 
 class Test_CITool_Git ( citool_UTBase ) :
@@ -9,5 +10,6 @@ class Test_CITool_Git ( citool_UTBase ) :
 
     @classmethod
     def setUpClass( cls ):
+        os.chdir( os.path.dirname( __file__ ) + '/..' )
         subprocess.check_output( "rm ../test_git -rf && tar xf tests/test_git.tar -C ..", shell=True )
     

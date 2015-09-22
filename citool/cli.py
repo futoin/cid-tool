@@ -45,6 +45,9 @@ def run():
         overrides['wcDir'] = args['--wcDir'] or 'build'
         
         #---
+        overrides['vcsRef'] = args['<vcs_ref>']
+        
+        #---
         cit = CITool( overrides = overrides )
         
         if args['tag'] :

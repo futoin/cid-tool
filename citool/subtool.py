@@ -121,3 +121,14 @@ updates = {
     
     def vcsPush( self, config, refs ):
         raise NotImplementedError( self._name )
+    
+    def onPrepare( self, config ):
+        pass
+    
+    def onBuild( self, config ):
+        pass
+    
+    def onPackage( self, config ):
+        pass
+
+

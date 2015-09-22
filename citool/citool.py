@@ -83,13 +83,35 @@ class CITool :
         vcstool.vcsPush( config, [ branch, tag ] )
     
     def prepare( self, vcs_ref ):
-        pass
-    
+        config = self._config
+
+        if ( 'vcs' not in config and
+             'vcsRepo' not in self._overrides ):
+            os.chdir( config['wcDir'] )
+            self._initConfig()
+            config = self._config
+        
+        vcstool = config['vcs']
+        vcstool = self._tool_impl[vcstool]
+        
+        # make a clean checkout
+        vcstool.vcsCheckout( config, vcs_ref )
+        self._initConfig()
+
+        #--
+        self._forEachTool(
+            lambda config, t: t.onPrepare( config )
+        )
+   
     def build( self ):
-        pass
+        self._forEachTool(
+            lambda config, t: t.onBuild( config )
+        )
     
     def package( self ):
-        pass
+        self._forEachTool(
+            lambda config, t: t.onPackage( config )
+        )
     
     def promote( self, package, rms_pool ):
         pass
