@@ -26,6 +26,8 @@ class SubTool:
             return True
         
         if os.path.isdir( vcsDir ) :
+            if config.get( 'vcs', None ) is not None:
+                raise RuntimeError( 'Another VCS type has been already detected!' )
             config['vcs'] = self._name
             return True
         

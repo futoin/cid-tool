@@ -17,6 +17,7 @@ class gitTool( SubTool ):
             remote_info = self._callExternal( [ gitBin, 'remote', '-v' ] )
             if remote_info.find( config['vcsRepo'] ) < 0 :
                 raise RuntimeError( "Git remote mismatch: " + remote_info )
+            self._callExternal( [ hgBin, 'fetch' ] )
         elif os.path.exists( wc_dir ):
             raise RuntimeError( "Path already exists: " + wc_dir )
         else :
