@@ -8,6 +8,7 @@ from collections import OrderedDict
 class CITool :
     def __init__( self, overrides ) :
         self._tool_impl = {
+            'futoin' : None,
             'nvm' : None,
             'rvm' : None,
             'php' : None,
@@ -172,11 +173,10 @@ class CITool :
                 if t.autoDetect( config ) :
                     tools.append( n )
 
-            config['tools'] = tools
-
         # add all deps
         #--
         deps = set( tools )
+        dep_generations = [ list( deps ) ]
         l = 0
         while len( deps ) != l :
             l = len( deps )
@@ -184,10 +184,17 @@ class CITool :
             for t in deps :
                 t = tool_impl[t]
                 moredeps.update( set( t.getDeps() ) )
+            dep_generations.append( list( moredeps - deps ) )
             deps.update( moredeps )
             
-        deps -= set( tools )
         tools.extend( deps )
+        
+        #---
+        dep_generations.reverse()
+        tools = []
+        for d in dep_generations :
+            tools.extend( d )
+        config['tools'] = tools
 
         #--
         for t in tools :

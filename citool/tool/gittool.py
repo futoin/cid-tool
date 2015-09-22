@@ -12,7 +12,7 @@ class gitTool( SubTool ):
     def vcsCheckout( self, config, branch ):
         gitBin = config['env']['gitBin']
         
-        if self._have_tool:
+        if os.path.isdir( '.git' ):
             remote_info = self._callExternal( [ gitBin, 'remote', '-v' ] )
             if remote_info.find( config['vcsRepo'] ) < 0 :
                 raise RuntimeError( "Git remote mismatch: " + remote_info)
