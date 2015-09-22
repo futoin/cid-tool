@@ -1,7 +1,7 @@
 
 from citool.subtool import SubTool
 
-class nodejsTool( SubTool ):
+class nodeTool( SubTool ):
     def getType( self ):
         return self.TYPE_RUNTIME
     

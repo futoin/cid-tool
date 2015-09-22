@@ -1,4 +1,7 @@
 
+import json
+from collections import OrderedDict
+
 from citool.subtool import SubTool
 
 class npmTool( SubTool ):
@@ -9,7 +12,7 @@ class npmTool( SubTool ):
         return self._autoDetectByCfg( config, 'package.json' )
     
     def getDeps( self ) :
-        return [ 'nodejs' ]
+        return [ 'node' ]
     
     def loadConfig( self, config ) :
         with open('package.json', 'r') as content_file:

@@ -9,4 +9,8 @@ class gulpTool( SubTool ):
         return self._autoDetectByCfg( config, 'gulpfile.js' )
     
     def getDeps( self ) :
-        return [ 'nodejs' ]
+        return [ 'node' ]
+
+    def _installTool( self ):
+        self._callExternal( [ 'npm', 'install', '-g', 'gulp' ] )
+

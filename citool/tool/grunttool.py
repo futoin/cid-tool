@@ -12,4 +12,8 @@ class gruntTool( SubTool ):
         )
     
     def getDeps( self ) :
-        return [ 'nodejs' ]
+        return [ 'node', 'npm' ]
+
+    def _installTool( self ):
+        self._callExternal( [ 'npm', 'install', '-g', 'grunt' ] )
+            

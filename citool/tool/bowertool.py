@@ -1,5 +1,9 @@
 
+import json
+from collections import OrderedDict
+
 from citool.subtool import SubTool
+
 
 class bowerTool( SubTool ):
     def getType( self ):
@@ -9,7 +13,10 @@ class bowerTool( SubTool ):
         return self._autoDetectByCfg( config, 'bower.json' )
     
     def getDeps( self ) :
-        return [ 'nodejs' ]
+        return [ 'node', 'npm' ]
+    
+    def _installTool( self ):
+        self._callExternal( [ 'npm', 'install', '-g', 'bower' ] )
 
     def loadConfig( self, config ) :
         with open('bower.json', 'r') as content_file:
@@ -25,5 +32,9 @@ class bowerTool( SubTool ):
             f = 'name'
             if f in updates :
                     json[f] = updates[f]
+                    
+            # version is deprecated
+            if 'version' in json:
+                del json['version']
 
-        self._updateJSONConfig( 'bower.json', updater )
+        return self._updateJSONConfig( 'bower.json', updater )

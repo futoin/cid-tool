@@ -13,7 +13,7 @@ class CITool :
             'rvm' : None,
             'php' : None,
             'python' : None,
-            'nodejs' : None,
+            'node' : None,
             'ruby' : None,
             'svn' : None,
             'git' : None,
@@ -48,6 +48,7 @@ class CITool :
         # make a clean checkout
         vcstool.vcsCheckout( config, branch )
         self._initConfig()
+        config = self._config
         
         # Set new version
         if next_version is None:
@@ -57,8 +58,8 @@ class CITool :
                 raise RuntimeError( 'current version is unknown' )
 
             next_version = next_version.split('.')
+            next_version[-1] = str(int(next_version[-1]) + 1)
             next_version = '.'.join( next_version )
-            next_version[-1] = int( next_version[-1] ) + 1
         config['version'] = next_version
         
         # Update files for release

@@ -9,7 +9,7 @@ class futoinTool( SubTool ):
         return self._autoDetectByCfg( config, 'futoin.json' )
     
     def getDeps( self ) :
-        return [ 'pythontool' ]
+        return [ 'python' ]
 
     def updateProjectConfig( self, config, updates ) :
         def updater( json ):

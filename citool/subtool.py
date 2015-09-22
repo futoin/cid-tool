@@ -2,6 +2,7 @@
 import subprocess
 import os
 import json
+from collections import OrderedDict
 
 class SubTool:
     TYPE_RUNENV = 'runenv'
@@ -82,7 +83,7 @@ class SubTool:
     def getDeps( self ) :
         return []
     
-    def _updateJSONConfig( self, file_name, updater ) :
+    def _updateJSONConfig( self, file_name, updater, indent=2, separators=(',', ': ') ) :
         with open(file_name, 'r') as content_file:
             content = content_file.read()
             object_pairs_hook = lambda pairs: OrderedDict( pairs )
@@ -91,8 +92,9 @@ class SubTool:
         updater( content )
         
         with open(file_name, 'w') as content_file:
-            content =  json.puts( content, indent=4 )
+            content =  json.dumps( content, indent=indent, separators=separators )
             content_file.write( content )
+            content_file.write( "\n" )
             
         return [ file_name ]
     

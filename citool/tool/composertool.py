@@ -1,4 +1,7 @@
 
+import json
+from collections import OrderedDict
+
 from citool.subtool import SubTool
 
 class composerTool( SubTool ):
@@ -26,4 +29,4 @@ class composerTool( SubTool ):
                 if f in updates :
                         json[f] = updates[f]
 
-        return self._updateJSONConfig( 'composer.json', updater )
+        return self._updateJSONConfig( 'composer.json', updater, indent=4 )
