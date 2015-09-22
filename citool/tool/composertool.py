@@ -30,3 +30,12 @@ class composerTool( SubTool ):
                         json[f] = updates[f]
 
         return self._updateJSONConfig( 'composer.json', updater, indent=4 )
+    
+    def onPrepare( self, config ):
+        composerBin = config['env']['composerBin']
+        self._callExternal( [ composerBin, 'install' ] )
+        
+    def onPackage( self, config ):
+        composerBin = config['env']['composerBin']
+        self._callExternal( [ composerBin, 'install', '--no-dev' ] )
+

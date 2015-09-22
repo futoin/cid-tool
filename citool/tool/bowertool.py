@@ -38,3 +38,13 @@ class bowerTool( SubTool ):
                 del json['version']
 
         return self._updateJSONConfig( 'bower.json', updater )
+    
+    def onPrepare( self, config ):
+        bowerBin = config['env']['bowerBin']
+        self._callExternal( [ bowerBin, 'install' ] )
+
+    def onPackage( self, config ):
+        bowerBin = config['env']['bowerBin']
+        # TODO: not sure
+        self._callExternal( [ bowerBin, 'install', '--production' ] )
+    

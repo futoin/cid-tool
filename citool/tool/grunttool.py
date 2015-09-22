@@ -16,4 +16,8 @@ class gruntTool( SubTool ):
 
     def _installTool( self ):
         self._callExternal( [ 'npm', 'install', '-g', 'grunt' ] )
+    
+    def onBuild( self, config ):
+        gruntBin = config['env']['gruntBin']
+        self._callExternal( [ gruntBin ] )
             

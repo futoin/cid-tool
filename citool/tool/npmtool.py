@@ -30,3 +30,12 @@ class npmTool( SubTool ):
                         json[f] = updates[f]
 
         return self._updateJSONConfig( 'package.json', updater )
+    
+    def onPrepare( self, config ):
+        npmBin = config['env']['npmBin']
+        self._callExternal( [ npmBin, 'install' ] )
+        
+    def onPackage( self, config ):
+        npmBin = config['env']['npmBin']
+        self._callExternal( [ npmBin, 'prune', '--production' ] )
+

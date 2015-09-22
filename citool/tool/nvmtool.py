@@ -24,13 +24,15 @@ class nvmTool( SubTool ):
               'source ~/.nvm/nvm.sh && \
                nvm use stable >/dev/null && \
                env | egrep "(NVM_|\.nvm)"' ] )
-        env_to_set = env_to_set.split( "\n" )
-        
-        for e in env_to_set:
-            if not e: break
-            n, v = e.split('=', 1)
-            os.environ[n] = v
+
+        if env_to_set :
+            env_to_set = env_to_set.split( "\n" )
             
-        self._have_tool = True
+            for e in env_to_set:
+                if not e: break
+                n, v = e.split('=', 1)
+                os.environ[n] = v
+                
+            self._have_tool = True
         
         
