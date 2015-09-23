@@ -32,3 +32,15 @@ class citool_UTBase ( unittest.TestCase ) :
         os.chdir( 'prep_dir' )
         self._call_citool( [ 'prepare', 'branch_A' ] )
     
+    def test_ci_build( self ):
+        try:
+            os.makedirs( 'rms_repo/Snapshots')
+        except :
+            pass
+        
+        rms_dir = os.path.realpath( 'rms_repo' )
+
+        self._call_citool( [ 'ci_build', 'branch_A', 'Snapshots',
+                            '--vcsRepo', self.VCS_REPO,
+                            '--rmsRepo', 'scp:' + rms_dir ] )
+        

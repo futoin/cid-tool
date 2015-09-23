@@ -15,11 +15,13 @@ class SubTool:
         self._name = name
         self._have_tool = False
         
-    def _callExternal( self, cmd ) :
+    def _callExternal( self, cmd, suppress_fail=False ) :
         try:
             return subprocess.check_output( cmd )
-        except subprocess.CalledProcessError:
-            return None
+        except subprocess.CalledProcessError as e:
+            if suppress_fail :
+                return None
+            raise e
         
     def _autoDetectVCS( self, config, vcsDir ) :
         if config.get( 'vcs', None ) == self._name :
@@ -60,7 +62,7 @@ class SubTool:
         bin_env = name + 'Bin'
 
         if not env.has_key( bin_env ) :
-            tool_path = self._callExternal( [ 'which', name ] )
+            tool_path = self._callExternal( [ 'which', name ], suppress_fail=True )
             if tool_path :
                 env[ bin_env ] = tool_path.strip()
                 self._have_tool = True
@@ -122,6 +124,9 @@ updates = {
     def vcsPush( self, config, refs ):
         raise NotImplementedError( self._name )
     
+    def vcsGetRevision( self, config ) :
+        raise NotImplementedError( self._name )
+    
     def onPrepare( self, config ):
         pass
     
@@ -130,5 +135,8 @@ updates = {
     
     def onPackage( self, config ):
         pass
+    
+    def rmsPromote( self, config, package, rms_pool ) :
+        raise NotImplementedError( self._name )
 
 

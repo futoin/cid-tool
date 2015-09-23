@@ -52,3 +52,8 @@ class hgTool( SubTool ):
             opts.append( '-b' )
             opts.append( r )
         self._callExternal( [ hgBin, 'push' ] + opts )
+        
+    def vcsGetRevision( self, config ) :
+        hgBin = config['env']['hgBin']
+        return self._callExternal( [ hgBin, 'identify', '--id' ] ).strip()
+        

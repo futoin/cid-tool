@@ -3,7 +3,21 @@ import os
 import subprocess
 import importlib
 import json
+import datetime
 from collections import OrderedDict
+
+def citool_action( f ):
+    def custom_f( self, *args, **kwargs ) :
+        config = self._config
+        if 'actions' in config :
+            for a in config['actions'] :
+                if a == '<default>':
+                    f( self, *args, **kwargs )
+                else :
+                    subprocess.call( ['bash', '-c', a] )
+        else :
+            f( self, *args, **kwargs )
+    return custom_f
 
 class CITool :
     def __init__( self, overrides ) :
@@ -23,7 +37,7 @@ class CITool :
             'grunt' : None,
             'gulp' : None,
             'bower' : None,
-            'sftp' : None,
+            'scp' : None,
             'archiva' : None,
             'artifactory' : None,
             'nexus' : None,
@@ -39,7 +53,8 @@ class CITool :
         for t in tools :
             t = tool_impl[t]
             cb( config, t )
-        
+
+    @citool_action
     def tag( self, branch, next_version=None ):
         config = self._config
         vcstool = config['vcs']
@@ -81,7 +96,8 @@ class CITool :
 
         # Push changes for DVCS
         vcstool.vcsPush( config, [ branch, tag ] )
-    
+
+    @citool_action
     def prepare( self, vcs_ref ):
         config = self._config
 
@@ -102,28 +118,82 @@ class CITool :
         self._forEachTool(
             lambda config, t: t.onPrepare( config )
         )
-   
+
+    @citool_action
     def build( self ):
         self._forEachTool(
             lambda config, t: t.onBuild( config )
         )
-    
+
+    @citool_action
     def package( self ):
         self._forEachTool(
             lambda config, t: t.onPackage( config )
         )
+        
+        #---
+        config = self._config
+        package_content = config.get( 'package', [ '.' ] )
+        package_content.sort()
+        package_content_cmd = subprocess.list2cmdline( package_content )
+        
+        #---
+        checksums_file = '.package.checksums'
+        package_content.append( checksums_file )
+        cmd = 'find {0} -type f | sort | xargs sha512sum >{1}'.format(
+                package_content_cmd, checksums_file )
+        subprocess.call( ['bash', '-c', cmd] )
+        
+        #---
+        buildTimestamp = datetime.datetime.utcnow().strftime( '%Y%m%d%H%M%S' )
+        version = config['version']
+        vcs_ref = config.get( 'vcsRef', None )
+        
+        # Note: unless run in clean ci_build process,
+        # all builds must be treated as snapshots/CI builds
+        if vcs_ref == 'v' + version :
+            package_file = '{0}-{1}-{2}'.format(
+                    config['name'], config['version'], buildTimestamp )
+        else :
+            vcstool = config['vcs']
+            vcstool = self._tool_impl[vcstool]
+            vcs_ref = vcstool.vcsGetRevision( config )
+            package_file = '{0}-CI-{1}-{2}-{3}'.format(
+                    config['name'], config['version'], vcs_ref, buildTimestamp )
+
+        if 'target' in config:
+            package_file += '-{0}'.format( config['target'] )
+            
+        package_file += '.tar.xz'
+        subprocess.call( ['tar', 'cJf', package_file ] + package_content )
+        self._lastPackage = package_file
     
+    @citool_action
     def promote( self, package, rms_pool ):
-        pass
+        config = self._config
+        rmstool = config['rms']
+        rmstool = self._tool_impl[rmstool]
+        rmstool.rmsPromote( config, package, rms_pool )
     
+    @citool_action
     def deploy( self, package, location ):
         pass
     
+    @citool_action
     def run( self, package=None ):
         pass
     
+    @citool_action
     def ci_build( self, vcs_ref, rms_pool ):
-        pass
+        config = self._config
+        if os.path.exists( config['wcDir'] ) :
+            os.rename( config['wcDir'], config['wcDir'] + '.bak' ) 
+        
+        self._lastPackage = None
+        self.prepare( vcs_ref )
+        self.build()
+        self.package()
+        self.promote( self._lastPackage, rms_pool )
     
     def _initConfig( self ):
         self._global_config = gc = self._loadJSON( '/etc/futoin/futoin.json', {'env':{}} )

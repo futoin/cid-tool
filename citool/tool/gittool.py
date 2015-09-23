@@ -45,3 +45,8 @@ class gitTool( SubTool ):
     def vcsPush( self, config, refs ):
         gitBin = config['env']['gitBin']
         self._callExternal( [ gitBin, 'push', '-q', 'origin' ] + refs )
+        
+    def vcsGetRevision( self, config ) :
+        gitBin = config['env']['gitBin']
+        return self._callExternal( [ gitBin, 'rev-parse', 'HEAD' ] ).strip()
+

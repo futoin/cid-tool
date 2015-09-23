@@ -67,5 +67,17 @@ class svnTool( SubTool ):
     
     def vcsPush( self, config, refs ):
         pass
+        
+    def vcsGetRevision( self, config ) :
+        svnBin = config['env']['svnBin']
+        svn_info = self._callExternal( [ svnBin, 'info' ] ).split("\n")
+
+        for si in svn_info:
+            si = si.split( ': ', 1 )
+            if si[0] == 'Revision':
+                return si[1]
+            
+        return 'local'
+
 
 
