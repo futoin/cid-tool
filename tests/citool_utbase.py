@@ -26,8 +26,9 @@ class citool_UTBase ( unittest.TestCase ) :
         p.stdout.read()
         err = p.stderr.read()
 
-        if p.returncode:
-            sys.stderr.write( err )
+        p.wait()
+        if p.returncode != 0:
+            getattr( sys.stderr, 'buffer', sys.stderr ).write( err )
             raise RuntimeError( "Failed" )
         
     def test_tag( self ):
@@ -49,13 +50,18 @@ class citool_UTBase ( unittest.TestCase ) :
     
     def test_ci_build( self ):
         try:
-            os.makedirs( 'rms_repo/Snapshots')
+            os.makedirs( 'rms_repo/Builds')
+            os.makedirs( 'rms_repo/Verified')
         except :
             pass
         
         rms_dir = os.path.realpath( 'rms_repo' )
 
-        self._call_citool( [ 'ci_build', 'branch_A', 'Snapshots',
+        self._call_citool( [ 'ci_build', 'branch_A', 'Builds',
                             '--vcsRepo', self.VCS_REPO,
+                            '--rmsRepo', 'scp:' + rms_dir ] )
+        os.chdir( 'build' )
+        package = subprocess.check_output( 'cd %s && ls Builds/*.tar.* | head -1' % rms_dir, shell=True ).strip()
+        self._call_citool( [ 'promote', package, 'Verified',
                             '--rmsRepo', 'scp:' + rms_dir ] )
         
