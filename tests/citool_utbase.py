@@ -1,7 +1,10 @@
 
+from __future__ import print_function
 import unittest
 import subprocess
 import os
+import sys
+
 
 CITOOL_BIN = os.path.dirname( __file__ ) + '/../bin/citool'
 
@@ -13,7 +16,19 @@ class citool_UTBase ( unittest.TestCase ) :
         self._goToBase()
 
     def _call_citool( self, args ) :
-        subprocess.check_output( [ CITOOL_BIN ] + args )
+        #print( [ CITOOL_BIN ] + args, file=sys.stderr )
+        p = subprocess.Popen(
+                [ CITOOL_BIN ] + args,
+                bufsize=-1,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+        )
+        p.stdout.read()
+        err = p.stderr.read()
+
+        if p.returncode:
+            sys.stderr.write( err )
+            raise RuntimeError( "Failed" )
         
     def test_tag( self ):
         self._call_citool( [ 'tag', 'branch_A', '--vcsRepo', self.VCS_REPO ] )

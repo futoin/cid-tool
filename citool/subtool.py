@@ -1,6 +1,9 @@
 
+from __future__ import print_function
+
 import subprocess
 import os
+import sys
 import json
 from collections import OrderedDict
 
@@ -15,8 +18,10 @@ class SubTool:
         self._name = name
         self._have_tool = False
         
-    def _callExternal( self, cmd, suppress_fail=False ) :
+    def _callExternal( self, cmd, suppress_fail=False, verbose=True ) :
         try:
+            if verbose and not suppress_fail:
+                print( 'Call: ' + subprocess.list2cmdline( cmd ), file=sys.stderr )
             return subprocess.check_output( cmd )
         except subprocess.CalledProcessError as e:
             if suppress_fail :

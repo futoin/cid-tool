@@ -1,10 +1,17 @@
 
+from __future__ import print_function
+
 import os
+import sys
 import subprocess
 import importlib
 import json
 import datetime
 from collections import OrderedDict
+
+def _call_cmd( cmd ):
+    print( 'Call: ' + subprocess.list2cmdline( cmd ), file=sys.stderr )
+    subprocess.call( cmd )    
 
 def citool_action( f ):
     def custom_f( self, *args, **kwargs ) :
@@ -14,7 +21,7 @@ def citool_action( f ):
                 if a == '<default>':
                     f( self, *args, **kwargs )
                 else :
-                    subprocess.call( ['bash', '-c', a] )
+                    _call_cmd( ['bash', '-c', a] )
         else :
             f( self, *args, **kwargs )
     return custom_f
@@ -142,7 +149,7 @@ class CITool :
         package_content.append( checksums_file )
         cmd = 'find {0} -type f | sort | xargs sha512sum >{1}'.format(
                 package_content_cmd, checksums_file )
-        subprocess.call( ['bash', '-c', cmd] )
+        _call_cmd( ['bash', '-c', cmd] )
         
         #---
         buildTimestamp = datetime.datetime.utcnow().strftime( '%Y%m%d%H%M%S' )
@@ -165,7 +172,8 @@ class CITool :
             package_file += '-{0}'.format( config['target'] )
             
         package_file += '.tar.xz'
-        subprocess.call( ['tar', 'cJf', package_file ] + package_content )
+        _call_cmd( ['tar', 'cJf', package_file,
+                    '--exclude=' + package_file, '--exclude-vcs' ] + package_content )
         self._lastPackage = package_file
     
     @citool_action

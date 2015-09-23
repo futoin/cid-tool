@@ -29,7 +29,9 @@ class svnTool( SubTool ):
         branch_path = '%s/branches/%s' % ( config['vcsRepo'], vcs_ref )
         tag_path = '%s/tags/%s' % ( config['vcsRepo'], vcs_ref )
         
-        if self._callExternal( [ 'bash', '-c', '%s ls %s 2>/dev/null' % ( svnBin, branch_path ) ] ) :
+        if self._callExternal( [
+                'bash', '-c', '%s ls %s 2>/dev/null' % ( svnBin, branch_path )
+                ], suppress_fail=True ) :
             svn_repo_path = branch_path
         elif self._callExternal( [ svnBin, 'ls', tag_path ] ) :
             svn_repo_path = tag_path

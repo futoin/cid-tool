@@ -18,7 +18,10 @@ class hgTool( SubTool ):
 
         if os.path.isdir( '.hg' ):
             if 'vcsRepo' in config:
-                remote_info = self._callExternal( [ hgBin, 'paths', vcs_ref ] ) or ''
+                remote_info = self._callExternal(
+                        [ hgBin, 'paths', vcs_ref ],
+                        suppress_fail=True
+                ) or ''
                 if remote_info.find( config['vcsRepo'] ) < 0 :
                     raise RuntimeError( "Hg remote mismatch: " + remote_info )
 
