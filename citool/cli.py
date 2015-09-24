@@ -6,8 +6,8 @@ Usage:
     citool prepare [<vcs_ref>] [--vcsRepo vcs_url] [--wcDir wc_dir]
     citool build
     citool package
-    citool promote <package> <rms_pool> [--rmsRepo rms_url] [--hash type_value]
-    citool deploy <package> <location> [--rmsRepo rms_url] [--hash type_value]
+    citool promote <package> <rms_pool> [--rmsRepo rms_url] [--rmsHash type_value]
+    citool deploy <package> <location> [--rmsRepo rms_url] [--rmsHash type_value]
     citool run [<package>]
     citool ci_build <vcs_ref> <rms_pool> [--vcsRepo vcs_url] [--rmsRepo rms_url]
 
@@ -15,7 +15,7 @@ Options:
     --vcsRepo vcs_type:vcs_url
     --rmsRepo rms_type:rms_url
     --wcDir wc_dir
-    --hash has_type:value
+    --rmsHash hash_type:value
 """
 
 from citool import CITool
@@ -41,6 +41,7 @@ def run():
         if rmsArg:
             (overrides['rms'],
              overrides['rmsRepo']) = rmsArg.split(':', 1)
+        overrides['rmsHash'] = args['--rmsHash']
         #---
         overrides['wcDir'] = args['--wcDir'] or 'build'
         

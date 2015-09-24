@@ -5,6 +5,7 @@ import subprocess
 import os
 import sys
 import json
+import hashlib
 from collections import OrderedDict
 
 class SubTool:
@@ -18,15 +19,45 @@ class SubTool:
         self._name = name
         self._have_tool = False
         
-    def _callExternal( self, cmd, suppress_fail=False, verbose=True ) :
+    @classmethod
+    def _callExternal( cls, cmd, suppress_fail=False, verbose=True ) :
         try:
             if verbose and not suppress_fail:
                 print( 'Call: ' + subprocess.list2cmdline( cmd ), file=sys.stderr )
-            return subprocess.check_output( cmd )
+            return subprocess.check_output( cmd, stdin=subprocess.PIPE )
         except subprocess.CalledProcessError as e:
             if suppress_fail :
                 return None
             raise e
+    
+    @classmethod
+    def rmsCalcHash( cls, file_name, hash_type ) :
+        hf = hashlib.new( hash_type )
+        with open( file_name, 'rb' ) as f:
+            for chunk in iter(lambda: f.read(4096), ''):
+                if not chunk: break
+                hf.update( chunk )
+        return "{0}:{1}".format( hash_type, hf.hexdigest() )
+    
+    @classmethod
+    def rmsVerifyHash( cls, config, file_name ) :
+        if config.get('rmsHash', None) is not None:
+            ( hash_type, hash_value ) = config['rmsHash'].split(':',1)
+            file_hash = cls.rmsCalcHash( file_name, hash_type )
+            
+            if file_hash != config['rmsHash'] :
+                raise RuntimeError(
+                        "RMS hash mismatch {0} != {1}".format(
+                            file_hash, hash_value ) )
+        else :
+            file_hash = cls.rmsCalcHash( file_name, 'sha256' )
+            
+            print( "File: " + file_name )
+            print( "Hash: " + file_hash )
+            yn = raw_input( "Is it correct? (Y/N) " )
+            
+            if yn not in ( 'Y', 'y' ):
+                raise RuntimeError( 'User abort on RMS hash validation' )
         
     def _autoDetectVCS( self, config, vcsDir ) :
         if config.get( 'vcs', None ) == self._name :

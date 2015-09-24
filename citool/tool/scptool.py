@@ -13,10 +13,15 @@ class scpTool( SubTool ):
             dst = '{0}/{1}/{2}'.format(
                     config['rmsRepo'],
                     rms_pool, package )
-            self._callExternal( [ scpBin, package, dst ] )
+            self._callExternal( [ scpBin, '-Bq', package, dst ] )
         else :
+            package_basename = os.path.basename( package )
             src = '{0}/{1}'.format( config['rmsRepo'], package )
-            dst = '{0}/{1}/{2}'.format(
-                    config['rmsRepo'],
-                    rms_pool, os.path.basename( package ) )
-            self._callExternal( [ scpBin, src, dst ] )
+            dst = '{0}/{1}/{2}'.format( config['rmsRepo'], rms_pool, package_basename )
+
+            self._callExternal( [ scpBin, '-Bq', src, package_basename ] )
+            self.rmsVerifyHash( config, package_basename )
+
+            # Note: promotion must no re-upload an artifact to avoid
+            # risk of modifications
+            self._callExternal( [ scpBin, '-Bq', src, dst ] )

@@ -11,7 +11,7 @@ from collections import OrderedDict
 
 def _call_cmd( cmd ):
     print( 'Call: ' + subprocess.list2cmdline( cmd ), file=sys.stderr )
-    subprocess.call( cmd )    
+    subprocess.call( cmd, stdin=subprocess.PIPE )    
 
 def citool_action( f ):
     def custom_f( self, *args, **kwargs ) :
@@ -182,14 +182,24 @@ class CITool :
         rmstool = config['rms']
         rmstool = self._tool_impl[rmstool]
         rmstool.rmsPromote( config, package, rms_pool )
+        
+    @citool_action
+    def migrate( self, package, location ):
+        pass
     
     @citool_action
     def deploy( self, package, location ):
         pass
     
     @citool_action
-    def run( self, package=None ):
+    def runDev( self, package=None ):
         pass
+    
+    @citool_action
+    def run( self, package=None ):
+        if config.get('vcs', None) :
+            self.runDev()
+            return
     
     @citool_action
     def ci_build( self, vcs_ref, rms_pool ):
