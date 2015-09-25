@@ -25,3 +25,10 @@ class scpTool( SubTool ):
             # Note: promotion must no re-upload an artifact to avoid
             # risk of modifications
             self._callExternal( [ scpBin, '-Bq', src, dst ] )
+
+    def rmsGetLatest( self, config, rms_pool ) :
+        raise NotImplementedError( self._name )
+    
+    def rmsRetrieve( self, config, package, rms_pool ) :
+        raise NotImplementedError( self._name )
+    

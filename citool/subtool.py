@@ -31,6 +31,25 @@ class SubTool:
             raise e
     
     @classmethod
+    def _which( cls, program ):
+        "Copied from stackoverflow"
+        def is_exe(fpath):
+            return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+        fpath, fname = os.path.split(program)
+        if fpath:
+            if is_exe(program):
+                return program
+        else:
+            for path in os.environ["PATH"].split(os.pathsep):
+                path = path.strip('"')
+                exe_file = os.path.join(path, program)
+                if is_exe(exe_file):
+                    return exe_file
+
+        return None
+
+    @classmethod
     def rmsCalcHash( cls, file_name, hash_type ) :
         hf = hashlib.new( hash_type )
         with open( file_name, 'rb' ) as f:
@@ -98,7 +117,7 @@ class SubTool:
         bin_env = name + 'Bin'
 
         if not env.has_key( bin_env ) :
-            tool_path = self._callExternal( [ 'which', name ], suppress_fail=True )
+            tool_path = self._which( name )
             if tool_path :
                 env[ bin_env ] = tool_path.strip()
                 self._have_tool = True
@@ -173,6 +192,12 @@ updates = {
         pass
     
     def rmsPromote( self, config, package, rms_pool ) :
+        raise NotImplementedError( self._name )
+
+    def rmsGetLatest( self, config, rms_pool ) :
+        raise NotImplementedError( self._name )
+    
+    def rmsRetrieve( self, config, package, rms_pool ) :
         raise NotImplementedError( self._name )
 
 
