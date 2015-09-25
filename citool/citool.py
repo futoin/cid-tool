@@ -153,6 +153,7 @@ class CITool :
         
         #---
         buildTimestamp = datetime.datetime.utcnow().strftime( '%Y%m%d%H%M%S' )
+        name = config['name'].replace( '/', '_' )
         version = config['version']
         vcs_ref = config.get( 'vcsRef', None )
         
@@ -160,13 +161,13 @@ class CITool :
         # all builds must be treated as snapshots/CI builds
         if vcs_ref == 'v' + version :
             package_file = '{0}-{1}-{2}'.format(
-                    config['name'], config['version'], buildTimestamp )
+                    name, version, buildTimestamp )
         else :
             vcstool = config['vcs']
             vcstool = self._tool_impl[vcstool]
             vcs_ref = vcstool.vcsGetRevision( config )
             package_file = '{0}-CI-{1}-{2}-{3}'.format(
-                    config['name'], config['version'], vcs_ref, buildTimestamp )
+                    name, version, vcs_ref, buildTimestamp )
 
         if 'target' in config:
             package_file += '-{0}'.format( config['target'] )
@@ -193,10 +194,11 @@ class CITool :
     
     @citool_action
     def runDev( self, package=None ):
-        pass
+        raise NotImplementedError( "Development run has not been implemented yet" )
     
     @citool_action
     def run( self, package=None ):
+        config = self._config
         if config.get('vcs', None) :
             self.runDev()
             return

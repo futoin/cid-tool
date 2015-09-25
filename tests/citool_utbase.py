@@ -70,7 +70,11 @@ class citool_UTBase ( unittest.TestCase ) :
         self._goToBase()
         os.chdir( 'build' )
         package = subprocess.check_output( 'cd %s && ls Builds/*.tar.* | head -1' % rms_dir, shell=True )
-        package = str(package, 'utf8').strip()
+        try:
+            package = str(package, 'utf8').strip()
+        except TypeError:
+            package = str(package).strip()
+            
         package_base = os.path.basename( package )
         pkg_hash = SubTool.rmsCalcHash( package_base, 'sha512' )
         os.unlink( package_base )
