@@ -208,7 +208,9 @@ class CITool :
         
     @citool_action
     def migrate( self, package, location ):
-        pass
+        self._forEachTool(
+            lambda config, t: t.onMigrate( config )
+        )
     
     @citool_action
     def deploy( self, package, location ):
@@ -239,12 +241,22 @@ class CITool :
     
     def _initConfig( self ):
         self._global_config = gc = self._loadJSON( '/etc/futoin/futoin.json', {'env':{}} )
-        self._user_config = uc = self._loadJSON( os.environ.get('HOME','/') + 'futoin.json', {'env':{}} )
+        self._user_config = uc = self._loadJSON( os.path.join( os.environ.get('HOME','/'), 'futoin.json' ), {'env':{}} )
         self._project_config = pc = self._loadJSON( 'futoin.json', {} )
+
+        deploy_dir = self._overrides.get( 'deployDir', None )
+        dc = {'env':{}}
+        if deploy_dir :
+            dc = self._loadJSON( os.path.join( deploy_dir, 'futoin.json' ), dc )
+        self._deploy_config = dc
+        
         merged = OrderedDict( pc )
         
         if pc.has_key( 'env' ):
             raise RuntimeError( '.env node is set in project config' )
+
+        if not dc.has_key( 'env' ) or len( dc ) != 1:
+            raise RuntimeError( 'Deploy config must have only .env node' )
         
         if not uc.has_key( 'env' ) or len( uc ) != 1:
             raise RuntimeError( 'User config must have only .env node' )
@@ -252,8 +264,10 @@ class CITool :
         if not gc.has_key( 'env' ) or len( gc ) != 1:
             raise RuntimeError( 'Glboal config must have only .env node' )
         
-        env = OrderedDict( uc['env'] )
+        env = OrderedDict( dc['env'] )
         
+        for ( k, v ) in uc.items():
+            env.setdefault( k, v )
         for ( k, v ) in gc.items():
             env.setdefault( k, v )
         

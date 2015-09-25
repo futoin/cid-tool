@@ -190,6 +190,9 @@ updates = {
     
     def onPackage( self, config ):
         pass
+
+    def onMigrate( self, config ):
+        pass
     
     def rmsPromote( self, config, package, rms_pool ) :
         raise NotImplementedError( self._name )
