@@ -1,23 +1,31 @@
 
-from citool.subtool import SubTool
 import os
+import re
+
+from citool.subtool import SubTool
 
 class scpTool( SubTool ):
+    REMOTE_PATTERN = '^([a-zA-Z][a-zA-Z0-9_]+@[a-zA-Z][a-zA-Z0-9_]+)(:(.+))?$'
+    REMOTE_GRP_USER_HOST = 1
+    REMOTE_GRP_PATH = 3
+    
     def getType( self ):
         return self.TYPE_RMS
 
+    def getDeps( self ) :
+        return [ 'ssh' ]
+
     def rmsPromote( self, config, package, rms_pool ) :
         scpBin = config['env']['scpBin']
+        rms_repo = config['rmsRepo']
         
         if os.path.exists( package ) :
-            dst = '{0}/{1}/{2}'.format(
-                    config['rmsRepo'],
-                    rms_pool, package )
+            dst = os.path.join( rms_repo, rms_pool, package )
             self._callExternal( [ scpBin, '-Bq', package, dst ] )
         else :
             package_basename = os.path.basename( package )
-            src = '{0}/{1}'.format( config['rmsRepo'], package )
-            dst = '{0}/{1}/{2}'.format( config['rmsRepo'], rms_pool, package_basename )
+            src = os.path.join( rms_repo, package )
+            dst = os.path.join( rms_repo, rms_pool, package_basename )
 
             self._callExternal( [ scpBin, '-Bq', src, package_basename ] )
             self.rmsVerifyHash( config, package_basename )
@@ -27,8 +35,23 @@ class scpTool( SubTool ):
             self._callExternal( [ scpBin, '-Bq', src, dst ] )
 
     def rmsGetLatest( self, config, rms_pool ) :
-        raise NotImplementedError( self._name )
+        sshBin = config['env']['sshBin']
+        rms_repo = config['rmsRepo']
+        result = re.match( self.REMOTE_PATTERN, rms_repo )
+        
+        if result:
+            user_host = result.group( self.REMOTE_GRP_USER_HOST )
+            path = os.path.join( result.group( self.REMOTE_GRP_PATH ), rms_pool )
+            cmd = 'ls {0} | sort -Vr | head -n1'.format( path )
+            return self._callExternal( [ sshBin, '-t', user_host, '--', cmd ] )
+        else:
+            path = os.path.join( rms_repo, rms_pool )  
+            cmd = 'ls {0} | sort -Vr | head -n1'.format( path )
+            return self._callExternal( [ 'sh', '-c', cmd ] )
     
     def rmsRetrieve( self, config, package, rms_pool ) :
-        raise NotImplementedError( self._name )
+        scpBin = config['env']['scpBin']
+        package_basename = os.path.basename( package )
+        src = os.path.join( config['rmsRepo'], rms_pool, package_basename )
+        self._callExternal( [ scpBin, '-Bq', src, package_basename ] )
     

@@ -7,6 +7,9 @@ import subprocess
 import importlib
 import json
 import datetime
+import re
+import gzip
+import shutil
 from collections import OrderedDict
 
 def _call_cmd( cmd ):
@@ -27,6 +30,13 @@ def citool_action( f ):
     return custom_f
 
 class CITool :
+    TO_GZIP = '\.(js|json|css|svg|txt)$'
+
+    DEPLOY_PATTERN = '^(([a-zA-Z][a-zA-Z0-9_]+:)([a-zA-Z][a-zA-Z0-9_]+@[a-zA-Z][a-zA-Z0-9_]+))(:(.+))?$'
+    DEPLOY_GRP_DEPLOY_USER = 2
+    DEPLOY_GRP_RUNUSER_HOST = 3
+    DEPLOY_GRP_PATH = 5
+
     def __init__( self, overrides ) :
         self._tool_impl = {
             'futoin' : None,
@@ -44,6 +54,7 @@ class CITool :
             'grunt' : None,
             'gulp' : None,
             'bower' : None,
+            'ssh' : None,
             'scp' : None,
             'archiva' : None,
             'artifactory' : None,
@@ -143,6 +154,17 @@ class CITool :
         package_content = config.get( 'package', [ '.' ] )
         package_content.sort()
         package_content_cmd = subprocess.list2cmdline( package_content )
+        
+        # Note: It is assumed that web root is in the package content
+        #---
+        walk_list = os.walk( config.get( 'webcfg', {}).get( 'root', '.' ) )
+        to_gzip_re = re.compile( self.TO_GZIP, re.I )
+        for ( path, dirs, files ) in walk_list :
+            for f in files :
+                if to_gzip_re.search( f ):
+                    f = os.path.join( path, f )
+                    with open(f, 'rb') as f_in, gzip.open(f + '.gz', 'wb', 9) as f_out:
+                        shutil.copyfileobj(f_in, f_out)
         
         #---
         checksums_file = '.package.checksums'
