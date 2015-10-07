@@ -88,3 +88,35 @@ class citool_UTBase ( unittest.TestCase ) :
                             '--rmsRepo', 'scp:' + rms_dir,
                             '--rmsHash', pkg_hash ] )
         
+        self._goToBase()
+        content = subprocess.check_output( 'tar tJf rms_repo/Prod/wc-CI-1.2.3-*.tar.xz | /usr/bin/sort -f', shell=True )
+        try:
+            content = str(content, 'utf8')
+        except TypeError:
+            content = str(content)
+        req_content="""./
+./.package.checksums
+./bower.json
+./bower.json.gz
+./BRANCH_A
+./composer.json
+./composer.json.gz
+./Gruntfile.js
+./Gruntfile.js.gz
+./package.json
+./package.json.gz
+./vendor/
+./vendor/autoload.php
+./vendor/composer/
+./vendor/composer/autoload_classmap.php
+./vendor/composer/autoload_namespaces.php
+./vendor/composer/autoload_psr4.php
+./vendor/composer/autoload_real.php
+./vendor/composer/ClassLoader.php
+./vendor/composer/installed.json
+./vendor/composer/installed.json.gz
+./vendor/composer/LICENSE
+"""
+        self.maxDiff = 1024
+        self.assertEqual( content, req_content )
+        

@@ -168,7 +168,10 @@ class CITool :
         
         #---
         checksums_file = '.package.checksums'
-        package_content.append( checksums_file )
+        try:
+            package_content.index( '.' )
+        except ValueError:
+            package_content.append( checksums_file )
         cmd = 'find {0} -type f | sort | xargs sha512sum >{1}'.format(
                 package_content_cmd, checksums_file )
         _call_cmd( ['bash', '-c', cmd] )
