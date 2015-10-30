@@ -7,8 +7,8 @@ Usage:
     citool build
     citool package
     citool promote <package> <rms_pool> [--rmsRepo rms_url] [--rmsHash type_value]
-    citool deploy <package> <location> [--rmsRepo rms_url] [--rmsHash type_value]
-    citool run [<package>]
+    citool deploy <rms_pool> [<package>] [--rmsRepo rms_url] [--rmsHash type_value] [--redeploy] [--deployDir deploy_dir]
+    citool run [<command>]
     citool ci_build <vcs_ref> <rms_pool> [--vcsRepo vcs_url] [--rmsRepo rms_url]
 
 Options:
@@ -44,6 +44,8 @@ def run():
         overrides['rmsHash'] = args['--rmsHash']
         #---
         overrides['wcDir'] = args['--wcDir'] or 'build'
+        overrides['deployDir'] = args['--deployDir'] or None
+        overrides['reDeploy'] = args['--redeploy'] and True or False
         
         #---
         overrides['vcsRef'] = args['<vcs_ref>']
@@ -62,9 +64,9 @@ def run():
         elif args['promote'] :
             cit.promote( args['<package>'], args['<rms_pool>'] )
         elif args['deploy'] :
-            cit.deploy( args['<package>'], args['<location>'] )
+            cit.deploy( args['<rms_pool>'], args['<package>'] )
         elif args['run'] :
-            cit.run( args['<package>'] )
+            cit.run( args['<command>'] or 'start' )
         elif args['ci_build'] :
             cit.ci_build( args['<vcs_ref>'], args['<rms_pool>'] )
         else:

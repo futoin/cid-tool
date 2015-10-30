@@ -53,7 +53,7 @@ class citool_UTBase ( unittest.TestCase ) :
         os.chdir( 'prep_dir' )
         self._call_citool( [ 'prepare', 'branch_A' ] )
     
-    def test_ci_build( self ):
+    def test_ci_build_deploy( self ):
         try:
             os.makedirs( 'rms_repo/Builds')
             os.makedirs( 'rms_repo/Verified')
@@ -69,7 +69,7 @@ class citool_UTBase ( unittest.TestCase ) :
         
         self._goToBase()
         os.chdir( 'build' )
-        package = subprocess.check_output( 'cd %s && ls Builds/*.tar.* | head -1' % rms_dir, shell=True )
+        package = subprocess.check_output( 'cd %s && ls Builds/*.txz | head -1' % rms_dir, shell=True )
         try:
             package = str(package, 'utf8').strip()
         except TypeError:
@@ -89,7 +89,7 @@ class citool_UTBase ( unittest.TestCase ) :
                             '--rmsHash', pkg_hash ] )
         
         self._goToBase()
-        content = subprocess.check_output( 'tar tJf rms_repo/Prod/wc-CI-1.2.3-*.tar.xz | /usr/bin/sort -f', shell=True )
+        content = subprocess.check_output( 'tar tJf rms_repo/Prod/wc-CI-1.2.3-*.txz | /usr/bin/sort -f', shell=True )
         try:
             content = str(content, 'utf8')
         except TypeError:
@@ -119,4 +119,11 @@ class citool_UTBase ( unittest.TestCase ) :
 """
         self.maxDiff = 1024
         self.assertEqual( content, req_content )
+        
+        #------------
+        self._goToBase()
+        os.makedirs( 'test_deploy' )
+        os.chdir( 'test_deploy' )
+        self._call_citool( [ 'deploy', 'Prod',
+                            '--rmsRepo', 'scp:' + rms_dir ] )
         

@@ -10,6 +10,7 @@ import datetime
 import re
 import gzip
 import shutil
+import stat
 from collections import OrderedDict
 
 def _call_cmd( cmd ):
@@ -197,7 +198,7 @@ class CITool :
         if 'target' in config:
             package_file += '-{0}'.format( config['target'] )
             
-        package_file += '.tar.xz'
+        package_file += '.txz'
         _call_cmd( ['tar', 'cJf', package_file,
                     '--exclude=' + package_file, '--exclude-vcs' ] + package_content )
         self._lastPackage = package_file
@@ -210,21 +211,113 @@ class CITool :
         rmstool.rmsPromote( config, package, rms_pool )
         
     @citool_action
-    def migrate( self, package, location ):
+    def migrate( self, location ):
         self._forEachTool(
-            lambda config, t: t.onMigrate( config )
+            lambda config, t: t.onMigrate( config, location )
         )
     
     @citool_action
-    def deploy( self, package, location ):
+    def deploy( self, rms_pool, package=None ):
+        config = self._config
+        rmstool = config['rms']
+        rmstool = self._tool_impl[rmstool]
+        
+        # Get to deploy folder
+        deploy_dir = config['deployDir']
+        if deploy_dir:
+            os.chdir( deploy_dir )
+
+        # cleanup first, in case of incomplete actions
+        self._deployCleanup()
+
+        # Find out package to deploy
+        if not package:
+            package = rmstool.rmsGetLatest( config, rms_pool )
+            
+        # Prepare package name components
+        package_basename = os.path.basename( package )
+        ( package_noext, package_ext ) = os.path.splitext( package_basename )
+        
+        # Check if already deployed:
+        if os.path.exists( package_noext ) and not config['reDeploy']:
+            return
+        
+        # Retrieve package, if not available
+        if not os.path.exists( package_basename ) :
+            rmstool.rmsRetrieve( config, rms_pool, package )
+            
+        package_noext_tmp = package_noext + '.tmp'
+        
+        # Prepare temporary folder
+        if os.path.exists( package_noext_tmp ) :
+            shutil.rmtree( package_noext_tmp )
+        os.mkdir( package_noext_tmp )
+        
+        # Unpack package to temporary folder
+        if package_ext == '.txz':
+            _call_cmd( ['tar', 'xJf', package_basename, '-C', package_noext_tmp ] )
+        elif package_ext == '.tbz2':
+            _call_cmd( ['tar', 'xjf', package_basename, '-C', package_noext_tmp ] )
+        elif package_ext == '.tgz':
+            _call_cmd( ['tar', 'xzf', package_basename, '-C', package_noext_tmp ] )
+        elif package_ext == '.tar':
+            _call_cmd( ['tar', 'xf', package_basename, '-C', package_noext_tmp ] )
+        else:
+            raise RuntimeError( 'Not supported package format: ' + package_ext )
+        
+        # Setup read-only permissions
+        dir_perm = stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP
+        file_perm = stat.S_IRUSR | stat.S_IRGRP
+        walk_list = os.walk( package_noext_tmp )
+        os.chmod( package_noext_tmp, dir_perm )
+        
+        for ( path, dirs, files ) in walk_list :
+            for d in dirs :
+                os.chmod( os.path.join( path, d ), dir_perm )
+            for f in files :
+                os.chmod( os.path.join( path, f ), file_perm )
+
+        # Setup writable permission
+        persistent_dir = os.path.abspath( 'persistent' )
+        dir_wperm = dir_perm | stat.S_IWUSR | stat.S_IWGRP
+        
+        for d in config.get('writable', []) :
+            pd = os.path.join( persistent_dir, d )
+            if not os.path.isdir( pd ) :
+                os.makedirs( pd, dir_wperm )
+                
+            os.symlink( pd, os.path.join( package_noext_tmp, d ) )
+            
+        # Complete migrate
+        self.migrate( package_noext_tmp )
+        
+        # Setup per-user services
+        self._deployServices( package_noext_tmp )
+        
+        # Move in place
+        if os.path.exists( package_noext ):
+            # re-deploy case
+            os.rename( package_noext, package_noext + '.tmprm' )
+        os.rename( package_noext_tmp, package_noext )
+        
+        # Re-run
+        self.run( 'reload' )
+        
+        # Cleanup old packages and deploy dirs
+        self._deployCleanup()
+        
+    def _deployCleanup( self ):
+        pass
+            
+    def _deployServices( self, subdir ):
         pass
     
     @citool_action
-    def runDev( self, package=None ):
+    def runDev( self, command ):
         raise NotImplementedError( "Development run has not been implemented yet" )
     
     @citool_action
-    def run( self, package=None ):
+    def run( self, command ):
         config = self._config
         if config.get('vcs', None) :
             self.runDev()

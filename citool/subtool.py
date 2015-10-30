@@ -191,16 +191,16 @@ updates = {
     def onPackage( self, config ):
         pass
 
-    def onMigrate( self, config ):
+    def onMigrate( self, config, location ):
         pass
     
-    def rmsPromote( self, config, package, rms_pool ) :
+    def rmsPromote( self, config, package, rms_pool ):
         raise NotImplementedError( self._name )
 
-    def rmsGetLatest( self, config, rms_pool ) :
+    def rmsGetLatest( self, config, rms_pool ):
         raise NotImplementedError( self._name )
     
-    def rmsRetrieve( self, config, package, rms_pool ) :
+    def rmsRetrieve( self, config, rms_pool, package ):
         raise NotImplementedError( self._name )
 
 

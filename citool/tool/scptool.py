@@ -38,18 +38,26 @@ class scpTool( SubTool ):
         sshBin = config['env']['sshBin']
         rms_repo = config['rmsRepo']
         result = re.match( self.REMOTE_PATTERN, rms_repo )
+        cmd = 'cd {0} && ls | sort -Vr | head -n1'
         
         if result:
             user_host = result.group( self.REMOTE_GRP_USER_HOST )
             path = os.path.join( result.group( self.REMOTE_GRP_PATH ), rms_pool )
-            cmd = 'ls {0} | sort -Vr | head -n1'.format( path )
-            return self._callExternal( [ sshBin, '-t', user_host, '--', cmd ] )
+            cmd = cmd.format( path )
+            ret = self._callExternal( [ sshBin, '-t', user_host, '--', cmd ] )
         else:
             path = os.path.join( rms_repo, rms_pool )  
-            cmd = 'ls {0} | sort -Vr | head -n1'.format( path )
-            return self._callExternal( [ 'sh', '-c', cmd ] )
+            cmd = cmd.format( path )
+            ret = self._callExternal( [ 'sh', '-c', cmd ] )
+
+        try:
+            ret = str(ret, 'utf8').strip()
+        except TypeError:
+            ret = str(ret).strip()
     
-    def rmsRetrieve( self, config, package, rms_pool ) :
+        return ret
+    
+    def rmsRetrieve( self, config, rms_pool, package ):
         scpBin = config['env']['scpBin']
         package_basename = os.path.basename( package )
         src = os.path.join( config['rmsRepo'], rms_pool, package_basename )
