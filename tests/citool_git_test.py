@@ -11,5 +11,5 @@ class Test_CITool_Git ( citool_UTBase ) :
     @classmethod
     def setUpClass( cls ):
         os.chdir( os.path.dirname( __file__ ) + '/..' )
-        subprocess.check_output( "rm ../test_git -rf && tar xf tests/test_git.tar -C ..", shell=True )
+        subprocess.check_output( "chmod -R ug+w ../test_git; rm ../test_git -rf && tar xf tests/test_git.tar -C ..", shell=True )
     

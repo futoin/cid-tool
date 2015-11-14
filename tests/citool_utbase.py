@@ -95,7 +95,6 @@ class citool_UTBase ( unittest.TestCase ) :
         except TypeError:
             content = str(content)
         req_content="""./
-./.package.checksums
 ./bower.json
 ./bower.json.gz
 ./BRANCH_A
@@ -103,6 +102,8 @@ class citool_UTBase ( unittest.TestCase ) :
 ./composer.json.gz
 ./Gruntfile.js
 ./Gruntfile.js.gz
+./node_modules/
+./.package.checksums
 ./package.json
 ./package.json.gz
 ./vendor/
@@ -113,9 +114,6 @@ class citool_UTBase ( unittest.TestCase ) :
 ./vendor/composer/autoload_psr4.php
 ./vendor/composer/autoload_real.php
 ./vendor/composer/ClassLoader.php
-./vendor/composer/installed.json
-./vendor/composer/installed.json.gz
-./vendor/composer/LICENSE
 """
         self.maxDiff = 1024
         self.assertEqual( content, req_content )

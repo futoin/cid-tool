@@ -19,11 +19,14 @@ class nvmTool( SubTool ):
               'source ~/.nvm/nvm.sh && nvm install stable' ] )
             
     def initEnv( self, env ) :
-        env_to_set = self._callExternal(
-            [ 'bash', '-c',
-              'source ~/.nvm/nvm.sh && \
-               nvm use stable >/dev/null && \
-               env | egrep "(NVM_|\.nvm)"' ] )
+        try:
+            env_to_set = self._callExternal(
+                [ 'bash', '-c',
+                'source ~/.nvm/nvm.sh && \
+                nvm use stable >/dev/null && \
+                env | egrep "(NVM_|\.nvm)"' ] )
+        except:
+            return
 
         if env_to_set :
             env_to_set = env_to_set.split( "\n" )
