@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """FutoIn Continuous Integration Tool.
 
 Usage:
