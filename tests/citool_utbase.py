@@ -94,28 +94,35 @@ class citool_UTBase ( unittest.TestCase ) :
             content = str(content, 'utf8')
         except TypeError:
             content = str(content)
-        req_content="""./
-./bower.json
-./bower.json.gz
-./BRANCH_A
-./composer.json
-./composer.json.gz
-./Gruntfile.js
-./Gruntfile.js.gz
-./node_modules/
-./.package.checksums
-./package.json
-./package.json.gz
-./vendor/
-./vendor/autoload.php
-./vendor/composer/
-./vendor/composer/autoload_classmap.php
-./vendor/composer/autoload_namespaces.php
-./vendor/composer/autoload_psr4.php
-./vendor/composer/autoload_real.php
-./vendor/composer/ClassLoader.php
-"""
+        req_content=[
+            '',
+            './',
+            './bower.json',
+            './bower.json.gz',
+            './BRANCH_A',
+            './composer.json',
+            './composer.json.gz',
+            './Gruntfile.js',
+            './Gruntfile.js.gz',
+            './node_modules/',
+            './.package.checksums',
+            './package.json',
+            './package.json.gz',
+            './vendor/',
+            './vendor/autoload.php',
+            './vendor/composer/',
+            './vendor/composer/autoload_classmap.php',
+            './vendor/composer/autoload_namespaces.php',
+            './vendor/composer/autoload_psr4.php',
+            './vendor/composer/autoload_real.php',
+            './vendor/composer/ClassLoader.php',
+            './vendor/composer/LICENSE',
+            './vendor/composer/installed.json',
+            './vendor/composer/installed.json.gz',
+        ]
         self.maxDiff = 1024
+        content = sorted(content.split("\n"))
+        req_content = sorted(req_content)
         self.assertEqual( content, req_content )
         
         #------------
