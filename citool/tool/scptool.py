@@ -18,14 +18,14 @@ class scpTool( SubTool ):
     def rmsPromote( self, config, package, rms_pool ) :
         scpBin = config['env']['scpBin']
         rms_repo = config['rmsRepo']
+
+        package_basename = os.path.basename( package )
+        dst = os.path.join( rms_repo, rms_pool, package_basename )
         
         if os.path.exists( package ) :
-            dst = os.path.join( rms_repo, rms_pool, package )
             self._callExternal( [ scpBin, '-Bq', package, dst ] )
         else :
-            package_basename = os.path.basename( package )
             src = os.path.join( rms_repo, package )
-            dst = os.path.join( rms_repo, rms_pool, package_basename )
 
             self._callExternal( [ scpBin, '-Bq', src, package_basename ] )
             self.rmsVerifyHash( config, package_basename )
