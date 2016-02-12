@@ -25,7 +25,7 @@ def citool_action( f ):
                 if a == '<default>':
                     f( self, *args, **kwargs )
                 else :
-                    _call_cmd( ['bash', '-c', a] )
+                    _call_cmd( ['sh', '-c', a] )
         else :
             f( self, *args, **kwargs )
     return custom_f
@@ -55,6 +55,7 @@ class CITool :
             'grunt' : None,
             'gulp' : None,
             'bower' : None,
+            'puppet' : None,
             'ssh' : None,
             'scp' : None,
             'archiva' : None,
@@ -152,7 +153,16 @@ class CITool :
         
         #---
         config = self._config
+        package_file = config.get( 'package_file', None )
+
+        if package_file:
+            self._lastPackage = package_file
+            return
+
+        #---
         package_content = config.get( 'package', [ '.' ] )
+        if type(package_content) != type([]):
+            package_content = [ package_content ] 
         package_content.sort()
         package_content_cmd = subprocess.list2cmdline( package_content )
         
@@ -175,7 +185,7 @@ class CITool :
             package_content.append( checksums_file )
         cmd = 'find {0} -type f | sort | xargs sha512sum >{1}'.format(
                 package_content_cmd, checksums_file )
-        _call_cmd( ['bash', '-c', cmd] )
+        _call_cmd( ['sh', '-c', cmd] )
         
         #---
         buildTimestamp = datetime.datetime.utcnow().strftime( '%Y%m%d%H%M%S' )

@@ -24,7 +24,9 @@ class nvmTool( SubTool ):
                 [ 'bash', '-c',
                 'source ~/.nvm/nvm.sh && \
                 nvm use stable >/dev/null && \
-                env | egrep "(NVM_|\.nvm)"' ] )
+                env | egrep "(NVM_|\.nvm)"' ],
+                verbose = False
+            )
         except:
             return
 
