@@ -358,16 +358,16 @@ class CITool :
         
         merged = OrderedDict( pc )
         
-        if pc.has_key( 'env' ):
+        if 'env' in pc:
             raise RuntimeError( '.env node is set in project config' )
 
-        if not dc.has_key( 'env' ) or len( dc ) != 1:
+        if 'env' not in dc or len( dc ) != 1:
             raise RuntimeError( 'Deploy config must have only .env node' )
         
-        if not uc.has_key( 'env' ) or len( uc ) != 1:
+        if 'env' not in uc or len( uc ) != 1:
             raise RuntimeError( 'User config must have only .env node' )
         
-        if not gc.has_key( 'env' ) or len( gc ) != 1:
+        if 'env' not in gc or len( gc ) != 1:
             raise RuntimeError( 'Glboal config must have only .env node' )
         
         env = OrderedDict( dc['env'] )
@@ -407,7 +407,7 @@ class CITool :
                 m = importlib.import_module( pkg )
                 tool_impl[ k ] = getattr( m, k + 'Tool' )( k )
         
-        if env.has_key( 'plugins' ) :
+        if 'plugins' in env :
             for ( k, v ) in env['plugins'] :
                 m = importlib.import_module( v )
                 tool_impl[ k ] = getattr( m, k + 'Tool' )( k )

@@ -24,7 +24,14 @@ class SubTool:
         try:
             if verbose and not suppress_fail:
                 print( 'Call: ' + subprocess.list2cmdline( cmd ), file=sys.stderr )
-            return subprocess.check_output( cmd, stdin=subprocess.PIPE )
+            res = subprocess.check_output( cmd, stdin=subprocess.PIPE )
+            
+            try:
+                res = str(res, 'utf8')
+            except:
+                pass
+            
+            return res
         except subprocess.CalledProcessError as e:
             if suppress_fail :
                 return None
@@ -116,7 +123,7 @@ class SubTool:
         name = self._name
         bin_env = name + 'Bin'
 
-        if not env.has_key( bin_env ) :
+        if bin_env not in env :
             tool_path = self._which( name )
             if tool_path :
                 env[ bin_env ] = tool_path.strip()

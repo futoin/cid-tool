@@ -18,7 +18,11 @@ Options:
     --rmsHash hash_type:value
 """
 
-from citool import CITool
+try:
+    from citool import CITool
+except ImportError:
+    from citool.citool import CITool
+    
 from docopt import docopt
 import sys
 
@@ -70,5 +74,5 @@ def run():
         elif args['ci_build'] :
             cit.ci_build( args['<vcs_ref>'], args['<rms_pool>'] )
         else:
-            print "Unknown Command"
+            print( "Unknown Command" )
             sys.exit( 1 )

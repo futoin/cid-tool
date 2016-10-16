@@ -17,9 +17,10 @@ class citool_UTBase ( unittest.TestCase ) :
         self._goToBase()
 
     def _call_citool( self, args, stdin=None ) :
-        #print( [ CITOOL_BIN ] + args, file=sys.stderr )
+        cmd = [ sys.executable, CITOOL_BIN ] + args
+        #print( ' '.join(cmd), file=sys.stderr )
         p = subprocess.Popen(
-                [ CITOOL_BIN ] + args,
+                cmd,
                 bufsize=-1,
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
