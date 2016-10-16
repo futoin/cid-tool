@@ -189,7 +189,7 @@ class CITool :
         
         #---
         buildTimestamp = datetime.datetime.utcnow().strftime( '%Y%m%d%H%M%S' )
-        name = config['name'].replace( '/', '_' )
+        name = config['name'].split('/')[-1]
         version = config['version']
         vcs_ref = config.get( 'vcsRef', None )
         
