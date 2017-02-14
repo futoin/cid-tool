@@ -49,13 +49,8 @@ class scpTool( SubTool ):
             path = os.path.join( rms_repo, rms_pool )  
             cmd = cmd.format( path )
             ret = self._callExternal( [ 'sh', '-c', cmd ] )
-
-        try:
-            ret = str(ret, 'utf8').strip()
-        except TypeError:
-            ret = str(ret).strip()
     
-        return ret
+        return ret.strip()
     
     def rmsRetrieve( self, config, rms_pool, package ):
         scpBin = config['env']['scpBin']
