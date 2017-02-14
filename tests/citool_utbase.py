@@ -37,16 +37,16 @@ class citool_UTBase ( unittest.TestCase ) :
             getattr( sys.stderr, 'buffer', sys.stderr ).write( err )
             raise RuntimeError( "Failed" )
         
-    def test_tag( self ):
+    def test_10_tag( self ):
         self._call_citool( [ 'tag', 'branch_A', '--vcsRepo', self.VCS_REPO ] )
         
-    def test_tag_ver( self ):
+    def test_20_tag_ver( self ):
         self._call_citool( [
             'tag', 'branch_A', '1.3.0',
             '--vcsRepo', self.VCS_REPO,
             '--wcDir', 'build_ver' ] )
         
-    def test_prepare( self ):
+    def test_30_prepare( self ):
         self._call_citool( [ 'prepare', 'branch_A', '--vcsRepo', self.VCS_REPO, '--wcDir', 'prep_dir' ] )
         self._goToBase()
         self._call_citool( [ 'prepare', 'v1.2.3', '--wcDir', 'prep_dir' ] )
@@ -54,7 +54,7 @@ class citool_UTBase ( unittest.TestCase ) :
         os.chdir( 'prep_dir' )
         self._call_citool( [ 'prepare', 'branch_A' ] )
     
-    def test_ci_build_deploy( self ):
+    def test_40_ci_build_deploy( self ):
         try:
             os.makedirs( 'rms_repo/Builds')
             os.makedirs( 'rms_repo/Verified')
@@ -90,7 +90,7 @@ class citool_UTBase ( unittest.TestCase ) :
                             '--rmsHash', pkg_hash ] )
         
         self._goToBase()
-        content = subprocess.check_output( 'tar tJf rms_repo/Prod/wc-CI-1.2.3-*.txz | /usr/bin/sort -f', shell=True )
+        content = subprocess.check_output( 'tar tJf rms_repo/Prod/wc-CI-1.3.0-*.txz | /usr/bin/sort -f', shell=True )
         try:
             content = str(content, 'utf8')
         except TypeError:
