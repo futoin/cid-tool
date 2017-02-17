@@ -218,7 +218,6 @@ class CITool :
         config = self._config
         rmstool = config['rms']
         rmstool = self._tool_impl[rmstool]
-        rmstool.requireInstalled( config )
         rmstool.rmsPromote( config, package, rms_pool )
         
     @citool_action
@@ -232,7 +231,6 @@ class CITool :
         config = self._config
         rmstool = config['rms']
         rmstool = self._tool_impl[rmstool]
-        rmstool.requireInstalled( config )
         
         # Get to deploy folder
         deploy_dir = config['deployDir']
@@ -432,6 +430,13 @@ class CITool :
             for ( n, t ) in tool_impl.items():
                 if t.autoDetect( config ) :
                     tools.append( n )
+
+        # Make sure deps & env are processed for RMS tool
+        #--
+        rmstool = config.get('rms', None)
+
+        if rmstool:
+            tools.append(rmstool)
 
         # add all deps
         #--
