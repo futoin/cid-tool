@@ -15,7 +15,7 @@ class bowerTool( SubTool ):
     def getDeps( self ) :
         return [ 'node', 'npm' ]
     
-    def _installTool( self ):
+    def _installTool( self, env ):
         self._callExternal( [ 'npm', 'install', '-g', 'bower' ] )
 
     def loadConfig( self, config ) :

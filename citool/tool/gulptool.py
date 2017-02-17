@@ -11,7 +11,7 @@ class gulpTool( SubTool ):
     def getDeps( self ) :
         return [ 'node' ]
 
-    def _installTool( self ):
+    def _installTool( self, env ):
         self._callExternal( [ 'npm', 'install', '-g', 'gulp' ] )
     
     def onBuild( self, config ):

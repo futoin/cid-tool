@@ -116,10 +116,10 @@ class SubTool:
         
         return False
     
-    def _installTool( self ):
+    def _installTool( self, env ):
         raise NotImplementedError( "Tool (%s) must be manually installed"  % self._name )
     
-    def initEnv( self, env ) :
+    def _initEnv( self, env ) :
         name = self._name
         bin_env = name + 'Bin'
 
@@ -135,10 +135,20 @@ class SubTool:
     def autoDetect( self, config ) :
         return False
     
+    def isExternalToolsSetup( self, env ):
+        return env.get('externalSetup', {}).get('installTools', False)
+    
     def requireInstalled( self, config ) :
+        env = config['env']
+        self._initEnv( env )
+
         if not self._have_tool:
-            self._installTool()
-            self.initEnv( config['env'] )
+            if self.isExternalToolsSetup( env ):
+                raise RuntimeError( "Tool (%s) must be installed externally"  % self._name )
+            else :
+                self._installTool( env )
+
+            self._initEnv( env )
             
             if not self._have_tool:
                 raise RuntimeError( "Failed to install " + self._name )

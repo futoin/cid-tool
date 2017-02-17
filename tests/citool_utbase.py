@@ -116,6 +116,7 @@ class citool_UTBase ( unittest.TestCase ) :
             './vendor/composer/autoload_namespaces.php',
             './vendor/composer/autoload_psr4.php',
             './vendor/composer/autoload_real.php',
+            './vendor/composer/autoload_static.php',
             './vendor/composer/ClassLoader.php',
             './vendor/composer/LICENSE',
             './vendor/composer/installed.json',

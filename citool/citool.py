@@ -218,6 +218,7 @@ class CITool :
         config = self._config
         rmstool = config['rms']
         rmstool = self._tool_impl[rmstool]
+        rmstool.requireInstalled( config )
         rmstool.rmsPromote( config, package, rms_pool )
         
     @citool_action
@@ -231,6 +232,7 @@ class CITool :
         config = self._config
         rmstool = config['rms']
         rmstool = self._tool_impl[rmstool]
+        rmstool.requireInstalled( config )
         
         # Get to deploy folder
         deploy_dir = config['deployDir']
@@ -395,9 +397,17 @@ class CITool :
         
     def _initEnv( self, env ) :
         env.setdefault( 'type', 'dev' )
-        env.setdefault( 'init', 'cron' )
+        env.setdefault( 'startup', 'cron' )
         env.setdefault( 'webServer', 'nginx' )
         env.setdefault( 'vars', {} )
+        env.setdefault( 'mainConfig', {} )
+        env.setdefault( 'plugins', {} )
+        env.setdefault( 'externalSetup', {} )
+
+        externalSetup = env['externalSetup']
+        externalSetup['runCmd'] = None
+        externalSetup['webServer'] = False
+        externalSetup['startup'] = False
 
         tool_impl = self._tool_impl
         
@@ -407,14 +417,9 @@ class CITool :
                 m = importlib.import_module( pkg )
                 tool_impl[ k ] = getattr( m, k + 'Tool' )( k )
         
-        if 'plugins' in env :
-            for ( k, v ) in env['plugins'] :
-                m = importlib.import_module( v )
-                tool_impl[ k ] = getattr( m, k + 'Tool' )( k )
-            
-        
-        for t in tool_impl.values():
-            t.initEnv( env )
+        for ( k, v ) in env['plugins'] :
+            m = importlib.import_module( v )
+            tool_impl[ k ] = getattr( m, k + 'Tool' )( k )
             
     def _initTools( self ):
         config = self._config
@@ -430,19 +435,17 @@ class CITool :
 
         # add all deps
         #--
-        deps = set( tools )
-        dep_generations = [ list( deps ) ]
+        dep_generations = [ tools ]
+        tools = set( tools )
         l = 0
-        while len( deps ) != l :
-            l = len( deps )
+        while len( tools ) != l :
+            l = len( tools )
             moredeps = set()
-            for t in deps :
+            for t in dep_generations[-1] :
                 t = tool_impl[t]
                 moredeps.update( set( t.getDeps() ) )
-            dep_generations.append( list( moredeps - deps ) )
-            deps.update( moredeps )
-            
-        tools.extend( deps )
+            dep_generations.append( list( moredeps - tools ) )
+            tools.update( moredeps )
         
         #---
         dep_generations.reverse()
