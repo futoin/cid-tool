@@ -50,6 +50,7 @@ class CITool :
             'svn' : None,
             'git' : None,
             'hg' : None,
+            'curl' : None,
             'composer' : None,
             'npm' : None,
             'grunt' : None,

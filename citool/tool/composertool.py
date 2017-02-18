@@ -1,5 +1,7 @@
 
 import json
+import os
+
 from collections import OrderedDict
 
 from citool.subtool import SubTool
@@ -8,11 +10,32 @@ class composerTool( SubTool ):
     def getType( self ):
         return self.TYPE_BUILD
 
+    def _installTool( self, env ):
+        composer_dir = env['composerDir']
+        php_bin = env['phpBin']
+        curl_bin = env['curlBin']
+        composer_get = env.get('composerGet', 'https://getcomposer.org/installer')
+
+        self._callExternal(
+            [ 'bash', '-c',
+              'mkdir -p {2} &&  {3} -s {0} | {1} -- --install-dir={2} --filename=composer'
+              .format(composer_get, php_bin, composer_dir, curl_bin) ] )
+
+    def _initEnv( self, env ) :
+        bin_dir = env['binDir']
+        composer_dir = env.setdefault('composerDir', bin_dir)
+
+        if (bin_dir != composer_dir and
+            composer_dir not in os.environ['PATH'].split(os.pathsep)):
+                os.environ['PATH'] += os.pathsep + composer_dir
+
+        SubTool._initEnv( self, env )
+
     def autoDetect( self, config ) :
         return self._autoDetectByCfg( config, 'composer.json' )
     
     def getDeps( self ) :
-        return [ 'php' ]
+        return [ 'php', 'curl' ]
 
     def loadConfig( self, config ) :
         with open('composer.json', 'r') as content_file:
