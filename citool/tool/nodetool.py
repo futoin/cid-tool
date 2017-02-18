@@ -18,8 +18,7 @@ class nodeTool( SubTool ):
               'source {0}/nvm.sh && nvm install {1}'.format(nvm_dir, node_version) ] )
 
     def _initEnv( self, env ) :
-        node_version = env.get('nodeVer', 'stable')
-        env['nodeVer'] = node_version
+        node_version = env.setdefault('nodeVer', 'stable')
 
         nvm_dir = env['nvmDir']
 

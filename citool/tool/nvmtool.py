@@ -10,8 +10,8 @@ class nvmTool( SubTool ):
         return self.TYPE_RUNENV
 
     def _installTool( self, env ):
-        nvm_dir = env.get('nvmDir', self.NVM_DIR_DEFAULT)
-        nvm_git = env.get('nvmGit', 'https://github.com/creationix/nvm.git')
+        nvm_dir = env['nvmDir']
+        nvm_git = env.setdefault('nvmGit', 'https://github.com/creationix/nvm.git')
 
         self._callExternal(
             [ 'bash', '-c',
@@ -20,8 +20,7 @@ class nvmTool( SubTool ):
                .format(nvm_dir, nvm_git) ] )
             
     def _initEnv( self, env ) :
-        nvm_dir = env.get('nvmDir', self.NVM_DIR_DEFAULT)
-        env['nvmDir'] = nvm_dir
+        nvm_dir = env.setdefault('nvmDir', self.NVM_DIR_DEFAULT)
         self._have_tool = os.path.exists(os.path.join(nvm_dir, 'nvm.sh'))
         
         

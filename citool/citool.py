@@ -400,12 +400,19 @@ class CITool :
         env.setdefault( 'vars', {} )
         env.setdefault( 'mainConfig', {} )
         env.setdefault( 'plugins', {} )
-        env.setdefault( 'externalSetup', {} )
 
+        env.setdefault( 'externalSetup', {} )
         externalSetup = env['externalSetup']
-        externalSetup['runCmd'] = None
-        externalSetup['webServer'] = False
-        externalSetup['startup'] = False
+        externalSetup.setdefault( 'runCmd', None )
+        externalSetup.setdefault( 'webServer', False )
+        externalSetup.setdefault( 'startup', False )
+        externalSetup.setdefault( 'installTools', False )
+
+        env.setdefault( 'binDir', os.path.join(os.environ['HOME'], 'bin') )
+        bin_dir = env['binDir']
+
+        if bin_dir not in os.environ['PATH'].split(os.pathsep):
+            os.environ['PATH'] += os.pathsep + env['binDir']
 
         tool_impl = self._tool_impl
         

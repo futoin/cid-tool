@@ -136,7 +136,7 @@ class SubTool:
         return False
     
     def isExternalToolsSetup( self, env ):
-        return env.get('externalSetup', {}).get('installTools', False)
+        return env['externalSetup']['installTools']
     
     def requireInstalled( self, config ) :
         env = config['env']
