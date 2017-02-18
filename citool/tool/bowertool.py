@@ -16,11 +16,11 @@ class bowerTool( SubTool ):
         return [ 'node', 'npm' ]
     
     def _installTool( self, env ):
-        npmBin = env['nvmBin']
+        npmBin = env['npmBin']
         self._callExternal( [ npmBin, 'install', '-g', 'bower' ] )
         
     def updateTool( self, env ):
-        npmBin = env['nvmBin']
+        npmBin = env['npmBin']
         self._callExternal( [ npmBin, 'update', '-g', 'bower' ] )
 
     def loadConfig( self, config ) :

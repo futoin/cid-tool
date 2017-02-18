@@ -13,11 +13,11 @@ class gulpTool( SubTool ):
 
 
     def _installTool( self, env ):
-        npmBin = env['nvmBin']
+        npmBin = env['npmBin']
         self._callExternal( [ npmBin, 'install', '-g', 'gulp' ] )
         
     def updateTool( self, env ):
-        npmBin = env['nvmBin']
+        npmBin = env['npmBin']
         self._callExternal( [ npmBin, 'update', '-g', 'gulp' ] )
    
     def onBuild( self, config ):
