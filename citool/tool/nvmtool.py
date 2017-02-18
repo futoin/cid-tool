@@ -4,17 +4,20 @@ import os
 
 class nvmTool( SubTool ):
     "Node Version Manager"
-    NVM_DIR_DEFAULT = os.path.join(os.environ['HOME'], '~/.nvm')
+    NVM_DIR_DEFAULT = os.path.join(os.environ['HOME'], '.nvm')
 
     def getType( self ):
         return self.TYPE_RUNENV
 
     def _installTool( self, env ):
         nvm_dir = env.get('nvmDir', self.NVM_DIR_DEFAULT)
+        nvm_git = env.get('nvmGit', 'https://github.com/creationix/nvm.git')
+
         self._callExternal(
             [ 'bash', '-c',
-              'git clone https://github.com/creationix/nvm.git {0} && \
-               cd {0} && git checkout $(git describe --abbrev=0 --tags)'.format(nvm_dir) ] )
+              'git clone {1} {0} && \
+               cd {0} && git checkout $(git describe --abbrev=0 --tags)'
+               .format(nvm_dir, nvm_git) ] )
             
     def _initEnv( self, env ) :
         nvm_dir = env.get('nvmDir', self.NVM_DIR_DEFAULT)

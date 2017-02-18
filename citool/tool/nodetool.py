@@ -15,7 +15,7 @@ class nodeTool( SubTool ):
         node_version = env['nodeVer']
         self._callExternal(
             [ 'bash', '-c',
-              'source {0}/nvm.sh && nvm install {1}' ].format(nvm_dir, node_version) )
+              'source {0}/nvm.sh && nvm install {1}'.format(nvm_dir, node_version) ] )
 
     def _initEnv( self, env ) :
         node_version = env.get('nodeVer', 'stable')
