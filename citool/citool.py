@@ -39,31 +39,7 @@ class CITool :
     DEPLOY_GRP_PATH = 5
 
     def __init__( self, overrides ) :
-        self._tool_impl = {
-            'futoin' : None,
-            'nvm' : None,
-            'rvm' : None,
-            'php' : None,
-            'python' : None,
-            'node' : None,
-            'ruby' : None,
-            'svn' : None,
-            'git' : None,
-            'hg' : None,
-            'bash' : None,
-            'curl' : None,
-            'composer' : None,
-            'npm' : None,
-            'grunt' : None,
-            'gulp' : None,
-            'bower' : None,
-            'puppet' : None,
-            'ssh' : None,
-            'scp' : None,
-            'archiva' : None,
-            'artifactory' : None,
-            'nexus' : None,
-        }
+        self._tool_impl = None
         self._overrides = overrides
         self._initConfig()
         
@@ -417,29 +393,43 @@ class CITool :
         if bin_dir not in os.environ['PATH'].split(os.pathsep):
             os.environ['PATH'] += os.pathsep + env['binDir']
 
+    def _initTools( self ):
+        config = self._config
+        env = config['env']
+
+        #---
         tool_impl = self._tool_impl
         
-        for ( k, v ) in tool_impl.items() :
-            if v is None :
+        if tool_impl is None:
+            tool_impl = {}
+            default_tool_dir = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                'tool'
+            )
+
+            for f in os.listdir(default_tool_dir):
+                splitext = os.path.splitext(f)
+                if splitext[1] != '.py' or splitext[0] in ['__init__']:
+                    continue
+
+                k = f.replace('tool.py', '')
                 pkg = 'citool.tool.' + k + 'tool'
                 m = importlib.import_module( pkg )
                 tool_impl[ k ] = getattr( m, k + 'Tool' )( k )
+
+            self._tool_impl = tool_impl
         
         for ( k, v ) in env['plugins'] :
-            m = importlib.import_module( v )
-            tool_impl[ k ] = getattr( m, k + 'Tool' )( k )
-            
-    def _initTools( self ):
-        config = self._config
-        tools = config.get( 'tools', None )
-        tool_impl = self._tool_impl
+            if not tool_impl.has_key(k):
+                m = importlib.import_module( v )
+                tool_impl[ k ] = getattr( m, k + 'Tool' )( k )
+
+        #---
+        tools = []
         
-        if tools is None :
-            tools = []
-            
-            for ( n, t ) in tool_impl.items():
-                if t.autoDetect( config ) :
-                    tools.append( n )
+        for ( n, t ) in tool_impl.items():
+            if t.autoDetect( config ) :
+                tools.append( n )
 
         # Make sure deps & env are processed for RMS tool
         #--
