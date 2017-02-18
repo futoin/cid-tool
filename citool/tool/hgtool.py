@@ -5,6 +5,9 @@ import os
 class hgTool( SubTool ):
     def getType( self ):
         return self.TYPE_VCS
+
+    def getDeps( self ) :
+        return [ 'bash' ]
     
     def autoDetect( self, config ) :
         return self._autoDetectVCS( config, '.hg' )
@@ -40,11 +43,13 @@ class hgTool( SubTool ):
         self._callExternal( [ hgBin, 'tag', '-m', message, tag ] )
     
     def vcsPush( self, config, refs ):
-        hgBin = config['env']['hgBin']
+        env = config['env']
+        hgBin = env['hgBin']
+        bash_bin = env['bashBin']
         opts = []
         for r in refs :
             is_tag = self._callExternal( [
-                'bash', '-c', '%s tags | egrep "^%s" || true' % ( hgBin, r )
+                bash_bin, '-c', '%s tags | egrep "^%s" || true' % ( hgBin, r )
             ] )
             
             if is_tag : continue

@@ -9,12 +9,16 @@ class nvmTool( SubTool ):
     def getType( self ):
         return self.TYPE_RUNENV
 
+    def getDeps( self ) :
+        return [ 'bash' ]
+
     def _installTool( self, env ):
         nvm_dir = env['nvmDir']
         nvm_git = env.setdefault('nvmGit', 'https://github.com/creationix/nvm.git')
+        bash_bin = env['bashBin']
 
         self._callExternal(
-            [ 'bash', '-c',
+            [ bash_bin, '-c',
               'git clone {1} {0} && \
                cd {0} && git checkout $(git describe --abbrev=0 --tags)'
                .format(nvm_dir, nvm_git) ] )

@@ -50,6 +50,7 @@ class CITool :
             'svn' : None,
             'git' : None,
             'hg' : None,
+            'bash' : None,
             'curl' : None,
             'composer' : None,
             'npm' : None,
@@ -127,13 +128,14 @@ class CITool :
             os.chdir( config['wcDir'] )
             self._initConfig()
             config = self._config
-        
-        vcstool = config['vcs']
-        vcstool = self._tool_impl[vcstool]
-        
+
         # make a clean checkout
-        vcstool.vcsCheckout( config, vcs_ref )
-        self._initConfig()
+        if vcs_ref:
+            vcstool = config['vcs']
+            vcstool = self._tool_impl[vcstool]
+
+            vcstool.vcsCheckout( config, vcs_ref )
+            self._initConfig()
 
         #--
         self._forEachTool(
@@ -448,7 +450,7 @@ class CITool :
 
         # add all deps
         #--
-        dep_generations = [ tools ]
+        dep_generations = [ set(tools) ]
         tools = set( tools )
         l = 0
         while len( tools ) != l :
@@ -457,14 +459,14 @@ class CITool :
             for t in dep_generations[-1] :
                 t = tool_impl[t]
                 moredeps.update( set( t.getDeps() ) )
-            dep_generations.append( list( moredeps - tools ) )
+            dep_generations.append( moredeps )
             tools.update( moredeps )
         
         #---
         dep_generations.reverse()
         tools = []
         for d in dep_generations :
-            tools.extend( d )
+            tools.extend( d - set(tools) )
         config['tools'] = tools
 
         #--

@@ -13,11 +13,12 @@ class composerTool( SubTool ):
     def _installTool( self, env ):
         composer_dir = env['composerDir']
         php_bin = env['phpBin']
+        bash_bin = env['bashBin']
         curl_bin = env['curlBin']
         composer_get = env.get('composerGet', 'https://getcomposer.org/installer')
 
         self._callExternal(
-            [ 'bash', '-c',
+            [ bash_bin, '-c',
               'mkdir -p {2} &&  {3} -s {0} | {1} -- --install-dir={2} --filename=composer'
               .format(composer_get, php_bin, composer_dir, curl_bin) ] )
 
@@ -35,7 +36,7 @@ class composerTool( SubTool ):
         return self._autoDetectByCfg( config, 'composer.json' )
     
     def getDeps( self ) :
-        return [ 'php', 'curl' ]
+        return [ 'php', 'curl', 'bash' ]
 
     def loadConfig( self, config ) :
         with open('composer.json', 'r') as content_file:

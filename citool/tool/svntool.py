@@ -6,12 +6,17 @@ import re
 class svnTool( SubTool ):
     def getType( self ):
         return self.TYPE_VCS
+
+    def getDeps( self ) :
+        return [ 'bash' ]
     
     def autoDetect( self, config ) :
         return self._autoDetectVCS( config, '.svn' )
     
     def vcsCheckout( self, config, vcs_ref ):
-        svnBin = config['env']['svnBin']
+        env = config['env']
+        svnBin = env['svnBin']
+        bash_bin = env['bashBin']
         wc_dir = config['wcDir']
             
         if os.path.isdir( wc_dir + '/.svn' ):
@@ -30,7 +35,7 @@ class svnTool( SubTool ):
         tag_path = '%s/tags/%s' % ( config['vcsRepo'], vcs_ref )
         
         if self._callExternal( [
-                'bash', '-c', '%s ls %s 2>/dev/null' % ( svnBin, branch_path )
+                bash_bin, '-c', '%s ls %s 2>/dev/null' % ( svnBin, branch_path )
                 ], suppress_fail=True ) :
             svn_repo_path = branch_path
         elif self._callExternal( [ svnBin, 'ls', tag_path ] ) :
@@ -56,9 +61,12 @@ class svnTool( SubTool ):
                  '-m', message ] + files )
     
     def vcsTag( self, config, tag, message ):
-        svnBin = config['env']['svnBin']
+        env = config['env']
+        svnBin = env['svnBin']
+        bash_bin = env['bashBin']
+
         svn_url = self._callExternal( [
-            'bash', '-c',
+            bash_bin, '-c',
             'svn info | grep "^URL: " | sed -e "s/^URL: //"' ] ).strip()
         self._callExternal( [
             svnBin, 'copy',
