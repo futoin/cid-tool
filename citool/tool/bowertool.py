@@ -16,7 +16,12 @@ class bowerTool( SubTool ):
         return [ 'node', 'npm' ]
     
     def _installTool( self, env ):
-        self._callExternal( [ 'npm', 'install', '-g', 'bower' ] )
+        npmBin = env['nvmBin']
+        self._callExternal( [ npmBin, 'install', '-g', 'bower' ] )
+        
+    def updateTool( self, env ):
+        npmBin = env['nvmBin']
+        self._callExternal( [ npmBin, 'update', '-g', 'bower' ] )
 
     def loadConfig( self, config ) :
         with open('bower.json', 'r') as content_file:

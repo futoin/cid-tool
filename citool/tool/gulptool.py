@@ -11,9 +11,15 @@ class gulpTool( SubTool ):
     def getDeps( self ) :
         return [ 'node' ]
 
+
     def _installTool( self, env ):
-        self._callExternal( [ 'npm', 'install', '-g', 'gulp' ] )
-    
+        npmBin = env['nvmBin']
+        self._callExternal( [ npmBin, 'install', '-g', 'gulp' ] )
+        
+    def updateTool( self, env ):
+        npmBin = env['nvmBin']
+        self._callExternal( [ npmBin, 'update', '-g', 'gulp' ] )
+   
     def onBuild( self, config ):
         gruntBin = config['env']['gruntBin']
         self._callExternal( [ gruntBin ] )

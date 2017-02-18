@@ -302,10 +302,6 @@ class CITool :
         pass
     
     @citool_action
-    def runDev( self, command ):
-        raise NotImplementedError( "Development run has not been implemented yet" )
-    
-    @citool_action
     def run( self, command ):
         config = self._config
         if config.get('vcs', None) :
@@ -323,6 +319,29 @@ class CITool :
         self.build()
         self.package()
         self.promote( self._lastPackage, rms_pool )
+
+    @citool_action
+    def tool_exec( self, tool, args ):
+        raise NotImplementedError( "Tool exec has not been implemented yet" )
+    
+    @citool_action
+    def tool_install( self, tool ):
+        t = self._tool_impl[tool]
+        t.requireInstalled( self._config['env'] )
+
+    @citool_action
+    def tool_update( self, tool ):
+        t = self._tool_impl[tool]
+        t.updateTool( self._config['env'] )
+
+    @citool_action
+    def tool_test( self, tool ):
+        config = self._config
+        t = self._tool_impl[tool]
+        
+        if not t.isInstalled( self._config['env'] ) :
+            print( "Tool '%s' is missing" % tool )
+            sys.exit( 1 )
     
     def _initConfig( self ):
         self._global_config = gc = self._loadJSON( '/etc/futoin/futoin.json', {'env':{}} )
@@ -426,17 +445,21 @@ class CITool :
 
         #---
         tools = []
+        curr_tool = config.get('tool', None)
         
-        for ( n, t ) in tool_impl.items():
-            if t.autoDetect( config ) :
-                tools.append( n )
+        if curr_tool:
+            tools.append( curr_tool )
+        else :
+            for ( n, t ) in tool_impl.items():
+                if t.autoDetect( config ) :
+                    tools.append( n )
 
-        # Make sure deps & env are processed for RMS tool
-        #--
-        rmstool = config.get('rms', None)
+            # Make sure deps & env are processed for RMS tool
+            #--
+            rmstool = config.get('rms', None)
 
-        if rmstool:
-            tools.append(rmstool)
+            if rmstool:
+                tools.append( rmstool )
 
         # add all deps
         #--
@@ -460,13 +483,13 @@ class CITool :
         config['tools'] = tools
 
         #--
-        for t in tools :
-            t = tool_impl[t]
-            t.requireInstalled( config )
-            t.loadConfig( config )
-            
-        
-            
-        
-        
-            
+        if config['toolTest']:
+            for tool in tools :
+                t = tool_impl[tool]
+                t.initEnv( env )
+        else :
+            for tool in tools :
+                t = tool_impl[tool]
+                t.requireInstalled( env )
+                if tool != curr_tool:
+                    t.loadConfig( config )

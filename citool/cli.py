@@ -10,6 +10,8 @@ Usage:
     citool deploy <rms_pool> [<package>] [--rmsRepo rms_url] [--rmsHash type_value] [--redeploy] [--deployDir deploy_dir]
     citool run [<command>]
     citool ci_build <vcs_ref> <rms_pool> [--vcsRepo vcs_url] [--rmsRepo rms_url]
+    citool tool exec <tool_name> [-- <tool_arg>...]
+    citool tool (install|update|test) [<tool_name>]
 
 Options:
     --vcsRepo vcs_type:vcs_url
@@ -53,6 +55,11 @@ def run():
         
         #---
         overrides['vcsRef'] = args['<vcs_ref>']
+
+        #---
+        tool = args['<tool_name>']
+        overrides['tool'] = tool
+        overrides['toolTest'] = args['test']
         
         #---
         cit = CITool( overrides = overrides )
@@ -73,6 +80,18 @@ def run():
             cit.run( args['<command>'] or 'start' )
         elif args['ci_build'] :
             cit.ci_build( args['<vcs_ref>'], args['<rms_pool>'] )
+        elif args['tool'] :
+            if args['exec']:
+                cit.tool_exec( tool, args['<tool_arg>'] )
+            elif args['install']:
+                cit.tool_install( tool )
+            elif args['update']:
+                cit.tool_update( tool )
+            elif args['test']:
+                cit.tool_test( tool )
+            else:
+                print( "Unknown Command" )
+                sys.exit( 1 )
         else:
             print( "Unknown Command" )
             sys.exit( 1 )

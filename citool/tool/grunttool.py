@@ -15,8 +15,13 @@ class gruntTool( SubTool ):
         return [ 'node', 'npm' ]
 
     def _installTool( self, env ):
-        self._callExternal( [ 'npm', 'install', '-g', 'grunt' ] )
-    
+        npmBin = env['nvmBin']
+        self._callExternal( [ npmBin, 'install', '-g', 'grunt' ] )
+        
+    def updateTool( self, env ):
+        npmBin = env['nvmBin']
+        self._callExternal( [ npmBin, 'update', '-g', 'grunt' ] )
+
     def onBuild( self, config ):
         gruntBin = config['env']['gruntBin']
         self._callExternal( [ gruntBin ] )

@@ -17,8 +17,11 @@ class nodeTool( SubTool ):
         self._callExternal(
             [ bash_bin, '-c',
               'source {0}/nvm.sh && nvm install {1}'.format(nvm_dir, node_version) ] )
+            
+    def updateTool( self, env ):
+        self._installTool( env )
 
-    def _initEnv( self, env ) :
+    def initEnv( self, env ) :
         node_version = env.setdefault('nodeVer', 'stable')
 
         nvm_dir = env['nvmDir']

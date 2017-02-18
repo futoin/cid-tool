@@ -22,15 +22,20 @@ class composerTool( SubTool ):
               'mkdir -p {2} &&  {3} -s {0} | {1} -- --install-dir={2} --filename=composer'
               .format(composer_get, php_bin, composer_dir, curl_bin) ] )
 
-    def _initEnv( self, env ) :
+    def updateTool( self, env ):
+        composer_bin = env['composerBin']
+        self._callExternal([composer_bin, 'self-update'])
+
+    def initEnv( self, env ) :
         bin_dir = env['binDir']
         composer_dir = env.setdefault('composerDir', bin_dir)
+        composer_bin = env.setdefault('composerBin', os.path.join(composer_dir, 'composer'))
 
         if (bin_dir != composer_dir and
             composer_dir not in os.environ['PATH'].split(os.pathsep)):
                 os.environ['PATH'] += os.pathsep + composer_dir
 
-        SubTool._initEnv( self, env )
+        self._have_tool = os.path.exists( composer_bin )
 
     def autoDetect( self, config ) :
         return self._autoDetectByCfg( config, 'composer.json' )
