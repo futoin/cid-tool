@@ -3,13 +3,12 @@ from .citool_utbase import citool_UTBase
 from citool.subtool import SubTool
 
 import os
-import stat
 import subprocess
 
 class citool_VCSUTBase ( citool_UTBase ) :
     @classmethod
     def setUpClass( cls ):
-        citool_UTBase.setUpClass()
+        super(citool_VCSUTBase, cls).setUpClass()
         
         test_tar = os.path.basename( cls.TEST_DIR )
         cmd = [

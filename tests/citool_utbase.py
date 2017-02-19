@@ -4,6 +4,7 @@ import unittest
 import subprocess
 import os
 import sys
+import stat
 
 
 CITOOL_BIN = os.path.dirname( __file__ ) + '/../bin/citool'
@@ -22,6 +23,7 @@ class citool_UTBase ( unittest.TestCase ) :
             pass
         
         os.chdir( cls.TEST_RUN_DIR )
+        os.environ['HOME'] = cls.TEST_RUN_DIR
 
         if os.path.exists( cls.TEST_DIR ) :
             for r, dirs, files in os.walk( cls.TEST_DIR, False ):  
