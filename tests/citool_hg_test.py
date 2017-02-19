@@ -1,10 +1,10 @@
 
-from .citool_utbase import citool_UTBase
+from .citool_vcsutbase import citool_VCSUTBase
 import subprocess
 import os
 
 
-class Test_CITool_Hg ( citool_UTBase ) :
+class Test_CITool_Hg ( citool_VCSUTBase ) :
     VCS_REPO = 'hg:repo'
     TEST_DIR = '../test_hg'
 

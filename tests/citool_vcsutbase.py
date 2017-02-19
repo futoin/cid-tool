@@ -9,7 +9,7 @@ from citool.subtool import SubTool
 
 CITOOL_BIN = os.path.dirname( __file__ ) + '/../bin/citool'
 
-class citool_UTBase ( unittest.TestCase ) :
+class citool_VCSUTBase ( unittest.TestCase ) :
     def _goToBase( self ):
         os.chdir( os.path.dirname( __file__ ) + '/../' + self.TEST_DIR )
 
