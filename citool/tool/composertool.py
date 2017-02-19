@@ -23,8 +23,11 @@ class composerTool( SubTool ):
               .format(composer_get, php_bin, composer_dir, curl_bin) ] )
 
     def updateTool( self, env ):
-        composer_bin = env['composerBin']
-        self._callExternal([composer_bin, 'self-update'])
+        self._callExternal([env['composerBin'], 'self-update'])
+
+    def uninstallTool( self, env ):
+        os.remove(env['composerBin'])
+        self._have_tool = False
 
     def initEnv( self, env ) :
         bin_dir = env['binDir']

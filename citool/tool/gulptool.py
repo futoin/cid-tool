@@ -13,13 +13,15 @@ class gulpTool( SubTool ):
 
 
     def _installTool( self, env ):
-        npmBin = env['npmBin']
-        self._callExternal( [ npmBin, 'install', '-g', 'gulp' ] )
+        self._callExternal( [ env['npmBin'], 'install', '-g', 'gulp' ] )
         
     def updateTool( self, env ):
-        npmBin = env['npmBin']
-        self._callExternal( [ npmBin, 'update', '-g', 'gulp' ] )
-   
+        self._callExternal( [ env['npmBin'], 'update', '-g', 'gulp' ] )
+        
+    def uninstallTool( self, env ):
+        self._callExternal( [ env['npmBin'], 'uninstall', '-g', 'gulp' ] )
+        self._have_tool = False
+
     def onBuild( self, config ):
         gruntBin = config['env']['gruntBin']
         self._callExternal( [ gruntBin ] )

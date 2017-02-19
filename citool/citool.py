@@ -334,22 +334,72 @@ class CITool :
     
     @citool_action
     def tool_install( self, tool ):
-        t = self._tool_impl[tool]
-        t.requireInstalled( self._config['env'] )
+        config = self._config
+        env = config['env']
+        
+        if SubTool.isExternalToolsSetup( env ):
+            raise RuntimeError( "Tools must be installed externally (env config)" )
+
+        if tool :
+            tools = [tool]
+        else :
+            tools = config['tools']
+
+        for tool in tools:
+            t = self._tool_impl[tool]
+            t.requireInstalled( env )
+
+    @citool_action
+    def tool_uninstall( self, tool ):
+        config = self._config
+        env = config['env']
+        
+        if SubTool.isExternalToolsSetup( env ):
+            raise RuntimeError( "Tools must be uninstalled externally (env config)" )
+
+        if tool :
+            tools = [tool]
+        else :
+            tools = reversed(config['tools'])
+
+        for tool in tools:
+            t = self._tool_impl[tool]
+            if t.isInstalled( env ):
+                t.uninstallTool( env )
 
     @citool_action
     def tool_update( self, tool ):
-        t = self._tool_impl[tool]
-        t.updateTool( self._config['env'] )
+        config = self._config
+        env = config['env']
+        
+        if SubTool.isExternalToolsSetup( env ):
+            raise RuntimeError( "Tools must be updated externally (env config)" )
+
+        if tool :
+            tools = [tool]
+        else :
+            tools = config['tools']
+
+        for tool in tools:
+            t = self._tool_impl[tool]
+            t.updateTool( env )
 
     @citool_action
     def tool_test( self, tool ):
         config = self._config
-        t = self._tool_impl[tool]
-        
-        if not t.isInstalled( self._config['env'] ) :
-            print( "Tool '%s' is missing" % tool )
-            sys.exit( 1 )
+        env = config['env']
+
+        if tool :
+            tools = [tool]
+        else :
+            tools = config['tools']
+
+        for tool in tools:
+            t = self._tool_impl[tool]
+            
+            if not t.isInstalled( env ) :
+                print( "Tool '%s' is missing" % tool )
+                sys.exit( 1 )
     
     def _initConfig( self ):
         self._global_config = gc = self._loadJSON( '/etc/futoin/futoin.json', {'env':{}} )

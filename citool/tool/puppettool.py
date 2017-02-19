@@ -29,6 +29,10 @@ class puppetTool( SubTool ):
             self._installTool( env )
         else :
             self._callExternal( [ env['gemBin'], 'update', 'puppet', '--no-document' ] )
+            
+    def uninstallTool( self, env ):
+        self._callExternal( [ env['gemBin'], 'uninstall', 'puppet' ] )
+        self._have_tool = False
     
     def initEnv( self, env ):
         SubTool.initEnv( self, env )

@@ -34,7 +34,15 @@ class nvmTool( SubTool ):
             [ bash_bin,  '--noprofile', '--norc', '-c',
               'cd {0} && git fetch && git checkout {1}'
                .format(nvm_dir, nvm_ver) ] )
-        
+    
+    def uninstallTool( self, env ):
+        nvm_dir = env['nvmDir']
+        bash_bin = env['bashBin']
+        self._callExternal(
+            [ bash_bin,  '--noprofile', '--norc', '-c',
+              'chmod -R g+w {0}; rm -rf {0}'
+               .format(nvm_dir) ] )
+        self._have_tool = False
             
     def initEnv( self, env ) :
         nvm_dir = env.setdefault('nvmDir', self.NVM_DIR_DEFAULT)

@@ -7,3 +7,6 @@ class gemTool( SubTool ):
     
     def getDeps( self ) :
         return [ 'ruby' ]
+        
+    def uninstallTool( self, env ):
+        pass

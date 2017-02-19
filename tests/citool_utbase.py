@@ -14,6 +14,7 @@ class citool_UTBase ( unittest.TestCase ) :
     TEST_RUN_DIR = os.path.realpath(
         os.path.join(os.path.dirname(__file__), '..', 'testrun')
     )
+    __test__ = False
 
     @classmethod
     def setUpClass( cls ):
@@ -45,7 +46,7 @@ class citool_UTBase ( unittest.TestCase ) :
 
     def _call_citool( self, args, stdin=None ) :
         cmd = [ sys.executable, CITOOL_BIN ] + args
-        #print( ' '.join(cmd), file=sys.stderr )
+        #print( 'Call: ' + subprocess.list2cmdline(cmd), file=sys.stderr )
         p = subprocess.Popen(
                 cmd,
                 bufsize=-1,

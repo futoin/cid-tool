@@ -24,7 +24,10 @@ class SubTool:
         try:
             if verbose and not suppress_fail:
                 print( 'Call: ' + subprocess.list2cmdline( cmd ), file=sys.stderr )
-            res = subprocess.check_output( cmd, stdin=subprocess.PIPE )
+                stderr = sys.stderr
+            else:
+                stderr = subprocess.PIPE
+            res = subprocess.check_output( cmd, stdin=subprocess.PIPE, stderr=stderr )
             
             try:
                 res = str(res, 'utf8')
@@ -156,7 +159,8 @@ class SubTool:
     def autoDetect( self, config ) :
         return False
     
-    def isExternalToolsSetup( self, env ):
+    @classmethod
+    def isExternalToolsSetup( cls, env ):
         return env['externalSetup']['installTools']
     
     def requireInstalled( self, env ) :
@@ -164,7 +168,7 @@ class SubTool:
 
         if not self._have_tool:
             if self.isExternalToolsSetup( env ):
-                raise RuntimeError( "Tool (%s) must be installed externally"  % self._name )
+                raise RuntimeError( "Tool (%s) must be installed externally (env config)"  % self._name )
             else :
                 self._installTool( env )
 
@@ -179,6 +183,10 @@ class SubTool:
 
     def updateTool( self, env ):
         self.requireInstalled( env )
+        
+    def uninstallTool( self, env ):
+        self._have_tool = False
+        raise RuntimeError( "Tool (%s) must be uninstalled externally"  % self._name )
 
     def loadConfig( self, config ) :
         pass

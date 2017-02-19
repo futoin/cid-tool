@@ -15,12 +15,14 @@ class gruntTool( SubTool ):
         return [ 'node', 'npm' ]
 
     def _installTool( self, env ):
-        npmBin = env['npmBin']
-        self._callExternal( [ npmBin, 'install', '-g', 'grunt' ] )
+        self._callExternal( [ env['npmBin'], 'install', '-g', 'grunt' ] )
         
     def updateTool( self, env ):
-        npmBin = env['npmBin']
-        self._callExternal( [ npmBin, 'update', '-g', 'grunt' ] )
+        self._callExternal( [ env['npmBin'], 'update', '-g', 'grunt' ] )
+        
+    def uninstallTool( self, env ):
+        self._callExternal( [ env['npmBin'], 'uninstall', '-g', 'grunt' ] )
+        self._have_tool = False
 
     def onBuild( self, config ):
         gruntBin = config['env']['gruntBin']

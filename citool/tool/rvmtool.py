@@ -20,7 +20,6 @@ class rvmTool( SubTool ):
     def _installTool( self, env ):
         rvm_dir = env['rvmDir']
         bash_bin = env['bashBin']
-        rvm_ver = env.get('rvmVer', self.RVM_LATEST) 
         rvm_get = env.get('rvmGet', self.RVM_GET) 
         rvm_gpg_key = env.get('rvmGpgKey', self.RVM_GPG_KEY)
         
@@ -32,14 +31,17 @@ class rvmTool( SubTool ):
         self._callExternal(
             [ bash_bin,  '--noprofile', '--norc', '-c',
               '{0} -sSL {1} | {2} -s {3}'
-               .format(env['curlBin'], rvm_get, bash_bin, rvm_ver) ] )
+               .format(env['curlBin'], rvm_get, bash_bin, env['rvmVer']) ] )
             
     def updateTool( self, env ):
-        rvm_bin = env['rvmBin']
-        rvm_ver = env.get('rvmVer', self.RVM_LATEST) 
-        self._callExternal([ rvm_bin, 'get', rvm_ver ])
+        self._callExternal([ env['rvmBin'], 'get', env['rvmVer'] ])
+        
+    def uninstallTool( self, env ):
+        self._callExternal([ env['rvmBin'], 'implode', '--force' ])
+        self._have_tool = False
 
     def initEnv( self, env ) :
+        env.setdefault('rvmVer', self.RVM_LATEST) 
         rvm_dir = env.setdefault('rvmDir', self.RVM_DIR_DEFAULT)
         rvm_bin_dir = os.path.join(rvm_dir, 'bin')
         rvm_bin = env.setdefault('rvmBin', os.path.join(rvm_bin_dir, 'rvm'))

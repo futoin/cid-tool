@@ -13,6 +13,12 @@ class npmTool( SubTool ):
     
     def getDeps( self ) :
         return [ 'node' ]
+        
+    def updateTool( self, env ):
+        self._callExternal( [ env['npmBin'], 'update', '-g', 'npm' ] )
+        
+    def uninstallTool( self, env ):
+        pass
     
     def loadConfig( self, config ) :
         with open('package.json', 'r') as content_file:

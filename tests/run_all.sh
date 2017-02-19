@@ -5,14 +5,14 @@ if ! test -e bin/citool; then
     exit 1
 fi
 
-echo "Python 3"
-nosetests3 \
-    tests/citool_git_test.py:Test_CITool_Git \
-    tests/citool_hg_test.py:Test_CITool_Hg \
-    tests/citool_svn_test.py:Test_CITool_SVN
+tests=
+tests+=" tests/citool_tools_test.py"
+tests+=" tests/citool_git_test.py"
+tests+=" tests/citool_hg_test.py"
+tests+=" tests/citool_svn_test.py"
 
-echo "Python 2.x"
-nosetests \
-    tests/citool_git_test.py:Test_CITool_Git \
-    tests/citool_hg_test.py:Test_CITool_Hg \
-    tests/citool_svn_test.py:Test_CITool_SVN
+echo "Python 3"
+nosetests3 $tests
+
+echo "Python 2"
+nosetests $tests

@@ -11,7 +11,7 @@ Usage:
     citool run [<command>]
     citool ci_build <vcs_ref> <rms_pool> [--vcsRepo vcs_url] [--rmsRepo rms_url]
     citool tool exec <tool_name> [-- <tool_arg>...]
-    citool tool (install|update|test) [<tool_name>]
+    citool tool (install|uninstall|update|test) [<tool_name>]
 
 Options:
     --vcsRepo vcs_type:vcs_url
@@ -56,7 +56,7 @@ def run():
         #---
         tool = args['<tool_name>']
         overrides['tool'] = tool
-        overrides['toolTest'] = args['test']
+        overrides['toolTest'] = args['test'] or args['uninstall']
         
         #---
         cit = CITool( overrides = overrides )
@@ -82,6 +82,8 @@ def run():
                 cit.tool_exec( tool, args['<tool_arg>'] )
             elif args['install']:
                 cit.tool_install( tool )
+            elif args['uninstall']:
+                cit.tool_uninstall( tool )
             elif args['update']:
                 cit.tool_update( tool )
             elif args['test']:

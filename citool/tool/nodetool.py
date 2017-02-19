@@ -20,6 +20,16 @@ class nodeTool( SubTool ):
             
     def updateTool( self, env ):
         self._installTool( env )
+        
+    def uninstallTool( self, env ):
+        nvm_dir = env['nvmDir']
+        node_version = env['nodeVer']
+        bash_bin = env['bashBin']
+        self._callExternal(
+            [ bash_bin,  '--noprofile', '--norc', '-c',
+              'source {0}/nvm.sh --no-use && nvm deactivate && nvm uninstall {1}'
+              .format(nvm_dir, node_version) ] )
+        self._have_tool = False
 
     def initEnv( self, env ) :
         node_version = env.setdefault('nodeVer', 'stable')

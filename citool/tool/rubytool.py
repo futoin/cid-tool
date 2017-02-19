@@ -2,7 +2,7 @@
 from citool.subtool import SubTool
 
 class rubyTool( SubTool ):
-    RUBY_VER = 'ruby-2.4'
+    RUBY_VER = 'ruby'
 
     def getType( self ):
         return self.TYPE_RUNTIME
@@ -20,6 +20,12 @@ class rubyTool( SubTool ):
 
     def updateTool( self, env ):
         self._installTool( env )
+        
+    def uninstallTool( self, env ):
+        self._callExternal([
+            env['rvmBin'], 'uninstall', env['rubyVer']
+        ])
+        self._have_tool = False
 
     def initEnv( self, env ) :
         ruby_ver = env.setdefault('rubyVer', self.RUBY_VER)

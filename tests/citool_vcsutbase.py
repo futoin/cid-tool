@@ -6,6 +6,8 @@ import os
 import subprocess
 
 class citool_VCSUTBase ( citool_UTBase ) :
+    __test__ = False
+    
     @classmethod
     def setUpClass( cls ):
         super(citool_VCSUTBase, cls).setUpClass()
