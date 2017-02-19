@@ -26,7 +26,7 @@ class rvmTool( SubTool ):
         self._callExternal([
             env['gpgBin'], '--keyserver', env['gpgKeyServer'],
             '--recv-keys', rvm_gpg_key
-        ])
+        ], suppress_fail=True)
 
         self._callExternal(
             [ bash_bin,  '--noprofile', '--norc', '-c',
@@ -39,6 +39,9 @@ class rvmTool( SubTool ):
     def uninstallTool( self, env ):
         self._callExternal([ env['rvmBin'], 'implode', '--force' ])
         self._have_tool = False
+
+    def _envNames( self ) :
+        return ['rvmVer', 'rvmDir', 'rvmBin', 'rvmGet', 'rvmGpgKey' ]
 
     def initEnv( self, env ) :
         env.setdefault('rvmVer', self.RVM_LATEST) 

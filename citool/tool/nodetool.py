@@ -31,6 +31,9 @@ class nodeTool( SubTool ):
               .format(nvm_dir, node_version) ] )
         self._have_tool = False
 
+    def _envNames( self ) :
+        return ['nodeBin', 'nodeVer']
+    
     def initEnv( self, env ) :
         node_version = env.setdefault('nodeVer', 'stable')
 
@@ -50,4 +53,4 @@ class nodeTool( SubTool ):
 
         if env_to_set :
             self.updateEnvFromOutput(env_to_set)
-            self._have_tool = True
+            SubTool.initEnv( self, env )

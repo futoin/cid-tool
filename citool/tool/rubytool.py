@@ -27,6 +27,9 @@ class rubyTool( SubTool ):
         ])
         self._have_tool = False
 
+    def _envNames( self ) :
+        return ['rubyVer', 'rubyBin' ]
+
     def initEnv( self, env ) :
         ruby_ver = env.setdefault('rubyVer', self.RUBY_VER)
 
@@ -46,4 +49,4 @@ class rubyTool( SubTool ):
 
         if env_to_set :
             self.updateEnvFromOutput(env_to_set)
-            self._have_tool = True
+            SubTool.initEnv( self, env )

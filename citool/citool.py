@@ -541,6 +541,7 @@ class CITool :
         if config['toolTest']:
             for tool in tools :
                 t = tool_impl[tool]
+                t.importEnv( env )
                 t.initEnv( env )
         else :
             for tool in tools :

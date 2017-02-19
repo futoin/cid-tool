@@ -53,7 +53,7 @@ for t in ['nvm', 'rvm']: # phpenv, virtualenv
         'TOOL_NAME' : t,
     })
 
-os.environ['rvmVer'] = 'ruby-2.3.3' # use available pre-built binary
+os.environ['rubyVer'] = 'ruby-2.3.3' # use available pre-built binary
 
 for t in ['node', 'ruby']: # php, python
     cls = 'citool_Tool_30_' + t

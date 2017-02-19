@@ -28,6 +28,9 @@ class composerTool( SubTool ):
     def uninstallTool( self, env ):
         os.remove(env['composerBin'])
         self._have_tool = False
+        
+    def _envNames( self ) :
+        return [ 'composerDir', 'composerBin', 'composerGet' ]
 
     def initEnv( self, env ) :
         bin_dir = env['binDir']

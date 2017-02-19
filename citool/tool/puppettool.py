@@ -33,6 +33,9 @@ class puppetTool( SubTool ):
     def uninstallTool( self, env ):
         self._callExternal( [ env['gemBin'], 'uninstall', 'puppet' ] )
         self._have_tool = False
+            
+    def _envNames( self ) :
+        return ['puppetVer', 'puppetBin' ]
     
     def initEnv( self, env ):
         SubTool.initEnv( self, env )
