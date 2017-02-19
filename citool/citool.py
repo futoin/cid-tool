@@ -13,10 +13,7 @@ import shutil
 import stat
 from collections import OrderedDict
 
-try:
-    from .subtool import SubTool
-except ImportError:
-    from citool.subtool import SubTool
+from .subtool import SubTool
 
 def _call_cmd( cmd ):
     print( 'Call: ' + subprocess.list2cmdline( cmd ), file=sys.stderr )

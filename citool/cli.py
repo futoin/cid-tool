@@ -20,10 +20,7 @@ Options:
     --rmsHash hash_type:value
 """
 
-try:
-    from .citool import CITool
-except ImportError:
-    from citool.citool import CITool
+from .citool import CITool
     
 from docopt import docopt
 import sys
