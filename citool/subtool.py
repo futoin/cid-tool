@@ -84,7 +84,14 @@ class SubTool:
             
             if yn not in ( 'Y', 'y' ):
                 raise RuntimeError( 'User abort on RMS hash validation' )
-        
+
+    @classmethod
+    def addBinPath( cls, bin_dir ) :
+        bin_dir_list = os.environ['PATH'].split(os.pathsep)
+        if bin_dir not in bin_dir_list:
+            bin_dir_list[0:0] = bin_dir
+            os.environ['PATH'] = os.pathsep.join(bin_dir_list)
+
     def _autoDetectVCS( self, config, vcsDir ) :
         if config.get( 'vcs', None ) == self._name :
             return True

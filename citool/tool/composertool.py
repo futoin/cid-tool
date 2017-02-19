@@ -31,9 +31,7 @@ class composerTool( SubTool ):
         composer_dir = env.setdefault('composerDir', bin_dir)
         composer_bin = env.setdefault('composerBin', os.path.join(composer_dir, 'composer'))
 
-        if (bin_dir != composer_dir and
-            composer_dir not in os.environ['PATH'].split(os.pathsep)):
-                os.environ['PATH'] += os.pathsep + composer_dir
+        self.addBinPath( composer_dir )
 
         self._have_tool = os.path.exists( composer_bin )
 

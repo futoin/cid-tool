@@ -13,6 +13,8 @@ import shutil
 import stat
 from collections import OrderedDict
 
+from citool.subtool import SubTool
+
 def _call_cmd( cmd ):
     print( 'Call: ' + subprocess.list2cmdline( cmd ), file=sys.stderr )
     subprocess.call( cmd, stdin=subprocess.PIPE )    
@@ -407,10 +409,7 @@ class CITool :
         externalSetup.setdefault( 'installTools', False )
 
         env.setdefault( 'binDir', os.path.join(os.environ['HOME'], 'bin') )
-        bin_dir = env['binDir']
-
-        if bin_dir not in os.environ['PATH'].split(os.pathsep):
-            os.environ['PATH'] += os.pathsep + env['binDir']
+        SubTool.addBinPath( env['binDir'] )
 
     def _initTools( self ):
         config = self._config
