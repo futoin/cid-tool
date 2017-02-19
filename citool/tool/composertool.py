@@ -18,7 +18,7 @@ class composerTool( SubTool ):
         composer_get = env.get('composerGet', 'https://getcomposer.org/installer')
 
         self._callExternal(
-            [ bash_bin, '-c',
+            [ bash_bin, '--noprofile', '--norc', '-c',
               'mkdir -p {2} &&  {3} -s {0} | {1} -- --install-dir={2} --filename=composer'
               .format(composer_get, php_bin, composer_dir, curl_bin) ] )
 

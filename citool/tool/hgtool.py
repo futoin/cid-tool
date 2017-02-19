@@ -49,7 +49,8 @@ class hgTool( SubTool ):
         opts = []
         for r in refs :
             is_tag = self._callExternal( [
-                bash_bin, '-c', '%s tags | egrep "^%s" || true' % ( hgBin, r )
+                bash_bin, '--noprofile', '--norc', '-c',
+                '%s tags | egrep "^%s" || true' % ( hgBin, r )
             ] )
             
             if is_tag : continue

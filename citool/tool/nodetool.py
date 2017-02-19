@@ -15,8 +15,8 @@ class nodeTool( SubTool ):
         node_version = env['nodeVer']
         bash_bin = env['bashBin']
         self._callExternal(
-            [ bash_bin, '-c',
-              'source {0}/nvm.sh && nvm install {1}'.format(nvm_dir, node_version) ] )
+            [ bash_bin,  '--noprofile', '--norc', '-c',
+              'source {0}/nvm.sh --no-use && nvm install {1}'.format(nvm_dir, node_version) ] )
             
     def updateTool( self, env ):
         self._installTool( env )
@@ -29,8 +29,8 @@ class nodeTool( SubTool ):
 
         try:
             env_to_set = self._callExternal(
-                [ bash_bin, '-c',
-                'source {0}/nvm.sh && \
+                [ bash_bin,  '--noprofile', '--norc', '-c',
+                'source {0}/nvm.sh --no-use && \
                 nvm use {1} >/dev/null && \
                 env | egrep "(NVM_|\.nvm)"'.format(nvm_dir, node_version) ],
                 verbose = False

@@ -29,7 +29,7 @@ class rubyTool( SubTool ):
 
         try:
             env_to_set = self._callExternal(
-                [ bash_bin, '-c',
+                [ bash_bin,  '--noprofile', '--norc', '-c',
                 'source {0}/scripts/rvm && \
                 rvm use {1} >/dev/null && \
                 env | grep "rvm"'.format(rvm_dir, ruby_ver) ],

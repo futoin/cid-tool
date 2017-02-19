@@ -35,7 +35,8 @@ class svnTool( SubTool ):
         tag_path = '%s/tags/%s' % ( config['vcsRepo'], vcs_ref )
         
         if self._callExternal( [
-                bash_bin, '-c', '%s ls %s 2>/dev/null' % ( svnBin, branch_path )
+                bash_bin,  '--noprofile', '--norc', '-c',
+                '%s ls %s 2>/dev/null' % ( svnBin, branch_path )
                 ], suppress_fail=True ) :
             svn_repo_path = branch_path
         elif self._callExternal( [ svnBin, 'ls', tag_path ] ) :
@@ -66,8 +67,9 @@ class svnTool( SubTool ):
         bash_bin = env['bashBin']
 
         svn_url = self._callExternal( [
-            bash_bin, '-c',
-            'svn info | grep "^URL: " | sed -e "s/^URL: //"' ] ).strip()
+            bash_bin,  '--noprofile', '--norc', '-c',
+            '{0} info | grep "^URL: " | sed -e "s/^URL: //"'.format(svnBin)
+        ] ).strip()
         self._callExternal( [
             svnBin, 'copy',
             '-m', message,

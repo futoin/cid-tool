@@ -30,7 +30,7 @@ class rvmTool( SubTool ):
         ])
 
         self._callExternal(
-            [ bash_bin, '-c',
+            [ bash_bin,  '--noprofile', '--norc', '-c',
               '{0} -sSL {1} | {2} -s {3}'
                .format(env['curlBin'], rvm_get, bash_bin, rvm_ver) ] )
             

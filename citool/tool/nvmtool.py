@@ -20,7 +20,7 @@ class nvmTool( SubTool ):
         bash_bin = env['bashBin']
 
         self._callExternal(
-            [ bash_bin, '-c',
+            [ bash_bin,  '--noprofile', '--norc', '-c',
               'git clone {1} {0} && \
                cd {0} && git checkout {2}'
                .format(nvm_dir, nvm_git, nvm_ver) ] )
@@ -31,7 +31,7 @@ class nvmTool( SubTool ):
         bash_bin = env['bashBin']
 
         self._callExternal(
-            [ bash_bin, '-c',
+            [ bash_bin,  '--noprofile', '--norc', '-c',
               'cd {0} && git fetch && git checkout {1}'
                .format(nvm_dir, nvm_ver) ] )
         
