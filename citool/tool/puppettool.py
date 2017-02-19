@@ -11,6 +11,36 @@ class puppetTool( SubTool ):
 
     def getType( self ):
         return self.TYPE_BUILD
+    
+    def getDeps( self ) :
+        return [ 'ruby', 'gem' ]
+
+    def _installTool( self, env ):
+        puppet_ver = env['puppetVer']
+        version_arg = []
+        
+        if puppet_ver:
+            version_arg = ['--version', puppet_ver]
+        
+        self._callExternal( [ env['gemBin'], 'install', 'puppet', '--no-document' ] + version_arg )
+        
+    def updateTool( self, env ):
+        if env['puppetVer'] :
+            self._installTool( env )
+        else :
+            self._callExternal( [ env['gemBin'], 'update', 'puppet', '--no-document' ] )
+    
+    def initEnv( self, env ):
+        SubTool.initEnv( self, env )
+        puppet_ver = env.setdefault('puppetVer', None)
+        
+        if self._have_tool and puppet_ver:
+            try:
+                found_ver = self._callExternal( [ env['puppetBin'], '--version' ], verbose = False )
+                self._have_tool = found_ver.find(puppet_ver) >= 0
+            except:
+                self._have_tool = False
+                del env['puppetBin']
 
     def autoDetect( self, config ) :
         return self._autoDetectByCfg( config, [

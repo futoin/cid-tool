@@ -39,5 +39,3 @@ class nvmTool( SubTool ):
     def initEnv( self, env ) :
         nvm_dir = env.setdefault('nvmDir', self.NVM_DIR_DEFAULT)
         self._have_tool = os.path.exists(os.path.join(nvm_dir, 'nvm.sh'))
-        
-        

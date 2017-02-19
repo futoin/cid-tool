@@ -39,11 +39,5 @@ class nodeTool( SubTool ):
             return
 
         if env_to_set :
-            env_to_set = env_to_set.split( "\n" )
-
-            for e in env_to_set:
-                if not e: break
-                n, v = e.split('=', 1)
-                os.environ[n] = v
-
+            self.updateEnvFromOutput(env_to_set)
             self._have_tool = True

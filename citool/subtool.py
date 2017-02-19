@@ -86,11 +86,25 @@ class SubTool:
                 raise RuntimeError( 'User abort on RMS hash validation' )
 
     @classmethod
-    def addBinPath( cls, bin_dir ) :
+    def addBinPath( cls, bin_dir, first=False ) :
         bin_dir_list = os.environ['PATH'].split(os.pathsep)
+
         if bin_dir not in bin_dir_list:
-            bin_dir_list[0:0] = bin_dir
+            if first :
+                bin_dir_list[0:0] = bin_dir
+            else :
+                bin_dir_list.append(bin_dir)
+
             os.environ['PATH'] = os.pathsep.join(bin_dir_list)
+
+    @classmethod
+    def updateEnvFromOutput( cls, env_to_set ):
+        env_to_set = env_to_set.split( "\n" )
+
+        for e in env_to_set:
+            if not e: break
+            n, v = e.split('=', 1)
+            os.environ[n] = v
 
     def _autoDetectVCS( self, config, vcsDir ) :
         if config.get( 'vcs', None ) == self._name :

@@ -13,7 +13,10 @@ import shutil
 import stat
 from collections import OrderedDict
 
-from citool.subtool import SubTool
+try:
+    from subtool import SubTool
+except ImportError:
+    from citool.subtool import SubTool
 
 def _call_cmd( cmd ):
     print( 'Call: ' + subprocess.list2cmdline( cmd ), file=sys.stderr )
@@ -324,7 +327,13 @@ class CITool :
 
     @citool_action
     def tool_exec( self, tool, args ):
-        raise NotImplementedError( "Tool exec has not been implemented yet" )
+        t = self._tool_impl[tool]
+        bin = self._config['env'].get(tool + 'Bin')
+
+        if bin :
+            _call_cmd([bin] + args)
+        else :
+            raise NotImplementedError( "Tool exec has not been implemented for %s" % tool )
     
     @citool_action
     def tool_install( self, tool ):
