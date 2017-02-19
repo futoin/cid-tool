@@ -9,6 +9,37 @@ class gitTool( SubTool ):
     def autoDetect( self, config ) :
         return self._autoDetectVCS( config, '.git' )
 
+    def _checkGitConfig( self, env ):
+        gitBin = env['gitBin']
+        user_email = None
+        user_name = None
+        
+        try:
+            user_email = self._callExternal([
+                gitBin, 'config', 'user.email',
+            ], verbose=False).strip()
+        except:
+            pass
+        
+        try:
+            user_name = self._callExternal([
+                gitBin, 'config', 'user.name',
+            ], verbose=False).strip()
+        except:
+            pass
+        
+        if not user_email:
+            self._callExternal([
+                gitBin, 'config', 'user.email',
+                env.get('gitUserEmail', 'noreply@futoin.org')
+            ])
+
+        if not user_name:
+            self._callExternal([
+                gitBin, 'config', 'user.name',
+                env.get('gitUserName', 'FutoIn CITool')
+            ])
+
     def vcsCheckout( self, config, vcs_ref ):
         gitBin = config['env']['gitBin']
         wc_dir = config['wcDir']
@@ -35,7 +66,9 @@ class gitTool( SubTool ):
             self._callExternal( [ gitBin, 'checkout', '-q', vcs_ref ] )
     
     def vcsCommit( self, config, message, files ):
-        gitBin = config['env']['gitBin']
+        env = config['env']
+        gitBin = env['gitBin']
+        self._checkGitConfig(env)
         self._callExternal( [ gitBin, 'commit', '-q', '-m', message ] + files )
     
     def vcsTag( self, config, tag, message ):
