@@ -14,7 +14,7 @@ import stat
 from collections import OrderedDict
 
 try:
-    from subtool import SubTool
+    from .subtool import SubTool
 except ImportError:
     from citool.subtool import SubTool
 

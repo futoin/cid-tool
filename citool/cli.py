@@ -21,7 +21,7 @@ Options:
 """
 
 try:
-    from citool import CITool
+    from .citool import CITool
 except ImportError:
     from citool.citool import CITool
     
