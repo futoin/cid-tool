@@ -1,6 +1,6 @@
 
 from citool.subtool import SubTool
-import os, fnmatch
+import os, fnmatch, glob
 
 class phpTool( SubTool ):
     PHP_DIR = os.path.join(os.environ['HOME'], '.php')
@@ -51,8 +51,11 @@ class phpTool( SubTool ):
         php_ver = env.setdefault('phpVer', self.PHP_SYSTEM_VER)
         
         if php_ver == self.PHP_SYSTEM_VER:
+            SubTool.initEnv(self, env)
             env.setdefault('phpDir', '/usr')
-            return SubTool.initEnv(self, env)
+            env.setdefault('phpfpmBin',
+                           glob.glob(os.path.join(env['phpDir'], 'sbin', 'php*-fpm'))[0])
+            return
         else:
             def_dir = os.path.join(env['phpbuildDir'], 'share', 'php-build', 'definitions')
             defs = os.listdir(def_dir)
@@ -78,6 +81,7 @@ class phpTool( SubTool ):
             self._have_tool = True
             self.addBinPath( php_bin_dir )
             env.setdefault('phpBin', php_bin)
+            env.setdefault('phpfpmBin', os.path.join(php_dir, 'sbin', 'php-fpm') )
             
     def _buildDeps( self ):
         os.environ['PHP_BUILD_CONFIGURE_OPTS'] = ' \
