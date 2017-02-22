@@ -11,6 +11,7 @@ class rubyTool( SubTool ):
         return [ 'rvm' ]
 
     def _installTool( self, env ):
+        self._buildDeps()
         self._callExternal([
             env['rvmBin'], 'install', env['rubyVer'], '--autolibs=read-only'
         ])
@@ -50,3 +51,27 @@ class rubyTool( SubTool ):
         if env_to_set :
             self.updateEnvFromOutput(env_to_set)
             SubTool.initEnv( self, env )
+            
+    def _buildDeps( self ):
+        self.require_deb([
+            'build-essential',
+            'gawk',
+            'libssl-dev',
+            'make',
+            'libc6-dev',
+            'zlib1g-dev',
+            'libyaml-dev',
+            'libsqlite3-dev',
+            'sqlite3',
+            'autoconf',
+            'libgmp-dev',
+            'libgdbm-dev',
+            'libncurses5-dev',
+            'automake',
+            'libtool',
+            'bison',
+            'pkg-config',
+            'libffi-dev',
+            'libgmp-dev',
+            'libreadline6-dev',
+        ])

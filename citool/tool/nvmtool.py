@@ -11,7 +11,7 @@ class nvmTool( SubTool ):
         return self.TYPE_RUNENV
 
     def getDeps( self ) :
-        return [ 'bash' ]
+        return [ 'bash', 'git' ]
 
     def _installTool( self, env ):
         nvm_dir = env['nvmDir']
