@@ -115,7 +115,7 @@ class SubTool:
         
         if apt_get:
             try: cls._callExternal(['sudo', '--non-interactive', 'apt-get', 'install', '-y'] + packages)
-            except: print('WARNING: you may ned to install build deps manually !')
+            except: print('WARNING: you may need to install build deps manually !')
 
     @classmethod
     def require_rpm(cls, packages):
