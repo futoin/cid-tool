@@ -29,6 +29,7 @@ class rvmTool( SubTool ):
         ], suppress_fail=True)
 
         os.environ['rvm_user_install_flag'] = '1'
+        os.environ['rvm_auto_dotfiles_flag'] = '0'
 
         self._callExternal(
             [ bash_bin,  '--noprofile', '--norc', '-c',
