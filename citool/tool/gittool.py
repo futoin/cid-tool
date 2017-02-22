@@ -9,6 +9,10 @@ class gitTool( SubTool ):
     def autoDetect( self, config ) :
         return self._autoDetectVCS( config, '.git' )
 
+    
+    def _installTool( self, env ):
+        self.require_deb(['git'])
+
     def _checkGitConfig( self, env ):
         gitBin = env['gitBin']
         user_email = None

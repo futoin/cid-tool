@@ -108,6 +108,18 @@ class SubTool:
             if not e: break
             n, v = e.split('=', 1)
             os.environ[n] = v
+            
+    @classmethod
+    def require_deb(cls, packages):
+        apt_get = cls._which('apt-get')
+        
+        if apt_get:
+            try: cls._callExternal(['sudo', '--non-interactive', 'apt-get', 'install', '-y'] + packages)
+            except: print('WARNING: you may ned to install build deps manually !')
+
+    @classmethod
+    def require_rpm(cls, packages):
+        pass
 
     def _autoDetectVCS( self, config, vcsDir ) :
         if config.get( 'vcs', None ) == self._name :
