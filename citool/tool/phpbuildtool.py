@@ -11,7 +11,7 @@ class phpbuildTool( SubTool ):
         return self.TYPE_RUNENV
 
     def getDeps( self ) :
-        return [ 'bash' ]
+        return [ 'bash', 'git' ]
 
     def _installTool( self, env ):
         phpbuild_dir = env['phpbuildDir']

@@ -138,6 +138,8 @@ class phpTool( SubTool ):
         
         self.require_deb([
             'build-essential',
+            'bison',
+            'autoconf',
             'libsystemd-dev',
             'libcurl4-openssl-dev',
             'libtidy-dev',
