@@ -41,6 +41,7 @@ class CITool :
     DEPLOY_GRP_PATH = 5
 
     def __init__( self, overrides ) :
+        self._startup_env = dict(os.environ)
         self._tool_impl = None
         self._overrides = overrides
         self._initConfig()
@@ -401,7 +402,30 @@ class CITool :
             if not t.isInstalled( env ) :
                 print( "Tool '%s' is missing" % tool )
                 sys.exit( 1 )
-    
+
+    @citool_action
+    def tool_env( self, tool ):
+        config = self._config
+        env = config['env']
+
+        if tool :
+            tools = [tool]
+        else :
+            tools = config['tools']
+            
+        res = dict(os.environ)
+        
+        # remove unchanged vars
+        for k, v in self._startup_env.items():
+            if res.get(k, None) == v:
+                del res[k]
+
+        for tool in tools:
+            self._tool_impl[tool].exportEnv(env, res)
+            
+        for k, v in res.items():
+            print("{0}='{1}'".format(k, v.replace("'", "\\'").replace('\\', '\\\\')))
+
     def _initConfig( self ):
         self._global_config = gc = self._loadJSON( '/etc/futoin/futoin.json', {'env':{}} )
         self._user_config = uc = self._loadJSON( os.path.join( os.environ.get('HOME','/'), 'futoin.json' ), {'env':{}} )

@@ -50,6 +50,9 @@ class citool_Tool_UTBase ( citool_UTBase ) :
     def test_50_tool_update( self ):
         self._call_citool( [ 'tool', 'update', self.TOOL_NAME ] )
         
+    def test_60_tool_env( self ):
+        self._call_citool( [ 'tool', 'env', self.TOOL_NAME ] )
+        # TODO: better test output
 
 # 10
 #-----

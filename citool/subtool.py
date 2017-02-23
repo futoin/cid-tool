@@ -180,6 +180,11 @@ class SubTool:
             val = environ.get(name, None)
             if val is not None:
                 env[name] = val
+                
+    def exportEnv( self, env, dst):
+        for name in self._envNames():
+            if name in env:
+                dst[name] = env[name]
     
     def initEnv( self, env ) :
         name = self._name

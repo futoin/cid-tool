@@ -11,7 +11,7 @@ Usage:
     citool run [<command>]
     citool ci_build <vcs_ref> <rms_pool> [--vcsRepo vcs_url] [--rmsRepo rms_url]
     citool tool exec <tool_name> [-- <tool_arg>...]
-    citool tool (install|uninstall|update|test) [<tool_name>]
+    citool tool (install|uninstall|update|test|env) [<tool_name>]
 
 Options:
     --vcsRepo vcs_type:vcs_url
@@ -88,6 +88,8 @@ def run():
                 cit.tool_update( tool )
             elif args['test']:
                 cit.tool_test( tool )
+            elif args['env']:
+                cit.tool_env( tool )
             else:
                 print( "Unknown Command" )
                 sys.exit( 1 )
