@@ -11,8 +11,18 @@ tests+=" tests/citool_git_test.py"
 tests+=" tests/citool_hg_test.py"
 tests+=" tests/citool_svn_test.py"
 
-echo "Python 3"
-nosetests3 $tests
+for nt in nosetests3 nosetests-3.4; do
+    if which $nt; then
+        echo "Python 3"
+        $nt $tests;
+        break
+    fi
+done
 
-echo "Python 2"
-nosetests $tests
+for nt in nosetests-2.7 nosetests; do
+    if which $nt; then
+        echo "Python 2"
+        $nt $tests;
+        break
+    fi
+done

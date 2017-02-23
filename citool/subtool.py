@@ -119,7 +119,22 @@ class SubTool:
 
     @classmethod
     def require_rpm(cls, packages):
-        pass
+        yum = cls._which('yum')
+        
+        if yum:
+            try: cls._callExternal(['sudo', '-n', 'yum', 'install', '-y'] + packages)
+            except: print('WARNING: you may need to install build deps manually !')
+            
+        zypper = cls._which('zypper')
+
+        if zypper:
+            try: cls._callExternal(['sudo', '-n', 'zypper', 'install', '-y'] + packages)
+            except: print('WARNING: you may need to install build deps manually !')
+    
+    @classmethod
+    def require_packages(cls, packages):
+        cls.require_deb(packages)
+        cls.require_rpm(packages)
 
     def _autoDetectVCS( self, config, vcsDir ) :
         if config.get( 'vcs', None ) == self._name :

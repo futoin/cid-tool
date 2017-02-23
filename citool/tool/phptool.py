@@ -88,8 +88,18 @@ class phpTool( SubTool ):
             env.setdefault('phpfpmBin', os.path.join(php_dir, 'sbin', 'php-fpm') )
             
     def _buildDeps( self ):
+        systemctl = self._which('systemctl')
+        if systemctl:
+            with_systemd = '--with-fpm-systemd '
+        else:
+            with_systemd = ''
+            
+        if os.path.exists('/usr/lib/x86_64-linux-gnu'):
+            with_libdir = '--with-libdir=lib/x86_64-linux-gnu '
+        else:
+            with_libdir = ''
+        
         os.environ['PHP_BUILD_CONFIGURE_OPTS'] = ' \
-            --with-libdir=lib/x86_64-linux-gnu \
             --disable-debug \
             --with-regex=php \
             --enable-calendar \
@@ -99,7 +109,6 @@ class phpTool( SubTool ):
             --enable-bcmath \
             --disable-cgi \
             --enable-fpm \
-            --with-fpm-systemd \
             --with-bz2 \
             --enable-ctype \
             --without-db4 \
@@ -123,7 +132,7 @@ class phpTool( SubTool ):
             --enable-zip \
             --with-mhash=yes \
             --with-system-tzdata \
-            '
+            ' + with_systemd + with_libdir
             #--with-db4 \
             #--with-qdbm=/usr \
         
@@ -176,6 +185,37 @@ class phpTool( SubTool ):
             'zlib1g-dev',
             're2c',
         ])
+        
+        self.require_rpm([
+            'git',
+            'gcc',
+            'gcc-c++',
+            'libxml2-devel',
+            'pkgconfig',
+            'openssl-devel',
+            'bzip2-devel',
+            'curl-devel',
+            'libpng-devel',
+            'libjpeg-devel',
+            'libXpm-devel',
+            'freetype-devel',
+            'gmp-devel',
+            'libmcrypt-devel',
+            'mariadb-devel',
+            'aspell-devel',
+            'recode-devel',
+            'autoconf',
+            'bison',
+            're2c',
+            'libicu-devel',
+            'oniguruma-devel',
+            'libtidy-devel',
+            'libxslt-devel',
+        ])
+        
+        try:
+            self.require_rpm(['systemd-devel'])
+        except: pass
     
     def _systemDeps( self ):
         self.require_deb([
@@ -198,6 +238,16 @@ class phpTool( SubTool ):
             "php.*-xml",
             "php.*-xmlrpc",
             "php.*-xsl",
+        ])
+        
+        self.require_rpm([
+            'php-cli',
+            'php-fpm',
+            'php-pecl-apcu',
+            'php-pecl-imagick',
+            'php-pecl-msgpack',
+            'php-pecl-ssh2',
+            'php-pecl-zendopcache',
         ])
         
         try:

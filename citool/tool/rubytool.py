@@ -75,3 +75,26 @@ class rubyTool( SubTool ):
             'libgmp-dev',
             'libreadline-dev',
         ])
+        
+        self.require_rpm([
+            'binutils',
+            'patch',
+            'libyaml-devel',
+            'autoconf',
+            'gcc',
+            'gcc-c++',
+            'glibc-devel',
+            'readline-devel',
+            'zlib-devel',
+            'libffi-devel',
+            'openssl-devel',
+            'automake',
+            'libtool',
+            'bison',
+            'sqlite-devel',
+            'make',
+            'm4',
+            'gdbm-devel',
+            'libopenssl-devel',
+            'sqlite3-devel',
+        ])

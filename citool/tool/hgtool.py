@@ -10,7 +10,7 @@ class hgTool( SubTool ):
         return [ 'bash' ]
     
     def _installTool( self, env ):
-        self.require_deb(['mercurial'])
+        self.require_packages(['mercurial'])
     
     def autoDetect( self, config ) :
         return self._autoDetectVCS( config, '.hg' )

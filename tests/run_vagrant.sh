@@ -7,8 +7,8 @@ if [ -z "$vm" ]; then
     exit 1
 fi
 
-vagrant up $vm
-vagrant rsync $vm
+vagrant up $vm #>/dev/null
+vagrant rsync $vm #>/dev/null
 vagrant ssh $vm -c 'cd /vagrant && tests/run_all.sh'
 res=$?
 #vagrant 

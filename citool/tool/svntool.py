@@ -11,7 +11,7 @@ class svnTool( SubTool ):
         return [ 'bash' ]
     
     def _installTool( self, env ):
-        self.require_deb(['subversion'])
+        self.require_packages(['subversion'])
     
     def autoDetect( self, config ) :
         return self._autoDetectVCS( config, '.svn' )

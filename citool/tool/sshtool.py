@@ -8,5 +8,6 @@ class sshTool( SubTool ):
     
     def _installTool( self, env ):
         self.require_deb(['openssh-client'])
+        self.require_rpm(['openssh'])
     
     

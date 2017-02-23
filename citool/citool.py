@@ -155,8 +155,9 @@ class CITool :
             for f in files :
                 if to_gzip_re.search( f ):
                     f = os.path.join( path, f )
-                    with open(f, 'rb') as f_in, gzip.open(f + '.gz', 'wb', 9) as f_out:
-                        shutil.copyfileobj(f_in, f_out)
+                    with open(f, 'rb') as f_in:
+                        with gzip.open(f + '.gz', 'wb', 9) as f_out:
+                            shutil.copyfileobj(f_in, f_out)
         
         #---
         checksums_file = '.package.checksums'
