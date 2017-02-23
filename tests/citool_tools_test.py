@@ -42,15 +42,13 @@ class citool_Tool_UTBase ( citool_UTBase ) :
             raise RuntimeError('Tool must not be present')
 
     def test_30_tool_install( self ):
-        if self.TOOL_MANAGED:
-            self._call_citool( [ 'tool', 'install', self.TOOL_NAME ] )
+        self._call_citool( [ 'tool', 'install', self.TOOL_NAME ] )
 
     def test_40_tool_test( self ):
         self._call_citool( [ 'tool', 'test', self.TOOL_NAME ] )
 
     def test_50_tool_update( self ):
-        if self.TOOL_MANAGED:
-            self._call_citool( [ 'tool', 'update', self.TOOL_NAME ] )
+        self._call_citool( [ 'tool', 'update', self.TOOL_NAME ] )
         
 
 # 10
@@ -74,7 +72,7 @@ for t in ['nvm', 'rvm', 'phpbuild']: # virtualenv
 
 # 30
 #-----
-os.environ['rubyVer'] = 'ruby-2.3.3' # use available pre-built binary
+os.environ['rubyVer'] = 'ruby-2.4'
 
 for t in ['node', 'ruby']: # python
     cls = 'citool_Tool_30_' + t

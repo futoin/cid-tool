@@ -17,7 +17,7 @@ class phpTool( SubTool ):
         
         if php_ver == self.PHP_SYSTEM_VER:
             self._systemDeps()
-            return SubTool._installTool(self, env)
+            return
         
         self._buildDeps()
 
@@ -45,16 +45,20 @@ class phpTool( SubTool ):
         self._have_tool = False
     
     def _envNames( self ) :
-        return ['phpDir', 'phpBin', 'phpVer']
+        return ['phpDir', 'phpBin', 'phpVer', 'phpfpmBin']
     
     def initEnv( self, env ) :
         php_ver = env.setdefault('phpVer', self.PHP_SYSTEM_VER)
         
         if php_ver == self.PHP_SYSTEM_VER:
             SubTool.initEnv(self, env)
+            if not self._have_tool: return
+
             env.setdefault('phpDir', '/usr')
-            env.setdefault('phpfpmBin',
-                           glob.glob(os.path.join(env['phpDir'], 'sbin', 'php*-fpm'))[0])
+            
+            php_fpm = glob.glob(os.path.join(env['phpDir'], 'sbin', 'php*-fpm*'))
+            if php_fpm:
+                env.setdefault('phpfpmBin', php_fpm[0])
             return
         else:
             def_dir = os.path.join(env['phpbuildDir'], 'share', 'php-build', 'definitions')
@@ -187,16 +191,22 @@ class phpTool( SubTool ):
             "php.*-intl",
             "php.*-json",
             "php.*-ldap",
-            "php.*-mbstring",
             "php.*-mcrypt",
             "php.*-msgpack",
-            "php.*-opcache",
             "php.*-ssh2",
             "php.*-soap",
             "php.*-xml",
             "php.*-xmlrpc",
             "php.*-xsl",
-            "php.*-zip",
         ])
+        
+        try:
+            self.require_deb([
+                "php.*-mbstring",
+                "php.*-opcache",
+                "php.*-zip",
+            ])
+        except:
+            pass
 
         

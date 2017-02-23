@@ -73,5 +73,5 @@ class rubyTool( SubTool ):
             'pkg-config',
             'libffi-dev',
             'libgmp-dev',
-            'libreadline6-dev',
+            'libreadline-dev',
         ])

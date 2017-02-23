@@ -46,7 +46,8 @@ true
         'debian_stretch' => 'fujimakishouten/debian-stretch64',
         'ubuntu_trusty' => 'bento/ubuntu-14.04',
         'ubuntu_xenial' => 'bento/ubuntu-16.04',
-        'ubuntu_zesty' => 'bento/ubuntu-17.04', # non-LTS
+        'ubuntu_yakkety' => 'bento/ubuntu-16.10', # non-LTS
+        #'ubuntu_zesty' => 'bento/ubuntu-17.04', # non-LTS
         'centos_5' => 'centos/5',
         'centos_6' => 'centos/6',
         'centos_7' => 'centos/7',
