@@ -15,7 +15,9 @@ Vagrant.configure("2") do |config|
     config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync__exclude: ".git/", create: true, group: 'root'
     
     config.vm.provision "shell", inline: <<-SHELL
-which apt-get && (sudo apt-get install -y \
+which apt-get && ( \
+    sudo apt-get update && \
+    sudo apt-get install -y \
     python3-minimal \
     python-nose python3-nose \
     python-docopt python3-docopt \
