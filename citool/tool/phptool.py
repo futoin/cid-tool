@@ -240,15 +240,52 @@ class phpTool( SubTool ):
             "php.*-xsl",
         ])
         
-        self.require_rpm([
-            'php-cli',
-            'php-fpm',
-            'php-pecl-apcu',
-            'php-pecl-imagick',
-            'php-pecl-msgpack',
-            'php-pecl-ssh2',
-            'php-pecl-zendopcache',
-        ])
+        if self._which('zypper'):
+            # SuSe-like
+            self.require_rpm([
+                'php?',
+                'php*-fpm',
+                'php*-bcmath',
+                'php*-bz2',
+                'php*-calendar',
+                'php*-ctype',
+                'php*-curl',
+                'php*-dom',
+                'php*-exif',
+                'php*-fileinfo',
+                'php*-gettext',
+                'php*-gmp',
+                'php*-iconv',
+                'php*-imap',
+                'php*-intl',
+                'php*-json',
+                'php*-ldap',
+                'php*-mbstring',
+                'php*-mcrypt',
+                'php*-pcntl',
+                'php*-pdo',
+                'php*-phar',
+                'php*-soap',
+                'php*-sockets',
+                'php*-tidy',
+                'php*-xmlreader',
+                'php*-xmlrpc',
+                'php*-xmlwriter',
+                'php*-xsl',
+                'php*-zip',
+                'php*-zlib',
+            ])
+        else:
+            # RedHat-like
+            self.require_rpm([
+                'php-cli',
+                'php-fpm',
+                'php-pecl-apcu',
+                'php-pecl-imagick',
+                'php-pecl-msgpack',
+                'php-pecl-ssh2',
+                'php-pecl-zendopcache',
+            ])
         
         try:
             self.require_deb([

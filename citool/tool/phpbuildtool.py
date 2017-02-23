@@ -21,8 +21,8 @@ class phpbuildTool( SubTool ):
         
         self._callExternal(
             [ bash_bin,  '--noprofile', '--norc', '-c',
-              'git clone {1} {0} && \
-               cd {0} && git checkout {2}'
+              'git clone {1} {0}; \
+               cd {0} && git fetch && git reset --hard && git checkout {2}'
                .format(phpbuild_dir, phpbuild_git, phpbuild_ver) ] )
             
     def updateTool( self, env ):
@@ -32,7 +32,7 @@ class phpbuildTool( SubTool ):
 
         self._callExternal(
             [ bash_bin,  '--noprofile', '--norc', '-c',
-              'cd {0} && git fetch && git checkout {1} && git pull --rebase'
+              'cd {0} && git fetch && git reset --hard && git checkout {1} && git pull --rebase'
                .format(phpbuild_dir, phpbuild_ver) ] )
     
     def uninstallTool( self, env ):

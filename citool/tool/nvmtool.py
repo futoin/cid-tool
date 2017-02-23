@@ -21,8 +21,8 @@ class nvmTool( SubTool ):
 
         self._callExternal(
             [ bash_bin,  '--noprofile', '--norc', '-c',
-              'git clone {1} {0} && \
-               cd {0} && git checkout {2}'
+              'git clone {1} {0}; \
+               cd {0} && git fetch && git reset --hard && git checkout {2}'
                .format(nvm_dir, nvm_git, nvm_ver) ] )
             
     def updateTool( self, env ):
@@ -32,7 +32,7 @@ class nvmTool( SubTool ):
 
         self._callExternal(
             [ bash_bin,  '--noprofile', '--norc', '-c',
-              'cd {0} && git fetch && git checkout {1}'
+              'cd {0} && git fetch && git reset --hard && git checkout {1}'
                .format(nvm_dir, nvm_ver) ] )
     
     def uninstallTool( self, env ):
