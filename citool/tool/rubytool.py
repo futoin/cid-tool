@@ -2,7 +2,7 @@
 from citool.subtool import SubTool
 
 class rubyTool( SubTool ):
-    RUBY_VER = 'ruby'
+    RUBY_SYSTEM_VER = 'system'
 
     def getType( self ):
         return self.TYPE_RUNTIME
@@ -11,28 +11,38 @@ class rubyTool( SubTool ):
         return [ 'rvm' ]
 
     def _installTool( self, env ):
+        ruby_ver = env['rubyVer']
+        
+        if ruby_ver == self.RUBY_SYSTEM_VER:
+            self._systemDeps()
+            return
+        
         self._buildDeps()
         self._callExternal([
-            env['rvmBin'], 'install', env['rubyVer'], '--autolibs=read-only'
+            env['rvmBin'], 'install', ruby_ver, '--autolibs=read-only'
         ])
         self._callExternal([
             env['rvmBin'], 'cleanup', 'all'
         ])
 
     def updateTool( self, env ):
-        self._installTool( env )
+        if env['rubyVer'] != self.RUBY_SYSTEM_VER:
+            self._installTool( env )
         
     def uninstallTool( self, env ):
-        self._callExternal([
-            env['rvmBin'], 'uninstall', env['rubyVer']
-        ])
-        self._have_tool = False
+        ruby_ver = env['rubyVer']
+        
+        if ruby_ver != self.RUBY_SYSTEM_VER:
+            self._callExternal([
+                env['rvmBin'], 'uninstall', env['rubyVer']
+            ])
+            self._have_tool = False
 
     def _envNames( self ) :
         return ['rubyVer', 'rubyBin' ]
 
     def initEnv( self, env ) :
-        ruby_ver = env.setdefault('rubyVer', self.RUBY_VER)
+        ruby_ver = env.setdefault('rubyVer', self.RUBY_SYSTEM_VER)
 
         rvm_dir = env['rvmDir']
         bash_bin = env['bashBin']
@@ -98,3 +108,6 @@ class rubyTool( SubTool ):
             'libopenssl-devel',
             'sqlite3-devel',
         ])
+        
+    def _systemDeps( self ):
+        self.require_packages(['ruby'])

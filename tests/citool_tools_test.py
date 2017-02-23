@@ -72,30 +72,34 @@ for t in ['nvm', 'rvm', 'phpbuild']: # virtualenv
 
 # 30
 #-----
-os.environ['rubyVer'] = 'ruby-2.4'
-
-for t in ['node', 'ruby']: # python
+for t in ['node']: # python
     cls = 'citool_Tool_30_' + t
     globals()[cls] = type(cls, (citool_Tool_UTBase, ), {
         '__test__' : True,
         'TOOL_NAME' : t,
     })
     
-cls = 'citool_Tool_30_php'
-globals()[cls] = type(cls, (citool_Tool_UTBase, ), {
-    '__test__' : True,
-    'TOOL_NAME' : t,
-    'TOOL_ENV': {
-        'phpVer' : '7',
-    },
-})
-#--
-cls = 'citool_Tool_30_php_system'
-globals()[cls] = type(cls, (citool_Tool_UTBase, ), {
-    '__test__' : True,
-    'TOOL_NAME' : t,
-    'TOOL_MANAGED' : False,
-})
+mixed_tools = {
+    'php' : '7',
+    'ruby' : 'ruby-2',
+}
+    
+for t, v in mixed_tools.items():
+    cls = "citool_Tool_31_{0}".format(t)
+    globals()[cls] = type(cls, (citool_Tool_UTBase, ), {
+        '__test__' : True,
+        'TOOL_NAME' : t,
+        'TOOL_ENV': {
+            "{0}Ver".format(t) : v,
+        },
+    })
+    #--
+    cls = "citool_Tool_30_{0}_system".format(t)
+    globals()[cls] = type(cls, (citool_Tool_UTBase, ), {
+        '__test__' : True,
+        'TOOL_NAME' : t,
+        'TOOL_MANAGED' : False,
+    })
 
 # 40
 #-----
