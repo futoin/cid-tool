@@ -16,22 +16,33 @@ Vagrant.configure("2") do |config|
     
     config.vm.provision "shell", inline: <<-SHELL
 which apt-get && ( \
-    sudo apt-get update && \
-    sudo apt-get install -y \
+    apt-get update && \
+    apt-get install -y \
     python3-minimal \
     python-nose python3-nose \
     python-docopt python3-docopt \
     || exit 1)
 which yum && ( \
-    sudo yum -y install epel-release && \
-    sudo yum -y install python34 \
-        python34-nose python-nose \
-        python-docopt && \
-    easy_install-3.4 pip && \
-    sudo pip3 install docopt \
-    || exit 1)
+    yum install -y epel-release; \
+    yum install -y python34 python34-setuptools; \
+    easy_install-3.4 pip; \
+    pip3.4 install docopt nose; \
+    ( \
+        yum install -y python-setuptools; \
+        which easy_install-2.7 && (
+            easy_install-2.7 pip; \
+            pip2.7 install docopt nose \
+        ) || (
+            yum install -y centos-release-scl; \
+            yum install -y python27; \
+            source /opt/rh/python27/enable; \
+            easy_install-2.7 pip; \
+            pip2.7 install docopt nose \
+        )
+    )
+    )
 which zypper && ( \
-    sudo zypper install -y python3 \
+    zypper install -y python3 \
         python-nose python3-nose \
         python-docopt python3-docopt \
     || exit 1)
@@ -45,8 +56,7 @@ true
         'ubuntu_xenial' => 'bento/ubuntu-16.04',
         'ubuntu_yakkety' => 'bento/ubuntu-16.10', # non-LTS
         #'ubuntu_zesty' => 'bento/ubuntu-17.04', # non-LTS
-        #'centos_5' => 'bento/centos-5.11',
-        #'centos_6' => 'centos/6',
+        'centos_6' => 'centos/6',
         'centos_7' => 'centos/7',
         'opensuse_leap' => 'bento/opensuse-leap-42.1',
     }.each do |name, box|
