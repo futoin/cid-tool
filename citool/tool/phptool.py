@@ -83,7 +83,7 @@ class phpTool( SubTool ):
         
         if os.path.exists(php_bin):
             self._have_tool = True
-            self.addBinPath( php_bin_dir )
+            self.addBinPath( php_bin_dir, True )
             env.setdefault('phpBin', php_bin)
             env.setdefault('phpfpmBin', os.path.join(php_dir, 'sbin', 'php-fpm') )
             
