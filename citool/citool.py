@@ -524,15 +524,17 @@ class CITool :
                 tool_impl[ k ] = getattr( m, k + 'Tool' )( k )
 
         #---
-        tools = []
         curr_tool = config.get('tool', None)
         
         if curr_tool:
-            tools.append( curr_tool )
+            tools = [ curr_tool ]
         else :
-            for ( n, t ) in tool_impl.items():
-                if t.autoDetect( config ) :
-                    tools.append( n )
+            tools = config.get('tools', [])
+            
+            if not tools:
+                for ( n, t ) in tool_impl.items():
+                    if t.autoDetect( config ) :
+                        tools.append( n )
 
             # Make sure deps & env are processed for RMS tool
             #--
@@ -545,15 +547,20 @@ class CITool :
         #--
         dep_generations = [ set(tools) ]
         tools = set( tools )
-        l = 0
-        while len( tools ) != l :
-            l = len( tools )
-            moredeps = set()
-            for t in dep_generations[-1] :
-                t = tool_impl[t]
-                moredeps.update( set( t.getDeps() ) )
-            dep_generations.append( moredeps )
-            tools.update( moredeps )
+        tools_length = 0
+        last_index = 0
+        while len( tools ) != tools_length :
+            tools_length = len( tools )
+            curr_index = last_index
+            last_index = len(dep_generations)
+
+            for g in dep_generations[curr_index:] :
+                for tn in g:
+                    t = tool_impl[tn]
+                    moredeps = set(t.getDeps())
+                    if moredeps:
+                        dep_generations.append( moredeps )
+                        tools.update( moredeps )
         
         #---
         dep_generations.reverse()
