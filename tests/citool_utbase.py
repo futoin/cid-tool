@@ -15,6 +15,7 @@ class citool_UTBase ( unittest.TestCase ) :
         os.path.join(os.path.dirname(__file__), '..', 'testrun')
     )
     __test__ = False
+    _dev_null = open(os.devnull, 'w')
 
     @classmethod
     def setUpClass( cls ):
@@ -51,13 +52,12 @@ class citool_UTBase ( unittest.TestCase ) :
                 cmd,
                 bufsize=-1,
                 stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
+                stdout=self._dev_null,
                 stderr=subprocess.PIPE
         )
 
         if stdin is not None:
             p.stdin.write( stdin )
-        p.stdout.read()
         err = p.stderr.read()
 
         p.wait()
