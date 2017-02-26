@@ -223,6 +223,15 @@ class phpTool( SubTool ):
         else:
             with_libdir = ''
         #---
+        cpu_count = int(self._callExternal([
+            env['bashBin'],  '--noprofile', '--norc', '-c',
+            'cat /proc/cpuinfo | grep -c vendor'
+        ]))
+        
+        if cpu_count <= 0:
+            cpu_count = 1
+        
+        os.environ['PHP_BUILD_EXTRA_MAKE_ARGUMENTS'] = '-j{0}'.format(cpu_count)
        
         os.environ['PHP_BUILD_CONFIGURE_OPTS'] = ' \
             --disable-debug \
