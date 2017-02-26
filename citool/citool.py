@@ -220,13 +220,13 @@ class CITool :
         if deploy_dir:
             os.chdir( deploy_dir )
 
-        # cleanup first, in case of incomplete actions
-        self._deployCleanup()
-
         # Find out package to deploy
         if not package:
             package = rmstool.rmsGetLatest( config, rms_pool )
             
+        # cleanup first, in case of incomplete actions
+        self._deployCleanup( package )
+
         # Prepare package name components
         package_basename = os.path.basename( package )
         ( package_noext, package_ext ) = os.path.splitext( package_basename )
@@ -258,6 +258,25 @@ class CITool :
         else:
             raise RuntimeError( 'Not supported package format: ' + package_ext )
         
+        # Setup persistent folders
+        persistent_dir = os.path.abspath( config['env'].get('persistentDir', 'persistent') )
+        wdir_wperm = stat.S_IRUSR | stat.S_IXUSR | \
+                    stat.S_IRGRP | stat.S_IXGRP | \
+                    stat.S_IWUSR | stat.S_IWGRP
+        
+        for d in config.get('persistent', []) :
+            pd = os.path.join( persistent_dir, d )
+            dd = os.path.join( package_noext_tmp, d )
+
+            if not os.path.isdir( pd ) :
+                os.makedirs( pd, wdir_wperm )
+                
+            if os.path.exists( dd ):
+                shutil.copytree( dd, pd )
+                shutil.rmtree( dd )
+            
+            os.symlink( pd, dd )
+            
         # Setup read-only permissions
         dir_perm = stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP
         file_perm = stat.S_IRUSR | stat.S_IRGRP
@@ -269,19 +288,8 @@ class CITool :
                 os.chmod( os.path.join( path, d ), dir_perm )
             for f in files :
                 os.chmod( os.path.join( path, f ), file_perm )
-
-        # Setup writable permission
-        persistent_dir = os.path.abspath( 'persistent' )
-        dir_wperm = dir_perm | stat.S_IWUSR | stat.S_IWGRP
-        
-        for d in config.get('writable', []) :
-            pd = os.path.join( persistent_dir, d )
-            if not os.path.isdir( pd ) :
-                os.makedirs( pd, dir_wperm )
-                
-            os.symlink( pd, os.path.join( package_noext_tmp, d ) )
             
-        # Complete migrate
+        # Complete migration
         self.migrate( package_noext_tmp )
         
         # Setup per-user services
@@ -292,15 +300,29 @@ class CITool :
             # re-deploy case
             os.rename( package_noext, package_noext + '.tmprm' )
         os.rename( package_noext_tmp, package_noext )
+        os.symlink( package_noext, 'current.tmp' )
+        os.rename( 'current.tmp', 'current' )
         
         # Re-run
         self.run( 'reload' )
         
         # Cleanup old packages and deploy dirs
-        self._deployCleanup()
+        self._deployCleanup( package )
         
-    def _deployCleanup( self ):
-        pass
+    def _deployCleanup( self, package ):
+        if os.path.exists('current'):
+            current_dir = os.path.basename(os.readlink('current'))
+        else :
+            current_dir = ''
+
+        for f in os.listdir( '.' ):
+            ( f_noext, f_ext ) = os.path.splitext( f )
+            
+            if f in ['current', 'vcs', 'persistent', package, current_dir]:
+                continue
+            
+            shutil.rmtree(f)
+            
             
     def _deployServices( self, subdir ):
         pass
@@ -309,8 +331,12 @@ class CITool :
     def run( self, command ):
         config = self._config
         if config.get('vcs', None) :
-            self.runDev()
+            self.runDev( command )
             return
+
+    @citool_action
+    def runDev( self, command ):
+        pass
     
     @citool_action
     def ci_build( self, vcs_ref, rms_pool ):
