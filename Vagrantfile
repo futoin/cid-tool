@@ -51,14 +51,15 @@ true
     
     {
         'debian_jessie' => 'debian/jessie64',
+        'ubuntu_xenial' => 'bento/ubuntu-16.04',
+        'centos_7' => 'centos/7',
+        'opensuse_leap' => 'bento/opensuse-leap-42.1',
+        
         'debian_stretch' => 'fujimakishouten/debian-stretch64',
         'ubuntu_trusty' => 'bento/ubuntu-14.04',
-        'ubuntu_xenial' => 'bento/ubuntu-16.04',
         'ubuntu_yakkety' => 'bento/ubuntu-16.10', # non-LTS
         #'ubuntu_zesty' => 'bento/ubuntu-17.04', # non-LTS
         'centos_6' => 'centos/6',
-        'centos_7' => 'centos/7',
-        'opensuse_leap' => 'bento/opensuse-leap-42.1',
     }.each do |name, box|
         config.vm.define('cid_' + name) do |node|
             node.vm.box = box
