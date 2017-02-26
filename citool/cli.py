@@ -45,6 +45,7 @@ def run():
             (overrides['rms'],
              overrides['rmsRepo']) = rmsArg.split(':', 1)
         overrides['rmsHash'] = args['--rmsHash']
+        overrides['rmsPool'] = args['<rms_pool>']
         #---
         overrides['wcDir'] = args['--wcDir'] or 'build'
         overrides['deployDir'] = args['--deployDir'] or None
