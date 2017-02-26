@@ -8,9 +8,10 @@ if [ -z "$vm" ]; then
     exit 1
 fi
 
+echo "Running up $vm"
 vagrant up $vm >/dev/null
 vagrant rsync $vm #>/dev/null
-vagrant ssh $vm -c "cd /vagrant && tests/run.sh $@"
+vagrant ssh $vm -c "cd /vagrant && tests/run.sh $*"
 res=$?
 #vagrant 
 exit $res
