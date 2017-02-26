@@ -37,7 +37,7 @@ class citool_VCSUTBase ( citool_UTBase ) :
         os.chdir( 'prep_dir' )
         self._call_citool( [ 'prepare', 'branch_A' ] )
     
-    def test_40_ci_build_deploy( self ):
+    def test_40_ci_build( self ):
         try:
             os.makedirs( 'rms_repo/Builds')
             os.makedirs( 'rms_repo/Verified')
@@ -110,10 +110,37 @@ class citool_VCSUTBase ( citool_UTBase ) :
         req_content = sorted(req_content)
         self.assertEqual( content, req_content )
         
-        #------------
-        self._goToBase()
+    def test_40_release_build( self ):
+        rms_dir = os.path.realpath( 'rms_repo' )
+
+        self._call_citool( [ 'ci_build', 'v1.2.3', 'Builds',
+                            '--vcsRepo', self.VCS_REPO,
+                            '--rmsRepo', 'scp:' + rms_dir ] )
+        
+    def test_50_deploy( self ):
+        rms_dir = os.path.realpath( 'rms_repo' )
+        
         os.makedirs( 'test_deploy' )
         os.chdir( 'test_deploy' )
         self._call_citool( [ 'deploy', 'Prod',
+                            '--rmsRepo', 'scp:' + rms_dir ] )
+        
+    def test_60_redeploy( self ):
+        rms_dir = os.path.realpath( 'rms_repo' )
+        
+        os.chdir( 'test_deploy' )
+        self._call_citool( [ 'deploy', 'Prod',
+                            '--rmsRepo', 'scp:' + rms_dir ] )
+        
+    def test_70_deploy_package( self ):
+        rms_dir = os.path.realpath( 'rms_repo' )
+        package = subprocess.check_output( 'cd %s && ls Builds/wc-1.2.3-*.txz | head -1' % rms_dir, shell=True )
+        try:
+            package = str(package, 'utf8').strip()
+        except TypeError:
+            package = str(package).strip()
+        
+        os.chdir( 'test_deploy' )
+        self._call_citool( [ 'deploy', 'Builds', package,
                             '--rmsRepo', 'scp:' + rms_dir ] )
         

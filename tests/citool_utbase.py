@@ -5,6 +5,7 @@ import subprocess
 import os
 import sys
 import stat
+import shutil
 
 
 CITOOL_BIN = os.path.dirname( __file__ ) + '/../bin/citool'
@@ -28,16 +29,10 @@ class citool_UTBase ( unittest.TestCase ) :
         os.environ['HOME'] = cls.TEST_RUN_DIR
 
         if os.path.exists( cls.TEST_DIR ) :
-            for r, dirs, files in os.walk( cls.TEST_DIR, False ):  
-                for f in dirs + files:
-                    f = os.path.join(r, f)
-                    os.chmod(f, stat.S_IRWXU)
-            for r, dirs, files in os.walk( cls.TEST_DIR, False ):  
-                for d in dirs:
-                    os.rmdir(os.path.join(r, d))
-                for f in files:
-                    os.remove(os.path.join(r, f))
-            os.rmdir( cls.TEST_DIR )
+            for ( path, dirs, files ) in os.walk( cls.TEST_DIR ) :
+                for id in dirs + files :
+                    os.chmod( os.path.join( path, id ), stat.S_IRWXU )
+            shutil.rmtree( cls.TEST_DIR )
 
     def _goToBase( self ):
         os.chdir( self.TEST_DIR )

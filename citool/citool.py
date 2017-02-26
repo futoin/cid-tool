@@ -11,6 +11,7 @@ import re
 import gzip
 import shutil
 import stat
+import time
 from collections import OrderedDict
 
 from .subtool import SubTool
@@ -321,7 +322,17 @@ class CITool :
             if f in ['current', 'vcs', 'persistent', package, current_dir]:
                 continue
             
-            shutil.rmtree(f)
+            if os.path.isdir(f):
+                os.chmod( f, stat.S_IRWXU )
+
+                for ( path, dirs, files ) in os.walk( f ) :
+                    for id in dirs + files :
+                        os.chmod( os.path.join( path, id ), stat.S_IRWXU )
+
+                shutil.rmtree(f)
+            else:
+                os.chmod( f, stat.S_IRWXU )
+                os.remove( f )
             
             
     def _deployServices( self, subdir ):
@@ -341,8 +352,9 @@ class CITool :
     @citool_action
     def ci_build( self, vcs_ref, rms_pool ):
         config = self._config
+
         if os.path.exists( config['wcDir'] ) :
-            os.rename( config['wcDir'], config['wcDir'] + '.bak' ) 
+            os.rename( config['wcDir'], '{0}.bak{1}'.format(config['wcDir'], int(time.time())) )
         
         self._lastPackage = None
         self.prepare( vcs_ref )
