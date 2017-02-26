@@ -14,6 +14,7 @@ class SubTool:
     TYPE_BUILD = 'build'
     TYPE_VCS = 'vcs'
     TYPE_RMS = 'rms'
+    _dev_null = None
     
     def __init__( self, name ) :
         self._name = name
@@ -26,7 +27,9 @@ class SubTool:
                 print( 'Call: ' + subprocess.list2cmdline( cmd ), file=sys.stderr )
                 stderr = sys.stderr
             else:
-                stderr = subprocess.PIPE
+                if not cls._dev_null:
+                    cls._dev_null = open(os.devnull, 'w')
+                stderr = cls._dev_null
             res = subprocess.check_output( cmd, stdin=subprocess.PIPE, stderr=stderr )
             
             try:
