@@ -18,13 +18,13 @@ class phpTool( SubTool ):
         if php_ver == self.PHP_SYSTEM_VER:
             self._systemDeps()
             return
-        
-        self._buildDeps()
 
         php_dir = env['phpDir']
         
         try: os.makedirs(php_dir)
         except: pass
+
+        self._buildDeps(env)
 
         old_tmpdir = os.environ.get('TMPDIR', '/tmp')
         os.environ['TMPDIR'] = os.path.join(php_dir, '..')
@@ -87,60 +87,14 @@ class phpTool( SubTool ):
             env.setdefault('phpBin', php_bin)
             env.setdefault('phpfpmBin', os.path.join(php_dir, 'sbin', 'php-fpm') )
             
-    def _buildDeps( self ):
-        systemctl = self._which('systemctl')
-        if systemctl:
-            with_systemd = '--with-fpm-systemd '
-        else:
-            with_systemd = ''
-            
-        if os.path.exists('/usr/lib/x86_64-linux-gnu'):
-            with_libdir = '--with-libdir=lib/x86_64-linux-gnu '
-        else:
-            with_libdir = ''
-        
-        os.environ['PHP_BUILD_CONFIGURE_OPTS'] = ' \
-            --disable-debug \
-            --with-regex=php \
-            --enable-calendar \
-            --enable-sysvsem \
-            --enable-sysvshm \
-            --enable-sysvmsg \
-            --enable-bcmath \
-            --disable-cgi \
-            --enable-fpm \
-            --with-bz2 \
-            --enable-ctype \
-            --without-db4 \
-            --without-qdbm \
-            --without-gdbm \
-            --with-iconv \
-            --enable-exif \
-            --enable-ftp \
-            --with-gettext \
-            --enable-mbstring \
-            --with-onig=/usr \
-            --with-pcre-regex=/usr \
-            --enable-shmop \
-            --enable-sockets \
-            --enable-wddx \
-            --with-libxml-dir=/usr \
-            --with-zlib \
-            --with-kerberos=/usr \
-            --with-openssl=/usr \
-            --enable-soap \
-            --enable-zip \
-            --with-mhash=yes \
-            --with-system-tzdata \
-            ' + with_systemd + with_libdir
-            #--with-db4 \
-            #--with-qdbm=/usr \
-        
+    def _buildDeps( self, env ):
         self.require_deb([
             'build-essential',
             'bison',
+            'automake',
             'autoconf',
-            'libsystemd-dev',
+            'libtool',
+            're2c',
             'libcurl4-openssl-dev',
             'libtidy-dev',
             'libpng-dev',
@@ -185,17 +139,24 @@ class phpTool( SubTool ):
             'libxslt1-dev',
             'unixodbc-dev',
             'zlib1g-dev',
-            're2c',
         ])
         
         self.require_rpm([
+            'binutils',
+            'patch',
             'git',
             'gcc',
             'gcc-c++',
+            'make',
+            'autoconf',
+            'automake',
+            'libtool',
+            'bison',
+            're2c',
+            'glibc-devel',
             'libxml2-devel',
             'pkgconfig',
             'openssl-devel',
-            'bzip2-devel',
             'curl-devel',
             'libpng-devel',
             'libjpeg-devel',
@@ -203,22 +164,102 @@ class phpTool( SubTool ):
             'freetype-devel',
             'gmp-devel',
             'libmcrypt-devel',
-            'mariadb-devel',
             'aspell-devel',
             'recode-devel',
-            'autoconf',
-            'bison',
-            're2c',
             'libicu-devel',
             'oniguruma-devel',
             'libtidy-devel',
             'libxslt-devel',
+            'readline-devel',
+            'zlib-devel',
+            'pcre-devel',
         ])
         
-        try:
+        if self._which('zypper'):
+            self.require_rpm([
+                'libbz2-devel',
+                'libmysqlclient-devel',
+            ])
+        else:
+            self.require_rpm([
+                'bzip2-devel',
+                'mysql-devel',
+            ])
+
+        #---
+        systemctl = self._which('systemctl')
+
+        if systemctl:
+            self.require_deb(['libsystemd-dev'])
             self.require_rpm(['systemd-devel'])
-        except: pass
-    
+            with_systemd = ' --with-fpm-systemd'
+        else:
+            with_systemd = ' --without-fpm-systemd'
+            
+        multiarch = None
+        dpkgarch = self._which('dpkg-architecture')
+
+        if dpkgarch :
+            multiarch = self._callExternal([dpkgarch, '-qDEB_HOST_MULTIARCH']).strip()
+
+        if multiarch :
+            if os.path.exists(os.path.join('/usr/include', multiarch, 'curl')):
+                curl_dir = os.path.join(env['phpDir'], '..', 'curl')
+
+                try:
+                    os.mkdir(curl_dir)
+                    os.symlink(os.path.join('/usr/include', multiarch), os.path.join(curl_dir, 'include'))
+                    os.symlink(os.path.join('/usr/lib', multiarch), os.path.join(curl_dir, 'lib'))
+                except Exception as e:
+                    #print(e)
+                    pass
+            else:
+                curl_dir = '/usr/include'
+
+            with_libdir = ' --with-libdir={0} --with-curl={1}'.format(
+                os.path.join('lib', multiarch),
+                curl_dir,
+            )
+        else:
+            with_libdir = ''
+        #---
+       
+        os.environ['PHP_BUILD_CONFIGURE_OPTS'] = ' \
+            --disable-debug \
+            --with-regex=php \
+            --enable-calendar \
+            --enable-sysvsem \
+            --enable-sysvshm \
+            --enable-sysvmsg \
+            --enable-bcmath \
+            --disable-cgi \
+            --disable-phpdbg \
+            --enable-fpm \
+            --with-bz2 \
+            --enable-ctype \
+            --without-db4 \
+            --without-qdbm \
+            --without-gdbm \
+            --with-iconv \
+            --enable-exif \
+            --enable-ftp \
+            --with-gettext \
+            --enable-mbstring \
+            --with-onig=/usr \
+            --with-pcre-regex=/usr \
+            --enable-shmop \
+            --enable-sockets \
+            --enable-wddx \
+            --with-libxml-dir=/usr \
+            --with-zlib \
+            --with-kerberos=/usr \
+            --with-openssl=/usr \
+            --enable-soap \
+            --enable-zip \
+            --with-mhash=yes \
+            --with-system-tzdata \
+            ' + with_systemd + with_libdir
+
     def _systemDeps( self ):
         self.require_deb([
             'php.*-cli',
