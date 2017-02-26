@@ -63,7 +63,7 @@ class rubyTool( SubTool ):
             SubTool.initEnv( self, env )
             
     def _buildDeps( self ):
-        self.require_deb([
+        self.requireDeb([
             'build-essential',
             'gawk',
             'libssl-dev',
@@ -86,7 +86,7 @@ class rubyTool( SubTool ):
             'libreadline-dev',
         ])
         
-        self.require_rpm([
+        self.requireRpm([
             'binutils',
             'patch',
             'libyaml-devel',
@@ -110,4 +110,4 @@ class rubyTool( SubTool ):
         ])
         
     def _systemDeps( self ):
-        self.require_packages(['ruby'])
+        self.requirePackages(['ruby'])

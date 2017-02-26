@@ -7,7 +7,7 @@ class sshTool( SubTool ):
         return self.TYPE_RMS
     
     def _installTool( self, env ):
-        self.require_deb(['openssh-client'])
-        self.require_rpm(['openssh'])
+        self.requireDeb(['openssh-client'])
+        self.requireRpm(['openssh'])
     
     

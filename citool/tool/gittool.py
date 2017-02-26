@@ -11,7 +11,7 @@ class gitTool( SubTool ):
 
     
     def _installTool( self, env ):
-        self.require_packages(['git'])
+        self.requirePackages(['git'])
 
     def _checkGitConfig( self, env ):
         gitBin = env['gitBin']

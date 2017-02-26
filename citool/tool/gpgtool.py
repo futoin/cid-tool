@@ -10,7 +10,7 @@ class gpgTool( SubTool ):
     
    
     def _installTool( self, env ):
-        self.require_packages(['gnupg', 'gnupg2'])
+        self.requirePackages(['gnupg', 'gnupg2'])
     
     def initEnv( self, env ):
         SubTool.initEnv( self, env )

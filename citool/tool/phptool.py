@@ -88,7 +88,7 @@ class phpTool( SubTool ):
             env.setdefault('phpfpmBin', os.path.join(php_dir, 'sbin', 'php-fpm') )
             
     def _buildDeps( self, env ):
-        self.require_deb([
+        self.requireDeb([
             'build-essential',
             'bison',
             'automake',
@@ -141,7 +141,7 @@ class phpTool( SubTool ):
             'zlib1g-dev',
         ])
         
-        self.require_rpm([
+        self.requireRpm([
             'binutils',
             'patch',
             'git',
@@ -176,12 +176,12 @@ class phpTool( SubTool ):
         ])
         
         if self._which('zypper'):
-            self.require_rpm([
+            self.requireRpm([
                 'libbz2-devel',
                 'libmysqlclient-devel',
             ])
         else:
-            self.require_rpm([
+            self.requireRpm([
                 'bzip2-devel',
                 'mysql-devel',
             ])
@@ -190,8 +190,8 @@ class phpTool( SubTool ):
         systemctl = self._which('systemctl')
 
         if systemctl:
-            self.require_deb(['libsystemd-dev'])
-            self.require_rpm(['systemd-devel'])
+            self.requireDeb(['libsystemd-dev'])
+            self.requireRpm(['systemd-devel'])
             with_systemd = ' --with-fpm-systemd'
         else:
             with_systemd = ' --without-fpm-systemd'
@@ -270,7 +270,7 @@ class phpTool( SubTool ):
             ' + with_systemd + with_libdir
 
     def _systemDeps( self ):
-        self.require_deb([
+        self.requireDeb([
             'php.*-cli',
             'php.*-fpm',
             "php.*-apcu",
@@ -294,7 +294,7 @@ class phpTool( SubTool ):
         
         if self._which('zypper'):
             # SuSe-like
-            self.require_rpm([
+            self.requireRpm([
                 'php?',
                 'php*-fpm',
                 'php*-bcmath',
@@ -329,7 +329,7 @@ class phpTool( SubTool ):
             ])
         else:
             # RedHat-like
-            self.require_rpm([
+            self.requireRpm([
                 'php-cli',
                 'php-fpm',
                 'php-pecl-apcu',
@@ -340,7 +340,7 @@ class phpTool( SubTool ):
             ])
         
         try:
-            self.require_deb([
+            self.requireDeb([
                 "php.*-mbstring",
                 "php.*-opcache",
                 "php.*-zip",

@@ -6,4 +6,4 @@ class curlTool( SubTool ):
         return self.TYPE_RUNENV
     
     def _installTool( self, env ):
-        self.require_packages(['curl'])
+        self.requirePackages(['curl'])

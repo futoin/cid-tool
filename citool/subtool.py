@@ -113,7 +113,7 @@ class SubTool:
             os.environ[n] = v
             
     @classmethod
-    def require_deb(cls, packages):
+    def requireDeb(cls, packages):
         apt_get = cls._which('apt-get')
         
         if apt_get:
@@ -121,7 +121,7 @@ class SubTool:
             except: print('WARNING: you may need to install build deps manually !')
 
     @classmethod
-    def require_rpm(cls, packages):
+    def requireRpm(cls, packages):
         yum = cls._which('yum')
         
         if yum:
@@ -135,9 +135,9 @@ class SubTool:
             except: print('WARNING: you may need to install build deps manually !')
     
     @classmethod
-    def require_packages(cls, packages):
-        cls.require_deb(packages)
-        cls.require_rpm(packages)
+    def requirePackages(cls, packages):
+        cls.requireDeb(packages)
+        cls.requireRpm(packages)
 
     def _autoDetectVCS( self, config, vcsDir ) :
         if config.get( 'vcs', None ) == self._name :
