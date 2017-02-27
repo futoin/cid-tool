@@ -38,23 +38,21 @@ class scpTool( SubTool ):
             # risk of modifications
             self._callExternal( [ scpBin, '-Bq', src, dst ] )
 
-    def rmsGetLatest( self, config, rms_pool ) :
-        sshBin = config['env']['sshBin']
+    def rmsGetList( self, config, rms_pool, package_hint ):
+        env = config['env']
         rms_repo = config['rmsRepo']
         result = re.match( self.REMOTE_PATTERN, rms_repo )
-        cmd = 'cd {0} && ls | sort -Vr | head -n1'
         
         if result:
             user_host = result.group( self.REMOTE_GRP_USER_HOST )
             path = os.path.join( result.group( self.REMOTE_GRP_PATH ), rms_pool )
-            cmd = cmd.format( path )
-            ret = self._callExternal( [ sshBin, '-t', user_host, '--', cmd ] )
+            cmd = 'ls {0}'.format( path )
+            ret = self._callExternal( [ env['sshBin'], '-t', user_host, '--', cmd ] ).split("\n")
         else:
             path = os.path.join( rms_repo, rms_pool )  
-            cmd = cmd.format( path )
-            ret = self._callExternal( [ 'sh', '-c', cmd ] )
+            ret = os.listdir(path)
     
-        return ret.strip()
+        return ret
     
     def rmsRetrieve( self, config, rms_pool, package ):
         scpBin = config['env']['scpBin']

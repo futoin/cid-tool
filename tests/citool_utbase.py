@@ -40,7 +40,7 @@ class citool_UTBase ( unittest.TestCase ) :
     def setUp( self ):
         self._goToBase()
 
-    def _call_citool( self, args, stdin=None ) :
+    def _call_citool( self, args, stdin=None, returncode=0 ) :
         cmd = [ sys.executable, CITOOL_BIN ] + args
         #print( 'Call: ' + subprocess.list2cmdline(cmd), file=sys.stderr )
         p = subprocess.Popen(
@@ -56,7 +56,7 @@ class citool_UTBase ( unittest.TestCase ) :
         err = p.stderr.read()
 
         p.wait()
-        if p.returncode != 0:
+        if p.returncode != returncode:
             getattr( sys.stderr, 'buffer', sys.stderr ).write( err )
             raise RuntimeError( "Failed" )
         

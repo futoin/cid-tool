@@ -12,6 +12,7 @@ import gzip
 import shutil
 import stat
 import time
+import fnmatch
 from collections import OrderedDict
 
 from .subtool import SubTool
@@ -58,6 +59,10 @@ class CITool :
 
     @citool_action
     def tag( self, branch, next_version=None ):
+        if next_version and not re.match('^[0-9]+\.[0-9]+\.[0-9]+$', next_version):
+            print( 'Valid version format: x.y.z', file=sys.stderr )
+            sys.exit( 1 )
+            
         config = self._config
         vcstool = config['vcs']
         vcstool = self._tool_impl[vcstool]
@@ -222,11 +227,27 @@ class CITool :
             os.chdir( deploy_dir )
 
         # Find out package to deploy
-        if not package:
-            package = rmstool.rmsGetLatest( config, rms_pool )
+        package_list = rmstool.rmsGetList( config, rms_pool, package )
+
+        if package:
+            package_list = fnmatch.filter(package_list, package)
+            
+        if not package_list:
+            print( "No package found", file = sys.stderr )
+            sys.exit( 1 )
+            
+        def castver(v):
+            res = re.split('\W+', 'Words, words, words.')
+            for (i, vc) in enumerate(v):
+                try: res[i] = int(vc, 10)
+                except: pass
+            return res
+            
+        package_list.sort(key=castver)
+        package = package_list[-1]
             
         # cleanup first, in case of incomplete actions
-        self._deployCleanup( package )
+        self._deployCleanup( [package] )
 
         # Prepare package name components
         package_basename = os.path.basename( package )
@@ -234,6 +255,7 @@ class CITool :
         
         # Check if already deployed:
         if os.path.exists( package_noext ) and not config['reDeploy']:
+            print( "Package has been already deployed. Use --redeploy.")
             return
         
         # Retrieve package, if not available
@@ -259,6 +281,17 @@ class CITool :
         else:
             raise RuntimeError( 'Not supported package format: ' + package_ext )
         
+        self._deployCommon( package_noext_tmp, package_noext, [package] )
+        
+    def vcsref_deploy( self, vcs_ref ):
+        config = self._config
+
+    def vcstag_deploy( self, vcs_ref ):
+        config = self._config
+
+    def _deployCommon( self, tmp, dst, cleanup_whitelist ):
+        config = self._config
+        
         # Setup persistent folders
         persistent_dir = os.path.abspath( config['env'].get('persistentDir', 'persistent') )
         wdir_wperm = stat.S_IRUSR | stat.S_IXUSR | \
@@ -267,7 +300,7 @@ class CITool :
         
         for d in config.get('persistent', []) :
             pd = os.path.join( persistent_dir, d )
-            dd = os.path.join( package_noext_tmp, d )
+            dd = os.path.join( tmp, d )
 
             if not os.path.isdir( pd ) :
                 os.makedirs( pd, wdir_wperm )
@@ -281,8 +314,8 @@ class CITool :
         # Setup read-only permissions
         dir_perm = stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP
         file_perm = stat.S_IRUSR | stat.S_IRGRP
-        walk_list = os.walk( package_noext_tmp )
-        os.chmod( package_noext_tmp, dir_perm )
+        walk_list = os.walk( tmp )
+        os.chmod( tmp, dir_perm )
         
         for ( path, dirs, files ) in walk_list :
             for d in dirs :
@@ -291,35 +324,35 @@ class CITool :
                 os.chmod( os.path.join( path, f ), file_perm )
             
         # Complete migration
-        self.migrate( package_noext_tmp )
+        self.migrate( tmp )
         
         # Setup per-user services
-        self._deployServices( package_noext_tmp )
+        self._deployServices( tmp )
         
         # Move in place
-        if os.path.exists( package_noext ):
+        if os.path.exists( dst ):
             # re-deploy case
-            os.rename( package_noext, package_noext + '.tmprm' )
-        os.rename( package_noext_tmp, package_noext )
-        os.symlink( package_noext, 'current.tmp' )
+            os.rename( dst, dst + '.tmprm' )
+        os.rename( tmp, dst )
+        os.symlink( dst, 'current.tmp' )
         os.rename( 'current.tmp', 'current' )
         
         # Re-run
         self.run( 'reload' )
         
         # Cleanup old packages and deploy dirs
-        self._deployCleanup( package )
+        self._deployCleanup( cleanup_whitelist )
         
-    def _deployCleanup( self, package ):
+    def _deployCleanup( self, whitelist ):
         if os.path.exists('current'):
-            current_dir = os.path.basename(os.readlink('current'))
-        else :
-            current_dir = ''
+            whitelist.append( os.path.basename(os.readlink('current')) )
+            
+        whitelist += ['current', 'persistent']
 
         for f in os.listdir( '.' ):
             ( f_noext, f_ext ) = os.path.splitext( f )
             
-            if f in ['current', 'vcs', 'persistent', package, current_dir]:
+            if f in whitelist:
                 continue
             
             if os.path.isdir(f):
@@ -574,12 +607,13 @@ class CITool :
                     if t.autoDetect( config ) :
                         tools.append( n )
 
-            # Make sure deps & env are processed for RMS tool
+            # Make sure deps & env are processed for cli-supplied tools
             #--
-            rmstool = config.get('rms', None)
+            for item in ['rms', 'vcs']:
+                tool = config.get(item, None)
 
-            if rmstool:
-                tools.append( rmstool )
+                if tool:
+                    tools.append( tool )
 
         # add all deps
         #--

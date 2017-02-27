@@ -296,7 +296,7 @@ updates = {
     def rmsPromote( self, config, package, rms_pool ):
         raise NotImplementedError( self._name )
 
-    def rmsGetLatest( self, config, rms_pool ):
+    def rmsGetList( self, config, rms_pool, package_hint ):
         raise NotImplementedError( self._name )
     
     def rmsRetrieve( self, config, rms_pool, package ):
