@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if ! test -e bin/citool; then
+if ! test -e bin/cid; then
     echo "Invoke from CITool project root!"
     exit 1
 fi

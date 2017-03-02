@@ -21,7 +21,7 @@ def _call_cmd( cmd ):
     print( 'Call: ' + subprocess.list2cmdline( cmd ), file=sys.stderr )
     subprocess.call( cmd, stdin=subprocess.PIPE )    
 
-def citool_action( f ):
+def cid_action( f ):
     def custom_f( self, *args, **kwargs ) :
         config = self._config
         if 'actions' in config :
@@ -34,7 +34,7 @@ def citool_action( f ):
             f( self, *args, **kwargs )
     return custom_f
 
-class CITool :
+class CIDTool :
     TO_GZIP = '\.(js|json|css|svg|txt)$'
 
     DEPLOY_PATTERN = '^(([a-zA-Z][a-zA-Z0-9_]+:)([a-zA-Z][a-zA-Z0-9_]+@[a-zA-Z][a-zA-Z0-9_]+))(:(.+))?$'
@@ -57,7 +57,7 @@ class CITool :
             t = tool_impl[t]
             cb( config, t )
 
-    @citool_action
+    @cid_action
     def tag( self, branch, next_version=None ):
         if next_version and not re.match('^[0-9]+\.[0-9]+\.[0-9]+$', next_version):
             print( 'Valid version format: x.y.z', file=sys.stderr )
@@ -104,7 +104,7 @@ class CITool :
         # Push changes for DVCS
         vcstool.vcsPush( config, [ branch, tag ] )
 
-    @citool_action
+    @cid_action
     def prepare( self, vcs_ref ):
         config = self._config
 
@@ -127,13 +127,13 @@ class CITool :
             lambda config, t: t.onPrepare( config )
         )
 
-    @citool_action
+    @cid_action
     def build( self ):
         self._forEachTool(
             lambda config, t: t.onBuild( config )
         )
 
-    @citool_action
+    @cid_action
     def package( self ):
         self._forEachTool(
             lambda config, t: t.onPackage( config )
@@ -202,20 +202,20 @@ class CITool :
                     '--exclude=' + package_file, '--exclude-vcs' ] + package_content )
         self._lastPackage = package_file
     
-    @citool_action
+    @cid_action
     def promote( self, package, rms_pool ):
         config = self._config
         rmstool = config['rms']
         rmstool = self._tool_impl[rmstool]
         rmstool.rmsPromote( config, package, rms_pool )
         
-    @citool_action
+    @cid_action
     def migrate( self, location ):
         self._forEachTool(
             lambda config, t: t.onMigrate( config, location )
         )
     
-    @citool_action
+    @cid_action
     def deploy( self, rms_pool, package=None ):
         config = self._config
         rmstool = config['rms']
@@ -371,18 +371,18 @@ class CITool :
     def _deployServices( self, subdir ):
         pass
     
-    @citool_action
+    @cid_action
     def run( self, command ):
         config = self._config
         if config.get('vcs', None) :
             self.runDev( command )
             return
 
-    @citool_action
+    @cid_action
     def runDev( self, command ):
         pass
     
-    @citool_action
+    @cid_action
     def ci_build( self, vcs_ref, rms_pool ):
         config = self._config
 
@@ -395,7 +395,7 @@ class CITool :
         self.package()
         self.promote( self._lastPackage, rms_pool )
 
-    @citool_action
+    @cid_action
     def tool_exec( self, tool, args ):
         t = self._tool_impl[tool]
         bin = self._config['env'].get(tool + 'Bin')
@@ -405,7 +405,7 @@ class CITool :
         else :
             raise NotImplementedError( "Tool exec has not been implemented for %s" % tool )
     
-    @citool_action
+    @cid_action
     def tool_install( self, tool ):
         config = self._config
         env = config['env']
@@ -422,7 +422,7 @@ class CITool :
             t = self._tool_impl[tool]
             t.requireInstalled( env )
 
-    @citool_action
+    @cid_action
     def tool_uninstall( self, tool ):
         config = self._config
         env = config['env']
@@ -440,7 +440,7 @@ class CITool :
             if t.isInstalled( env ):
                 t.uninstallTool( env )
 
-    @citool_action
+    @cid_action
     def tool_update( self, tool ):
         config = self._config
         env = config['env']
@@ -457,7 +457,7 @@ class CITool :
             t = self._tool_impl[tool]
             t.updateTool( env )
 
-    @citool_action
+    @cid_action
     def tool_test( self, tool ):
         config = self._config
         env = config['env']
@@ -474,7 +474,7 @@ class CITool :
                 print( "Tool '%s' is missing" % tool )
                 sys.exit( 1 )
 
-    @citool_action
+    @cid_action
     def tool_env( self, tool ):
         config = self._config
         env = config['env']
@@ -583,7 +583,7 @@ class CITool :
                     continue
 
                 k = f.replace('tool.py', '')
-                pkg = 'citool.tool.' + k + 'tool'
+                pkg = 'cid.tool.' + k + 'tool'
                 m = importlib.import_module( pkg )
                 tool_impl[ k ] = getattr( m, k + 'Tool' )( k )
 

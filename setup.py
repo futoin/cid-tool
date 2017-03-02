@@ -6,14 +6,14 @@ except ImportError:
 config = {
     'description': 'FutoIn CI Tool',
     'author': 'Andrey Galkin',
-    'url': 'https://github.com/futoin/citool',
-    'download_url': 'https://github.com/futoin/citool/archive/master.zip',
+    'url': 'https://github.com/futoin/cid',
+    'download_url': 'https://github.com/futoin/cid/archive/master.zip',
     'author_email': 'andrey@futoin.org',
     'version': '0.1',
     'install_requires': ['nose','docopt'],
-    'packages': ['citool'],
+    'packages': ['cid'],
     'scripts': [],
-    'name': 'citool'
+    'name': 'cid'
 }
 
 setup(**config)

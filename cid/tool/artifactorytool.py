@@ -1,5 +1,5 @@
 
-from citool.subtool import SubTool
+from cid.subtool import SubTool
 
 class artifactoryTool( SubTool ):
     def getType( self ):

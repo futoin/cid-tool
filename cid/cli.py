@@ -2,17 +2,17 @@
 """FutoIn Continuous Integration Tool.
 
 Usage:
-    citool tag <branch> [<next_version>] [--vcsRepo vcs_url] [--wcDir wc_dir]
-    citool prepare [<vcs_ref>] [--vcsRepo vcs_url] [--wcDir wc_dir]
-    citool build
-    citool package
-    citool promote <package> <rms_pool> [--rmsRepo rms_url] [--rmsHash type_value]
-    citool deploy [rms] <rms_pool> [<package>] [--rmsRepo rms_url] [--rmsHash type_value] [--redeploy] [--deployDir deploy_dir]
-    citool deploy (vcstag|vcsref) <vcs_ref> [--vcsRepo vcs_url] [--redeploy] [--deployDir deploy_dir]
-    citool run [<command>]
-    citool ci_build <vcs_ref> <rms_pool> [--vcsRepo vcs_url] [--rmsRepo rms_url]
-    citool tool exec <tool_name> [-- <tool_arg>...]
-    citool tool (install|uninstall|update|test|env) [<tool_name>]
+    cid tag <branch> [<next_version>] [--vcsRepo vcs_url] [--wcDir wc_dir]
+    cid prepare [<vcs_ref>] [--vcsRepo vcs_url] [--wcDir wc_dir]
+    cid build
+    cid package
+    cid promote <package> <rms_pool> [--rmsRepo rms_url] [--rmsHash type_value]
+    cid deploy [rms] <rms_pool> [<package>] [--rmsRepo rms_url] [--rmsHash type_value] [--redeploy] [--deployDir deploy_dir]
+    cid deploy (vcstag|vcsref) <vcs_ref> [--vcsRepo vcs_url] [--redeploy] [--deployDir deploy_dir]
+    cid run [<command>]
+    cid ci_build <vcs_ref> <rms_pool> [--vcsRepo vcs_url] [--rmsRepo rms_url]
+    cid tool exec <tool_name> [-- <tool_arg>...]
+    cid tool (install|uninstall|update|test|env) [<tool_name>]
 
 Options:
     --vcsRepo vcs_type:vcs_url
@@ -21,13 +21,13 @@ Options:
     --rmsHash hash_type:value
 """
 
-from .citool import CITool
+from .citool import CIDTool
     
 from docopt import docopt
 import sys
 
 def run():
-    args = docopt( __doc__, version='FutoIn CITool v0.1' )
+    args = docopt( __doc__, version='FutoIn CIDTool v0.1' )
 
     if type(args) == str:
         print(args)
@@ -61,7 +61,7 @@ def run():
         overrides['toolTest'] = args['test'] or args['uninstall']
         
         #---
-        cit = CITool( overrides = overrides )
+        cit = CIDTool( overrides = overrides )
         
         if args['tag'] :
             cit.tag( args['<branch>'], args['<next_version>'] )

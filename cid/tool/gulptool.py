@@ -1,5 +1,5 @@
 
-from citool.subtool import SubTool
+from cid.subtool import SubTool
 
 class gulpTool( SubTool ):
     def getType( self ):

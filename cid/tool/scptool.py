@@ -2,7 +2,7 @@
 import os
 import re
 
-from citool.subtool import SubTool
+from cid.subtool import SubTool
 
 class scpTool( SubTool ):
     REMOTE_PATTERN = '^([a-zA-Z][a-zA-Z0-9_]+@[a-zA-Z][a-zA-Z0-9_]+)(:(.+))?$'

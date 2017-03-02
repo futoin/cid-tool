@@ -8,7 +8,7 @@ import stat
 import shutil
 
 
-CITOOL_BIN = os.path.dirname( __file__ ) + '/../bin/citool'
+CITOOL_BIN = os.path.dirname( __file__ ) + '/../bin/cid'
 
 class citool_UTBase ( unittest.TestCase ) :
     TEST_DIR = 'invalid'

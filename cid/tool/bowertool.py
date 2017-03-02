@@ -2,7 +2,7 @@
 import json
 from collections import OrderedDict
 
-from citool.subtool import SubTool
+from cid.subtool import SubTool
 
 
 class bowerTool( SubTool ):

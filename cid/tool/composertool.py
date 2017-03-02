@@ -4,7 +4,7 @@ import os
 
 from collections import OrderedDict
 
-from citool.subtool import SubTool
+from cid.subtool import SubTool
 
 class composerTool( SubTool ):
     def getType( self ):
