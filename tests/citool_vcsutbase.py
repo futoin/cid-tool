@@ -1,6 +1,6 @@
 
 from .citool_utbase import citool_UTBase
-from citool.subtool import SubTool
+from cid.subtool import SubTool
 
 import os
 import subprocess
