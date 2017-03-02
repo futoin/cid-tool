@@ -1,5 +1,5 @@
 
-from cid.subtool import SubTool
+from ..subtool import SubTool
 import os, fnmatch, glob
 
 class phpTool( SubTool ):

@@ -2,7 +2,7 @@
 import json
 from collections import OrderedDict
 
-from cid.subtool import SubTool
+from ..subtool import SubTool
 
 class npmTool( SubTool ):
     def getType( self ):

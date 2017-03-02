@@ -583,7 +583,7 @@ class CIDTool :
                     continue
 
                 k = f.replace('tool.py', '')
-                pkg = 'cid.tool.' + k + 'tool'
+                pkg = 'futoin.cid.tool.' + k + 'tool'
                 m = importlib.import_module( pkg )
                 tool_impl[ k ] = getattr( m, k + 'Tool' )( k )
 

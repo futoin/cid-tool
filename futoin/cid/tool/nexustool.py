@@ -1,7 +1,7 @@
 
-from cid.subtool import SubTool
+from ..subtool import SubTool
 
-class artifactoryTool( SubTool ):
+class nexusTool( SubTool ):
     def getType( self ):
         return self.TYPE_RMS
 

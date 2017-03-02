@@ -1,7 +1,5 @@
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+
+from setuptools import setup, find_packages
     
 import sys
 
@@ -11,17 +9,22 @@ config = {
     'url': 'https://github.com/futoin/cid-tool',
     'download_url': 'https://github.com/futoin/cid-tool/archive/master.zip',
     'author_email': 'andrey@futoin.org',
-    'version': '0.1',
+    'version': '0.1.0',
     'install_requires': ['docopt'],
+     'extras_require': {
+        'test': ['nose'],
+    },
     'python_requires': '>=2.7',
-    'packages': ['cid'],
-    'scripts': [],
-    'name': 'cid',
+    'packages': find_packages(exclude=['bind', 'tests']),
+    'name': 'futoin-cid',
     'entry_points': {
         'console_scripts': [
-            'cid=cid.cli:run',
-            'cid%s=cid.cli:run' % sys.version[:1],
-            'cid%s=cid.cli:run' % sys.version[:3],
+            'cid=futoin.cid.cli:run',
+            'cid%s=futoin.cid.cli:run' % sys.version[:1],
+            'cid%s=futoin.cid.cli:run' % sys.version[:3],
+            'futoin-cid=futoin.cid.cli:run',
+            'futoin-cid%s=futoin.cid.cli:run' % sys.version[:1],
+            'futoin-cid%s=futoin.cid.cli:run' % sys.version[:3],
         ],
     },
     'classifiers': [

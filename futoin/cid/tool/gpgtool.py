@@ -1,5 +1,5 @@
 
-from cid.subtool import SubTool
+from ..subtool import SubTool
 
 class gpgTool( SubTool ):
     def getType( self ):

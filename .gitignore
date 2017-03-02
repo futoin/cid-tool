@@ -1,3 +1,6 @@
 *.pyc
 testrun
 .vagrant
+futoin_cid.egg-info
+build
+dist

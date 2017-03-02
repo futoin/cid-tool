@@ -3,7 +3,7 @@ import json
 import os
 from collections import OrderedDict
 
-from cid.subtool import SubTool
+from ..subtool import SubTool
 
 
 class puppetTool( SubTool ):
