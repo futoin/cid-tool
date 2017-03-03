@@ -1,6 +1,7 @@
 
-from .subtool import SubTool
+import os
 
+from .subtool import SubTool
 
 class VcsTool( SubTool ):
     def getType( self ):
