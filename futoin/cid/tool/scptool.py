@@ -11,10 +11,6 @@ class scpTool( RmsTool ):
     
     def getDeps( self ) :
         return [ 'ssh' ]
-
-    def _installTool( self, env ):
-        self.requireDeb(['openssh-client'])
-        self.requireRpm(['openssh'])
     
     def rmsPromote( self, config, package, rms_pool ) :
         scpBin = config['env']['scpBin']

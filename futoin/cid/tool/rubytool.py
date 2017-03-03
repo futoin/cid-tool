@@ -2,15 +2,13 @@
 from ..runtimetool import RuntimeTool
 
 class rubyTool( RuntimeTool ):
-    RUBY_SYSTEM_VER = 'system'
-    
     def getDeps( self ) :
         return [ 'rvm' ]
 
     def _installTool( self, env ):
         ruby_ver = env['rubyVer']
         
-        if ruby_ver == self.RUBY_SYSTEM_VER:
+        if ruby_ver == self.SYSTEM_VER:
             self._systemDeps()
             return
         
@@ -23,13 +21,13 @@ class rubyTool( RuntimeTool ):
         ])
 
     def updateTool( self, env ):
-        if env['rubyVer'] != self.RUBY_SYSTEM_VER:
+        if env['rubyVer'] != self.SYSTEM_VER:
             self._installTool( env )
         
     def uninstallTool( self, env ):
         ruby_ver = env['rubyVer']
         
-        if ruby_ver != self.RUBY_SYSTEM_VER:
+        if ruby_ver != self.SYSTEM_VER:
             self._callExternal([
                 env['rvmBin'], 'uninstall', env['rubyVer']
             ])
@@ -39,7 +37,7 @@ class rubyTool( RuntimeTool ):
         return ['rubyVer', 'rubyBin' ]
 
     def initEnv( self, env ) :
-        ruby_ver = env.setdefault('rubyVer', self.RUBY_SYSTEM_VER)
+        ruby_ver = env.setdefault('rubyVer', self.SYSTEM_VER)
 
         rvm_dir = env['rvmDir']
         bash_bin = env['bashBin']

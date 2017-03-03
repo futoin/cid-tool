@@ -13,6 +13,9 @@ class SubTool( PathMixIn, PackageMixIn, UtilMixIn, object ):
     TYPE_BUILD = 'build'
     TYPE_VCS = 'vcs'
     TYPE_RMS = 'rms'
+    
+    SYSTEM_VER = 'system'
+    
     _dev_null = None
     
     def __init__( self, name ) :

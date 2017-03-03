@@ -7,7 +7,6 @@ from ..runtimetool import RuntimeTool
 
 class phpTool( RuntimeTool ):
     PHP_DIR = os.path.join(os.environ['HOME'], '.php')
-    PHP_SYSTEM_VER = 'system'
     
     def getDeps( self ) :
         return [ 'bash', 'phpbuild' ]
@@ -15,7 +14,7 @@ class phpTool( RuntimeTool ):
     def _installTool( self, env ):
         php_ver = env['phpVer']
         
-        if php_ver == self.PHP_SYSTEM_VER:
+        if php_ver == self.SYSTEM_VER:
             self._systemDeps()
             return
 
@@ -35,7 +34,7 @@ class phpTool( RuntimeTool ):
         pass
     
     def uninstallTool( self, env ):
-        if env['phpVer'] == self.PHP_SYSTEM_VER:
+        if env['phpVer'] == self.SYSTEM_VER:
             return super(phpTool, self).uninstallTool( env )
 
         self._callExternal(
@@ -48,9 +47,9 @@ class phpTool( RuntimeTool ):
         return ['phpDir', 'phpBin', 'phpVer', 'phpfpmBin']
     
     def initEnv( self, env ) :
-        php_ver = env.setdefault('phpVer', self.PHP_SYSTEM_VER)
+        php_ver = env.setdefault('phpVer', self.SYSTEM_VER)
         
-        if php_ver == self.PHP_SYSTEM_VER:
+        if php_ver == self.SYSTEM_VER:
             super(phpTool, self).initEnv( env )
             if not self._have_tool: return
 
@@ -175,17 +174,16 @@ class phpTool( RuntimeTool ):
             'pcre-devel',
         ])
         
-        if self._which('zypper'):
-            self.requireRpm([
-                'libbz2-devel',
-                'libmysqlclient-devel',
-            ])
-        else:
-            self.requireRpm([
-                'bzip2-devel',
-                'mysql-devel',
-            ])
+        self.requireYum([
+            'bzip2-devel',
+            'mysql-devel',
+        ])
 
+        self.requireZypper([
+            'libbz2-devel',
+            'libmysqlclient-devel',
+        ])
+        
         #---
         systemctl = self._which('systemctl')
 
@@ -292,52 +290,51 @@ class phpTool( RuntimeTool ):
             "php.*-xsl",
         ])
         
-        if self._which('zypper'):
-            # SuSe-like
-            self.requireRpm([
-                'php?',
-                'php*-fpm',
-                'php*-bcmath',
-                'php*-bz2',
-                'php*-calendar',
-                'php*-ctype',
-                'php*-curl',
-                'php*-dom',
-                'php*-exif',
-                'php*-fileinfo',
-                'php*-gettext',
-                'php*-gmp',
-                'php*-iconv',
-                'php*-imap',
-                'php*-intl',
-                'php*-json',
-                'php*-ldap',
-                'php*-mbstring',
-                'php*-mcrypt',
-                'php*-pcntl',
-                'php*-pdo',
-                'php*-phar',
-                'php*-soap',
-                'php*-sockets',
-                'php*-tidy',
-                'php*-xmlreader',
-                'php*-xmlrpc',
-                'php*-xmlwriter',
-                'php*-xsl',
-                'php*-zip',
-                'php*-zlib',
-            ])
-        else:
-            # RedHat-like
-            self.requireRpm([
-                'php-cli',
-                'php-fpm',
-                'php-pecl-apcu',
-                'php-pecl-imagick',
-                'php-pecl-msgpack',
-                'php-pecl-ssh2',
-                'php-pecl-zendopcache',
-            ])
+        # SuSe-like
+        self.requireZypper([
+            'php?',
+            'php*-fpm',
+            'php*-bcmath',
+            'php*-bz2',
+            'php*-calendar',
+            'php*-ctype',
+            'php*-curl',
+            'php*-dom',
+            'php*-exif',
+            'php*-fileinfo',
+            'php*-gettext',
+            'php*-gmp',
+            'php*-iconv',
+            'php*-imap',
+            'php*-intl',
+            'php*-json',
+            'php*-ldap',
+            'php*-mbstring',
+            'php*-mcrypt',
+            'php*-pcntl',
+            'php*-pdo',
+            'php*-phar',
+            'php*-soap',
+            'php*-sockets',
+            'php*-tidy',
+            'php*-xmlreader',
+            'php*-xmlrpc',
+            'php*-xmlwriter',
+            'php*-xsl',
+            'php*-zip',
+            'php*-zlib',
+        ])
+            
+        # RedHat-like
+        self.requireYum([
+            'php-cli',
+            'php-fpm',
+            'php-pecl-apcu',
+            'php-pecl-imagick',
+            'php-pecl-msgpack',
+            'php-pecl-ssh2',
+            'php-pecl-zendopcache',
+        ])
         
         try:
             self.requireDeb([

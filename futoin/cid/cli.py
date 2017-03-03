@@ -28,6 +28,11 @@ from .cidtool import CIDTool
 from docopt import docopt
 import sys
 
+if sys.version_info < (2,7):
+    print( 'Sorry, but only Python version >= 2.7 is supported!' )
+    sys.exit( 1 )
+
+
 def run():
     args = docopt( __doc__, version='FutoIn CIDTool v0.1.1' )
 
