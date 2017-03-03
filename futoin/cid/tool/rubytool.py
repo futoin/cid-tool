@@ -1,11 +1,8 @@
 
-from ..subtool import SubTool
+from ..runtimetool import RuntimeTool
 
-class rubyTool( SubTool ):
+class rubyTool( RuntimeTool ):
     RUBY_SYSTEM_VER = 'system'
-
-    def getType( self ):
-        return self.TYPE_RUNTIME
     
     def getDeps( self ) :
         return [ 'rvm' ]
@@ -59,8 +56,8 @@ class rubyTool( SubTool ):
             return
 
         if env_to_set :
-            self.updateEnvFromOutput(env_to_set)
-            SubTool.initEnv( self, env )
+            self._updateEnvFromOutput(env_to_set)
+            super(rubyTool, self).initEnv( env )
             
     def _buildDeps( self ):
         self.requireDeb([

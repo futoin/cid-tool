@@ -4,12 +4,9 @@ import os
 
 from collections import OrderedDict
 
-from ..subtool import SubTool
+from ..buildtool import BuildTool
 
-class composerTool( SubTool ):
-    def getType( self ):
-        return self.TYPE_BUILD
-
+class composerTool( BuildTool ):
     def _installTool( self, env ):
         composer_dir = env['composerDir']
         php_bin = env['phpBin']

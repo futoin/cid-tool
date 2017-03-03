@@ -1,12 +1,10 @@
 
-from ..subtool import SubTool
 import os
 import re
 
-class svnTool( SubTool ):
-    def getType( self ):
-        return self.TYPE_VCS
+from ..vcstool import VcsTool
 
+class svnTool( VcsTool ):
     def getDeps( self ) :
         return [ 'bash' ]
     

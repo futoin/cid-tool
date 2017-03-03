@@ -615,6 +615,9 @@ class CIDTool :
                 if tool:
                     tools.append( tool )
 
+                    if tool_impl[ tool ].getType() != item:
+                        raise RuntimeError('Tool {0} does not suite {1} type'.format(tool, item))
+
         # add all deps
         #--
         dep_generations = [ set(tools) ]

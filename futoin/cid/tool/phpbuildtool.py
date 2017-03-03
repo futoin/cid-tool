@@ -1,14 +1,12 @@
 
-from ..subtool import SubTool
 import os
 
-class phpbuildTool( SubTool ):
+from ..runenvtool import RunEnvTool
+
+class phpbuildTool( RunEnvTool ):
     "php build tool"
     PHPBUILD_DIR_DEFAULT = os.path.join(os.environ['HOME'], '.phpbuild')
     PHPBUILD_LATEST = 'master'
-
-    def getType( self ):
-        return self.TYPE_RUNENV
 
     def getDeps( self ) :
         return [ 'bash', 'git' ]

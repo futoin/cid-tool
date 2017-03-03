@@ -2,13 +2,9 @@
 import json
 from collections import OrderedDict
 
-from ..subtool import SubTool
+from ..buildtool import BuildTool
 
-
-class bowerTool( SubTool ):
-    def getType( self ):
-        return self.TYPE_BUILD
-
+class bowerTool( BuildTool ):
     def autoDetect( self, config ) :
         return self._autoDetectByCfg( config, 'bower.json' )
     

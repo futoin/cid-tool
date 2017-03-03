@@ -1,13 +1,11 @@
 
-from ..subtool import SubTool
 import os, fnmatch, glob
 
-class phpTool( SubTool ):
+from ..runtimetool import RuntimeTool
+
+class phpTool( RuntimeTool ):
     PHP_DIR = os.path.join(os.environ['HOME'], '.php')
     PHP_SYSTEM_VER = 'system'
-
-    def getType( self ):
-        return self.TYPE_RUNTIME
     
     def getDeps( self ) :
         return [ 'bash', 'phpbuild' ]
@@ -36,7 +34,7 @@ class phpTool( SubTool ):
     
     def uninstallTool( self, env ):
         if env['phpVer'] == self.PHP_SYSTEM_VER:
-            return SubTool.uninstallTool(self, env)
+            return super(phpTool, self).uninstallTool( env )
 
         self._callExternal(
             [ env['bashBin'],  '--noprofile', '--norc', '-c',
@@ -51,7 +49,7 @@ class phpTool( SubTool ):
         php_ver = env.setdefault('phpVer', self.PHP_SYSTEM_VER)
         
         if php_ver == self.PHP_SYSTEM_VER:
-            SubTool.initEnv(self, env)
+            super(phpTool, self).initEnv( env )
             if not self._have_tool: return
 
             env.setdefault('phpDir', '/usr')

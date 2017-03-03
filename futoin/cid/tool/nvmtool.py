@@ -1,14 +1,12 @@
 
-from ..subtool import SubTool
 import os
 
-class nvmTool( SubTool ):
+from ..runenvtool import RunEnvTool
+
+class nvmTool( RunEnvTool ):
     "Node Version Manager"
     NVM_DIR_DEFAULT = os.path.join(os.environ['HOME'], '.nvm')
     NVM_LATEST = '$(git describe --abbrev=0 --tags --match "v[0-9]*")'
-
-    def getType( self ):
-        return self.TYPE_RUNENV
 
     def getDeps( self ) :
         return [ 'bash', 'git', 'curl' ]

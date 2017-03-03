@@ -1,10 +1,7 @@
 
-from ..subtool import SubTool
+from ..buildtool import BuildTool
 
-class gulpTool( SubTool ):
-    def getType( self ):
-        return self.TYPE_BUILD
-
+class gulpTool( BuildTool ):
     def autoDetect( self, config ) :
         return self._autoDetectByCfg( config, 'gulpfile.js' )
     

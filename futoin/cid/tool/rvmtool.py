@@ -1,18 +1,15 @@
 
-from ..subtool import SubTool
-
 import os
 
-class rvmTool( SubTool ):
+from ..runenvtool import RunEnvTool
+
+class rvmTool( RunEnvTool ):
     "Ruby Version Manager"
     
     RVM_DIR_DEFAULT = os.path.join(os.environ['HOME'], '.rvm')
     RVM_LATEST = 'stable'
     RVM_GPG_KEY = '409B6B1796C275462A1703113804BB82D39DC0E3'
     RVM_GET = 'https://get.rvm.io'
-
-    def getType( self ):
-        return self.TYPE_RUNENV
 
     def getDeps( self ) :
         return [ 'bash', 'curl', 'gpg' ]

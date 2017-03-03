@@ -1,12 +1,9 @@
 
-from ..subtool import SubTool
-
 import os
 
-class nodeTool( SubTool ):
-    def getType( self ):
-        return self.TYPE_RUNTIME
-    
+from ..runtimetool import RuntimeTool
+
+class nodeTool( RuntimeTool ):
     def getDeps( self ) :
         return [ 'nvm', 'bash' ]
 
@@ -52,5 +49,5 @@ class nodeTool( SubTool ):
             return
 
         if env_to_set :
-            self.updateEnvFromOutput(env_to_set)
-            SubTool.initEnv( self, env )
+            self._updateEnvFromOutput(env_to_set)
+            super(nodeTool, self).initEnv( env )

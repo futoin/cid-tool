@@ -1,9 +1,6 @@
 
-from ..subtool import SubTool
+from ..runenvtool import RunEnvTool
 
-class curlTool( SubTool ):
-    def getType( self ):
-        return self.TYPE_RUNENV
-    
+class curlTool( RunEnvTool ):
     def _installTool( self, env ):
         self.requirePackages(['curl'])

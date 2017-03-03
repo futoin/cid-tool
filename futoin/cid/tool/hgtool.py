@@ -1,11 +1,9 @@
 
-from ..subtool import SubTool
 import os
 
-class hgTool( SubTool ):
-    def getType( self ):
-        return self.TYPE_VCS
+from ..vcstool import VcsTool
 
+class hgTool( VcsTool ):
     def getDeps( self ) :
         return [ 'bash' ]
     

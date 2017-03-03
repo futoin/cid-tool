@@ -2,12 +2,9 @@
 import json
 from collections import OrderedDict
 
-from ..subtool import SubTool
+from ..buildtool import BuildTool
 
-class npmTool( SubTool ):
-    def getType( self ):
-        return self.TYPE_BUILD
-
+class npmTool( BuildTool ):
     def autoDetect( self, config ) :
         return self._autoDetectByCfg( config, 'package.json' )
     

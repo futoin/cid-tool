@@ -3,14 +3,11 @@ import json
 import os
 from collections import OrderedDict
 
-from ..subtool import SubTool
+from ..buildtool import BuildTool
 
 
-class puppetTool( SubTool ):
+class puppetTool( BuildTool ):
     METADATA_FILE = 'metadata.json'
-
-    def getType( self ):
-        return self.TYPE_BUILD
     
     def getDeps( self ) :
         return [ 'ruby', 'gem' ]
@@ -38,7 +35,7 @@ class puppetTool( SubTool ):
         return ['puppetVer', 'puppetBin' ]
     
     def initEnv( self, env ):
-        SubTool.initEnv( self, env )
+        super(puppetTool, self).initEnv( env )
         puppet_ver = env.setdefault('puppetVer', None)
         
         if self._have_tool and puppet_ver:

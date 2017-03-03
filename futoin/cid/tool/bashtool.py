@@ -1,6 +1,5 @@
 
-from ..subtool import SubTool
+from ..runenvtool import RunEnvTool
 
-class bashTool( SubTool ):
-    def getType( self ):
-        return self.TYPE_RUNENV
+class bashTool( RunEnvTool ):
+    pass

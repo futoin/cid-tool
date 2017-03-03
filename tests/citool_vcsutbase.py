@@ -1,6 +1,6 @@
 
 from .citool_utbase import citool_UTBase
-from futoin.cid.subtool import SubTool
+from futoin.cid.rmstool import RmsTool
 
 import os
 import subprocess
@@ -67,7 +67,7 @@ class citool_VCSUTBase ( citool_UTBase ) :
             package = str(package).strip()
             
         package_base = os.path.basename( package )
-        pkg_hash = SubTool.rmsCalcHash( package_base, 'sha512' )
+        pkg_hash = RmsTool.rmsCalcHash( package_base, 'sha512' )
         os.unlink( package_base )
         self._call_citool( [ 'promote', package, 'Verified',
                             '--rmsRepo', 'scp:' + rms_dir,

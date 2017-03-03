@@ -2,16 +2,13 @@
 import os
 import re
 
-from ..subtool import SubTool
+from ..rmstool import RmsTool
 
-class scpTool( SubTool ):
+class scpTool( RmsTool ):
     REMOTE_PATTERN = '^([a-zA-Z][a-zA-Z0-9_]+@[a-zA-Z][a-zA-Z0-9_]+)(:(.+))?$'
     REMOTE_GRP_USER_HOST = 1
     REMOTE_GRP_PATH = 3
     
-    def getType( self ):
-        return self.TYPE_RMS
-
     def getDeps( self ) :
         return [ 'ssh' ]
 

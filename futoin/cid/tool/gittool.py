@@ -1,14 +1,11 @@
 
-from ..subtool import SubTool
 import os
 
-class gitTool( SubTool ):
-    def getType( self ):
-        return self.TYPE_VCS
-    
+from ..vcstool import VcsTool
+
+class gitTool( VcsTool ):
     def autoDetect( self, config ) :
         return self._autoDetectVCS( config, '.git' )
-
     
     def _installTool( self, env ):
         self.requirePackages(['git'])

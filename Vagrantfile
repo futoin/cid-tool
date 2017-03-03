@@ -4,7 +4,7 @@ Vagrant.configure("2") do |config|
   
     config.vm.provider "virtualbox" do |v|
         v.linked_clone = true
-        v.memory = 320
+        v.memory = 512
         v.cpus = 2
         if ENV['VAGRANT_GUI']
             v.gui = 1
@@ -79,12 +79,6 @@ EOC
                 SHELL
             else
                 dist_controller = 'SATA Controller'
-            end
-            
-            if name == 'opensuse_leap'
-                node.vm.provider "virtualbox" do |v|
-                    v.memory = 512
-                end
             end
             
             node.vm.provider "virtualbox" do |v|

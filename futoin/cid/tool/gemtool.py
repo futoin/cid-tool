@@ -1,10 +1,7 @@
 
-from ..subtool import SubTool
+from ..buildtool import BuildTool
 
-class gemTool( SubTool ):
-    def getType( self ):
-        return self.TYPE_BUILD
-    
+class gemTool( BuildTool ):
     def getDeps( self ) :
         return [ 'ruby' ]
         

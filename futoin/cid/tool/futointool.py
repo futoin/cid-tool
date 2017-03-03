@@ -1,10 +1,7 @@
 
-from ..subtool import SubTool
+from ..runenvtool import RunEnvTool
 
-class futoinTool( SubTool ):
-    def getType( self ):
-        return self.TYPE_RUNENV
-
+class futoinTool( RunEnvTool ):
     def autoDetect( self, config ) :
         return self._autoDetectByCfg( config, 'futoin.json' )
     

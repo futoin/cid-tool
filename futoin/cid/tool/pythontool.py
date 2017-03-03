@@ -1,6 +1,5 @@
 
-from ..subtool import SubTool
+from ..runtimetool import RuntimeTool
 
-class pythonTool( SubTool ):
-    def getType( self ):
-        return self.TYPE_RUNTIME
+class pythonTool( RuntimeTool ):
+    pass
