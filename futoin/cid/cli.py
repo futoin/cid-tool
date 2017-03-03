@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""FutoIn Continuous Integration Tool.
+"""FutoIn Continuous Integration & Delivery Tool.
 
 Usage:
     cid tag <branch> [<next_version>] [--vcsRepo vcs_url] [--wcDir wc_dir]
