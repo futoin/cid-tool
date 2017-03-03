@@ -1,1 +1,0 @@
-# This is work in progress on "Continuous Integration Tool" according to FTN16 spec

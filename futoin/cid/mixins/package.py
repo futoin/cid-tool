@@ -1,4 +1,6 @@
 
+from __future__ import print_function, absolute_import
+
 class PackageMixIn( object ):
     @classmethod
     def requireDeb(cls, packages):

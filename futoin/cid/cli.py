@@ -21,7 +21,9 @@ Options:
     --rmsHash hash_type:value
 """
 
-from .citool import CIDTool
+from __future__ import print_function, absolute_import
+
+from .cidtool import CIDTool
     
 from docopt import docopt
 import sys
