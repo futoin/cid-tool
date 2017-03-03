@@ -66,7 +66,7 @@ for t in ['bash', 'curl', 'git', 'hg', 'svn', 'gpg', 'scp', 'ssh']:
     
 # 20
 #-----
-for t in ['nvm', 'rvm', 'phpbuild']: # virtualenv
+for t in ['nvm', 'rvm', 'phpbuild']:
     cls = 'citool_Tool_20_' + t
     globals()[cls] = type(cls, (citool_Tool_UTBase, ), {
         '__test__' : True,
@@ -83,18 +83,30 @@ for t in ['node']: # python
     })
     
 mixed_tools = {
-    'php' : '7',
-    'ruby' : 'ruby-2',
+    'php' : { 'ver': '7' },
+    'ruby' : { 'ver': 'ruby-2' },
+    'python' : {
+        'ver': '2.7',
+        'managed': False,
+    },
+    'pip' : {
+        'env': {
+            'pythonVer': '2',
+        },
+        'ver': 'ignore',
+        'managed': False,
+    },
 }
     
-for t, v in mixed_tools.items():
+for t, ti in mixed_tools.items():
     cls = "citool_Tool_31_{0}".format(t)
+    tenv = ti.get('env', {})
+    tenv[ "{0}Ver".format(t) ] = ti['ver']
     globals()[cls] = type(cls, (citool_Tool_UTBase, ), {
         '__test__' : True,
         'TOOL_NAME' : t,
-        'TOOL_ENV': {
-            "{0}Ver".format(t) : v,
-        },
+        'TOOL_ENV': tenv,
+        'TOOL_MANAGED' : ti.get('managed', True),
     })
     #--
     cls = "citool_Tool_30_{0}_system".format(t)
@@ -106,14 +118,13 @@ for t, v in mixed_tools.items():
 
 # 40
 #-----
-for t in ['npm', 'gem']: # pip
+for t in ['npm', 'gem']:
     cls = 'citool_Tool_40_' + t
     globals()[cls] = type(cls, (citool_Tool_UTBase, ), {
         '__test__' : True,
         'TOOL_NAME' : t,
         'TOOL_MANAGED' : False,
     })
-
 
 # 50
 #-----

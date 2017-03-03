@@ -47,12 +47,15 @@ class SubTool( PathMixIn, PackageMixIn, UtilMixIn, object ):
             if name in env:
                 dst[name] = env[name]
     
-    def initEnv( self, env ) :
+    def initEnv( self, env, bin_name=None ) :
         name = self._name
         bin_env = name + 'Bin'
 
         if bin_env not in env :
-            tool_path = self._which( name )
+            if bin_name is None:
+                bin_name = name
+
+            tool_path = self._which( bin_name )
             if tool_path :
                 env[ bin_env ] = tool_path.strip()
                 self._have_tool = True

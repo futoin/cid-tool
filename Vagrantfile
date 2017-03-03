@@ -17,29 +17,21 @@ Vagrant.configure("2") do |config|
     config.vm.provision "shell", inline: <<-SHELL
 which apt-get && ( \
     apt-get update && \
-    apt-get install -y \
-    python3-minimal \
-    python-nose python3-nose \
-    python-docopt python3-docopt \
+    apt-get install -y python3 python3-setuptools && \
+    easy_install-3.4 pip && \
+    pip3.4 install docopt nose && \
+    apt-get install -y python-setuptools && \
+    easy_install pip && \
+    pip install docopt nose \
     || exit 1)
 which yum && ( \
-    yum install -y epel-release; \
-    yum install -y python34 python34-setuptools; \
-    easy_install-3.4 pip; \
-    pip3.4 install docopt nose; \
-    ( \
-        yum install -y python-setuptools; \
-        which easy_install-2.7 && (
-            easy_install-2.7 pip; \
-            pip2.7 install docopt nose \
-        ) || (
-            yum install -y centos-release-scl; \
-            yum install -y python27; \
-            source /opt/rh/python27/enable; \
-            easy_install-2.7 pip; \
-            pip2.7 install docopt nose \
-        )
-    )
+    yum install -y epel-release && \
+    yum install -y python34 python34-setuptools && \
+    easy_install-3.4 pip && \
+    pip3.4 install docopt nose && \
+    yum install -y python-setuptools && \
+    easy_install pip && \
+    pip install docopt nose \
     )
 which zypper && ( \
     zypper install -y python3 \
