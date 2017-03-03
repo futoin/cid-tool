@@ -9,7 +9,7 @@ config = {
     'url': 'https://github.com/futoin/cid-tool',
     'download_url': 'https://github.com/futoin/cid-tool/archive/master.zip',
     'author_email': 'andrey@futoin.org',
-    'version': '0.1.0',
+    'version': '0.1.1',
     'install_requires': ['docopt'],
      'extras_require': {
         'test': ['nose'],

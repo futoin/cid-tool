@@ -29,7 +29,7 @@ from docopt import docopt
 import sys
 
 def run():
-    args = docopt( __doc__, version='FutoIn CIDTool v0.1.0' )
+    args = docopt( __doc__, version='FutoIn CIDTool v0.1.1' )
 
     if type(args) == str:
         print(args)
