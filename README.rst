@@ -24,12 +24,29 @@ Supported technologies & tools (so far):
 * **php** - both system & any php-build supported
     - **composer**
     - **php-build** (implicit)
-* **python** - system
+* **python** - system 2 & 3
+    - **virtualenv**, venv is ignored due to issues with ensurepip
+    - **pip**
 * **ruby** - both system & any rvm supported
     - **gen**
     - **rvm** (implicit)
 * **scp** - for RMS
-    
+
+Full test on the following OS:
+
+* **CentOS**
+    - **7** with EPEL repository enabled
+* **Debian**
+    - **8 - Jessie**
+    - **9 - Stretch**
+* **OpenSUSE**
+    - **42.1 Leap**
+* **Ubuntu**
+    - **14.04 LTS - Trusty**
+    - **16.04 LTS - Xenial**
+    - **16.10 - Yakkety**
+* **Other Linux**
+    - it should work without issues, if system packages are installed manually
 
 
 Setup
@@ -46,7 +63,7 @@ If pip is not available then it's strongly suggested to install one first:
 Usage
 -----
 
-To be explained later:
+Please see details in the FTN16 spec:
     cid tag <branch> [<next_version>] [--vcsRepo vcs_url] [--wcDir wc_dir]
 
     cid prepare [<vcs_ref>] [--vcsRepo vcs_url] [--wcDir wc_dir]
