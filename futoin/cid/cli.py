@@ -24,8 +24,13 @@ Options:
 from __future__ import print_function, absolute_import
 
 from .cidtool import CIDTool
-    
-from docopt import docopt
+
+try:
+    from docopt import docopt
+except ImportError:
+    # fallback to "hardcoded"
+    from futoin.cid.contrib.docopt import docopt
+
 import sys
 
 if sys.version_info < (2,7):
