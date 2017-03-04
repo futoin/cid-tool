@@ -20,10 +20,17 @@ class setuptoolsTool( BuildTool ):
         self._callExternal( [ env['pipBin'], 'install', '-q', '--upgrade', 'setuptools' ] )
         
     def uninstallTool( self, env ):
-        self._callExternal( [ env['pipBin'], 'uninstall', '-q', 'setuptools' ] )
-        self._have_tool = False
+        pass
+        
+    def initEnv( self, env ):
+        venv_dir = env['venvDir']
+        self._have_tool = os.path.exists(os.path.join(venv_dir, 'bin', 'easy_install'))
 
     def onBuild( self, config ):
+        for d in ['build', 'dist']:
+            if os.path.exists(d):
+                shutil.rmtree('build')
+
         pythonBin = config['env']['pythonBin']
         self._callExternal( [ pythonBin, 'setup.py', 'sdist', 'bdist_wheel' ] )
     
