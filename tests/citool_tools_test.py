@@ -83,8 +83,6 @@ for t in ['node']: # python
     })
     
 mixed_tools = {
-    'php' : { 'ver': '7' },
-    'ruby' : { 'ver': 'ruby-2' },
     'python' : {
         'ver': '2.7',
         'managed': False,
@@ -97,6 +95,12 @@ mixed_tools = {
         'managed': False,
     },
 }
+        
+if os.environ.get('CIDTEST_NO_COMPILE', '0') != '1':
+    mixed_tools.update({
+        'php' : { 'ver': '7' },
+        'ruby' : { 'ver': 'ruby-2' },
+    })
     
 for t, ti in mixed_tools.items():
     cls = "citool_Tool_31_{0}".format(t)

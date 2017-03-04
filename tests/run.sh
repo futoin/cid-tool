@@ -10,6 +10,13 @@ if [ "$1" = 'fast' ]; then
     shift 1
 fi
 
+if [ "$1" = 'nocompile' ]; then
+    export CIDTEST_NO_COMPILE=1
+    shift 1
+else
+    unset CIDTEST_NO_COMPILE
+fi
+
 if [ -z "$1" ]; then
     tests=
     tests+=" tests/citool_tools_test.py"
