@@ -1,46 +1,42 @@
 
-import os
-import re
+import os, re
+import xml.dom.minidom
 
 from ..vcstool import VcsTool
 
 class svnTool( VcsTool ):
-    def getDeps( self ) :
-        return [ 'bash' ]
+    _rev = None
     
     def _installTool( self, env ):
-        self.requirePackages(['subversion'])
+        self._requirePackages(['subversion'])
     
     def autoDetect( self, config ) :
         return self._autoDetectVCS( config, '.svn' )
     
+    def vcsGetRepo( self, config, wc_dir=None ):
+        svn_info = self._callExternal([
+            config['env']['svnBin'], 'info', '--xml', wc_dir or config['wcDir']
+        ])
+        svn_info = xml.dom.minidom.parseString( svn_info )
+        svn_info = svn_info.getElementsByTagName('url')
+        url = svn_info[0].firstChild.nodeValue
+        url = re.sub( '/(trunk|branches|tags).+$', '', url )
+        return url
+    
     def vcsCheckout( self, config, vcs_ref ):
         env = config['env']
         svnBin = env['svnBin']
-        bash_bin = env['bashBin']
         wc_dir = config['wcDir']
             
-        if os.path.isdir( wc_dir + '/.svn' ):
+        if os.path.isdir( os.path.join(wc_dir, '.svn') ):
             os.chdir( wc_dir )
-            
-        if 'vcsRepo' not in config:
-            svn_info = self._callExternal( [ svnBin, 'info' ] ).split("\n")
-            
-            for si in svn_info:
-                si = si.split( ': ', 1 )
-                if si[0] == 'URL':
-                    config['vcsRepo'] = re.sub( '/(trunk|branches|tags).+$', '', si[1] )
-                    break
             
         branch_path = '%s/branches/%s' % ( config['vcsRepo'], vcs_ref )
         tag_path = '%s/tags/%s' % ( config['vcsRepo'], vcs_ref )
         
-        if self._callExternal( [
-                bash_bin,  '--noprofile', '--norc', '-c',
-                '%s ls %s 2>/dev/null' % ( svnBin, branch_path )
-                ], suppress_fail=True ) :
+        if self._callExternal( [ svnBin, 'ls', branch_path ], suppress_fail=True ) :
             svn_repo_path = branch_path
-        elif self._callExternal( [ svnBin, 'ls', tag_path ] ) :
+        elif self._callExternal( [ svnBin, 'ls', tag_path ], suppress_fail=True ) :
             svn_repo_path = tag_path
         else:
             raise RuntimeError( "VCS ref was not found: " + vcs_ref )
@@ -65,12 +61,14 @@ class svnTool( VcsTool ):
     def vcsTag( self, config, tag, message ):
         env = config['env']
         svnBin = env['svnBin']
-        bash_bin = env['bashBin']
 
-        svn_url = self._callExternal( [
-            bash_bin,  '--noprofile', '--norc', '-c',
-            '{0} info | grep "^URL: " | sed -e "s/^URL: //"'.format(svnBin)
-        ] ).strip()
+        svn_info = self._callExternal([
+            config['env']['svnBin'], 'info', '--xml'
+        ])
+        svn_info = xml.dom.minidom.parseString( svn_info )
+        svn_info = svn_info.getElementsByTagName('url')
+        svn_url = svn_info[0].firstChild.nodeValue
+
         self._callExternal( [
             svnBin, 'copy',
             '-m', message,
@@ -83,14 +81,54 @@ class svnTool( VcsTool ):
         
     def vcsGetRevision( self, config ) :
         svnBin = config['env']['svnBin']
-        svn_info = self._callExternal( [ svnBin, 'info' ] ).split("\n")
+        svn_info = self._callExternal( [ svnBin, 'info',  '--xml' ] )
+        
+        svn_info = xml.dom.minidom.parseString( svn_info )
+        svn_info = svn_info.getElementsByTagName('commit')
 
-        for si in svn_info:
-            si = si.split( ': ', 1 )
-            if si[0] == 'Revision':
-                return si[1]
+        if len(svn_info):
+            return svn_info[0].getAttribute('revision')
             
         return 'local'
 
+    def vcsGetRefRevision( self, config, vcs_cache_dir, branch ) :
+        svnBin = config['env']['svnBin']
+        
+        if branch == 'trunk':
+            svn_repo_path = '{0}/{1}'.format( config['vcsRepo'], branch )
+        else :
+            svn_repo_path = '{0}/branches/{1}'.format( config['vcsRepo'], branch )
+            
+        res = self._callExternal( [ svnBin, 'info', svn_repo_path, '--xml' ] )
+        
+        res = xml.dom.minidom.parseString( res )
+        self._rev = res.getElementsByTagName('commit')[0].getAttribute('revision')
+        return self._rev
+
+    def vcsListTags( self, config, vcs_cache_dir, tag_hint ) :
+        svnBin = config['env']['svnBin']
+        vcsRepo = config['vcsRepo']
+        svn_repo_path = '{0}/tags/'.format( vcsRepo )
+        res = self._callExternal( [ svnBin, 'ls', svn_repo_path ] ).strip().split("\n")
+        return [v.replace(svn_repo_path, '').replace('/', '') for v in res ]
+
+    def vcsExport( self, config, vcs_cache_dir, vcs_ref, dst_path ) :
+        svnBin = config['env']['svnBin']
+        
+        if self._rev :
+            if vcs_ref == 'trunk':
+                svn_repo_path = '{0}/{1}@{2}'.format( config['vcsRepo'], vcs_ref, self._rev )
+            else :
+                svn_repo_path = '{0}/branches/{1}@{2}'.format( config['vcsRepo'], vcs_ref, self._rev )
+        else :
+            svn_repo_path = '{0}/tags/{1}'.format( config['vcsRepo'], vcs_ref )
+        
+        if os.path.isdir( vcs_cache_dir ):
+            cnd = 'switch'
+        else:
+            cnd = 'checkout'
+            
+        self._callExternal( [ svnBin, cnd, svn_repo_path, vcs_cache_dir ] )
+        self._callExternal( [ svnBin, 'export', vcs_cache_dir, dst_path ] )
 
 

@@ -7,8 +7,9 @@ Usage:
     cid build
     cid package
     cid promote <package> <rms_pool> [--rmsRepo rms_url] [--rmsHash type_value]
-    cid deploy [rms] <rms_pool> [<package>] [--rmsRepo rms_url] [--rmsHash type_value] [--redeploy] [--deployDir deploy_dir]
-    cid deploy (vcstag|vcsref) <vcs_ref> [--vcsRepo vcs_url] [--redeploy] [--deployDir deploy_dir]
+    cid deploy vcstag [<vcs_ref>] [--vcsRepo vcs_url] [--redeploy] [--deployDir deploy_dir]    
+    cid deploy vcsref <vcs_ref> [--vcsRepo vcs_url] [--redeploy] [--deployDir deploy_dir]    
+    cid deploy [rms] <rms_pool> [<package>] [--rmsRepo rms_url] [--rmsHash type_value] [--redeploy] [--deployDir deploy_dir] [--build]
     cid run [<command>]
     cid ci_build <vcs_ref> <rms_pool> [--vcsRepo vcs_url] [--rmsRepo rms_url]
     cid tool exec <tool_name> [-- <tool_arg>...]
@@ -31,7 +32,7 @@ except ImportError:
     # fallback to "hardcoded"
     from futoin.cid.contrib.docopt import docopt
 
-import sys
+import os, sys
 
 if sys.version_info < (2,7):
     print( 'Sorry, but only Python version >= 2.7 is supported!' )
@@ -62,9 +63,17 @@ def run():
         overrides['rmsHash'] = args['--rmsHash']
         overrides['rmsPool'] = args['<rms_pool>']
         #---
-        overrides['wcDir'] = args['--wcDir'] or 'build'
-        overrides['deployDir'] = args['--deployDir'] or None
+        if args['ci_build'] :
+            def_wc_dir = 'build'
+        else :
+            def_wc_dir = '.'
+        overrides['wcDir'] = os.path.realpath(args['--wcDir'] or def_wc_dir)
+        #--
+        deploy_dir = args['--deployDir']
+        overrides['deployDir'] = deploy_dir and os.path.realpath(deploy_dir) or None
         overrides['reDeploy'] = args['--redeploy'] and True or False
+        if args['--build']:
+            overrides['deployBuild'] = True
         
         #---
         overrides['vcsRef'] = args['<vcs_ref>']
@@ -89,9 +98,11 @@ def run():
             cit.promote( args['<package>'], args['<rms_pool>'] )
         elif args['deploy'] :
             if args['vcsref']:
-                cit.vcsref_deploy( args['<vcs_ref'] )
+                overrides['deployBuild'] = True
+                cit.vcsref_deploy( args['<vcs_ref>'] )
             elif args['vcstag']:
-                cit.vcstag_deploy( args['<vcs_ref'] )
+                overrides['deployBuild'] = True
+                cit.vcstag_deploy( args['<vcs_ref>'] )
             else :
                 cit.deploy( args['<rms_pool>'], args['<package>'] )
         elif args['run'] :

@@ -34,7 +34,7 @@ class composerTool( BuildTool ):
         composer_dir = env.setdefault('composerDir', bin_dir)
         composer_bin = env.setdefault('composerBin', os.path.join(composer_dir, 'composer'))
 
-        self.addBinPath( composer_dir )
+        self._addBinPath( composer_dir )
 
         self._have_tool = os.path.exists( composer_bin )
 

@@ -9,6 +9,9 @@ class VcsTool( SubTool ):
     def getType( self ):
         return self.TYPE_VCS
     
+    def vcsGetRepo( self, config ):
+        raise NotImplementedError( self._name )
+    
     def vcsCheckout( self, config, branch ):
         raise NotImplementedError( self._name )
     
@@ -22,6 +25,15 @@ class VcsTool( SubTool ):
         raise NotImplementedError( self._name )
     
     def vcsGetRevision( self, config ) :
+        raise NotImplementedError( self._name )
+    
+    def vcsGetRefRevision( self, config, vcs_cache_dir, branch ) :
+        raise NotImplementedError( self._name )
+
+    def vcsListTags( self, config, vcs_cache_dir, tag_hint ) :
+        raise NotImplementedError( self._name )
+
+    def vcsExport( self, config, vcs_cache_dir, vcs_ref, dst_path ) :
         raise NotImplementedError( self._name )
 
     def _autoDetectVCS( self, config, vcsDir ) :

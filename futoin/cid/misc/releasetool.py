@@ -14,7 +14,6 @@ class releaseTool( BuildTool ):
     def updateProjectConfig( self, config, updates ) :
         def updater( content ):
             if 'version' in updates:
-                #print( re.search(r'^.*__version__.*$', content, re.MULTILINE) )
                 return re.sub(
                     r'^.*__version__.*$',
                     '__version__ = \'{0}\''.format(updates['version']),

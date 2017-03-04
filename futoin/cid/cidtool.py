@@ -13,9 +13,11 @@ import shutil
 import stat
 import time
 import fnmatch
+import fcntl
 from collections import OrderedDict
 
-from .subtool import SubTool
+from .mixins.path import PathMixIn
+from .mixins.util import UtilMixIn
 
 __all__ = ['CIDTool']
 
@@ -42,13 +44,12 @@ def cid_action( f ):
             f( self, *args, **kwargs )
     return custom_f
 
-class CIDTool :
+class CIDTool( PathMixIn, UtilMixIn ) :
     TO_GZIP = '\.(js|json|css|svg|txt)$'
-
-    DEPLOY_PATTERN = '^(([a-zA-Z][a-zA-Z0-9_]+:)([a-zA-Z][a-zA-Z0-9_]+@[a-zA-Z][a-zA-Z0-9_]+))(:(.+))?$'
-    DEPLOY_GRP_DEPLOY_USER = 2
-    DEPLOY_GRP_RUNUSER_HOST = 3
-    DEPLOY_GRP_PATH = 5
+    VCS_CACHE_DIR = 'vcs'
+    
+    DEPLOY_LOCK_FILE = '.futoin.lock'
+    _deploy_lock = False
 
     def __init__( self, overrides ) :
         self._startup_env = dict(os.environ)
@@ -64,6 +65,40 @@ class CIDTool :
         for t in tools :
             t = tool_impl[t]
             cb( config, t )
+            
+    def _getVcsTool( self ):
+        config = self._config
+        vcstool = config.get('vcs', None)
+        
+        if not vcstool:
+            print( 'Unknown VCS. Please set through --vcsRepo or project manifest' )
+            sys.exit( 1 )
+            
+        vcstool = self._tool_impl[vcstool]
+            
+        if not config.get('vcsRepo', None): # also check it set
+            config['vcsRepo'] = vcstool.vcsGetRepo( config )
+            
+            if not config['vcsRepo']:
+                print( 'Unknown VCS repo. Please set through --vcsRepo or project manifest' )
+                sys.exit( 1 )
+        
+        return vcstool
+
+    def _getRmsTool( self ):
+        config = self._config
+        rmstool = config.get('rms', None)
+        
+        if not rmstool:
+            print( 'Unknown RMS. Please set through --rmsRepo or project manifest' )
+            sys.exit( 1 )
+        
+        if not config.get('rmsRepo', None): # also check it set
+            print( 'Unknown RMS repo. Please set through --rmsRepo or project manifest' )
+            sys.exit( 1 )
+        
+        return self._tool_impl[rmstool]
+
 
     @cid_action
     def tag( self, branch, next_version=None ):
@@ -72,8 +107,7 @@ class CIDTool :
             sys.exit( 1 )
             
         config = self._config
-        vcstool = config['vcs']
-        vcstool = self._tool_impl[vcstool]
+        vcstool = self._getVcsTool()
         
         # make a clean checkout
         vcstool.vcsCheckout( config, branch )
@@ -116,16 +150,15 @@ class CIDTool :
     def prepare( self, vcs_ref ):
         config = self._config
 
-        if ( 'vcs' not in config and
-             'vcsRepo' not in self._overrides ):
+        if os.path.exists(config['wcDir']) :
             os.chdir( config['wcDir'] )
+            self._overrides['wcDir'] = config['wcDir'] = '.'
             self._initConfig()
             config = self._config
 
         # make a clean checkout
         if vcs_ref:
-            vcstool = config['vcs']
-            vcstool = self._tool_impl[vcstool]
+            vcstool = self._getVcsTool()
 
             vcstool.vcsCheckout( config, vcs_ref )
             self._initConfig()
@@ -196,8 +229,7 @@ class CIDTool :
             package_file = '{0}-{1}-{2}'.format(
                     name, version, buildTimestamp )
         else :
-            vcstool = config['vcs']
-            vcstool = self._tool_impl[vcstool]
+            vcstool = self._getVcsTool()
             vcs_ref = vcstool.vcsGetRevision( config )
             package_file = '{0}-CI-{1}-{2}-{3}'.format(
                     name, version, vcs_ref, buildTimestamp )
@@ -213,8 +245,7 @@ class CIDTool :
     @cid_action
     def promote( self, package, rms_pool ):
         config = self._config
-        rmstool = config['rms']
-        rmstool = self._tool_impl[rmstool]
+        rmstool = self._getRmsTool()
         rmstool.rmsPromote( config, package, rms_pool )
         
     @cid_action
@@ -222,17 +253,31 @@ class CIDTool :
         self._forEachTool(
             lambda config, t: t.onMigrate( config, location )
         )
+        
+    def _deployLock( self ):
+        self._deploy_lock = open(self.DEPLOY_LOCK_FILE, 'w')
+        try:
+            fcntl.flock(self._deploy_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except:
+            print('FAILED to acquire deploy lock! ', file=sys.stderr)
+            sys.exit( 1 )
+    
+    def _deployUnlock( self ):
+        fcntl.flock(self._deploy_lock, fcntl.LOCK_UN)
+        self._deploy_lock.close()
+        self._deploy_lock = None
     
     @cid_action
     def deploy( self, rms_pool, package=None ):
         config = self._config
-        rmstool = config['rms']
-        rmstool = self._tool_impl[rmstool]
+        rmstool = self._getRmsTool()
         
         # Get to deploy folder
         deploy_dir = config['deployDir']
         if deploy_dir:
             os.chdir( deploy_dir )
+
+        self._deployLock()
 
         # Find out package to deploy
         package_list = rmstool.rmsGetList( config, rms_pool, package )
@@ -244,15 +289,7 @@ class CIDTool :
             print( "No package found", file = sys.stderr )
             sys.exit( 1 )
             
-        def castver(v):
-            res = re.split('\W+', 'Words, words, words.')
-            for (i, vc) in enumerate(v):
-                try: res[i] = int(vc, 10)
-                except: pass
-            return res
-            
-        package_list.sort(key=castver)
-        package = package_list[-1]
+        package = self._getLatest(package_list)
             
         # cleanup first, in case of incomplete actions
         self._deployCleanup( [package] )
@@ -273,8 +310,6 @@ class CIDTool :
         package_noext_tmp = package_noext + '.tmp'
         
         # Prepare temporary folder
-        if os.path.exists( package_noext_tmp ) :
-            shutil.rmtree( package_noext_tmp )
         os.mkdir( package_noext_tmp )
         
         # Unpack package to temporary folder
@@ -289,13 +324,96 @@ class CIDTool :
         else:
             raise RuntimeError( 'Not supported package format: ' + package_ext )
         
+        # Common processing
         self._deployCommon( package_noext_tmp, package_noext, [package] )
         
     def vcsref_deploy( self, vcs_ref ):
         config = self._config
+        vcstool = self._getVcsTool()
+        
+        # Get to deploy folder
+        deploy_dir = config['deployDir']
+        if deploy_dir:
+            os.chdir( deploy_dir )
+            
+        self._deployLock()
+
+        # Find out package to deploy
+        vcs_cache = self.VCS_CACHE_DIR
+        rev = vcstool.vcsGetRefRevision( config, vcs_cache, vcs_ref )
+            
+        if not rev:
+            print( "No VCS refs found", file = sys.stderr )
+            sys.exit( 1 )
+            
+        target_dir = vcs_ref.replace(os.sep, '_').replace(':', '_')
+        target_dir += '__' + rev
+            
+        # cleanup first, in case of incomplete actions
+        self._deployCleanup( [vcs_cache, target_dir] )
+        
+        # Check if already deployed:
+        if os.path.exists( target_dir ) and not config['reDeploy']:
+            print( "Package has been already deployed. Use --redeploy.")
+            return
+           
+        # Retrieve tag
+        target_tmp = target_dir + '.tmp'
+        vcstool.vcsExport( config, vcs_cache, vcs_ref, target_tmp )
+
+        # Common processing
+        self._deployCommon( target_tmp, target_dir, [vcs_cache] )      
 
     def vcstag_deploy( self, vcs_ref ):
         config = self._config
+        vcstool = self._getVcsTool()
+        
+        # Get to deploy folder
+        deploy_dir = config['deployDir']
+        if deploy_dir:
+            os.chdir( deploy_dir )
+            
+        self._deployLock()
+
+        # Find out package to deploy
+        vcs_cache = self.VCS_CACHE_DIR
+        tag_list = vcstool.vcsListTags( config, vcs_cache, vcs_ref )
+
+        if vcs_ref:
+            tag_list = fnmatch.filter(tag_list, vcs_ref)
+            
+        if not tag_list:
+            print( "No tags found", file = sys.stderr )
+            sys.exit( 1 )
+            
+        vcs_ref = self._getLatest(tag_list)
+        target_dir = vcs_ref.replace(os.sep, '_').replace(':', '_')
+            
+        # cleanup first, in case of incomplete actions
+        self._deployCleanup( [vcs_cache, target_dir] )
+        
+        # Check if already deployed:
+        if os.path.exists( target_dir ) and not config['reDeploy']:
+            print( "Package has been already deployed. Use --redeploy.")
+            return
+           
+        # Retrieve tag
+        vcs_ref_tmp = target_dir + '.tmp'
+        vcstool.vcsExport( config, vcs_cache, vcs_ref, vcs_ref_tmp )
+
+        # Common processing
+        self._deployCommon( vcs_ref_tmp, target_dir, [vcs_cache] )        
+        
+    def _getLatest( self, verioned_list ):
+        def castver(v):
+            res = re.split(r'[\W_]+', v)
+            for (i, vc) in enumerate(res):
+                try: res[i] = int(vc, 10)
+                except: pass
+            return res
+            
+        verioned_list.sort(key=castver)
+        return verioned_list[-1]
 
     def _deployCommon( self, tmp, dst, cleanup_whitelist ):
         config = self._config
@@ -315,7 +433,7 @@ class CIDTool :
                 
             if os.path.exists( dd ):
                 shutil.copytree( dd, pd )
-                shutil.rmtree( dd )
+                self._rmTree( dd )
             
             os.symlink( pd, dd )
             
@@ -330,6 +448,15 @@ class CIDTool :
                 os.chmod( os.path.join( path, d ), dir_perm )
             for f in files :
                 os.chmod( os.path.join( path, f ), file_perm )
+                
+        # Build
+        if config.get('deployBuild', False):
+            cwd = os.getcwd()
+            os.chdir(tmp)
+            config['wcDir'] = '.'
+            self.prepare(None)
+            self.build()
+            os.chdir(cwd)
             
         # Complete migration
         self.migrate( tmp )
@@ -350,12 +477,13 @@ class CIDTool :
         
         # Cleanup old packages and deploy dirs
         self._deployCleanup( cleanup_whitelist )
+        self._deployUnlock()
         
     def _deployCleanup( self, whitelist ):
         if os.path.exists('current'):
             whitelist.append( os.path.basename(os.readlink('current')) )
             
-        whitelist += ['current', 'persistent']
+        whitelist += ['current', 'persistent', self.DEPLOY_LOCK_FILE]
 
         for f in os.listdir( '.' ):
             ( f_noext, f_ext ) = os.path.splitext( f )
@@ -364,13 +492,7 @@ class CIDTool :
                 continue
             
             if os.path.isdir(f):
-                os.chmod( f, stat.S_IRWXU )
-
-                for ( path, dirs, files ) in os.walk( f ) :
-                    for id in dirs + files :
-                        os.chmod( os.path.join( path, id ), stat.S_IRWXU )
-
-                shutil.rmtree(f)
+                self._rmTree(f)
             else:
                 os.chmod( f, stat.S_IRWXU )
                 os.remove( f )
@@ -418,7 +540,7 @@ class CIDTool :
         config = self._config
         env = config['env']
         
-        if SubTool.isExternalToolsSetup( env ):
+        if self._isExternalToolsSetup( env ):
             raise RuntimeError( "Tools must be installed externally (env config)" )
 
         if tool :
@@ -435,7 +557,7 @@ class CIDTool :
         config = self._config
         env = config['env']
         
-        if SubTool.isExternalToolsSetup( env ):
+        if self._isExternalToolsSetup( env ):
             raise RuntimeError( "Tools must be uninstalled externally (env config)" )
 
         if tool :
@@ -453,7 +575,7 @@ class CIDTool :
         config = self._config
         env = config['env']
         
-        if SubTool.isExternalToolsSetup( env ):
+        if self._isExternalToolsSetup( env ):
             raise RuntimeError( "Tools must be updated externally (env config)" )
 
         if tool :
@@ -569,7 +691,7 @@ class CIDTool :
         externalSetup.setdefault( 'installTools', False )
 
         env.setdefault( 'binDir', os.path.join(os.environ['HOME'], 'bin') )
-        SubTool.addBinPath( env['binDir'] )
+        self._addBinPath( env['binDir'] )
 
     def _initTools( self ):
         config = self._config

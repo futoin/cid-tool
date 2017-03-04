@@ -4,16 +4,17 @@ from __future__ import print_function, absolute_import
 import os, sys, subprocess
 
 class PathMixIn( object ):
-    @classmethod
-    def _callExternal( cls, cmd, suppress_fail=False, verbose=True ) :
+    _dev_null = None
+    
+    def _callExternal( self, cmd, suppress_fail=False, verbose=True ) :
         try:
             if verbose and not suppress_fail:
                 print( 'Call: ' + subprocess.list2cmdline( cmd ), file=sys.stderr )
                 stderr = sys.stderr
             else:
-                if not cls._dev_null:
-                    cls._dev_null = open(os.devnull, 'w')
-                stderr = cls._dev_null
+                if not PathMixIn._dev_null:
+                    PathMixIn._dev_null = open(os.devnull, 'w')
+                stderr = PathMixIn._dev_null
             res = subprocess.check_output( cmd, stdin=subprocess.PIPE, stderr=stderr )
             
             try:
@@ -27,18 +28,16 @@ class PathMixIn( object ):
                 return None
             raise e
         
-    @classmethod
-    def _trySudoCall( cls, cmd, errmsg=None ):
+    def _trySudoCall( self, cmd, errmsg=None ):
         try:
-            cls._callExternal(['sudo', '-n'] + cmd)
+            self._callExternal(['sudo', '-n'] + cmd)
         except:
             if not errmsg:
                 errmsg = 'WARNING: you may need to call failed command manually !'
 
             print( errmsg, file=sys.stderr )
     
-    @classmethod
-    def _which( cls, program ):
+    def _which( self, program ):
         "Copied from stackoverflow"
         def is_exe(fpath):
             return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
@@ -56,8 +55,7 @@ class PathMixIn( object ):
 
         return None
 
-    @classmethod
-    def addBinPath( cls, bin_dir, first=False ) :
+    def _addBinPath( self, bin_dir, first=False ) :
         bin_dir_list = os.environ['PATH'].split(os.pathsep)
 
         if bin_dir not in bin_dir_list:

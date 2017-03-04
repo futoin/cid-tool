@@ -32,9 +32,9 @@ class virtualenvTool( RunEnvTool ):
             pip = self._which('pip')
             
             if not pip:
-                self.requirePackages(['python-virtualenv'])
-                self.requireDeb(['python-pip'])
-                self.requireYum(['python2-pip'])
+                self._requirePackages(['python-virtualenv'])
+                self._requireDeb(['python-pip'])
+                self._requireYum(['python2-pip'])
                 pip = self._which('pip')
                 
             if pip:

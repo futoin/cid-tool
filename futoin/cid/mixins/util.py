@@ -1,7 +1,7 @@
 
 from __future__ import print_function, absolute_import
 
-import os, json
+import os, json, stat, shutil
 from collections import OrderedDict
 
 class UtilMixIn( object ):
@@ -52,6 +52,12 @@ class UtilMixIn( object ):
             
         return [ file_name ]
     
-    @classmethod
-    def isExternalToolsSetup( cls, env ):
+    def _isExternalToolsSetup( self, env ):
         return env['externalSetup']['installTools']
+    
+    def _rmTree( self, dir ):
+        os.chmod( dir, stat.S_IRWXU )
+        for ( path, dirs, files ) in os.walk( dir ) :
+            for id in dirs + files :
+                os.chmod( os.path.join( path, id ), stat.S_IRWXU )
+        shutil.rmtree(dir)        

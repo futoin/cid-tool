@@ -5,7 +5,7 @@ from ..runenvtool import RunEnvTool
 
 class sshTool( RunEnvTool ):
     def _installTool( self, env ):
-        self.requireDeb(['openssh-client'])
-        self.requireRpm(['openssh'])
+        self._requireDeb(['openssh-client'])
+        self._requireRpm(['openssh'])
     
     

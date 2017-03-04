@@ -15,11 +15,11 @@ class pythonTool( RuntimeTool ):
     
     def _installTool( self, env ):
         if int(env['pythonVer'].split('.')[0]) == 3:
-            self.requireDeb(['python3'])
-            self.requireZypper(['python3'])
-            self.requireYum(['python34'])
+            self._requireDeb(['python3'])
+            self._requireZypper(['python3'])
+            self._requireYum(['python34'])
         else:
-            self.requirePackages(['python'])
+            self._requirePackages(['python'])
     
     def uninstallTool( self, env ):
         pass

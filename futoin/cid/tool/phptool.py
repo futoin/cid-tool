@@ -86,14 +86,14 @@ class phpTool( RuntimeTool ):
         
         if os.path.exists(php_bin):
             self._have_tool = True
-            self.addBinPath( php_bin_dir, True )
+            self._addBinPath( php_bin_dir, True )
             env.setdefault('phpBin', php_bin)
             env.setdefault('phpfpmBin', os.path.join(php_dir, 'sbin', 'php-fpm') )
             
     def _buildDeps( self, env ):
         # APT
         #---
-        self.requireDeb([
+        self._requireDeb([
             'build-essential',
             'bison',
             'automake',
@@ -148,9 +148,9 @@ class phpTool( RuntimeTool ):
 
         # Extra repo before the rest
         #---
-        self.requireYum(['epel-release'])
+        self._requireYum(['epel-release'])
         
-        self.requireRpm([
+        self._requireRpm([
             'binutils',
             'patch',
             'git',
@@ -184,12 +184,12 @@ class phpTool( RuntimeTool ):
             'pcre-devel',
         ])
         
-        self.requireYum([
+        self._requireYum([
             'bzip2-devel',
             'mysql-devel',
         ])
 
-        self.requireZypper([
+        self._requireZypper([
             'libbz2-devel',
             'libmysqlclient-devel',
         ])
@@ -198,8 +198,8 @@ class phpTool( RuntimeTool ):
         systemctl = self._which('systemctl')
 
         if systemctl:
-            self.requireDeb(['libsystemd-dev'])
-            self.requireRpm(['systemd-devel'])
+            self._requireDeb(['libsystemd-dev'])
+            self._requireRpm(['systemd-devel'])
             with_systemd = ' --with-fpm-systemd'
         else:
             with_systemd = ' --without-fpm-systemd'
@@ -278,7 +278,7 @@ class phpTool( RuntimeTool ):
             ' + with_systemd + with_libdir
 
     def _systemDeps( self ):
-        self.requireDeb([
+        self._requireDeb([
             'php.*-cli',
             'php.*-fpm',
             "php.*-apcu",
@@ -301,7 +301,7 @@ class phpTool( RuntimeTool ):
         ])
         
         # SuSe-like
-        self.requireZypper([
+        self._requireZypper([
             'php?',
             'php*-fpm',
             'php*-bcmath',
@@ -336,7 +336,7 @@ class phpTool( RuntimeTool ):
         ])
             
         # RedHat-like
-        self.requireYum([
+        self._requireYum([
             'php-cli',
             'php-fpm',
             'php-pecl-apcu',
@@ -347,7 +347,7 @@ class phpTool( RuntimeTool ):
         ])
         
         try:
-            self.requireDeb([
+            self._requireDeb([
                 "php.*-mbstring",
                 "php.*-opcache",
                 "php.*-zip",

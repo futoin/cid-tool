@@ -9,6 +9,19 @@
 * Fixed to properly handle custom "actions"
 * Added CID self-release support
 * Changed Ruby & PHP tools to install epel-release when Yum is available
+* Implemented new deploy modes: vcsref & vcstag
+* Added proper error checking for rms & rms tool when required
+* Added deploy lock
+* Added prepare & build in deploy (optional for rms)
+* Refactoring of internal API:
+    * use MixIns
+    * make private and avoid classmethods
+    * new API _rmTree() with workaround for read-only files
+    * improved Git, Hg and SVN handling
+    * extended vcsTool base class API
+    * extended unit tests
+* Changed default wcDir to cwd for all commands, except ci_build where default is 'build'
+* Added tarTool
 
 === 0.1.1 ===
 

@@ -18,8 +18,6 @@ class SubTool( PathMixIn, PackageMixIn, UtilMixIn, object ):
     
     SYSTEM_VER = 'system'
     
-    _dev_null = None
-    
     def __init__( self, name ) :
         self._name = name
         self._have_tool = False
@@ -73,7 +71,7 @@ class SubTool( PathMixIn, PackageMixIn, UtilMixIn, object ):
         self.initEnv( env )
 
         if not self._have_tool:
-            if self.isExternalToolsSetup( env ):
+            if self._isExternalToolsSetup( env ):
                 raise RuntimeError( "Tool (%s) must be installed externally (env config)"  % self._name )
             else :
                 self._installTool( env )

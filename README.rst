@@ -74,9 +74,11 @@ Please see details in the FTN16 spec:
 
     cid promote <package> <rms_pool> [--rmsRepo rms_url] [--rmsHash type_value]
 
-    cid deploy [rms] <rms_pool> [<package>] [--rmsRepo rms_url] [--rmsHash type_value] [--redeploy] [--deployDir deploy_dir]
+    cid deploy vcstag [<vcs_ref>] [--vcsRepo vcs_url] [--redeploy] [--deployDir deploy_dir]    
 
-    cid deploy (vcstag|vcsref) <vcs_ref> [--vcsRepo vcs_url] [--redeploy] [--deployDir deploy_dir]
+    cid deploy vcsref <vcs_ref> [--vcsRepo vcs_url] [--redeploy] [--deployDir deploy_dir]    
+
+    cid deploy [rms] <rms_pool> [<package>] [--rmsRepo rms_url] [--rmsHash type_value] [--redeploy] [--deployDir deploy_dir] [--build]
 
     cid run [<command>]
 

@@ -60,7 +60,7 @@ class rubyTool( RuntimeTool ):
     def _buildDeps( self ):
         # APT
         #---
-        self.requireDeb([
+        self._requireDeb([
             'build-essential',
             'gawk',
             'libssl-dev',
@@ -86,9 +86,9 @@ class rubyTool( RuntimeTool ):
 
         # Extra repo before the rest
         #---
-        self.requireYum(['epel-release'])
+        self._requireYum(['epel-release'])
 
-        self.requireRpm([
+        self._requireRpm([
             'binutils',
             'patch',
             'libyaml-devel',
@@ -112,4 +112,4 @@ class rubyTool( RuntimeTool ):
         ])
         
     def _systemDeps( self ):
-        self.requirePackages(['ruby'])
+        self._requirePackages(['ruby'])

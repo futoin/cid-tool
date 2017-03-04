@@ -6,7 +6,7 @@ class gpgTool( RunEnvTool ):
         return ['gpgBin', 'gpgKeyServer']
    
     def _installTool( self, env ):
-        self.requirePackages(['gnupg', 'gnupg2'])
+        self._requirePackages(['gnupg', 'gnupg2'])
     
     def initEnv( self, env ):
         super(gpgTool, self).initEnv( env )

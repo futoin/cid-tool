@@ -4,11 +4,16 @@ import os
 from ..vcstool import VcsTool
 
 class gitTool( VcsTool ):
+    _rev = None
+    
+    def getDeps(self):
+        return ['bash', 'tar']
+
     def autoDetect( self, config ) :
         return self._autoDetectVCS( config, '.git' )
     
     def _installTool( self, env ):
-        self.requirePackages(['git'])
+        self._requirePackages(['git'])
 
     def _checkGitConfig( self, env ):
         gitBin = env['gitBin']
@@ -41,24 +46,40 @@ class gitTool( VcsTool ):
                 env.get('gitUserName', 'FutoIn CITool')
             ])
 
+    def vcsGetRepo( self, config, wc_dir=None ):
+        git_dir = wc_dir or os.path.join(config['wcDir'], '.git')
+        
+        return self._callExternal( [
+            config['env']['gitBin'],
+            '--git-dir={0}'.format(git_dir),
+            'config',
+            '--get',
+            'remote.origin.url'
+        ] ).strip()
+    
+    def _gitCompareRepo( self, cfg, act ):
+        return cfg == act or ('ssh://'+cfg) == act
+    
     def vcsCheckout( self, config, vcs_ref ):
         gitBin = config['env']['gitBin']
         wc_dir = config['wcDir']
+        vcsRepo = config['vcsRepo']
         
-        if os.path.isdir( wc_dir + '/.git' ):
+        if os.path.isdir( os.path.join(wc_dir, '.git') ):
             os.chdir( wc_dir )
         
         if os.path.isdir( '.git' ):
-            if 'vcsRepo' in config:
-                remote_info = self._callExternal( [ gitBin, 'remote', '-v' ] )
-                if remote_info.find( config['vcsRepo'] ) < 0 :
-                    raise RuntimeError( "Git remote mismatch: " + remote_info )
+            remote_url = self.vcsGetRepo( config, '.git')
+            
+            if not self._gitCompareRepo( vcsRepo, remote_url ) :
+                raise RuntimeError( "Git remote mismatch: {0} != {1}"
+                    .format(vcsRepo, remote_url ) )
 
             self._callExternal( [ gitBin, 'fetch', '-q'  ] )
         elif os.path.exists( wc_dir ):
             raise RuntimeError( "Path already exists: " + wc_dir )
         else :
-            self._callExternal( [ gitBin, 'clone', '-q', config['vcsRepo'], wc_dir ] )
+            self._callExternal( [ gitBin, 'clone', '-q', vcsRepo, wc_dir ] )
             os.chdir( wc_dir )
 
         if  self._callExternal( [ gitBin, 'branch', '-q', '--list', 'origin/'+vcs_ref ] ):
@@ -83,4 +104,74 @@ class gitTool( VcsTool ):
     def vcsGetRevision( self, config ) :
         gitBin = config['env']['gitBin']
         return self._callExternal( [ gitBin, 'rev-parse', 'HEAD' ] ).strip()
+    
+    def vcsGetRefRevision( self, config, vcs_cache_dir, branch ) :
+        res = self._callExternal( [
+            config['env']['gitBin'],
+            'ls-remote', '--refs',
+            config['vcsRepo'],
+            'refs/heads/{0}'.format(branch)
+        ] ).strip()
+        
+        if res:
+            self._rev = res.split()[0]
+            return self._rev
+        
+        raise RuntimeError( "Uknown Git ref: {0}".format( branch ) )
+    
+
+    def vcsListTags( self, config, vcs_cache_dir, tag_hint ) :
+        if tag_hint:
+            tag_hint = ['refs/tags/{0}'.format(tag_hint)]
+        else:
+            tag_hint = []
+        
+        res = self._callExternal( [
+            config['env']['gitBin'],
+            'ls-remote','--tags', '--refs',
+            config['vcsRepo']
+        ] + tag_hint ).strip().split("\n")
+
+        return [ v.split()[1].replace('refs/tags/', '') for v in res ]
+
+    def vcsExport( self, config, vcs_cache_dir, vcs_ref, dst_path ) :
+        env = config['env']
+        gitBin = env['gitBin']
+        vcsRepo = config['vcsRepo']
+
+        if os.path.exists(vcs_cache_dir):
+            remote_url = self.vcsGetRepo( config, vcs_cache_dir )
+            
+            if self._gitCompareRepo(vcsRepo,  remote_url):
+                print('WARNING: removing git cache on remote URL mismatch: {0} != {1}'
+                      .format(remote_url, vcsRepo))
+                self._rmTree(vcs_cache_dir)
+        
+        if not os.path.exists(vcs_cache_dir):
+             self._callExternal( [
+                env['gitBin'],
+                'clone', '--mirror',
+                vcsRepo,
+                vcs_cache_dir
+            ] )
+        else:
+            self._callExternal( [
+                env['gitBin'],
+                '--git-dir={0}'.format(vcs_cache_dir),
+                'fetch'
+            ] )
+            
+        if os.path.exists(dst_path):
+            self._rmTree(dst_path)
+
+        os.mkdir(dst_path)
+        
+        if self._rev:
+            vcs_ref = self._rev
+        
+        self._callExternal([
+            env['bashBin'],  '--noprofile', '--norc', '-c',
+                '{0} --git-dir={1} archive --format=tar {2} | {3} x -C {4}'
+                .format(config['env']['gitBin'], vcs_cache_dir, vcs_ref, env['tarBin'], dst_path)
+        ])
 

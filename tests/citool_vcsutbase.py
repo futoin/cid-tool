@@ -24,7 +24,10 @@ class citool_VCSUTBase ( citool_UTBase ) :
         subprocess.check_output( cmd, stdin=subprocess.PIPE )
     
     def test_10_tag( self ):
-        self._call_citool( [ 'tag', 'branch_A', '--vcsRepo', self.VCS_REPO ] )
+        self._call_citool( [
+                'tag', 'branch_A',
+                '--vcsRepo', self.VCS_REPO,
+                '--wcDir', 'build_ver' ] )
         
     def test_20_tag_invalid_ver( self ):
         self._call_citool( [
@@ -126,7 +129,7 @@ class citool_VCSUTBase ( citool_UTBase ) :
                             '--vcsRepo', self.VCS_REPO,
                             '--rmsRepo', 'scp:' + rms_dir ] )
         
-    def test_41_rms_deploy( self ):
+    def test_50_rms_deploy( self ):
         rms_dir = os.path.realpath( 'rms_repo' )
         
         os.makedirs( 'test_deploy' )
@@ -136,7 +139,7 @@ class citool_VCSUTBase ( citool_UTBase ) :
 
         self.assertTrue(glob.glob('wc-CI-1.3.0-*'))
         
-    def test_42_rms_redeploy( self ):
+    def test_51_rms_redeploy( self ):
         rms_dir = os.path.realpath( 'rms_repo' )
         
         os.chdir( 'test_deploy' )
@@ -145,18 +148,65 @@ class citool_VCSUTBase ( citool_UTBase ) :
         
         self.assertTrue(glob.glob('wc-CI-1.3.0-*'))
         
-    def test_43_rms_deploy_package( self ):
+    def test_52_rms_deploy_package( self ):
         rms_dir = os.path.realpath( 'rms_repo' )
-        package = subprocess.check_output( 'cd %s/Builds && ls wc-1.2.3-*.txz | head -1' % rms_dir, shell=True )
-        try:
-            package = str(package, 'utf8').strip()
-        except TypeError:
-            package = str(package).strip()
         
         os.chdir( 'test_deploy' )
-        print(package)
+        
+        package = 'wc-1.2.3-*'
+
         self._call_citool( [ 'deploy', 'Builds', package,
                             '--rmsRepo', 'scp:' + rms_dir ] )
         
         self.assertTrue(glob.glob('wc-1.2.3-*'))
+        
+        self._call_citool( [ 'deploy', 'Builds', package,
+                            '--rmsRepo', 'scp:' + rms_dir ] )
+        
+        self.assertTrue(glob.glob('wc-1.2.3-*'))
+        
+        self._call_citool( [ 'deploy', 'Builds', package,
+                            '--rmsRepo', 'scp:' + rms_dir,
+                            '--redeploy' ] )
+        
+        self.assertTrue(glob.glob('wc-1.2.3-*'))
+
+    def test_60_vcstag_deploy( self ):
+        os.chdir( 'test_deploy' )
+        
+        self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO ] )
+        self.assertTrue(os.path.exists('v1.3.0'))
+        
+        self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO ] )
+        self.assertTrue(os.path.exists('v1.3.0'))
+        
+        self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO, '--redeploy' ] )
+        self.assertTrue(os.path.exists('v1.3.0'))
+        
+    def test_61_vcstag_deploy_ref( self ):
+        os.chdir( 'test_deploy' )
+        
+        self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO, 'v1.2.*' ] )
+        self.assertTrue(os.path.exists('v1.2.4'))
+
+        self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO, 'v1.2.4' ] )
+        self.assertTrue(os.path.exists('v1.2.4'))
+
+        self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO, 'v1.2.*', '--redeploy' ] )
+        self.assertTrue(os.path.exists('v1.2.4'))
+        
+        self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO, 'v1.2.3' ] )
+        self.assertTrue(os.path.exists('v1.2.3'))
+        
+    def test_70_vcsref_deploy( self ):
+        os.chdir( 'test_deploy' )
+        
+        self._call_citool( [ 'deploy', 'vcsref', 'branch_A', '--vcsRepo', self.VCS_REPO ] )
+        self.assertTrue(glob.glob('branch_A_*'))
+        
+        self._call_citool( [ 'deploy', 'vcsref', 'branch_A', '--vcsRepo', self.VCS_REPO ] )
+        self.assertTrue(glob.glob('branch_A_*'))
+        
+        self._call_citool( [ 'deploy', 'vcsref', 'branch_A', '--vcsRepo', self.VCS_REPO, '--redeploy' ] )
+        self.assertTrue(glob.glob('branch_A_*'))
         

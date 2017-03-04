@@ -1,5 +1,5 @@
 
-import os, shutil
+import os
 
 from ..buildtool import BuildTool
 
@@ -29,7 +29,7 @@ class setuptoolsTool( BuildTool ):
     def onBuild( self, config ):
         for d in ['build', 'dist']:
             if os.path.exists(d):
-                shutil.rmtree(d)
+                self._rmTree(d)
 
         pythonBin = config['env']['pythonBin']
         self._callExternal( [ pythonBin, 'setup.py', 'check', '-mrs' ] )

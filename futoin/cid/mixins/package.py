@@ -2,42 +2,37 @@
 from __future__ import print_function, absolute_import
 
 class PackageMixIn( object ):
-    @classmethod
-    def requireDeb(cls, packages):
-        apt_get = cls._which('apt-get')
+    def _requireDeb(self, packages):
+        apt_get = self._which('apt-get')
         
         if apt_get:
-            cls._trySudoCall(
+            self._trySudoCall(
                 [apt_get, 'install', '-y'] + packages,
                 errmsg = 'WARNING: you may need to install build deps manually !'
             )
 
-    @classmethod
-    def requireYum(cls, packages):
-        yum = cls._which('yum')
+    def _requireYum(self, packages):
+        yum = self._which('yum')
         
         if yum:
-            cls._trySudoCall(
+            self._trySudoCall(
                 [yum, 'install', '-y'] + packages,
                 errmsg = 'WARNING: you may need to install build deps manually !'
             )
 
-    @classmethod
-    def requireZypper(cls, packages):        
-        zypper = cls._which('zypper')
+    def _requireZypper(self, packages):        
+        zypper = self._which('zypper')
 
         if zypper:
-            cls._trySudoCall(
+            self._trySudoCall(
                 [zypper, 'install', '-y'] + packages,
                 errmsg='WARNING: you may need to install build deps manually !'
             )
             
-    @classmethod
-    def requireRpm(cls, packages):
-        cls.requireYum(packages)
-        cls.requireZypper(packages)
+    def _requireRpm(self, packages):
+        self._requireYum(packages)
+        self._requireZypper(packages)
     
-    @classmethod
-    def requirePackages(cls, packages):
-        cls.requireDeb(packages)
-        cls.requireRpm(packages)
+    def _requirePackages(self, packages):
+        self._requireDeb(packages)
+        self._requireRpm(packages)
