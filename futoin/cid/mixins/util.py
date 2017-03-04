@@ -41,6 +41,17 @@ class UtilMixIn( object ):
             
         return [ file_name ]
     
+    def _updateTextFile( self, file_name, updater ) :
+        with open(file_name, 'r') as content_file:
+            content = content_file.read()
+            
+        content = updater( content )
+        
+        with open(file_name, 'w') as content_file:
+            content_file.write( content )
+            
+        return [ file_name ]
+    
     @classmethod
     def isExternalToolsSetup( cls, env ):
         return env['externalSetup']['installTools']
