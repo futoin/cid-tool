@@ -33,8 +33,6 @@ class venvTool( RunEnvTool ):
             self._callExternal([
                 virtualenv,
                 '--python={0}'.format(env['pythonRawBin']),
-                '--system-site-packages',
-                '--no-pip', # get the latest later
                 '--clear',
                 venv_dir
             ])
