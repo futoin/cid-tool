@@ -5,6 +5,8 @@ import hashlib
 
 from .subtool import SubTool
 
+__all__ = ['RmsTool']
+
 class RmsTool( SubTool ):
     def getType( self ):
         return self.TYPE_RMS

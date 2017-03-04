@@ -1,7 +1,10 @@
 
 from setuptools import setup, find_packages
     
-import sys
+import os, sys
+
+sys.path.insert( 0, os.path.dirname( __file__ ) )
+from futoin.cid import __version__ as version
 
 config = {
     'description': 'FutoIn Continuous Integration & Delivery Tool',
@@ -9,7 +12,7 @@ config = {
     'url': 'https://github.com/futoin/cid-tool',
     'download_url': 'https://github.com/futoin/cid-tool/archive/master.zip',
     'author_email': 'andrey@futoin.org',
-    'version': '0.1.1',
+    'version': version,
     'install_requires': ['docopt'],
      'extras_require': {
         'test': ['nose'],

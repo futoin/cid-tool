@@ -7,6 +7,8 @@ from .mixins.util import UtilMixIn
 from .mixins.path import PathMixIn
 from .mixins.package import PackageMixIn
 
+__all__ = ['SubTool']
+
 class SubTool( PathMixIn, PackageMixIn, UtilMixIn, object ):
     TYPE_RUNENV = 'runenv'
     TYPE_RUNTIME = 'runtime'

@@ -29,7 +29,7 @@ class setuptoolsTool( BuildTool ):
     def onBuild( self, config ):
         for d in ['build', 'dist']:
             if os.path.exists(d):
-                shutil.rmtree('build')
+                shutil.rmtree(d)
 
         pythonBin = config['env']['pythonBin']
         self._callExternal( [ pythonBin, 'setup.py', 'sdist', 'bdist_wheel' ] )

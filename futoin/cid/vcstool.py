@@ -3,6 +3,8 @@ import os
 
 from .subtool import SubTool
 
+__all__ = ['VcsTool']
+
 class VcsTool( SubTool ):
     def getType( self ):
         return self.TYPE_VCS

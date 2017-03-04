@@ -37,9 +37,11 @@ if sys.version_info < (2,7):
     print( 'Sorry, but only Python version >= 2.7 is supported!' )
     sys.exit( 1 )
 
+from . import __version__ as version
+__all__ = ['run']
 
 def run():
-    args = docopt( __doc__, version='FutoIn CIDTool v0.1.1' )
+    args = docopt( __doc__, version='FutoIn CIDTool v{0}'.format(version) )
 
     if type(args) == str:
         print(args)

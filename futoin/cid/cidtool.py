@@ -17,6 +17,8 @@ from collections import OrderedDict
 
 from .subtool import SubTool
 
+__all__ = ['CIDTool']
+
 def _call_cmd( cmd ):
     print( 'Call: ' + subprocess.list2cmdline( cmd ), file=sys.stderr )
     subprocess.call( cmd, stdin=subprocess.PIPE )    
