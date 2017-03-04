@@ -13,7 +13,7 @@ class pipTool( BuildTool ):
         )
     
     def getDeps( self ) :
-        return [ 'python', 'venv' ]
+        return [ 'python', 'virtualenv' ]
 
     def _envNames( self ) :
         return ['pipBin', 'pipVer']
@@ -23,7 +23,7 @@ class pipTool( BuildTool ):
             self.updateTool( env )
         else:
             self._callExternal([
-                os.path.join( env['venvDir'], 'bin', 'easy_install' ), 'pip'
+                os.path.join( env['virtualenvDir'], 'bin', 'easy_install' ), 'pip'
             ])
 
     def updateTool( self, env ):
@@ -37,7 +37,7 @@ class pipTool( BuildTool ):
         pass
     
     def initEnv( self, env ) :
-        pipBin = os.path.join( env['venvDir'], 'bin', 'pip' )
+        pipBin = os.path.join( env['virtualenvDir'], 'bin', 'pip' )
         pipBin = env.setdefault( 'pipBin', pipBin )
         pipVer = env.setdefault( 'pipVer', '9.0.1' )
         

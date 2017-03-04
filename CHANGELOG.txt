@@ -1,7 +1,7 @@
 
 ==== (ongoing) ===
 
-* Added virtualenv (as venv) and pip tools
+* Added virtualenv and pip tools
 * Changed Python version 3 as default for pythonTool
 * Added bundled docopt and fallback to it, if docopt is not found
 * Fixed issues in setuptoolsTool

@@ -8,7 +8,7 @@ class pythonTool( RuntimeTool ):
     
     def getPostDeps( self ) :
         # hackish hack
-        return ['venv']
+        return ['virtualenv']
     
     def _envNames( self ) :
         return ['pythonBin', 'pythonVer']

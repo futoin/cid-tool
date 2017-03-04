@@ -3,19 +3,19 @@ import os
 
 from ..runenvtool import RunEnvTool
 
-class venvTool( RunEnvTool ):
+class virtualenvTool( RunEnvTool ):
     def getDeps( self ) :
         return [ 'bash', 'python' ]
     
     def _envNames( self ) :
-        return [ 'venvDir', 'venvVer']
+        return [ 'virtualenvDir', 'virtualenvVer']
     
     def _installTool( self, env ):
         python_ver = env['pythonVer'].split('.')
         
-        venv_dir = env['venvDir']
+        virtualenv_dir = env['virtualenvDir']
         
-        # venv depends on ensurepip and provides no setuptools
+        # virtualenv depends on ensurepip and provides no setuptools
         # ensurepip is not packaged on all OSes...
         if False and int(python_ver[0]) == 3 and int(python_ver[1]) >= 3:
             self._callExternal([
@@ -25,7 +25,7 @@ class venvTool( RunEnvTool ):
                 '--symlinks',
                 '--without-pip', # avoid ensurepip run
                 '--clear',
-                venv_dir
+                virtualenv_dir
             ])
         else:
             # Looks quite stupid, but it's a workaround for different OSes
@@ -38,7 +38,7 @@ class venvTool( RunEnvTool ):
                 pip = self._which('pip')
                 
             if pip:
-                self._trySudoCall([ pip, 'install', '-q', '--upgrade', 'virtualenv>={0}'.format(env['venvVer']) ])
+                self._trySudoCall([ pip, 'install', '-q', '--upgrade', 'virtualenv>={0}'.format(env['virtualenvVer']) ])
             
             virtualenv = self._which('virtualenv')
 
@@ -46,28 +46,28 @@ class venvTool( RunEnvTool ):
                 virtualenv,
                 '--python={0}'.format(env['pythonRawBin']),
                 '--clear',
-                venv_dir
+                virtualenv_dir
             ])
             
     def updateTool( self, env ):
         pass
     
     def initEnv( self, env ) :
-        venv_dir = '.venv-{0}'.format(env['pythonVer'][:3])
-        venv_dir = env.setdefault('venvDir', os.path.join(os.environ['HOME'], venv_dir))
+        virtualenv_dir = '.virtualenv-{0}'.format(env['pythonVer'][:3])
+        virtualenv_dir = env.setdefault('virtualenvDir', os.path.join(os.environ['HOME'], virtualenv_dir))
         
-        env.setdefault('venvVer', '15.1.0')
+        env.setdefault('virtualenvVer', '15.1.0')
         
-        self._have_tool = os.path.exists(os.path.join(venv_dir, 'bin', 'activate'))
+        self._have_tool = os.path.exists(os.path.join(virtualenv_dir, 'bin', 'activate'))
         
         if self._have_tool:
             env_to_set = self._callExternal(
                 [ env['bashBin'],  '--noprofile', '--norc', '-c',
-                'source {0}/bin/activate && env | grep \'{0}\''.format(venv_dir) ],
+                'source {0}/bin/activate && env | grep \'{0}\''.format(virtualenv_dir) ],
                 verbose = False
             )
                 
             self._updateEnvFromOutput(env_to_set)
             # reverse-dep hack
-            env['pythonBin'] = os.path.join(venv_dir, 'bin', 'python')
+            env['pythonBin'] = os.path.join(virtualenv_dir, 'bin', 'python')
 

@@ -11,7 +11,7 @@ class setuptoolsTool( BuildTool ):
         )
     
     def getDeps( self ) :
-        return [ 'python', 'pip', 'venv' ]
+        return [ 'python', 'pip', 'virtualenv' ]
     
     def _installTool( self, env ):
         self._callExternal( [ env['pipBin'], 'install', '-q', 'setuptools' ] )
@@ -23,8 +23,8 @@ class setuptoolsTool( BuildTool ):
         pass
         
     def initEnv( self, env ):
-        venv_dir = env['venvDir']
-        self._have_tool = os.path.exists(os.path.join(venv_dir, 'bin', 'easy_install'))
+        virtualenv_dir = env['virtualenvDir']
+        self._have_tool = os.path.exists(os.path.join(virtualenv_dir, 'bin', 'easy_install'))
 
     def onBuild( self, config ):
         for d in ['build', 'dist']:
