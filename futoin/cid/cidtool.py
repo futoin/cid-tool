@@ -26,8 +26,9 @@ def _call_cmd( cmd ):
 def cid_action( f ):
     def custom_f( self, *args, **kwargs ) :
         config = self._config
-        if 'actions' in config :
-            for a in config['actions'] :
+        fn = f.func_name
+        if fn in config.get('actions', {}) :
+            for a in config['actions'][fn] :
                 if a == '<default>':
                     f( self, *args, **kwargs )
                 else :
@@ -594,7 +595,7 @@ class CIDTool :
         plugins = env['plugins'].copy()
         plugins.update( config.get( 'plugins', {} ) )
         
-        for ( k, v ) in plugins :
+        for ( k, v ) in plugins.items() :
             if not tool_impl.has_key(k):
                 m = importlib.import_module( v )
                 tool_impl[ k ] = getattr( m, k + 'Tool' )( k )
