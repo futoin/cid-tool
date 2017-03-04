@@ -8,7 +8,7 @@ class venvTool( RunEnvTool ):
         return [ 'bash', 'python' ]
     
     def _envNames( self ) :
-        return [ 'venvDir' ]
+        return [ 'venvDir', 'venvVer']
     
     def _installTool( self, env ):
         python_ver = env['pythonVer'].split('.')
@@ -28,8 +28,18 @@ class venvTool( RunEnvTool ):
                 venv_dir
             ])
         else:
-            self.requirePackages(['python-virtualenv'])
+            # Looks quite stupid, but it's a workaround for different OSes
+            pip = self._which('pip')
+            
+            if not pip:
+                self.requirePackages(['python-virtualenv'])
+                pip = self._which('pip')
+                
+            if pip:
+                self._trySudoCall([ pip, 'install', '-q', '--upgrade', 'virtualenv>={0}'.format(env['venvVer']) ])
+            
             virtualenv = self._which('virtualenv')
+
             self._callExternal([
                 virtualenv,
                 '--python={0}'.format(env['pythonRawBin']),
@@ -43,6 +53,8 @@ class venvTool( RunEnvTool ):
     def initEnv( self, env ) :
         venv_dir = '.venv-{0}'.format(env['pythonVer'][:3])
         venv_dir = env.setdefault('venvDir', os.path.join(os.environ['HOME'], venv_dir))
+        
+        env.setdefault('venvVer', '15.1.0')
         
         self._have_tool = os.path.exists(os.path.join(venv_dir, 'bin', 'activate'))
         

@@ -91,7 +91,6 @@ mixed_tools = {
         'env': {
             'pythonVer': '2',
         },
-        'ver': 'ignore',
         'managed': False,
     },
 }
@@ -105,7 +104,8 @@ if os.environ.get('CIDTEST_NO_COMPILE', '0') != '1':
 for t, ti in mixed_tools.items():
     cls = "citool_Tool_31_{0}".format(t)
     tenv = ti.get('env', {})
-    tenv[ "{0}Ver".format(t) ] = ti['ver']
+    if 'ver' in ti:
+        tenv[ "{0}Ver".format(t) ] = ti['ver']
     globals()[cls] = type(cls, (citool_Tool_UTBase, ), {
         '__test__' : True,
         'TOOL_NAME' : t,

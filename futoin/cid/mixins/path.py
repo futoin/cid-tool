@@ -26,6 +26,16 @@ class PathMixIn( object ):
             if suppress_fail :
                 return None
             raise e
+        
+    @classmethod
+    def _trySudoCall( cls, cmd, errmsg=None ):
+        try:
+            cls._callExternal(['sudo', '-n'] + cmd)
+        except:
+            if not errmsg:
+                errmsg = 'WARNING: you may need to call failed command manually !'
+
+            print( errmsg, file=sys.stderr )
     
     @classmethod
     def _which( cls, program ):

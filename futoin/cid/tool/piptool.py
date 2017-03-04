@@ -14,15 +14,24 @@ class pipTool( BuildTool ):
     
     def getDeps( self ) :
         return [ 'python', 'venv' ]
-    
+
+    def _envNames( self ) :
+        return ['pipBin', 'pipVer']
+
     def _installTool( self, env ):
-        # make sure we install better up-to-date pip
-        self._callExternal([
-            os.path.join( env['venvDir'], 'bin', 'easy_install' ), 'pip'
-        ])
+        if os.path.exists( env['pipBin'] ):
+            self.updateTool( env )
+        else:
+            self._callExternal([
+                os.path.join( env['venvDir'], 'bin', 'easy_install' ), 'pip'
+            ])
 
     def updateTool( self, env ):
-        self._callExternal( [ env['pipBin'], 'install', '-q', '--upgrade', 'pip' ] )
+        self._callExternal([
+            env['pipBin'], 'install', '-q',
+            '--upgrade',
+            'pip>={0}'.format(env['pipVer']),
+        ])
         
     def uninstallTool( self, env ):
         pass
@@ -30,7 +39,14 @@ class pipTool( BuildTool ):
     def initEnv( self, env ) :
         pipBin = os.path.join( env['venvDir'], 'bin', 'pip' )
         pipBin = env.setdefault( 'pipBin', pipBin )
-        self._have_tool = os.path.exists( pipBin )
+        pipVer = env.setdefault( 'pipVer', '9.0.1' )
+        
+        if os.path.exists( pipBin ):
+            pipFactVer = self._callExternal([ pipBin, '--version' ], verbose=False)
+            pipFactVer = [int(v) for v in pipFactVer.split(' ')[1].split('.')]
+            pipNeedVer = [int(v) for v in pipVer.split('.')]
+            
+            self._have_tool = pipNeedVer <= pipFactVer
     
     def onPrepare( self, config ):
         if os.path.exists(self.REQUIREMENTS_FILE):
