@@ -53,7 +53,7 @@ class CIDTool :
     def _forEachTool( self, cb ) :
         config = self._config
         tool_impl = self._tool_impl
-        tools = config.get( 'tools' )
+        tools = config['tools']
 
         for t in tools :
             t = tool_impl[t]
@@ -590,8 +590,11 @@ class CIDTool :
                 tool_impl[ k ] = getattr( m, k + 'Tool' )( k )
 
             self._tool_impl = tool_impl
+            
+        plugins = env['plugins'].copy()
+        plugins.update( config.get( 'plugins', {} ) )
         
-        for ( k, v ) in env['plugins'] :
+        for ( k, v ) in plugins :
             if not tool_impl.has_key(k):
                 m = importlib.import_module( v )
                 tool_impl[ k ] = getattr( m, k + 'Tool' )( k )
