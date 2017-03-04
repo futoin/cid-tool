@@ -26,7 +26,12 @@ def _call_cmd( cmd ):
 def cid_action( f ):
     def custom_f( self, *args, **kwargs ) :
         config = self._config
-        fn = f.func_name
+
+        try:
+            fn = f.func_name
+        except AttributeError:
+            fn = f.__name__
+
         if fn in config.get('actions', {}) :
             for a in config['actions'][fn] :
                 if a == '<default>':
