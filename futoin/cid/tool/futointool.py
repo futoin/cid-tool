@@ -4,9 +4,9 @@ from ..runenvtool import RunEnvTool
 class futoinTool( RunEnvTool ):
     def autoDetect( self, config ) :
         return self._autoDetectByCfg( config, 'futoin.json' )
-    
-    def getDeps( self ) :
-        return [ 'python' ]
+
+    def initEnv( self, env ):
+        self._have_tool = True
 
     def updateProjectConfig( self, config, updates ) :
         def updater( json ):
