@@ -33,6 +33,8 @@ class venvTool( RunEnvTool ):
             
             if not pip:
                 self.requirePackages(['python-virtualenv'])
+                self.requireDeb(['python-pip'])
+                self.requireYum(['python2-pip'])
                 pip = self._which('pip')
                 
             if pip:
