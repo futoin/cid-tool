@@ -24,19 +24,11 @@ fi
 [ -e /opt/rh/python27/enable ] && source /opt/rh/python27/enable 
 
 if [ "$fast" != 'fast' ]; then
-    for nt in nosetests3 nosetests-3.4; do
-        if which $nt; then
-            echo "Python 3"
-            $nt $tests;
-            break
-        fi
-    done
+    echo "Python 3"
+    pythonVer='3' ./bin/cid tool exec pip install nose
+    pythonVer='3' ./bin/cid tool exec python -- -m nose $tests
 fi
 
-for nt in nosetests-2.7 nosetests; do
-    if which $nt; then
-        echo "Python 2"
-        $nt $tests;
-        break
-    fi
-done
+echo "Python 2"
+pythonVer='2' ./bin/cid tool exec pip install nose
+pythonVer='2' ./bin/cid tool exec python -- -m nose $tests

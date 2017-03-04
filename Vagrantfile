@@ -15,30 +15,7 @@ Vagrant.configure("2") do |config|
     config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync__exclude: ".git/", create: true, group: 'root'
     
     config.vm.provision "shell", inline: <<-SHELL
-which apt-get && ( \
-    apt-get update && \
-    apt-get install -y python3 python3-setuptools && \
-    easy_install-3.4 pip && \
-    pip3.4 install docopt nose && \
-    apt-get install -y python-setuptools && \
-    easy_install pip && \
-    pip install docopt nose \
-    || exit 1)
-which yum && ( \
-    yum install -y epel-release && \
-    yum install -y python34 python34-setuptools && \
-    easy_install-3.4 pip && \
-    pip3.4 install docopt nose && \
-    yum install -y python-setuptools && \
-    easy_install pip && \
-    pip install docopt nose \
-    )
-which zypper && ( \
-    zypper install -y python3 \
-        python-nose python3-nose \
-        python-docopt python3-docopt \
-    || exit 1)
-true
+which apt-get && apt-get update || true
     SHELL
     
     {
