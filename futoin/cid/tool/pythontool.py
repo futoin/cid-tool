@@ -6,6 +6,10 @@ from ..runtimetool import RuntimeTool
 class pythonTool( RuntimeTool ):
     VER_CMD = 'import sys; print( sys.version[:3] )'
     
+    def getPostDeps( self ) :
+        # hackish hack
+        return ['venv']
+    
     def _envNames( self ) :
         return ['pythonBin', 'pythonVer']
     
@@ -29,9 +33,10 @@ class pythonTool( RuntimeTool ):
 
         super(pythonTool, self).initEnv( env, bin_name )
         
-        if self._have_tool:
+        if self._have_tool and 'pythonRawBin' not in env:
+            env['pythonRawBin'] = env['pythonBin']
             python_ver_fact = self._callExternal(
-                [ env['pythonBin'], '-c', self.VER_CMD ],
+                [ env['pythonRawBin'], '-c', self.VER_CMD ],
                 verbose = False
             ).strip()
             

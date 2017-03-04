@@ -28,6 +28,9 @@ class SubTool( PathMixIn, PackageMixIn, UtilMixIn, object ):
     def getDeps( self ) :
         return []
     
+    def getPostDeps( self ) :
+        return []
+    
     def _installTool( self, env ):
         raise NotImplementedError( "Tool (%s) must be manually installed"  % self._name )
     

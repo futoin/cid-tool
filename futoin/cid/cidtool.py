@@ -636,6 +636,10 @@ class CIDTool :
                     if moredeps:
                         dep_generations.append( moredeps )
                         tools.update( moredeps )
+                    postdeps = set(t.getPostDeps()) - tools
+                    if postdeps:
+                        dep_generations.append( postdeps )
+                        tools.update( postdeps )
         
         #---
         dep_generations.reverse()

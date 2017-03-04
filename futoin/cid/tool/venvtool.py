@@ -19,7 +19,7 @@ class venvTool( RunEnvTool ):
         # ensurepip is not packaged on all OSes...
         if False and int(python_ver[0]) == 3 and int(python_ver[1]) >= 3:
             self._callExternal([
-                env['pythonBin'],
+                env['pythonRawBin'],
                 '-m', 'venv',
                 '--system-site-packages',
                 '--symlinks',
@@ -32,7 +32,7 @@ class venvTool( RunEnvTool ):
             virtualenv = self._which('virtualenv')
             self._callExternal([
                 virtualenv,
-                '--python={0}'.format(env['pythonBin']),
+                '--python={0}'.format(env['pythonRawBin']),
                 '--system-site-packages',
                 '--no-pip', # get the latest later
                 '--clear',
@@ -56,4 +56,6 @@ class venvTool( RunEnvTool ):
             )
                 
             self._updateEnvFromOutput(env_to_set)
+            # reverse-dep hack
+            env['pythonBin'] = os.path.join(venv_dir, 'bin', 'python')
 

@@ -118,7 +118,7 @@ for t, ti in mixed_tools.items():
 
 # 40
 #-----
-for t in ['npm', 'gem']:
+for t in ['npm', 'gem', 'setuptools']:
     cls = 'citool_Tool_40_' + t
     globals()[cls] = type(cls, (citool_Tool_UTBase, ), {
         '__test__' : True,
