@@ -32,6 +32,7 @@ class setuptoolsTool( BuildTool ):
                 shutil.rmtree(d)
 
         pythonBin = config['env']['pythonBin']
+        self._callExternal( [ pythonBin, 'setup.py', 'check', '-mrs' ] )
         self._callExternal( [ pythonBin, 'setup.py', 'sdist', 'bdist_wheel' ] )
     
     

@@ -1,0 +1,15 @@
+
+==== (ongoing) ===
+
+* Added virtualenv (as venv) and pip tools
+* Changed Python version 3 as default for pythonTool
+* Added bundled docopt and fallback to it, if docopt is not found
+* Fixed issues in setuptoolsTool
+* Added FTN16 project manifest-based plugins
+* Fixed to properly handle custom "actions"
+* Added CID self-release support
+* Changed Ruby & PHP tools to install epel-release when Yum is available
+
+=== 0.1.1 ===
+
+* Initial PyPI release
