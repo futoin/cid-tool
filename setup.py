@@ -3,23 +3,33 @@ from setuptools import setup, find_packages
     
 import os, sys
 
-sys.path.insert( 0, os.path.dirname( __file__ ) )
+project_path = os.path.dirname( __file__ )
+sys.path.insert( 0, project_path )
 from futoin.cid import __version__ as version
 
+with open(os.path.join(project_path, 'README.rst'), 'r', encoding='utf-8') as f:
+    long_description = f.read()
+
 config = {
+    'name': 'futoin-cid',
+    'version': version,
+    
     'description': 'FutoIn Continuous Integration & Delivery Tool',
+    'long_description': long_description,
+
     'author': 'Andrey Galkin',
+    'author_email': 'andrey@futoin.org',
+
     'url': 'https://github.com/futoin/cid-tool',
     'download_url': 'https://github.com/futoin/cid-tool/archive/master.zip',
-    'author_email': 'andrey@futoin.org',
-    'version': version,
+
     'install_requires': ['docopt'],
-     'extras_require': {
+    'extras_require': {
         'test': ['nose'],
     },
     'python_requires': '>=2.7',
     'packages': find_packages(exclude=['bind', 'tests']),
-    'name': 'futoin-cid',
+    
     'entry_points': {
         'console_scripts': [
             'cid=futoin.cid.cli:run',
