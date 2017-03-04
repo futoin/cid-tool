@@ -58,6 +58,8 @@ class rubyTool( RuntimeTool ):
             super(rubyTool, self).initEnv( env )
             
     def _buildDeps( self ):
+        # APT
+        #---
         self.requireDeb([
             'build-essential',
             'gawk',
@@ -81,6 +83,11 @@ class rubyTool( RuntimeTool ):
             'libreadline-dev',
         ])
         
+
+        # Extra repo before the rest
+        #---
+        self.requireYum(['epel-release'])
+
         self.requireRpm([
             'binutils',
             'patch',

@@ -61,6 +61,10 @@ class phpTool( RuntimeTool ):
             return
         else:
             def_dir = os.path.join(env['phpbuildDir'], 'share', 'php-build', 'definitions')
+            
+            if not os.path.exists(def_dir):
+                return
+            
             defs = os.listdir(def_dir)
             defs = fnmatch.filter(defs, php_ver + '*')
             
@@ -87,6 +91,8 @@ class phpTool( RuntimeTool ):
             env.setdefault('phpfpmBin', os.path.join(php_dir, 'sbin', 'php-fpm') )
             
     def _buildDeps( self, env ):
+        # APT
+        #---
         self.requireDeb([
             'build-essential',
             'bison',
@@ -139,6 +145,10 @@ class phpTool( RuntimeTool ):
             'unixodbc-dev',
             'zlib1g-dev',
         ])
+
+        # Extra repo before the rest
+        #---
+        self.requireYum(['epel-release'])
         
         self.requireRpm([
             'binutils',
