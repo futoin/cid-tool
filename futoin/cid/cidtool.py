@@ -268,16 +268,26 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self._deploy_lock = None
     
     @cid_action
-    def deploy( self, rms_pool, package=None ):
-        config = self._config
-        rmstool = self._getRmsTool()
-        
+    def deploy( self, mode, p1, p2=None ):
         # Get to deploy folder
-        deploy_dir = config['deployDir']
+        deploy_dir = self._config['deployDir']
         if deploy_dir:
             os.chdir( deploy_dir )
 
         self._deployLock()
+        
+        if mode == 'rms':
+            self._rms_deploy(p1, p2)
+        elif mode == 'vcsref':
+            self._vcsref_deploy(p1)
+        elif mode == 'vcstag':
+            self._vcstag_deploy(p1)
+        else:
+            raise RuntimeError( 'Not supported deploy mode: ' + mode )
+        
+    def _rms_deploy( self, rms_pool, package=None ):
+        config = self._config
+        rmstool = self._getRmsTool()
 
         # Find out package to deploy
         package_list = rmstool.rmsGetList( config, rms_pool, package )
@@ -327,16 +337,9 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         # Common processing
         self._deployCommon( package_noext_tmp, package_noext, [package] )
         
-    def vcsref_deploy( self, vcs_ref ):
+    def _vcsref_deploy( self, vcs_ref ):
         config = self._config
         vcstool = self._getVcsTool()
-        
-        # Get to deploy folder
-        deploy_dir = config['deployDir']
-        if deploy_dir:
-            os.chdir( deploy_dir )
-            
-        self._deployLock()
 
         # Find out package to deploy
         vcs_cache = self.VCS_CACHE_DIR
@@ -364,16 +367,9 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         # Common processing
         self._deployCommon( target_tmp, target_dir, [vcs_cache] )      
 
-    def vcstag_deploy( self, vcs_ref ):
+    def _vcstag_deploy( self, vcs_ref ):
         config = self._config
         vcstool = self._getVcsTool()
-        
-        # Get to deploy folder
-        deploy_dir = config['deployDir']
-        if deploy_dir:
-            os.chdir( deploy_dir )
-            
-        self._deployLock()
 
         # Find out package to deploy
         vcs_cache = self.VCS_CACHE_DIR

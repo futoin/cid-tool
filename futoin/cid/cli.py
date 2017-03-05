@@ -99,12 +99,12 @@ def run():
         elif args['deploy'] :
             if args['vcsref']:
                 overrides['deployBuild'] = True
-                cit.vcsref_deploy( args['<vcs_ref>'] )
+                cit.deploy( 'vcsref', args['<vcs_ref>'] )
             elif args['vcstag']:
                 overrides['deployBuild'] = True
-                cit.vcstag_deploy( args['<vcs_ref>'] )
+                cit.deploy( 'vcstag', args['<vcs_ref>'] )
             else :
-                cit.deploy( args['<rms_pool>'], args['<package>'] )
+                cit.deploy( 'rms', args['<rms_pool>'], args['<package>'] )
         elif args['run'] :
             cit.run( args['<command>'] or 'start' )
         elif args['ci_build'] :
