@@ -2,6 +2,7 @@
 === (next) ===
 
 * Fixed to install epel-release before installing python34 in yum
+* Updated README/CHANGELOG to make setuptools check happy
 
 === 0.2.4 ===
 
@@ -31,12 +32,12 @@
 * Added deploy lock
 * Added prepare & build in deploy (optional for rms)
 * Refactoring of internal API:
-    * use MixIns
-    * make private and avoid classmethods
-    * new API _rmTree() with workaround for read-only files
-    * improved Git, Hg and SVN handling
-    * extended vcsTool base class API
-    * extended unit tests
+  * use MixIns
+  * make private and avoid classmethods
+  * new API _rmTree() with workaround for read-only files
+  * improved Git, Hg and SVN handling
+  * extended vcsTool base class API
+  * extended unit tests
 * Changed default wcDir to cwd for all commands,
     except ci_build where default is 'ci_build'
 * Added tarTool
