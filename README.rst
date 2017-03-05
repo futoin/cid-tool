@@ -46,6 +46,8 @@ Full test on the following OS:
 * **Debian**
     - **8 - Jessie**
     - **9 - Stretch**
+* **Fedora**
+    - **25**
 * **OpenSUSE**
     - **42.1 Leap**
 * **Ubuntu**
