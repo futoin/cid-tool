@@ -1,4 +1,8 @@
 
+=== (next) ===
+
+* Fixed Python3 issue when running with custom plugins
+
 === 0.2.3 ===
 
 * Re-release after package removal from PyPI

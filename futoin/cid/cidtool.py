@@ -735,7 +735,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         plugins.update( config.get( 'plugins', {} ) )
         
         for ( k, v ) in plugins.items() :
-            if not tool_impl.has_key(k):
+            if k not in tool_impl:
                 m = importlib.import_module( v )
                 tool_impl[ k ] = getattr( m, k + 'Tool' )( k )
 
