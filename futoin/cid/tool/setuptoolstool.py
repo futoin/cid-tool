@@ -24,11 +24,14 @@ class setuptoolsTool( PipToolMixIn, BuildTool ):
                 self._rmTree(d)
 
         env = config['env']
-        pythonBin = env['pythonBin']
-
-        self._callExternal( [ env['pipBin'], 'install', '-q', 'docutils' ] )
-        self._callExternal( [ pythonBin, 'setup.py', 'check', '-mr' ] )
-
-        self._callExternal( [ pythonBin, 'setup.py', 'sdist', 'bdist_wheel' ] )
+        self._requirePip( env, 'wheel' )
+        self._callExternal( [ env['pythonBin'], 'setup.py', 'sdist', 'bdist_wheel' ] )
     
+
+    def onCheck( self, config ):
+        env = config['env']
+        self._requirePip( env, 'docutils' )
+        self._requirePip( env, 'readme' )
+        self._callExternal( [ env['pythonBin'], 'setup.py', 'check', '-mrs' ] )
+
     

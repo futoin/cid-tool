@@ -10,6 +10,7 @@
 * Refactoring:
     * added BashToolMixIn, GemToolMixIn, npmToolMixIn,
         pipToolMixIn and integrated into dependent tools
+* Added new "check" command from FTN16
 
 === 0.2.4 ===
 

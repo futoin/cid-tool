@@ -89,6 +89,7 @@ Please see details in the FTN16 spec:
 * cid prepare [<vcs_ref>] [--vcsRepo vcs_url] [--wcDir wc_dir]
 * cid build
 * cid package
+* cid check [--permissive]
 * cid promote <package> <rms_pool> [--rmsRepo rms_url] [--rmsHash type_value]
 * cid deploy vcstag [<vcs_ref>] [--vcsRepo vcs_url] [--redeploy]
   [--deployDir deploy_dir]
@@ -98,6 +99,7 @@ Please see details in the FTN16 spec:
   [--rmsHash type_value] [--redeploy] [--deployDir deploy_dir] [--build]
 * cid run [<command>]
 * cid ci_build <vcs_ref> <rms_pool> [--vcsRepo vcs_url] [--rmsRepo rms_url]
+  [--permissive]
 * cid tool exec <tool_name> [-- <tool_arg>...]
 * cid tool (install|uninstall|update|test|env) [<tool_name>]
 

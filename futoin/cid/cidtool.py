@@ -57,14 +57,18 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self._overrides = overrides
         self._initConfig()
         
-    def _forEachTool( self, cb ) :
+    def _forEachTool( self, cb, allow_failure=False ) :
         config = self._config
         tool_impl = self._tool_impl
         tools = config['tools']
 
         for t in tools :
             t = tool_impl[t]
-            cb( config, t )
+            try:
+                cb( config, t )
+            except RuntimeError as e:
+                if not allow_failure:
+                    raise e
             
     def _getVcsTool( self ):
         config = self._config
@@ -252,6 +256,15 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                     '--exclude=' + package_file, '--exclude-vcs' ] + package_content )
         self._lastPackage = package_file
     
+    @cid_action
+    def check( self ):
+        self._processWcDir()
+        
+        self._forEachTool(
+            lambda config, t: t.onCheck( config ),
+            allow_failure = self._config.get('permissiveChecks', False)
+        )
+
     @cid_action
     def promote( self, package, rms_pool ):
         config = self._config
@@ -535,6 +548,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self.prepare( vcs_ref )
         self.build()
         self.package()
+        self.check()
         self.promote( self._lastPackage, rms_pool )
 
     @cid_action

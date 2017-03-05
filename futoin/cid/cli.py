@@ -6,12 +6,13 @@ Usage:
     cid prepare [<vcs_ref>] [--vcsRepo vcs_url] [--wcDir wc_dir]
     cid build
     cid package
+    cid check [--permissive]
     cid promote <package> <rms_pool> [--rmsRepo rms_url] [--rmsHash type_value]
     cid deploy vcstag [<vcs_ref>] [--vcsRepo vcs_url] [--redeploy] [--deployDir deploy_dir]    
     cid deploy vcsref <vcs_ref> [--vcsRepo vcs_url] [--redeploy] [--deployDir deploy_dir]    
     cid deploy [rms] <rms_pool> [<package>] [--rmsRepo rms_url] [--rmsHash type_value] [--redeploy] [--deployDir deploy_dir] [--build]
     cid run [<command>]
-    cid ci_build <vcs_ref> <rms_pool> [--vcsRepo vcs_url] [--rmsRepo rms_url]
+    cid ci_build <vcs_ref> <rms_pool> [--vcsRepo vcs_url] [--rmsRepo rms_url] [--permissive]
     cid tool exec <tool_name> [-- <tool_arg>...]
     cid tool (install|uninstall|update|test|env) [<tool_name>]
 
@@ -84,6 +85,10 @@ def run():
         overrides['toolTest'] = args['test'] or args['uninstall']
         
         #---
+        if args['--permissive']:
+            overrides['permissiveChecks'] = True
+        
+        #---
         cit = CIDTool( overrides = overrides )
         
         if args['tag'] :
@@ -94,6 +99,8 @@ def run():
             cit.build()
         elif args['package'] :
             cit.package()
+        elif args['check'] :
+            cit.check()
         elif args['promote'] :
             cit.promote( args['<package>'], args['<rms_pool>'] )
         elif args['deploy'] :

@@ -114,6 +114,9 @@ updates = {
     def onPackage( self, config ):
         pass
 
+    def onCheck( self, config ):
+        pass
+
     def onMigrate( self, config, location ):
         pass
     
