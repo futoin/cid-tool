@@ -7,7 +7,7 @@ project_path = os.path.dirname( __file__ )
 sys.path.insert( 0, project_path )
 from futoin.cid import __version__ as version
 
-with open(os.path.join(project_path, 'README.rst'), 'r', encoding='utf-8') as f:
+with open(os.path.join(project_path, 'README.rst'), 'r') as f:
     long_description = f.read()
 
 config = {
