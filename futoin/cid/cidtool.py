@@ -99,12 +99,22 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         return self._tool_impl[rmstool]
 
+    def _processWcDir( self ):
+        config = self._config
+        wcDir = config['wcDir']
+        
+        if os.path.exists(wcDir) and wcDir != os.getcwd():
+            os.chdir( wcDir )
+            self._overrides['wcDir'] = config['wcDir'] = '.'
+            self._initConfig()
 
     @cid_action
     def tag( self, branch, next_version=None ):
         if next_version and not re.match('^[0-9]+\.[0-9]+\.[0-9]+$', next_version):
             print( 'Valid version format: x.y.z', file=sys.stderr )
             sys.exit( 1 )
+            
+        self._processWcDir()
             
         config = self._config
         vcstool = self._getVcsTool()
@@ -148,13 +158,9 @@ class CIDTool( PathMixIn, UtilMixIn ) :
 
     @cid_action
     def prepare( self, vcs_ref ):
+        self._processWcDir()
+        
         config = self._config
-
-        if os.path.exists(config['wcDir']) :
-            os.chdir( config['wcDir'] )
-            self._overrides['wcDir'] = config['wcDir'] = '.'
-            self._initConfig()
-            config = self._config
 
         # make a clean checkout
         if vcs_ref:
@@ -170,12 +176,16 @@ class CIDTool( PathMixIn, UtilMixIn ) :
 
     @cid_action
     def build( self ):
+        self._processWcDir()
+        
         self._forEachTool(
             lambda config, t: t.onBuild( config )
         )
 
     @cid_action
     def package( self ):
+        self._processWcDir()
+        
         self._forEachTool(
             lambda config, t: t.onPackage( config )
         )
@@ -250,6 +260,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
     @cid_action
     def migrate( self, location ):
+        self._processWcDir()
+        
         self._forEachTool(
             lambda config, t: t.onMigrate( config, location )
         )
@@ -272,6 +284,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         # Get to deploy folder
         deploy_dir = self._config['deployDir']
         if deploy_dir:
+            if not os.path.exists( deploy_dir ) :
+                os.makedirs( deploy_dir )
             os.chdir( deploy_dir )
 
         self._deployLock()
@@ -448,8 +462,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         # Build
         if config.get('deployBuild', False):
             cwd = os.getcwd()
-            os.chdir(tmp)
-            config['wcDir'] = '.'
+            config['wcDir'] = 'tmp'
             self.prepare(None)
             self.build()
             os.chdir(cwd)
@@ -499,6 +512,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
     
     @cid_action
     def run( self, command ):
+        self._processWcDir()
+        
         config = self._config
         if config.get('vcs', None) :
             self.runDev( command )
@@ -511,9 +526,10 @@ class CIDTool( PathMixIn, UtilMixIn ) :
     @cid_action
     def ci_build( self, vcs_ref, rms_pool ):
         config = self._config
+        wcDir = config['wcDir']
 
-        if os.path.exists( config['wcDir'] ) :
-            os.rename( config['wcDir'], '{0}.bak{1}'.format(config['wcDir'], int(time.time())) )
+        if os.path.exists( wcDir ) and wcDir != os.getcwd():
+            os.rename( wcDir, '{0}.bak{1}'.format(wcDir, int(time.time())) )
         
         self._lastPackage = None
         self.prepare( vcs_ref )

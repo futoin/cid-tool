@@ -20,8 +20,10 @@
     * improved Git, Hg and SVN handling
     * extended vcsTool base class API
     * extended unit tests
-* Changed default wcDir to cwd for all commands, except ci_build where default is 'build'
+* Changed default wcDir to cwd for all commands,
+    except ci_build where default is 'ci_build'
 * Added tarTool
+* Changed current working directory processing to be more consistent
 
 === 0.1.1 ===
 

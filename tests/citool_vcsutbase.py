@@ -64,7 +64,7 @@ class citool_VCSUTBase ( citool_UTBase ) :
                             '--rmsRepo', 'scp:' + rms_dir ] )
         
         self._goToBase()
-        os.chdir( 'build' )
+        os.chdir( 'ci_build' )
         package = subprocess.check_output( 'cd %s && ls Builds/*.txz | head -1' % rms_dir, shell=True )
         try:
             package = str(package, 'utf8').strip()
@@ -79,7 +79,7 @@ class citool_VCSUTBase ( citool_UTBase ) :
                             '--rmsHash', pkg_hash ] )
         
         self._goToBase()
-        os.chdir( 'build' )
+        os.chdir( 'ci_build' )
         self._call_citool( [ 'promote', package, 'Prod',
                             '--rmsRepo', 'scp:' + rms_dir,
                             '--rmsHash', pkg_hash ] )

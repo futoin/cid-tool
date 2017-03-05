@@ -64,7 +64,7 @@ def run():
         overrides['rmsPool'] = args['<rms_pool>']
         #---
         if args['ci_build'] :
-            def_wc_dir = 'build'
+            def_wc_dir = 'ci_build'
         else :
             def_wc_dir = '.'
         overrides['wcDir'] = os.path.realpath(args['--wcDir'] or def_wc_dir)
