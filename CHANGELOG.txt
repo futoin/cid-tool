@@ -1,4 +1,8 @@
 
+=== (next) ===
+
+* Fixed to install epel-release before installing python34 in yum
+
 === 0.2.4 ===
 
 * Fixed Python3 issue when running with custom plugins

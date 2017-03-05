@@ -17,6 +17,7 @@ class pythonTool( RuntimeTool ):
         if int(env['pythonVer'].split('.')[0]) == 3:
             self._requireDeb(['python3'])
             self._requireZypper(['python3'])
+            self._requireYum(['epel-release'])
             self._requireYum(['python34'])
         else:
             self._requirePackages(['python'])
