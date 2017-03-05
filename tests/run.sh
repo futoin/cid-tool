@@ -10,12 +10,27 @@ if [ "$1" = 'fast' ]; then
     shift 1
 fi
 
+if [ "$1" = 'frompip' ]; then
+    which apt-get && sudo apt-get install -y python-pip
+    which yum && sudo yum install -y python2-pip
+    which zypper && sudo zypper install -y python-pip
+    sudo pip install --upgrade futoin-cid
+    
+    export CIDTEST_BIN=$(which cid)
+    shift 1
+    
+    fast=fast
+else
+    unset CIDTEST_BIN
+fi
+
 if [ "$1" = 'nocompile' ]; then
     export CIDTEST_NO_COMPILE=1
     shift 1
 else
     unset CIDTEST_NO_COMPILE
 fi
+
 
 if [ -z "$1" ]; then
     tests=

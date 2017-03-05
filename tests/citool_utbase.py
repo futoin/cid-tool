@@ -7,8 +7,13 @@ import sys
 import stat
 import shutil
 
+CIDTEST_BIN = os.environ.get('CIDTEST_BIN', None)
 
-CITOOL_BIN = os.path.dirname( __file__ ) + '/../bin/cid'
+if CIDTEST_BIN:
+    CIDTEST_BIN_EXT = True
+else :
+    CIDTEST_BIN_EXT = False
+    CIDTEST_BIN = os.path.dirname( __file__ ) + '/../bin/cid'
 
 class citool_UTBase ( unittest.TestCase ) :
     TEST_DIR = 'invalid'
@@ -41,7 +46,14 @@ class citool_UTBase ( unittest.TestCase ) :
         self._goToBase()
 
     def _call_citool( self, args, stdin=None, returncode=0 ) :
-        cmd = [ sys.executable, CITOOL_BIN ] + args
+        cmd = []
+        
+        if CIDTEST_BIN_EXT:
+            cmd.append(sys.executable)
+            
+        cmd.append( CIDTEST_BIN )
+        cmd += args
+        
         #print( 'Call: ' + subprocess.list2cmdline(cmd), file=sys.stderr )
         p = subprocess.Popen(
                 cmd,
