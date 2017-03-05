@@ -23,6 +23,7 @@ which apt-get && apt-get update || true
         'ubuntu_xenial' => 'bento/ubuntu-16.04',
         'centos_7' => 'centos/7',
         'opensuse_leap' => 'bento/opensuse-leap-42.1',
+        'fedora_25' => 'bento/fedora-25',
         
         'debian_stretch' => 'fujimakishouten/debian-stretch64',
         'ubuntu_trusty' => 'bento/ubuntu-14.04',

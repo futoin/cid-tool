@@ -1,4 +1,9 @@
 
+=== (next) ===
+
+* Fedora 25 support
+* Added DNF support (alias for Yum)
+
 === 0.3.0 ===
 
 * Fixed to install epel-release before installing python34 in yum
