@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.3.1 ===
 
 * Fedora 25 support
 * Added DNF support (alias for Yum)
