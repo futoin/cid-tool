@@ -20,40 +20,40 @@ https://github.com/futoin/specs/blob/master/draft/ftn16_cid_tool.md
 Supported technologies & tools (so far):
 
 * **docker** (experimental)
-  - **docker-compose**
+    - **docker-compose**
 * **node**
-  - **npm**
-  - **bower**
-  - **grunt**
-  - **grulp**
-  - **nvm** (implicit)
+    - **npm**
+    - **bower**
+    - **grunt**
+    - **grulp**
+    - **nvm** (implicit)
 * **php** - both system & any php-build supported
-  - **composer**
-  - **php-build** (implicit)
+    - **composer**
+    - **php-build** (implicit)
 * **python** - system 2 & 3
-  - **virtualenv**, venv is ignored due to issues with *ensurepip* package
-  - **pip**
+    - **virtualenv**, venv is ignored due to issues with *ensurepip* package
+    - **pip**
 * **ruby** - both system & any rvm supported
-  - **gen**
-  - **bundler**
-  - **rvm** (implicit)
+    - **gen**
+    - **bundler**
+    - **rvm** (implicit)
 * **scp** - for RMS
 
 Full test on the following OS:
 
 * **CentOS**
-  - **7** with EPEL repository enabled
+    - **7** with EPEL repository enabled
 * **Debian**
-  - **8 - Jessie**
-  - **9 - Stretch**
+    - **8 - Jessie**
+    - **9 - Stretch**
 * **OpenSUSE**
     - **42.1 Leap**
 * **Ubuntu**
-  - **14.04 LTS - Trusty**
-  - **16.04 LTS - Xenial**
-  - **16.10 - Yakkety**
+    - **14.04 LTS - Trusty**
+    - **16.04 LTS - Xenial**
+    - **16.10 - Yakkety**
 * **Other Linux**
-  - it should work without issues, if system packages are installed manually
+    - it should work without issues, if system packages are installed manually
 
 Setup
 -----
