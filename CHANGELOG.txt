@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.2.2 ===
 
 * Fixed setuptoolsTool to install docutils & allow check failure
 
