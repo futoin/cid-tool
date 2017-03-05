@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.2.1 ===
 
 * Added virtualenv and pip tools
 * Changed Python version 3 as default for pythonTool
