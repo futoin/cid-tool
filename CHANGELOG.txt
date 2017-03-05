@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.2.3 ===
 
 * Re-release after package removal from PyPI
 * Fixed unit tests for released package
