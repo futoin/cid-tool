@@ -13,6 +13,7 @@
 * Added new "check" command from FTN16
 * Added predicatable tool execution ordering
 * Fixed to properly support externally passed {tool}Bin
+* Got rid of getType() API in favor of multi-role approach
 
 === 0.2.4 ===
 

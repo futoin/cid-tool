@@ -6,9 +6,6 @@ from .subtool import SubTool
 __all__ = ['VcsTool']
 
 class VcsTool( SubTool ):
-    def getType( self ):
-        return self.TYPE_VCS
-    
     def vcsGetRepo( self, config ):
         raise NotImplementedError( self._name )
     

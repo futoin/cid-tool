@@ -10,20 +10,11 @@ from .mixins.package import PackageMixIn
 __all__ = ['SubTool']
 
 class SubTool( PathMixIn, PackageMixIn, UtilMixIn, object ):
-    TYPE_RUNENV = 'runenv'
-    TYPE_RUNTIME = 'runtime'
-    TYPE_BUILD = 'build'
-    TYPE_VCS = 'vcs'
-    TYPE_RMS = 'rms'
-    
     SYSTEM_VER = 'system'
     
     def __init__( self, name ) :
         self._name = name
         self._have_tool = False
-        
-    def getType( self ):
-        raise NotImplementedError( self._name )
 
     def getDeps( self ) :
         return []

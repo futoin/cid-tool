@@ -3,15 +3,17 @@ import os, re
 import xml.dom.minidom
 
 from ..vcstool import VcsTool
+from ..rmstool import RmsTool
 
-class svnTool( VcsTool ):
+class svnTool( VcsTool, RmsTool ):
     _rev = None
     
     def _installTool( self, env ):
         self._requirePackages(['subversion'])
     
     def autoDetect( self, config ) :
-        return self._autoDetectVCS( config, '.svn' )
+        return ( self._autoDetectVCS( config, '.svn' )
+                or RmsTool.autoDetect( self, config ) )
     
     def vcsGetRepo( self, config, wc_dir=None ):
         svn_info = self._callExternal([

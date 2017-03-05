@@ -19,6 +19,9 @@ from collections import OrderedDict
 from .mixins.path import PathMixIn
 from .mixins.util import UtilMixIn
 
+from .vcstool import VcsTool
+from .rmstool import RmsTool
+
 __all__ = ['CIDTool']
 
 def _call_cmd( cmd ):
@@ -767,13 +770,13 @@ class CIDTool( PathMixIn, UtilMixIn ) :
 
             # Make sure deps & env are processed for cli-supplied tools
             #--
-            for item in ['rms', 'vcs']:
+            for (item, base) in {'rms' : RmsTool, 'vcs' : VcsTool}.items():
                 tool = config.get(item, None)
 
                 if tool:
                     tools.append( tool )
 
-                    if tool_impl[ tool ].getType() != item:
+                    if not isinstance(tool_impl[ tool ], base):
                         raise RuntimeError('Tool {0} does not suite {1} type'.format(tool, item))
 
         # add all deps

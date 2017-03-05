@@ -8,9 +8,6 @@ from .subtool import SubTool
 __all__ = ['RmsTool']
 
 class RmsTool( SubTool ):
-    def getType( self ):
-        return self.TYPE_RMS
-
     def autoDetect( self, config ) :
         return self._autoDetectRMS( config )
     

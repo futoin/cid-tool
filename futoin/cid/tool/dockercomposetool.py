@@ -1,8 +1,9 @@
 
 from ..buildtool import BuildTool
+from ..runenvtool import RunEnvTool
 from .piptoolmixin import PipToolMixIn
 
-class dockercomposeTool( PipToolMixIn, BuildTool ):
+class dockercomposeTool( PipToolMixIn, BuildTool, RunEnvTool ):
     def autoDetect( self, config ) :
         return self._autoDetectByCfg(
                 config,

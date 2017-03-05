@@ -1,8 +1,8 @@
 
 from ..buildtool import BuildTool
+from ..runenvtool import RunEnvTool
 
-# It's more complex tool, but used in build context here
-class dockerTool( BuildTool ):
+class dockerTool( BuildTool, RunEnvTool ):
     def autoDetect( self, config ) :
         return self._autoDetectByCfg(
                 config,
