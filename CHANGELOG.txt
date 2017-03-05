@@ -4,7 +4,8 @@
 * Fixed to install epel-release before installing python34 in yum
 * Updated README/CHANGELOG to make setuptools check happy
 * Fixed gemTool to use custom GEM_HOME, if system Ruby is used
-* Imlemented bundleTool (Ruby Bundler)
+* Implemented bundleTool (Ruby Bundler)
+* Added docker-composer support as dockercomposerTool
 * Extended internal API for _addEnvPath/_addBinPath
 
 === 0.2.4 ===
