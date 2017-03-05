@@ -132,7 +132,7 @@ for t in ['npm', 'gem', 'setuptools']:
 
 # 50
 #-----
-for t in ['composer']:
+for t in ['composer', 'bundle']:
     cls = 'citool_Tool_50_' + t
     globals()[cls] = type(cls, (citool_Tool_UTBase, ), {
         '__test__' : True,

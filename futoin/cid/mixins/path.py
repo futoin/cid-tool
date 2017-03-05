@@ -55,13 +55,19 @@ class PathMixIn( object ):
 
         return None
 
-    def _addBinPath( self, bin_dir, first=False ) :
-        bin_dir_list = os.environ['PATH'].split(os.pathsep)
+    def _addEnvPath( self, env_name, add_dir, first=False ) :
+        if env_name in os.environ:
+            dir_list = os.environ[env_name].split(os.pathsep)
+        else :
+            dir_list = []
 
-        if bin_dir not in bin_dir_list:
+        if add_dir not in dir_list:
             if first :
-                bin_dir_list[0:0] = bin_dir
+                dir_list[0:0] = add_dir
             else :
-                bin_dir_list.append(bin_dir)
+                dir_list.append(add_dir)
 
-            os.environ['PATH'] = os.pathsep.join(bin_dir_list)
+            os.environ[env_name] = os.pathsep.join(dir_list)
+
+    def _addBinPath( self, bin_dir, first=False ) :
+        self._addEnvPath( 'PATH', bin_dir, first=first)

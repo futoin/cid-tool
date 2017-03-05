@@ -29,10 +29,11 @@ Supported technologies & tools (so far):
   - **composer**
   - **php-build** (implicit)
 * **python** - system 2 & 3
-  - **virtualenv**, venv is ignored due to issues with ensurepip
+  - **virtualenv**, venv is ignored due to issues with *ensurepip* package
   - **pip**
 * **ruby** - both system & any rvm supported
   - **gen**
+  - **bundler** (as bundleTool to reflect command name)
   - **rvm** (implicit)
 * **scp** - for RMS
 
