@@ -1,4 +1,8 @@
 
+=== (next) ===
+
+* Fixed setuptoolsTool to install docutils & allow check failure
+
 === 0.2.1 ===
 
 * Added virtualenv and pip tools

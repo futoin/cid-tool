@@ -31,8 +31,12 @@ class setuptoolsTool( BuildTool ):
             if os.path.exists(d):
                 self._rmTree(d)
 
-        pythonBin = config['env']['pythonBin']
-        self._callExternal( [ pythonBin, 'setup.py', 'check', '-mrs' ] )
+        env = config['env']
+        pythonBin = env['pythonBin']
+
+        self._callExternal( [ env['pipBin'], 'install', '-q', 'docutils' ] )
+        self._callExternal( [ pythonBin, 'setup.py', 'check', '-mr' ] )
+
         self._callExternal( [ pythonBin, 'setup.py', 'sdist', 'bdist_wheel' ] )
     
     

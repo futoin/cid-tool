@@ -11,7 +11,8 @@ runtime setup, project development, build, deployment and running.
 
 *NOTE: current focus is on web projects, but support of other types is a far target.*
 
-Full theoretical details are defined as FutoIn Spec FTN16 available at: https://github.com/futoin/specs/blob/master/draft/ftn16_cid_tool.md
+Full theoretical details are defined as FutoIn Spec FTN16 available at:
+https://github.com/futoin/specs/blob/master/draft/ftn16_cid_tool.md
 
 Supported technologies & tools (so far):
 
@@ -78,7 +79,8 @@ Please see details in the FTN16 spec:
 
     cid deploy vcsref <vcs_ref> [--vcsRepo vcs_url] [--redeploy] [--deployDir deploy_dir]    
 
-    cid deploy [rms] <rms_pool> [<package>] [--rmsRepo rms_url] [--rmsHash type_value] [--redeploy] [--deployDir deploy_dir] [--build]
+    cid deploy [rms] <rms_pool> [<package>] [--rmsRepo rms_url] [--rmsHash type_value]
+        [--redeploy] [--deployDir deploy_dir] [--build]
 
     cid run [<command>]
 
@@ -87,3 +89,5 @@ Please see details in the FTN16 spec:
     cid tool exec <tool_name> [-- <tool_arg>...]
 
     cid tool (install|uninstall|update|test|env) [<tool_name>]
+
+*END OF DOC*
