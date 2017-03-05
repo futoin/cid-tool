@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.3.0 ===
 
 * Fixed to install epel-release before installing python34 in yum
 * Updated README/CHANGELOG to make setuptools check happy
