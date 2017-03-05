@@ -818,3 +818,9 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                 t.requireInstalled( env )
                 if tool != curr_tool:
                     t.loadConfig( config )
+
+        # Solves generic issues of ordering independent tools in
+        # later execution with predictable results:
+        # 1. sort by integer order
+        # 2. sort by tool name
+        tools.sort( key=lambda v: ( tool_impl[v].getOrder(), v ) )

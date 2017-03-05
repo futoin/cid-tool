@@ -31,6 +31,9 @@ class SubTool( PathMixIn, PackageMixIn, UtilMixIn, object ):
     def getPostDeps( self ) :
         return []
     
+    def getOrder( self ):
+        return 50
+    
     def _installTool( self, env ):
         raise NotImplementedError( "Tool (%s) must be manually installed"  % self._name )
     
@@ -62,6 +65,8 @@ class SubTool( PathMixIn, PackageMixIn, UtilMixIn, object ):
             if tool_path :
                 env[ bin_env ] = tool_path.strip()
                 self._have_tool = True
+        else :
+            self._have_tool = True
     
     def autoDetect( self, config ) :
         return False

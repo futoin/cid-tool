@@ -11,6 +11,8 @@
     * added BashToolMixIn, GemToolMixIn, npmToolMixIn,
         pipToolMixIn and integrated into dependent tools
 * Added new "check" command from FTN16
+* Added predicatable tool execution ordering
+* Fixed to properly support externally passed {tool}Bin
 
 === 0.2.4 ===
 
