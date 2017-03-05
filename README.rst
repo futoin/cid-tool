@@ -19,6 +19,7 @@ https://github.com/futoin/specs/blob/master/draft/ftn16_cid_tool.md
 
 Supported technologies & tools (so far):
 
+* **docker-compose**
 * **node**
   - **npm**
   - **bower**

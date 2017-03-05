@@ -8,8 +8,8 @@
 * Added docker-composer support as dockercomposerTool
 * Extended internal API for _addEnvPath/_addBinPath
 * Refactoring:
-    * added BashToolMixIn, GemToolMixIn, npmToolMixIn and
-        integrated into dependent tools
+    * added BashToolMixIn, GemToolMixIn, npmToolMixIn,
+        pipToolMixIn and integrated into dependent tools
 
 === 0.2.4 ===
 
