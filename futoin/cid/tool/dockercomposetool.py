@@ -6,11 +6,14 @@ class dockercomposeTool( PipToolMixIn, BuildTool ):
     def autoDetect( self, config ) :
         return self._autoDetectByCfg(
                 config,
-                [ 'docker-compose.yml' ]
+                [ 'docker-compose.yml', 'docker-compose.yaml' ]
         )
     
     def getDeps( self ) :
-        return [ 'pip' ]
+        return [ 'pip', 'docker' ]
+    
+    def getOrder( self ):
+        return 70
         
     def _pipName( self ):
         return 'docker-compose'

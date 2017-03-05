@@ -132,6 +132,7 @@ for t in ['npm', 'gem', 'setuptools']:
 
 # 50
 #-----
+os.environ['dockerBin'] = '/bin/true'
 for t in ['composer', 'bundler', 'dockercompose']:
     cls = 'citool_Tool_50_' + t
     globals()[cls] = type(cls, (citool_Tool_UTBase, ), {
