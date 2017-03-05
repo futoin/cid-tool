@@ -58,11 +58,25 @@ Setup
 **cid** is written in commonly available Python language supporting both 
 Python versions 2.7 and 3+.
 
-Run the following:
+Run the following: ::
+
     pip install futoin-cid
 
-If pip is not available then it's strongly suggested to install one first:
+If pip is not available then it's strongly suggested to install one first: ::
+
     easy_install pip
+
+To allow cid automatically install system packages, please allow execution
+of apt-get, zypper or yum in sudoers. Example: ::
+
+    username ALL=(ALL) NOPASSWD: /usr/bin/apt-get install
+    username ALL=(ALL) NOPASSWD: /usr/bin/apt-get install *
+    username ALL=(ALL) NOPASSWD: /usr/bin/yum install
+    username ALL=(ALL) NOPASSWD: /usr/bin/yum install *
+    username ALL=(ALL) NOPASSWD: /usr/bin/zypper install
+    username ALL=(ALL) NOPASSWD: /usr/bin/zypper install *
+
+*Note: there are duplications with asterisk as some OSes have patched sudo*
 
 Usage
 -----
