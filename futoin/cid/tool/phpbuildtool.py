@@ -2,8 +2,9 @@
 import os
 
 from ..runenvtool import RunEnvTool
+from .bashtoolmixin import BashToolMixIn
 
-class phpbuildTool( RunEnvTool ):
+class phpbuildTool( BashToolMixIn, RunEnvTool ):
     "php build tool"
     PHPBUILD_DIR_DEFAULT = os.path.join(os.environ['HOME'], '.phpbuild')
     PHPBUILD_LATEST = 'master'
@@ -15,31 +16,25 @@ class phpbuildTool( RunEnvTool ):
         phpbuild_dir = env['phpbuildDir']
         phpbuild_git = env.get('phpbuildGit', 'https://github.com/php-build/php-build.git')
         phpbuild_ver = env.get('phpbuildVer', self.PHPBUILD_LATEST) 
-        bash_bin = env['bashBin']
         
-        self._callExternal(
-            [ bash_bin,  '--noprofile', '--norc', '-c',
+        self._callBash( env,
               'git clone {1} {0}; \
                cd {0} && git fetch && git reset --hard && git checkout {2}'
-               .format(phpbuild_dir, phpbuild_git, phpbuild_ver) ] )
+               .format(phpbuild_dir, phpbuild_git, phpbuild_ver ) )
             
     def updateTool( self, env ):
         phpbuild_dir = env['phpbuildDir']
         phpbuild_ver = env.get('phpbuildVer', self.PHPBUILD_LATEST) 
-        bash_bin = env['bashBin']
 
-        self._callExternal(
-            [ bash_bin,  '--noprofile', '--norc', '-c',
+        self._callBash( env,
               'cd {0} && git fetch && git reset --hard && git checkout {1} && git pull --rebase'
-               .format(phpbuild_dir, phpbuild_ver) ] )
+               .format(phpbuild_dir, phpbuild_ver) )
     
     def uninstallTool( self, env ):
         phpbuild_dir = env['phpbuildDir']
-        bash_bin = env['bashBin']
-        self._callExternal(
-            [ bash_bin,  '--noprofile', '--norc', '-c',
+        self._callBash( env,
               'chmod -R g+w {0}; rm -rf {0}'
-               .format(phpbuild_dir) ] )
+               .format(phpbuild_dir) )
         self._have_tool = False
             
     def _envNames( self ) :

@@ -5,19 +5,20 @@ import os
 from collections import OrderedDict
 
 from ..buildtool import BuildTool
+from .bashtoolmixin import BashToolMixIn
 
-class composerTool( BuildTool ):
+class composerTool( BashToolMixIn, BuildTool ):
     def _installTool( self, env ):
         composer_dir = env['composerDir']
         php_bin = env['phpBin']
-        bash_bin = env['bashBin']
         curl_bin = env['curlBin']
         composer_get = env.get('composerGet', 'https://getcomposer.org/installer')
 
-        self._callExternal(
-            [ bash_bin, '--noprofile', '--norc', '-c',
-              'mkdir -p {2} &&  {3} -s {0} | {1} -- --install-dir={2} --filename=composer'
-              .format(composer_get, php_bin, composer_dir, curl_bin) ] )
+        self._callBash(
+            env,
+            'mkdir -p {2} &&  {3} -s {0} | {1} -- --install-dir={2} --filename=composer'
+                .format(composer_get, php_bin, composer_dir, curl_bin)
+        )
 
     def updateTool( self, env ):
         self._callExternal([env['composerBin'], 'self-update'])

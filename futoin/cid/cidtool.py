@@ -718,12 +718,11 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                 os.path.dirname(os.path.abspath(__file__)),
                 'tool'
             )
+            
+            tool_files = os.listdir(default_tool_dir)
+            tool_files = fnmatch.filter(tool_files, '*tool.py')
 
-            for f in os.listdir(default_tool_dir):
-                splitext = os.path.splitext(f)
-                if splitext[1] != '.py' or splitext[0] in ['__init__']:
-                    continue
-
+            for f in tool_files:
                 k = f.replace('tool.py', '')
                 pkg = 'futoin.cid.tool.' + k + 'tool'
                 m = importlib.import_module( pkg )

@@ -2,8 +2,9 @@
 import os
 
 from ..vcstool import VcsTool
+from .bashtoolmixin import BashToolMixIn
 
-class gitTool( VcsTool ):
+class gitTool( BashToolMixIn, VcsTool ):
     _rev = None
     
     def getDeps(self):
@@ -169,9 +170,6 @@ class gitTool( VcsTool ):
         if self._rev:
             vcs_ref = self._rev
         
-        self._callExternal([
-            env['bashBin'],  '--noprofile', '--norc', '-c',
-                '{0} --git-dir={1} archive --format=tar {2} | {3} x -C {4}'
-                .format(config['env']['gitBin'], vcs_cache_dir, vcs_ref, env['tarBin'], dst_path)
-        ])
+        self._callBash(env, '{0} --git-dir={1} archive --format=tar {2} | {3} x -C {4}'
+                .format(config['env']['gitBin'], vcs_cache_dir, vcs_ref, env['tarBin'], dst_path))
 

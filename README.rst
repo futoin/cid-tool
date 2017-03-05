@@ -7,8 +7,8 @@ Intro
 
 There are many continuous integration & delivery tools, but they are primarily
 targeted at own infrastructure. The demand for a new meta-tool is to merge
-many operation of different technologies like npm, composer, bundle, nvm, rvm,
-php-build and others under a single tool for runtime setup, project
+many operation of different technologies like npm, composer, bundler, nvm,
+rvm, php-build and others under a single tool for runtime setup, project
 development, build, deployment and running.
 
 *NOTE: current focus is on web projects, but support of other types is a far
@@ -33,7 +33,7 @@ Supported technologies & tools (so far):
   - **pip**
 * **ruby** - both system & any rvm supported
   - **gen**
-  - **bundler** (as bundleTool to reflect command name)
+  - **bundler**
   - **rvm** (implicit)
 * **scp** - for RMS
 

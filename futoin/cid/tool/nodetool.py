@@ -2,18 +2,18 @@
 import os
 
 from ..runtimetool import RuntimeTool
+from .bashtoolmixin import BashToolMixIn
 
-class nodeTool( RuntimeTool ):
+class nodeTool( BashToolMixIn, RuntimeTool ):
     def getDeps( self ) :
         return [ 'nvm', 'bash' ]
 
     def _installTool( self, env ):
         nvm_dir = env['nvmDir']
         node_version = env['nodeVer']
-        bash_bin = env['bashBin']
-        self._callExternal(
-            [ bash_bin,  '--noprofile', '--norc', '-c',
-              'source {0}/nvm.sh --no-use && nvm install {1}'.format(nvm_dir, node_version) ] )
+        self._callBash( env,
+                'source {0}/nvm.sh --no-use && nvm install {1}'
+                .format(nvm_dir, node_version))
             
     def updateTool( self, env ):
         self._installTool( env )
@@ -21,11 +21,9 @@ class nodeTool( RuntimeTool ):
     def uninstallTool( self, env ):
         nvm_dir = env['nvmDir']
         node_version = env['nodeVer']
-        bash_bin = env['bashBin']
-        self._callExternal(
-            [ bash_bin,  '--noprofile', '--norc', '-c',
+        self._callBash( env,
               'source {0}/nvm.sh --no-use && nvm deactivate && nvm uninstall {1}'
-              .format(nvm_dir, node_version) ] )
+              .format(nvm_dir, node_version) )
         self._have_tool = False
 
     def _envNames( self ) :
@@ -35,14 +33,12 @@ class nodeTool( RuntimeTool ):
         node_version = env.setdefault('nodeVer', 'stable')
 
         nvm_dir = env['nvmDir']
-        bash_bin = env['bashBin']
 
         try:
-            env_to_set = self._callExternal(
-                [ bash_bin,  '--noprofile', '--norc', '-c',
+            env_to_set = self._callBash( env,
                 'source {0}/nvm.sh --no-use && \
                 nvm use {1} >/dev/null && \
-                env | egrep "(NVM_|\.nvm)"'.format(nvm_dir, node_version) ],
+                env | egrep "(NVM_|\.nvm)"'.format(nvm_dir, node_version),
                 verbose = False
             )
         except:

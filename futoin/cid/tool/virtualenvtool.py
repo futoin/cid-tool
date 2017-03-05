@@ -2,8 +2,9 @@
 import os
 
 from ..runenvtool import RunEnvTool
+from .bashtoolmixin import BashToolMixIn
 
-class virtualenvTool( RunEnvTool ):
+class virtualenvTool( BashToolMixIn, RunEnvTool ):
     def getDeps( self ) :
         return [ 'bash', 'python' ]
     
@@ -61,9 +62,8 @@ class virtualenvTool( RunEnvTool ):
         self._have_tool = os.path.exists(os.path.join(virtualenv_dir, 'bin', 'activate'))
         
         if self._have_tool:
-            env_to_set = self._callExternal(
-                [ env['bashBin'],  '--noprofile', '--norc', '-c',
-                'source {0}/bin/activate && env | grep \'{0}\''.format(virtualenv_dir) ],
+            env_to_set = self._callBash( env,
+                'source {0}/bin/activate && env | grep \'{0}\''.format(virtualenv_dir),
                 verbose = False
             )
                 

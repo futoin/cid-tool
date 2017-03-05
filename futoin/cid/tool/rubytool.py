@@ -1,7 +1,8 @@
 
 from ..runtimetool import RuntimeTool
+from .bashtoolmixin import BashToolMixIn
 
-class rubyTool( RuntimeTool ):
+class rubyTool( BashToolMixIn, RuntimeTool ):
     def getDeps( self ) :
         return [ 'rvm' ]
 
@@ -40,14 +41,12 @@ class rubyTool( RuntimeTool ):
         ruby_ver = env.setdefault('rubyVer', self.SYSTEM_VER)
 
         rvm_dir = env['rvmDir']
-        bash_bin = env['bashBin']
 
         try:
-            env_to_set = self._callExternal(
-                [ bash_bin,  '--noprofile', '--norc', '-c',
+            env_to_set = self._callBash( env,
                 'source {0}/scripts/rvm && \
                 rvm use {1} >/dev/null && \
-                env | grep "rvm"'.format(rvm_dir, ruby_ver) ],
+                env | grep "rvm"'.format(rvm_dir, ruby_ver),
                 verbose = False
             )
         except:

@@ -2,8 +2,9 @@
 import os
 
 from ..runenvtool import RunEnvTool
+from .bashtoolmixin import BashToolMixIn
 
-class rvmTool( RunEnvTool ):
+class rvmTool( BashToolMixIn, RunEnvTool ):
     "Ruby Version Manager"
     
     RVM_DIR_DEFAULT = os.path.join(os.environ['HOME'], '.rvm')
@@ -16,7 +17,6 @@ class rvmTool( RunEnvTool ):
 
     def _installTool( self, env ):
         rvm_dir = env['rvmDir']
-        bash_bin = env['bashBin']
         rvm_get = env.get('rvmGet', self.RVM_GET) 
         rvm_gpg_key = env.get('rvmGpgKey', self.RVM_GPG_KEY)
         
@@ -28,10 +28,9 @@ class rvmTool( RunEnvTool ):
         os.environ['rvm_user_install_flag'] = '1'
         os.environ['rvm_auto_dotfiles_flag'] = '0'
 
-        self._callExternal(
-            [ bash_bin,  '--noprofile', '--norc', '-c',
+        self._callBash( env,
               '{0} -sSL {1} | {2} -s {3} --path {4}'
-               .format(env['curlBin'], rvm_get, bash_bin, env['rvmVer'], env['rvmDir']) ] )
+               .format(env['curlBin'], rvm_get, env['bashBin'], env['rvmVer'], env['rvmDir']) )
             
     def updateTool( self, env ):
         self._callExternal([ env['rvmBin'], 'get', env['rvmVer'] ])
@@ -41,10 +40,9 @@ class rvmTool( RunEnvTool ):
             self._callExternal([ env['rvmBin'], 'implode', '--force' ])
         except:
             pass
-        self._callExternal(
-            [ env['bashBin'],  '--noprofile', '--norc', '-c',
+        self._callBash( env,
             'chmod -R g+w {0}; rm -rf {0}'
-            .format(env['rvmDir']) ] )
+            .format(env['rvmDir']) )
         self._have_tool = False
 
     def _envNames( self ) :

@@ -2,8 +2,9 @@
 import os
 
 from ..vcstool import VcsTool
+from .bashtoolmixin import BashToolMixIn
 
-class hgTool( VcsTool ):
+class hgTool( BashToolMixIn, VcsTool ):
     def getDeps( self ) :
         return [ 'bash' ]
     
@@ -51,13 +52,11 @@ class hgTool( VcsTool ):
     def vcsPush( self, config, refs ):
         env = config['env']
         hgBin = env['hgBin']
-        bash_bin = env['bashBin']
         opts = []
         for r in refs :
-            is_tag = self._callExternal( [
-                bash_bin, '--noprofile', '--norc', '-c',
-                '%s tags | egrep "^%s" || true' % ( hgBin, r )
-            ] )
+            is_tag = self._callBash( env,
+                '{0} tags | egrep "^{1}" || true'.format( hgBin, r )
+            )
             
             if is_tag : continue
                 

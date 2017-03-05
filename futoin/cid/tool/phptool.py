@@ -4,8 +4,9 @@ from __future__ import print_function, absolute_import
 import os, fnmatch, glob
 
 from ..runtimetool import RuntimeTool
+from .bashtoolmixin import BashToolMixIn
 
-class phpTool( RuntimeTool ):
+class phpTool( BashToolMixIn, RuntimeTool ):
     PHP_DIR = os.path.join(os.environ['HOME'], '.php')
     
     def getDeps( self ) :
@@ -37,10 +38,9 @@ class phpTool( RuntimeTool ):
         if env['phpVer'] == self.SYSTEM_VER:
             return super(phpTool, self).uninstallTool( env )
 
-        self._callExternal(
-            [ env['bashBin'],  '--noprofile', '--norc', '-c',
+        self._callBash( env,
               'chmod -R g+w {0}; rm -rf {0}'
-               .format(env['phpDir']) ] )
+               .format(env['phpDir']) )
         self._have_tool = False
     
     def _envNames( self ) :
@@ -231,10 +231,7 @@ class phpTool( RuntimeTool ):
         else:
             with_libdir = ''
         #---
-        cpu_count = int(self._callExternal([
-            env['bashBin'],  '--noprofile', '--norc', '-c',
-            'cat /proc/cpuinfo | grep -c vendor'
-        ]))
+        cpu_count = int(self._callBash( env, 'cat /proc/cpuinfo | grep -c vendor' ))
         
         if cpu_count <= 0:
             cpu_count = 1

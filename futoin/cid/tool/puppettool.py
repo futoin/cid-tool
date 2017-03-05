@@ -4,33 +4,12 @@ import os
 from collections import OrderedDict
 
 from ..buildtool import BuildTool
+from .gemtoolmixin import GemToolMixIn
 
 
-class puppetTool( BuildTool ):
+class puppetTool( GemToolMixIn, BuildTool ):
     METADATA_FILE = 'metadata.json'
-    
-    def getDeps( self ) :
-        return [ 'ruby', 'gem' ]
 
-    def _installTool( self, env ):
-        puppet_ver = env['puppetVer']
-        version_arg = []
-        
-        if puppet_ver:
-            version_arg = ['--version', puppet_ver]
-        
-        self._callExternal( [ env['gemBin'], 'install', 'puppet', '--no-document' ] + version_arg )
-        
-    def updateTool( self, env ):
-        if env['puppetVer'] :
-            self._installTool( env )
-        else :
-            self._callExternal( [ env['gemBin'], 'update', 'puppet', '--no-document' ] )
-            
-    def uninstallTool( self, env ):
-        self._callExternal( [ env['gemBin'], 'uninstall', 'puppet' ] )
-        self._have_tool = False
-            
     def _envNames( self ) :
         return ['puppetVer', 'puppetBin' ]
     

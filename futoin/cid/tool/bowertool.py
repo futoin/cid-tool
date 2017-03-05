@@ -3,23 +3,11 @@ import json
 from collections import OrderedDict
 
 from ..buildtool import BuildTool
+from .npmtoolmixin import NpmToolMixIn
 
-class bowerTool( BuildTool ):
+class bowerTool( NpmToolMixIn, BuildTool ):
     def autoDetect( self, config ) :
         return self._autoDetectByCfg( config, 'bower.json' )
-    
-    def getDeps( self ) :
-        return [ 'node', 'npm' ]
-    
-    def _installTool( self, env ):
-        self._callExternal( [ env['npmBin'], 'install', '-g', 'bower' ] )
-        
-    def updateTool( self, env ):
-        self._callExternal( [ env['npmBin'], 'update', '-g', 'bower' ] )
-        
-    def uninstallTool( self, env ):
-        self._callExternal( [ env['npmBin'], 'uninstall', '-g', 'bower' ] )
-        self._have_tool = False
 
     def loadConfig( self, config ) :
         with open('bower.json', 'r') as content_file:
