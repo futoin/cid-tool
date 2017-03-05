@@ -1,4 +1,9 @@
 
+=== (next) ===
+
+* Re-release after package removal from PyPI
+* Fixed unit tests for released package
+
 === 0.2.2 ===
 
 * Fixed setuptoolsTool to install docutils & allow check failure

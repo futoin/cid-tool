@@ -11,10 +11,8 @@ if [ "$1" = 'fast' ]; then
 fi
 
 if [ "$1" = 'frompip' ]; then
-    which apt-get && sudo apt-get install -y python-pip
-    which yum && sudo yum install -y python2-pip
-    which zypper && sudo zypper install -y python-pip
-    sudo pip install --upgrade futoin-cid
+    ./bin/cid tool exec pip -- install --upgrade futoin-cid
+    eval $(./bin/cid tool env virtualenv)
     
     export CIDTEST_BIN=$(which cid)
     shift 1
