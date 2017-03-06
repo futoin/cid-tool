@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.3.2 ===
 
 * Fixed system gem to properly use --no-document vs --no-rdoc --no-ri
     depending on version (fixes Ubuntu Trusty)
