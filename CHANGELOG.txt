@@ -6,6 +6,7 @@
 * Fixed system gems to installed into GEM_HOME with --no-format-executable
     (fixes OpenSUSE)
 * Added make and cmake support
+* Fixed "post deps" algorithm to properly unwind full tree again
 
 === 0.3.1 ===
 

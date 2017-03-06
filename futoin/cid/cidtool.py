@@ -783,25 +783,28 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         #--
         dep_generations = [ set(tools) ]
         tools = set( tools )
-        tools_length = 0
+        postdeps = set()
+        dep_length = 0
         last_index = 0
-        while len( tools ) != tools_length :
-            tools_length = len( tools )
+        while len( dep_generations ) != dep_length :
+            dep_length = len( dep_generations )
             curr_index = last_index
             last_index = len(dep_generations)
 
-            for g in dep_generations[curr_index:] :
+            for g in dep_generations[curr_index:]:
                 for tn in g:
                     t = tool_impl[tn]
                     moredeps = set(t.getDeps())
                     if moredeps:
                         dep_generations.append( moredeps )
                         tools.update( moredeps )
-                    postdeps = set(t.getPostDeps()) - tools
-                    if postdeps:
-                        dep_generations.append( postdeps )
-                        tools.update( postdeps )
-        
+                    postdeps.update( set(t.getPostDeps()) - tools )
+
+            if len( dep_generations ) == dep_length and postdeps:
+                dep_generations.append( postdeps )
+                tools.update( postdeps )
+                postdeps = set()
+    
         #---
         dep_generations.reverse()
         tools = []
