@@ -72,38 +72,55 @@ If pip is not available then it's strongly suggested to install one first: ::
     easy_install pip
 
 To allow cid automatically install system packages, please allow execution
-of apt-get, zypper or yum in sudoers. Example: ::
+of apt-get, dnf, zypper or yum in sudoers. Example: ::
 
     username ALL=(ALL) NOPASSWD: /usr/bin/apt-get install
     username ALL=(ALL) NOPASSWD: /usr/bin/apt-get install *
-    username ALL=(ALL) NOPASSWD: /usr/bin/yum install
-    username ALL=(ALL) NOPASSWD: /usr/bin/yum install *
+    
+    username ALL=(ALL) NOPASSWD: /usr/bin/dnf install
+    username ALL=(ALL) NOPASSWD: /usr/bin/dnf install *
+    
     username ALL=(ALL) NOPASSWD: /usr/bin/zypper install
     username ALL=(ALL) NOPASSWD: /usr/bin/zypper install *
+    
+    username ALL=(ALL) NOPASSWD: /usr/bin/yum install
+    username ALL=(ALL) NOPASSWD: /usr/bin/yum install *
 
 *Note: there are duplications with asterisk as some OSes have patched sudo*
 
 Usage
 -----
 
-Please see details in the FTN16 spec:
+Please see details in the FTN16 spec: ::
 
-* cid tag <branch> [<next_version>] [--vcsRepo vcs_url] [--wcDir wc_dir]
-* cid prepare [<vcs_ref>] [--vcsRepo vcs_url] [--wcDir wc_dir]
-* cid build
-* cid package
-* cid check [--permissive]
-* cid promote <package> <rms_pool> [--rmsRepo rms_url] [--rmsHash type_value]
-* cid deploy vcstag [<vcs_ref>] [--vcsRepo vcs_url] [--redeploy]
-  [--deployDir deploy_dir]
-* cid deploy vcsref <vcs_ref> [--vcsRepo vcs_url] [--redeploy]
-  [--deployDir deploy_dir]
-* cid deploy [rms] <rms_pool> [<package>] [--rmsRepo rms_url]
-  [--rmsHash type_value] [--redeploy] [--deployDir deploy_dir] [--build]
-* cid run [<command>]
-* cid ci_build <vcs_ref> <rms_pool> [--vcsRepo vcs_url] [--rmsRepo rms_url]
-  [--permissive]
-* cid tool exec <tool_name> [-- <tool_arg>...]
-* cid tool (install|uninstall|update|test|env) [<tool_name>]
+    cid tag <branch> [<next_version>] [--vcsRepo vcs_url] [--wcDir wc_dir]
+    
+    cid prepare [<vcs_ref>] [--vcsRepo vcs_url] [--wcDir wc_dir]
+    
+    cid build
+    
+    cid package
+    
+    cid check [--permissive]
+    
+    cid promote <package> <rms_pool> [--rmsRepo rms_url]
+        [--rmsHash type_value]
+       
+    cid deploy vcstag [<vcs_ref>] [--vcsRepo vcs_url] [--redeploy]
+        [--deployDir deploy_dir]
+       
+    cid deploy vcsref <vcs_ref> [--vcsRepo vcs_url] [--redeploy]
+        [--deployDir deploy_dir]
+       
+    cid deploy [rms] <rms_pool> [<package>] [--rmsRepo rms_url]
+        [--rmsHash type_value] [--redeploy] [--deployDir deploy_dir] [--build]
+    
+    cid run [<command>]
+    
+    cid ci_build <vcs_ref> <rms_pool> [--vcsRepo vcs_url] [--rmsRepo rms_url]
+        [--permissive]
+    
+    cid tool exec <tool_name> [-- <tool_arg>...]
+    
+    cid tool (install|uninstall|update|test|env) [<tool_name>]
 
-*END OF DOC*
