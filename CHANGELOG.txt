@@ -1,4 +1,11 @@
 
+=== (next) ===
+
+* Fixed system gem to properly use --no-document vs --no-rdoc --no-ri
+    depending on version (fixes Ubuntu Trusty)
+* Fixed system gems to installed into GEM_HOME with --no-format-executable
+    (fixes OpenSUSE)
+
 === 0.3.1 ===
 
 * Fedora 25 support
