@@ -8,6 +8,12 @@ class virtualenvTool( BashToolMixIn, RunEnvTool ):
     def getDeps( self ) :
         return [ 'bash', 'python' ]
     
+    def getPostDeps( self ) :
+        # we need to ensure that if cid is called from virtualenv env
+        # it's still can be used
+        # So, CID can be in system and in each virtualenv as well
+        return ['cid']
+    
     def _envNames( self ) :
         return [ 'virtualenvDir', 'virtualenvVer']
     

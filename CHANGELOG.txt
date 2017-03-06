@@ -7,6 +7,8 @@
     (fixes OpenSUSE)
 * Added make and cmake support
 * Fixed "post deps" algorithm to properly unwind full tree again
+* Added cidTool & added cid as post dep for virtualenv to resolve
+    issues with calling cid with virtualenv enabled
 
 === 0.3.1 ===
 
