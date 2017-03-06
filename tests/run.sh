@@ -13,8 +13,10 @@ if [ "$1" = 'fast' ]; then
 fi
 
 if [ "$1" = 'frompip' ]; then
-    pythonVer='2' $CID_BOOT tool exec pip -- install --upgrade futoin-cid
-    pythonVer='3' $CID_BOOT tool exec pip -- install --upgrade futoin-cid
+    # make it fresh after editable mode
+    sudo rm -rf ~/.virtualenv-*
+    pythonVer='2' $CID_BOOT tool exec pip -- install --upgrade --no-cache-dir futoin-cid
+    pythonVer='3' $CID_BOOT tool exec pip -- install --upgrade --no-cache-dir futoin-cid
     shift 1
     
     fast=fast
