@@ -9,6 +9,7 @@
 * Fixed "post deps" algorithm to properly unwind full tree again
 * Added cidTool & added cid as post dep for virtualenv to resolve
     issues with calling cid with virtualenv enabled
+* Updated unit tests to properly pip-install cid from sources before testing
 
 === 0.3.1 ===
 

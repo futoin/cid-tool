@@ -5,21 +5,22 @@ if ! test -e bin/cid; then
     exit 1
 fi
 
+CID_BOOT=$(pwd)/bin/cid
+
 if [ "$1" = 'fast' ]; then
     fast=fast
     shift 1
 fi
 
 if [ "$1" = 'frompip' ]; then
-    ./bin/cid tool exec pip -- install --upgrade futoin-cid
-    eval $(./bin/cid tool env virtualenv)
-    
-    export CIDTEST_BIN=$(which cid)
+    pythonVer='2' $CID_BOOT tool exec pip -- install --upgrade futoin-cid
+    pythonVer='3' $CID_BOOT tool exec pip -- install --upgrade futoin-cid
     shift 1
     
     fast=fast
 else
-    unset CIDTEST_BIN
+    pythonVer='2' $CID_BOOT tool exec pip -- install -e $(pwd)
+    pythonVer='3' $CID_BOOT tool exec pip -- install -e $(pwd)
 fi
 
 if [ "$1" = 'nocompile' ]; then
@@ -45,10 +46,19 @@ fi
 
 if [ "$fast" != 'fast' ]; then
     echo "Python 3"
-    pythonVer='3' ./bin/cid tool exec pip install nose
-    pythonVer='3' ./bin/cid tool exec python -- -m nose $tests
+    (
+        eval $(pythonVer='3' $CID_BOOT tool env virtualenv)
+        export CIDTEST_BIN=$(which cid)
+
+        pythonVer='3' $CIDTEST_BIN tool exec pip -- install nose
+        pythonVer='3' $CIDTEST_BIN tool exec python -- -m nose $tests
+    )
 fi
 
 echo "Python 2"
-pythonVer='2' ./bin/cid tool exec pip install nose
-pythonVer='2' ./bin/cid tool exec python -- -m nose $tests
+(
+    eval $(pythonVer='2' $CID_BOOT tool env virtualenv)
+    export CIDTEST_BIN=$(which cid)
+    pythonVer='2' $CIDTEST_BIN tool exec pip -- install nose
+    pythonVer='2' $CIDTEST_BIN tool exec python -- -m nose $tests
+)
