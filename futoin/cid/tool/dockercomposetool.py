@@ -14,7 +14,7 @@ class dockercomposeTool( PipToolMixIn, BuildTool, RunEnvTool ):
         return [ 'pip', 'docker' ]
     
     def getOrder( self ):
-        return 70
+        return self.DEFAULT_ORDER + 20
         
     def _pipName( self ):
         return 'docker-compose'

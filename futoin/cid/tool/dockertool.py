@@ -10,7 +10,7 @@ class dockerTool( BuildTool, RunEnvTool ):
         )
 
     def getOrder( self ):
-        return 60
+        return self.DEFAULT_ORDER + 10
 
     def onBuild( self, config ):
         self._callExternal( [ config['env']['dockerBin'], 'build' ] )

@@ -5,6 +5,7 @@
     depending on version (fixes Ubuntu Trusty)
 * Fixed system gems to installed into GEM_HOME with --no-format-executable
     (fixes OpenSUSE)
+* Added make and cmake support
 
 === 0.3.1 ===
 

@@ -19,8 +19,10 @@ https://github.com/futoin/specs/blob/master/draft/ftn16_cid_tool.md
 
 Supported technologies & tools (so far):
 
+* **cmake** (uses make in proper order)
 * **docker** (experimental)
     - **docker-compose**
+* **make**
 * **node**
     - **npm**
     - **bower**

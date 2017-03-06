@@ -11,6 +11,7 @@ __all__ = ['SubTool']
 
 class SubTool( PathMixIn, PackageMixIn, UtilMixIn, object ):
     SYSTEM_VER = 'system'
+    DEFAULT_ORDER = 50
     
     def __init__( self, name ) :
         self._name = name
@@ -23,7 +24,7 @@ class SubTool( PathMixIn, PackageMixIn, UtilMixIn, object ):
         return []
     
     def getOrder( self ):
-        return 50
+        return self.DEFAULT_ORDER
     
     def _installTool( self, env ):
         raise NotImplementedError( "Tool (%s) must be manually installed"  % self._name )
