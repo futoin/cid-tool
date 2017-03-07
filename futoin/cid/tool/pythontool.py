@@ -36,7 +36,12 @@ class pythonTool( RuntimeTool ):
         bin_name = None
         
         if self._which('emerge'):
-            os.environ['EPYTHON'] = 'python{0}'.format(python_ver)
+            if len(python_ver) == 3:
+                os.environ['EPYTHON'] = 'python{0}'.format(python_ver)
+            elif int(python_ver.split('.')[0]) == 3:
+                os.environ['EPYTHON'] = 'python3.4'
+            else:
+                os.environ['EPYTHON'] = 'python2.7'
         elif self._which('pacman'):
             if int(python_ver.split('.')[0]) == 2:
                 bin_name = 'python2'
