@@ -110,7 +110,10 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         config = self._config
         wcDir = config['wcDir']
         
-        if os.path.exists(wcDir) and wcDir != os.getcwd():
+        if not os.path.exists(wcDir):
+            os.makedirs(wcDir)
+        
+        if wcDir != os.getcwd():
             os.chdir( wcDir )
             self._overrides['wcDir'] = config['wcDir'] = '.'
             self._initConfig()
@@ -478,7 +481,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         # Build
         if config.get('deployBuild', False):
             cwd = os.getcwd()
-            config['wcDir'] = 'tmp'
+            config['wcDir'] = tmp
             self.prepare(None)
             self.build()
             os.chdir(cwd)

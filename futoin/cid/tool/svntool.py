@@ -32,9 +32,6 @@ class svnTool( VcsTool, RmsTool ):
         svnBin = env['svnBin']
         wc_dir = config['wcDir']
             
-        if os.path.isdir( os.path.join(wc_dir, '.svn') ):
-            os.chdir( wc_dir )
-            
         branch_path = '%s/branches/%s' % ( config['vcsRepo'], vcs_ref )
         tag_path = '%s/tags/%s' % ( config['vcsRepo'], vcs_ref )
         
@@ -47,14 +44,11 @@ class svnTool( VcsTool, RmsTool ):
 
         if os.path.isdir( '.svn' ):
             self._callExternal( [ svnBin, 'switch', svn_repo_path ] )
-        elif os.path.exists( wc_dir ):
-            raise RuntimeError( "Path already exists: " + wc_dir )
         else:
             self._callExternal(
                 [ svnBin, 'checkout',
                  svn_repo_path,
                  wc_dir ] )
-            os.chdir( wc_dir )
     
     def vcsCommit( self, config, message, files ):
         svnBin = config['env']['svnBin']

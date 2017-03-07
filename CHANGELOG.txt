@@ -4,6 +4,7 @@
 * Added experimental Gentoo Linux support
 * Added ArchLinux support
 * Fixed Git checkout logic to avoid loose of not pushed changes
+* Changed VCS tools not to have side-effects on CWD and always obey wcDir
 
 === 0.3.2 ===
 

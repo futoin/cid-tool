@@ -68,9 +68,6 @@ class gitTool( BashToolMixIn, VcsTool ):
         wc_dir = config['wcDir']
         vcsRepo = config['vcsRepo']
         
-        if os.path.isdir( os.path.join(wc_dir, '.git') ):
-            os.chdir( wc_dir )
-        
         if os.path.isdir( '.git' ):
             remote_url = self.vcsGetRepo( config, '.git')
             
@@ -79,11 +76,8 @@ class gitTool( BashToolMixIn, VcsTool ):
                     .format(vcsRepo, remote_url ) )
 
             self._callExternal( [ gitBin, 'fetch', '-q'  ] )
-        elif os.path.exists( wc_dir ):
-            raise RuntimeError( "Path already exists: " + wc_dir )
         else :
             self._callExternal( [ gitBin, 'clone', '-q', vcsRepo, wc_dir ] )
-            os.chdir( wc_dir )
             
         remote_branch = self._callExternal( [ gitBin, 'branch', '-q', '--list', 'origin/'+vcs_ref ] ).strip()
             
@@ -92,7 +86,7 @@ class gitTool( BashToolMixIn, VcsTool ):
 
             if remote_branch:
                 self._callExternal( [ gitBin, 'branch', '-q', '--set-upstream-to', 'origin/'+vcs_ref ] )
-                self._callExternal( [ gitBin, 'pull', '-q', '--rebase'  ] )
+                self._callExternal( [ gitBin, 'rebase', 'origin/'+vcs_ref  ] )
         elif remote_branch:
             self._callExternal( [ gitBin, 'checkout', '-q', '--track', '-b', vcs_ref, 'origin/'+vcs_ref ] )
         else:

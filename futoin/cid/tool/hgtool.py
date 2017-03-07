@@ -25,9 +25,6 @@ class hgTool( BashToolMixIn, VcsTool ):
         hgBin = config['env']['hgBin']
         wc_dir = config['wcDir']
 
-        if os.path.isdir( os.path.join(wc_dir, '.hg') ):
-            os.chdir( wc_dir )
-
         if os.path.isdir( '.hg' ):
             if 'vcsRepo' in config:
                 remote_info = self.vcsGetRepo( config, '.' )
@@ -35,11 +32,8 @@ class hgTool( BashToolMixIn, VcsTool ):
                     raise RuntimeError( "Hg remote mismatch: " + remote_info )
 
             self._callExternal( [ hgBin, 'pull' ] )
-        elif os.path.exists( wc_dir ):
-            raise RuntimeError( "Path already exists: " + wc_dir )
         else :
             self._callExternal( [ hgBin, 'clone', config['vcsRepo'], wc_dir ] )
-            os.chdir( wc_dir )
 
         self._callExternal( [ hgBin, 'checkout', '--check', vcs_ref ] )
     
