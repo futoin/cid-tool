@@ -195,7 +195,36 @@ class phpTool( BashToolMixIn, RuntimeTool ):
         ])
         
         self._requireEmergeDepsOnly(['dev-lang/php'])
-        self._requirePacmanDepsOnly(['php'])
+        self._requirePacman([
+            'patch',
+            'git',
+            'gcc',
+            'make',
+            'autoconf',
+            'automake',
+            'libtool',
+            'bison',
+            're2c',
+            'glibc',
+            'libxml2',
+            'openssl',
+            'curl',
+            'libpng',
+            'libjpeg',
+            'libxpm',
+            'freetype2',
+            'gmp',
+            'libmcrypt',
+            'aspell',
+            'recode',
+            'icu',
+            'oniguruma',
+            'tidy',
+            'libxslt',
+            'readline',
+            'zlib',
+            'pcre',
+        ])
         
         #---
         systemctl = self._which('systemctl')
