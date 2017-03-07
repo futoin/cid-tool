@@ -84,10 +84,18 @@ class gitTool( BashToolMixIn, VcsTool ):
         else :
             self._callExternal( [ gitBin, 'clone', '-q', vcsRepo, wc_dir ] )
             os.chdir( wc_dir )
+            
+        remote_branch = self._callExternal( [ gitBin, 'branch', '-q', '--list', 'origin/'+vcs_ref ] ).strip()
+            
+        if self._callExternal( [ gitBin, 'branch', '-q', '--list', vcs_ref ] ).strip():
+            self._callExternal( [ gitBin, 'checkout', '-q', vcs_ref ] )
 
-        if  self._callExternal( [ gitBin, 'branch', '-q', '--list', 'origin/'+vcs_ref ] ):
-            self._callExternal( [ gitBin, 'checkout', '-q', '--track', '-B', vcs_ref, 'origin/'+vcs_ref ] )
-        else :
+            if remote_branch:
+                self._callExternal( [ gitBin, 'branch', '-q', '--set-upstream-to', 'origin/'+vcs_ref ] )
+                self._callExternal( [ gitBin, 'pull', '-q', '--rebase'  ] )
+        elif remote_branch:
+            self._callExternal( [ gitBin, 'checkout', '-q', '--track', '-b', vcs_ref, 'origin/'+vcs_ref ] )
+        else:
             self._callExternal( [ gitBin, 'checkout', '-q', vcs_ref ] )
     
     def vcsCommit( self, config, message, files ):

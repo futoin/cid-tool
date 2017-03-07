@@ -3,6 +3,7 @@
 
 * Added experimental Gentoo Linux support
 * Added ArchLinux support
+* Fixed Git checkout logic to avoid loose of not pushed changes
 
 === 0.3.2 ===
 
