@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.3.3 ===
 
 * Added experimental Gentoo Linux support
 * Added ArchLinux support
