@@ -2,6 +2,7 @@
 === (next) ===
 
 * Added experimental Gentoo Linux support
+* Added ArchLinux support
 
 === 0.3.2 ===
 

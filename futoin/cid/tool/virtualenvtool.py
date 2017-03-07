@@ -41,10 +41,12 @@ class virtualenvTool( BashToolMixIn, RunEnvTool ):
             if not pip:
                 self._requirePackages(['python-virtualenv'])
                 self._requireEmerge(['dev-python/virtualenv'])
+                self._requirePacman(['python-virtualenv'])
                 
                 self._requireDeb(['python-pip'])
                 self._requireYum(['python2-pip'])
                 self._requireEmerge(['dev-python/pip'])
+                self._requirePacman(['python-pip'])
                 
                 pip = self._which('pip')
                 

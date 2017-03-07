@@ -50,4 +50,24 @@ class PackageMixIn( object ):
             )
 
     def _requireEmergeDepsOnly(self, packages):
-        self._requireEmerge(['--onldeps'] + packages)
+        self._requireEmerge(['--onlydeps'] + packages)
+        
+    def _requirePacman(self, packages):
+        pacman = self._which('pacman')
+
+        if pacman:
+            self._trySudoCall(
+                [pacman, '-S', '--noconfirm', '--needed'] + packages,
+                errmsg='WARNING: you may need to install build deps manually !'
+            )
+
+    def _requirePacmanDepsOnly(self, packages):
+        pacman = self._which('pacman')
+        makepkg = self._which('makepkg')
+
+        if pacman and makepkg:
+            self._trySudoCall(
+                [makepkg, '--syndeps'] + packages,
+                errmsg='WARNING: you may need to install build deps manually !'
+            )
+        

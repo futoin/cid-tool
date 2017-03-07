@@ -11,6 +11,7 @@ class svnTool( VcsTool, RmsTool ):
     def _installTool( self, env ):
         self._requirePackages(['subversion'])
         self._requireEmerge(['dev-vcs/subversion'])
+        self._requirePacman(['subversion'])
     
     def autoDetect( self, config ) :
         return ( self._autoDetectVCS( config, '.svn' )

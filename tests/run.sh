@@ -5,6 +5,11 @@ if ! test -e bin/cid; then
     exit 1
 fi
 
+# ArchLinux images comes without python
+if ! which python >/dev/null && which pacman; then
+    pacman -S --noconfirm --needed python
+fi
+
 CID_BOOT=$(pwd)/bin/cid
 
 if [ "$1" = 'fast' ]; then

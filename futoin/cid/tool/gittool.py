@@ -16,6 +16,7 @@ class gitTool( BashToolMixIn, VcsTool ):
     def _installTool( self, env ):
         self._requirePackages(['git'])
         self._requireEmerge(['dev-vcs/git'])
+        self._requirePacman(['git'])
 
     def _checkGitConfig( self, env ):
         gitBin = env['gitBin']

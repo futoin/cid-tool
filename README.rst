@@ -43,6 +43,8 @@ Supported technologies & tools (so far):
 
 Tested on the following OSes:
 
+* **ArchLinux**
+    - latest
 * **CentOS**
     - **7** with EPEL repository enabled
 * **Debian**

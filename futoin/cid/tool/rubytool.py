@@ -111,7 +111,9 @@ class rubyTool( BashToolMixIn, RuntimeTool ):
         ])
         
         self._requireEmergeDepsOnly(['dev-lang/ruby'])
+        self._requirePacmanDepsOnly(['ruby'])
         
     def _systemDeps( self ):
         self._requirePackages(['ruby'])
         self._requireEmerge(['dev-lang/ruby'])
+        self._requirePacman(['ruby'])

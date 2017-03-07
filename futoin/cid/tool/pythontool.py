@@ -1,6 +1,8 @@
 
 from __future__ import print_function
 
+import os
+
 from ..runtimetool import RuntimeTool
 
 class pythonTool( RuntimeTool ):
@@ -19,8 +21,10 @@ class pythonTool( RuntimeTool ):
             self._requireZypper(['python3'])
             self._requireYum(['epel-release'])
             self._requireYum(['python34'])
+            self._requirePacman(['python'])
         else:
             self._requirePackages(['python'])
+            self._requirePacman(['python2'])
 
         self._requireEmerge('=dev-lang/python-{0}*'.format(env['pythonVer']))
     
@@ -33,6 +37,9 @@ class pythonTool( RuntimeTool ):
         
         if self._which('emerge'):
             os.environ['EPYTHON'] = 'python{0}'.format(python_ver)
+        elif self._which('pacman'):
+            if int(python_ver.split('.')[0]) == 2:
+                bin_name = 'python2'
         elif int(python_ver.split('.')[0]) == 3:
             bin_name = 'python3'
 

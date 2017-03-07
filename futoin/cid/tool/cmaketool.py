@@ -16,6 +16,7 @@ class cmakeTool( BuildTool ):
     def _installTool( self, env ):
         self._requirePackages(['cmake'])
         self._requireEmerge(['dev-util/cmake'])
+        self._requirePacman(['cmake'])
         
     def onBuild( self, config ):
         self._callExternal( [ config['env']['makeBin'] ] )

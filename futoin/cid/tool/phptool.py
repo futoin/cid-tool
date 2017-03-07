@@ -195,6 +195,7 @@ class phpTool( BashToolMixIn, RuntimeTool ):
         ])
         
         self._requireEmergeDepsOnly(['dev-lang/php'])
+        self._requirePacmanDepsOnly(['php'])
         
         #---
         systemctl = self._which('systemctl')
@@ -355,4 +356,5 @@ class phpTool( BashToolMixIn, RuntimeTool ):
             pass
 
         self._requireEmerge(['dev-lang/php'])
+        self._requirePacman(['php'])
         

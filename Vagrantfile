@@ -25,6 +25,7 @@ which apt-get && apt-get update || true
         'opensuse_leap' => 'bento/opensuse-leap-42.1',
         'fedora_25' => 'bento/fedora-25',
         'gentoo' => 'cmiles/gentoo-amd64-minimal',
+        'archlinux' => 'ogarcia/archlinux-x64',
         
         'debian_stretch' => 'fujimakishouten/debian-stretch64',
         'ubuntu_trusty' => 'bento/ubuntu-14.04',
@@ -48,6 +49,8 @@ gpgcheck=1
 gpgkey=http://opensource.wandisco.com/RPM-GPG-KEY-WANdisco
 EOC
                 SHELL
+            elsif name == 'archlinux'
+                dist_controller = 'IDE Controller'
             else
                 dist_controller = 'SATA Controller'
             end

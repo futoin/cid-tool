@@ -8,6 +8,7 @@ class gpgTool( RunEnvTool ):
     def _installTool( self, env ):
         self._requirePackages(['gnupg', 'gnupg2'])
         self._requireEmerge(['app-crypt/gnupg'])
+        self._requirePacman(['gnupg'])
     
     def initEnv( self, env ):
         super(gpgTool, self).initEnv( env )

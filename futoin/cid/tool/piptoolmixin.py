@@ -22,11 +22,13 @@ class PipToolMixIn( object ):
             self._requireZypper(['python3-devel'])
             self._requireYum(['epel-release'])
             self._requireYum(['python34-devel'])
+            self._requirePacmanDepsOnly(['python'])
         else:
             self._requireDeb(['python-dev'])
             self._requireZypper(['python-devel'])
             self._requireYum(['epel-release'])
             self._requireYum(['python-devel'])
+            self._requirePacmanDepsOnly(['python2'])
             
         self._requireEmergeDepsOnly(['dev-lang/python'])
         
