@@ -21,6 +21,8 @@ class pythonTool( RuntimeTool ):
             self._requireYum(['python34'])
         else:
             self._requirePackages(['python'])
+
+        self._requireEmerge('=dev-lang/python-{0}*'.format(env['pythonVer']))
     
     def uninstallTool( self, env ):
         pass
@@ -29,7 +31,9 @@ class pythonTool( RuntimeTool ):
         python_ver = env.setdefault('pythonVer', '3')
         bin_name = None
         
-        if int(python_ver.split('.')[0]) == 3:
+        if self._which('emerge'):
+            os.environ['EPYTHON'] = 'python{0}'.format(python_ver)
+        elif int(python_ver.split('.')[0]) == 3:
             bin_name = 'python3'
 
         super(pythonTool, self).initEnv( env, bin_name )

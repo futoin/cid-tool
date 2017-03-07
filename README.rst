@@ -41,7 +41,7 @@ Supported technologies & tools (so far):
     - **rvm** (implicit)
 * **scp** - for RMS
 
-Full test on the following OS:
+Tested on the following OSes:
 
 * **CentOS**
     - **7** with EPEL repository enabled
@@ -50,6 +50,8 @@ Full test on the following OS:
     - **9 - Stretch**
 * **Fedora**
     - **25**
+* **Gentoo**
+    - Well... CID does support emerge, but you are on your own here ;)
 * **OpenSUSE**
     - **42.1 Leap**
 * **Ubuntu**

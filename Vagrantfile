@@ -24,6 +24,7 @@ which apt-get && apt-get update || true
         'centos_7' => 'centos/7',
         'opensuse_leap' => 'bento/opensuse-leap-42.1',
         'fedora_25' => 'bento/fedora-25',
+        'gentoo' => 'cmiles/gentoo-amd64-minimal',
         
         'debian_stretch' => 'fujimakishouten/debian-stretch64',
         'ubuntu_trusty' => 'bento/ubuntu-14.04',

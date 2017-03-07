@@ -40,14 +40,21 @@ class virtualenvTool( BashToolMixIn, RunEnvTool ):
             
             if not pip:
                 self._requirePackages(['python-virtualenv'])
+                self._requireEmerge(['dev-python/virtualenv'])
+                
                 self._requireDeb(['python-pip'])
                 self._requireYum(['python2-pip'])
+                self._requireEmerge(['dev-python/pip'])
+                
                 pip = self._which('pip')
                 
             if pip:
                 self._trySudoCall([ pip, 'install', '-q', '--upgrade', 'virtualenv>={0}'.format(env['virtualenvVer']) ])
             
             virtualenv = self._which('virtualenv')
+            
+            if not virtualenv:
+                raise RuntimeError('Failed to find virtualenv')
 
             self._callExternal([
                 virtualenv,

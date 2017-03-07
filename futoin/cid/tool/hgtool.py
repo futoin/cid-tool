@@ -10,6 +10,7 @@ class hgTool( BashToolMixIn, VcsTool ):
     
     def _installTool( self, env ):
         self._requirePackages(['mercurial'])
+        self._requireEmerge(['dev-vcs/mercurial'])
     
     def autoDetect( self, config ) :
         return self._autoDetectVCS( config, '.hg' )

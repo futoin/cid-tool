@@ -10,7 +10,8 @@ class makeTool( BuildTool ):
         ] )
     
     def _installTool( self, env ):
-        self._requirePackages(['make'])
+            self._requirePackages(['make'])
+            self._requireEmerge(['sys-devel/make'])
 
     def onBuild( self, config ):
         self._callExternal( [ config['env']['makeBin'] ] )

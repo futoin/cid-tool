@@ -27,6 +27,8 @@ class PipToolMixIn( object ):
             self._requireZypper(['python-devel'])
             self._requireYum(['epel-release'])
             self._requireYum(['python-devel'])
+            
+        self._requireEmergeDepsOnly(['dev-lang/python'])
         
     def _requirePip( self, env, package ):
         self._callExternal( [ env['pipBin'], 'install', '-q', package ] )

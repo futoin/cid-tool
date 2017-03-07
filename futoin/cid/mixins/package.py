@@ -39,3 +39,15 @@ class PackageMixIn( object ):
     def _requirePackages(self, packages):
         self._requireDeb(packages)
         self._requireRpm(packages)
+        
+    def _requireEmerge(self, packages):
+        emerge = self._which('emerge')
+
+        if emerge:
+            self._trySudoCall(
+                [emerge] + packages,
+                errmsg='WARNING: you may need to install build deps manually !'
+            )
+
+    def _requireEmergeDepsOnly(self, packages):
+        self._requireEmerge(['--onldeps'] + packages)

@@ -1,4 +1,8 @@
 
+=== (next) ===
+
+* Added experimental Gentoo Linux support
+
 === 0.3.2 ===
 
 * Fixed system gem to properly use --no-document vs --no-rdoc --no-ri

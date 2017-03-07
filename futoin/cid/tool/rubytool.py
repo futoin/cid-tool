@@ -110,5 +110,8 @@ class rubyTool( BashToolMixIn, RuntimeTool ):
             'sqlite3-devel',
         ])
         
+        self._requireEmergeDepsOnly(['dev-lang/ruby'])
+        
     def _systemDeps( self ):
         self._requirePackages(['ruby'])
+        self._requireEmerge(['dev-lang/ruby'])

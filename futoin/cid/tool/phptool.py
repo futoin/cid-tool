@@ -194,6 +194,8 @@ class phpTool( BashToolMixIn, RuntimeTool ):
             'libmysqlclient-devel',
         ])
         
+        self._requireEmergeDepsOnly(['dev-lang/php'])
+        
         #---
         systemctl = self._which('systemctl')
 
@@ -352,4 +354,5 @@ class phpTool( BashToolMixIn, RuntimeTool ):
         except:
             pass
 
+        self._requireEmerge(['dev-lang/php'])
         
