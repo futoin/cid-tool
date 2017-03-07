@@ -24,7 +24,8 @@ which apt-get && apt-get update || true
         'centos_7' => 'centos/7',
         'opensuse_leap' => 'bento/opensuse-leap-42.1',
         'fedora_25' => 'bento/fedora-25',
-        'gentoo' => 'cmiles/gentoo-amd64-minimal',
+        #'funtoo' => 'tonyczeh/funtoo-generic64-pure64',
+        #'gentoo' => 'cmiles/gentoo-amd64-minimal',
         'archlinux' => 'ogarcia/archlinux-x64',
         
         'debian_stretch' => 'fujimakishouten/debian-stretch64',
