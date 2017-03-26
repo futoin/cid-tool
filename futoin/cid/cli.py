@@ -94,29 +94,6 @@ def run():
         
         if args['tag'] :
             cit.tag( args['<branch>'], args['<next_version>'] )
-        elif args['prepare'] :
-            cit.prepare( args['<vcs_ref>'] )
-        elif args['build'] :
-            cit.build()
-        elif args['package'] and not args['tool']:
-            cit.package()
-        elif args['check'] :
-            cit.check()
-        elif args['promote'] :
-            cit.promote( args['<package>'], args['<rms_pool>'] )
-        elif args['deploy'] :
-            if args['vcsref']:
-                overrides['deployBuild'] = True
-                cit.deploy( 'vcsref', args['<vcs_ref>'] )
-            elif args['vcstag']:
-                overrides['deployBuild'] = True
-                cit.deploy( 'vcstag', args['<vcs_ref>'] )
-            else :
-                cit.deploy( 'rms', args['<rms_pool>'], args['<package>'] )
-        elif args['run'] :
-            cit.run( args['<command>'] or 'start' )
-        elif args['ci_build'] :
-            cit.ci_build( args['<vcs_ref>'], args['<rms_pool>'] )
         elif args['tool'] :
             if args['exec']:
                 cit.tool_exec( tool, args['<tool_arg>'] )
@@ -140,6 +117,29 @@ def run():
                 else:
                     print( "Unknown Command" )
                     sys.exit( 1 )
+        elif args['prepare'] :
+            cit.prepare( args['<vcs_ref>'] )
+        elif args['build'] :
+            cit.build()
+        elif args['package']:
+            cit.package()
+        elif args['check'] :
+            cit.check()
+        elif args['promote'] :
+            cit.promote( args['<package>'], args['<rms_pool>'] )
+        elif args['deploy'] :
+            if args['vcsref']:
+                overrides['deployBuild'] = True
+                cit.deploy( 'vcsref', args['<vcs_ref>'] )
+            elif args['vcstag']:
+                overrides['deployBuild'] = True
+                cit.deploy( 'vcstag', args['<vcs_ref>'] )
+            else :
+                cit.deploy( 'rms', args['<rms_pool>'], args['<package>'] )
+        elif args['run'] :
+            cit.run( args['<command>'] or 'start' )
+        elif args['ci_build'] :
+            cit.ci_build( args['<vcs_ref>'], args['<rms_pool>'] )
         else:
             print( "Unknown Command" )
             sys.exit( 1 )

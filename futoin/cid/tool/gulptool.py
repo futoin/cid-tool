@@ -7,7 +7,6 @@ class gulpTool( NpmToolMixIn, BuildTool ):
         return self._autoDetectByCfg( config, 'gulpfile.js' )
     
     def onBuild( self, config ):
-        gruntBin = config['env']['gruntBin']
-        self._callExternal( [ gruntBin ] )
+        self._callExternal( [ config['env']['gulpBin'] ] )
 
 

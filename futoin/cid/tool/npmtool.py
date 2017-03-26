@@ -1,16 +1,13 @@
 
-import json
-from collections import OrderedDict
+import os
 
 from ..buildtool import BuildTool
 
 class npmTool( BuildTool ):
     PACKAGE_JSON = 'package.json'
-    _detected = False
     
     def autoDetect( self, config ) :
-        self._detected = self._autoDetectByCfg( config, self.PACKAGE_JSON )
-        return self._detected
+        return self._autoDetectByCfg( config, self.PACKAGE_JSON )
     
     def getDeps( self ) :
         return [ 'node' ]
@@ -38,12 +35,12 @@ class npmTool( BuildTool ):
         return self._updateJSONConfig( self.PACKAGE_JSON, updater )
     
     def onPrepare( self, config ):
-        if self._detected:
+        if os.path.exists( self.PACKAGE_JSON ):
             npmBin = config['env']['npmBin']
             self._callExternal( [ npmBin, 'install' ] )
         
     def onPackage( self, config ):
-        if self._detected:
+        if os.path.exists( self.PACKAGE_JSON ):
             npmBin = config['env']['npmBin']
             self._callExternal( [ npmBin, 'prune', '--production' ] )
 

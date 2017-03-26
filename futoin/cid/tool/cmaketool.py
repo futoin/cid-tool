@@ -2,7 +2,7 @@
 from ..buildtool import BuildTool
 
 class cmakeTool( BuildTool ):
-    def getDeps(self):
+    def getPostDeps(self):
         return ['make']
 
     def getOrder( self ):
@@ -18,5 +18,5 @@ class cmakeTool( BuildTool ):
         self._requireEmerge(['dev-util/cmake'])
         self._requirePacman(['cmake'])
         
-    def onBuild( self, config ):
-        self._callExternal( [ config['env']['makeBin'] ] )
+    def onPrepare( self, config ):
+        self._callExternal( [ config['env']['cmakeBin'], '.' ] )

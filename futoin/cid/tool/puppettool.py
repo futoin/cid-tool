@@ -1,7 +1,5 @@
 
-import json
 import os
-from collections import OrderedDict
 
 from ..buildtool import BuildTool
 from .gemtoolmixin import GemToolMixIn

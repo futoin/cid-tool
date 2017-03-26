@@ -1,6 +1,5 @@
 
-import json
-from collections import OrderedDict
+import os
 
 from ..buildtool import BuildTool
 from .npmtoolmixin import NpmToolMixIn
@@ -36,7 +35,10 @@ class bowerTool( NpmToolMixIn, BuildTool ):
         self._callExternal( [ bowerBin, 'install' ] )
 
     def onPackage( self, config ):
+        # Bower does not remove dev deps by itself
+        if os.path.exists('bower_components'):
+            self._rmTree('bower_components')
+        
         bowerBin = config['env']['bowerBin']
-        # TODO: not sure
         self._callExternal( [ bowerBin, 'install', '--production' ] )
     

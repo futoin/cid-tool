@@ -10,6 +10,8 @@
 * Added missing pacman/emerge info in readme
 * Added _loadJSONConfig() internal API & minor refactoring
 * Fixed to ignore failure of missing config load (e.g. npm as dep of bower)
+* Implemented BuilTool unit tests and fixed: Bundler, CMake,
+    Grunt (CLI install), Gulp 
 
 === 0.3.3 ===
 

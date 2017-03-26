@@ -46,7 +46,7 @@ class citool_UTBase ( unittest.TestCase ) :
     def setUp( self ):
         self._goToBase()
 
-    def _call_citool( self, args, stdin=None, returncode=0 ) :
+    def _call_citool( self, args, stdin=None, stdout=None, returncode=0 ) :
         cmd = []
         
         if CIDTEST_BIN_EXT:
@@ -55,12 +55,15 @@ class citool_UTBase ( unittest.TestCase ) :
         cmd.append( CIDTEST_BIN )
         cmd += args
         
+        if stdout is None:
+            stdout = self._dev_null
+        
         #print( 'Call: ' + subprocess.list2cmdline(cmd), file=sys.stderr )
         p = subprocess.Popen(
                 cmd,
                 bufsize=-1,
                 stdin=subprocess.PIPE,
-                stdout=self._dev_null,
+                stdout=stdout,
                 stderr=subprocess.PIPE
         )
 

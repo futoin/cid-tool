@@ -671,6 +671,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         t = self._tool_impl[tool]
 
         if isinstance(t, base):
+            t.loadConfig( config ) # see self._initTools()
             getattr( t, method )( config )
         else:
             raise RuntimeError( '{0} tool does not support {1}'.format(tool, method) )

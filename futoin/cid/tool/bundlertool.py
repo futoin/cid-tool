@@ -9,8 +9,12 @@ class bundlerTool( GemToolMixIn, BuildTool ):
                 [ 'Gemfile' ]
         )
 
-    def onPrepare( self, config ):
-        self._callExternal( [ config['env']['bundlerBin'], 'install' ] )
-        
     def initEnv( self, env ) :
         super(bundlerTool, self).initEnv( env, 'bundle' )
+
+    def onPrepare( self, config ):
+        self._callExternal( [ config['env']['bundlerBin'], 'install' ] )
+
+    def onPackage( self, config ):
+        self._callExternal( [ config['env']['bundlerBin'], 'install',
+                             '--deployment', '--clean' ] )

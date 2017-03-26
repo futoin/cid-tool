@@ -8,6 +8,10 @@ class gruntTool( NpmToolMixIn, BuildTool ):
                 config,
                 [ 'Gruntfile.json', 'Gruntfile.coffee' ]
         )
+
+    def _npmName(self):
+        return 'grunt-cli'
+    
     def onBuild( self, config ):
         gruntBin = config['env']['gruntBin']
         self._callExternal( [ gruntBin ] )
