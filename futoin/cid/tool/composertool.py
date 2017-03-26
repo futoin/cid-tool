@@ -8,6 +8,8 @@ from ..buildtool import BuildTool
 from .bashtoolmixin import BashToolMixIn
 
 class composerTool( BashToolMixIn, BuildTool ):
+    COMPOSER_JSON = 'composer.json'
+    
     def _installTool( self, env ):
         composer_dir = env['composerDir']
         php_bin = env['phpBin']
@@ -40,16 +42,15 @@ class composerTool( BashToolMixIn, BuildTool ):
         self._have_tool = os.path.exists( composer_bin )
 
     def autoDetect( self, config ) :
-        return self._autoDetectByCfg( config, 'composer.json' )
+        return self._autoDetectByCfg( config, self.COMPOSER_JSON )
     
     def getDeps( self ) :
         return [ 'php', 'curl', 'bash' ]
 
     def loadConfig( self, config ) :
-        with open('composer.json', 'r') as content_file:
-            content = content_file.read()
-            object_pairs_hook = lambda pairs: OrderedDict( pairs )
-            content = json.loads( content, object_pairs_hook=object_pairs_hook )
+        content = self._loadJSONConfig( self.COMPOSER_JSON )
+        if content is None: return
+
         for f in ( 'name', 'version' ):
             if f in content and f not in config:
                 config[f] = content[f]
@@ -60,7 +61,7 @@ class composerTool( BashToolMixIn, BuildTool ):
                 if f in updates :
                         json[f] = updates[f]
 
-        return self._updateJSONConfig( 'composer.json', updater, indent=4 )
+        return self._updateJSONConfig( self.COMPOSER_JSON, updater, indent=4 )
     
     def onPrepare( self, config ):
         composerBin = config['env']['composerBin']

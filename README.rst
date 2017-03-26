@@ -85,7 +85,13 @@ of apt-get, dnf, zypper or yum in sudoers. Example: ::
     
     username ALL=(ALL) NOPASSWD: /usr/bin/dnf install
     username ALL=(ALL) NOPASSWD: /usr/bin/dnf install *
+
+    username ALL=(ALL) NOPASSWD: /usr/bin/emerge
+    username ALL=(ALL) NOPASSWD: /usr/bin/emerge *
     
+    username ALL=(ALL) NOPASSWD: /usr/bin/pacman
+    username ALL=(ALL) NOPASSWD: /usr/bin/pacman *
+
     username ALL=(ALL) NOPASSWD: /usr/bin/zypper install
     username ALL=(ALL) NOPASSWD: /usr/bin/zypper install *
     

@@ -5,8 +5,12 @@ from collections import OrderedDict
 from ..buildtool import BuildTool
 
 class npmTool( BuildTool ):
+    PACKAGE_JSON = 'package.json'
+    _detected = False
+    
     def autoDetect( self, config ) :
-        return self._autoDetectByCfg( config, 'package.json' )
+        self._detected = self._autoDetectByCfg( config, self.PACKAGE_JSON )
+        return self._detected
     
     def getDeps( self ) :
         return [ 'node' ]
@@ -18,10 +22,9 @@ class npmTool( BuildTool ):
         pass
     
     def loadConfig( self, config ) :
-        with open('package.json', 'r') as content_file:
-            content = content_file.read()
-            object_pairs_hook = lambda pairs: OrderedDict( pairs )
-            content = json.loads( content, object_pairs_hook=object_pairs_hook )
+        content = self._loadJSONConfig( self.PACKAGE_JSON )
+        if content is None: return
+        
         for f in ( 'name', 'version' ):
             if f in content and f not in config:
                 config[f] = content[f]
@@ -32,13 +35,15 @@ class npmTool( BuildTool ):
                 if f in updates :
                         json[f] = updates[f]
 
-        return self._updateJSONConfig( 'package.json', updater )
+        return self._updateJSONConfig( self.PACKAGE_JSON, updater )
     
     def onPrepare( self, config ):
-        npmBin = config['env']['npmBin']
-        self._callExternal( [ npmBin, 'install' ] )
+        if self._detected:
+            npmBin = config['env']['npmBin']
+            self._callExternal( [ npmBin, 'install' ] )
         
     def onPackage( self, config ):
-        npmBin = config['env']['npmBin']
-        self._callExternal( [ npmBin, 'prune', '--production' ] )
+        if self._detected:
+            npmBin = config['env']['npmBin']
+            self._callExternal( [ npmBin, 'prune', '--production' ] )
 

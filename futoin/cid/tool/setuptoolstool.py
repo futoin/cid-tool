@@ -2,9 +2,10 @@
 import os
 
 from ..buildtool import BuildTool
+from ..testtool import TestTool
 from .piptoolmixin import PipToolMixIn
 
-class setuptoolsTool( PipToolMixIn, BuildTool ):
+class setuptoolsTool( PipToolMixIn, BuildTool, TestTool ):
     def autoDetect( self, config ) :
         return self._autoDetectByCfg(
                 config,

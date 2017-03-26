@@ -32,10 +32,9 @@ class puppetTool( GemToolMixIn, BuildTool ):
         ] )
 
     def loadConfig( self, config ) :
-        with open(self.METADATA_FILE, 'r') as content_file:
-            content = content_file.read()
-            object_pairs_hook = lambda pairs: OrderedDict( pairs )
-            content = json.loads( content, object_pairs_hook=object_pairs_hook )
+        content = self._loadJSONConfig( self.METADATA_FILE )
+        if content is None: return
+        
         for f in ( 'name', 'version' ):
             if f in content and f not in config:
                 config[f] = content[f]

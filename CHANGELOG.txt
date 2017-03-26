@@ -1,4 +1,16 @@
 
+=== (next) ===
+
+* Added "cid tool (prepare|build|check|package|migrate) <tool_name>"
+* Added new TestTool and MigrationTool bases
+* Split onCheck/onPrepare/onBuild/onPackage/onMigrate between
+    BuildTool, TestTool and MigrationTool bases
+* Added related constraints for base checks
+* Fixed not to try execution of user-supplied overrides for "cid tool *"
+* Added missing pacman/emerge info in readme
+* Added _loadJSONConfig() internal API & minor refactoring
+* Fixed to ignore failure of missing config load (e.g. npm as dep of bower)
+
 === 0.3.3 ===
 
 * Added experimental Gentoo Linux support

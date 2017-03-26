@@ -101,20 +101,4 @@ updates = {
 @return a list of files to be committed
 """
         return []
-   
-    def onPrepare( self, config ):
-        pass
-    
-    def onBuild( self, config ):
-        pass
-    
-    def onPackage( self, config ):
-        pass
-
-    def onCheck( self, config ):
-        pass
-
-    def onMigrate( self, config, location ):
-        pass
-    
 

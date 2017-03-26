@@ -15,6 +15,7 @@ Usage:
     cid ci_build <vcs_ref> <rms_pool> [--vcsRepo vcs_url] [--rmsRepo rms_url] [--permissive]
     cid tool exec <tool_name> [-- <tool_arg>...]
     cid tool (install|uninstall|update|test|env) [<tool_name>]
+    cid tool (prepare|build|check|package|migrate) <tool_name>
 
 Options:
     --vcsRepo vcs_type:vcs_url
@@ -97,7 +98,7 @@ def run():
             cit.prepare( args['<vcs_ref>'] )
         elif args['build'] :
             cit.build()
-        elif args['package'] :
+        elif args['package'] and not args['tool']:
             cit.package()
         elif args['check'] :
             cit.check()
@@ -119,19 +120,26 @@ def run():
         elif args['tool'] :
             if args['exec']:
                 cit.tool_exec( tool, args['<tool_arg>'] )
-            elif args['install']:
-                cit.tool_install( tool )
-            elif args['uninstall']:
-                cit.tool_uninstall( tool )
-            elif args['update']:
-                cit.tool_update( tool )
-            elif args['test']:
-                cit.tool_test( tool )
-            elif args['env']:
-                cit.tool_env( tool )
             else:
-                print( "Unknown Command" )
-                sys.exit( 1 )
+                subcmds = [
+                    'install',
+                    'uninstall',
+                    'update',
+                    'test',
+                    'env',
+                    'prepare',
+                    'build',
+                    'check',
+                    'package',
+                    'migrate',
+                ]
+                for cmd in subcmds:
+                    if args[cmd]:
+                        getattr( cit, 'tool_'+cmd )( tool )
+                        break
+                else:
+                    print( "Unknown Command" )
+                    sys.exit( 1 )
         else:
             print( "Unknown Command" )
             sys.exit( 1 )

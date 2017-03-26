@@ -25,12 +25,23 @@ class UtilMixIn( object ):
                 return True
         
         return False
+    
+    def _loadJSONConfig( self, file_name ):
+        if os.path.exists(file_name):
+            with open(file_name, 'r') as content_file:
+                content = content_file.read()
+                object_pairs_hook = lambda pairs: OrderedDict( pairs )
+                return json.loads( content, object_pairs_hook=object_pairs_hook )
+        else:
+            return None
+            
+
 
     def _updateJSONConfig( self, file_name, updater, indent=2, separators=(',', ': ') ) :
-        with open(file_name, 'r') as content_file:
-            content = content_file.read()
-            object_pairs_hook = lambda pairs: OrderedDict( pairs )
-            content = json.loads( content, object_pairs_hook=object_pairs_hook )
+        content = self._loadJSONConfig( file_name )
+        
+        if content is None:
+            return []
             
         updater( content )
         

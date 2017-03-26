@@ -6,6 +6,7 @@ import os
 import sys
 import stat
 import shutil
+import json
 
 CIDTEST_BIN = os.environ.get('CIDTEST_BIN', None)
 
@@ -71,4 +72,14 @@ class citool_UTBase ( unittest.TestCase ) :
         if p.returncode != returncode:
             getattr( sys.stderr, 'buffer', sys.stderr ).write( err )
             raise RuntimeError( "Failed" )
+        
+    @classmethod
+    def _writeFile( cls, file_name, content ):
+        with open(file_name, 'w') as content_file:
+            content_file.write( content )
+            content_file.write( "\n" )
+
+    @classmethod
+    def _writeJSON( cls, file_name, content ):
+        cls._writeFile( file_name, json.dumps( content ) )
         

@@ -6,14 +6,15 @@ from ..buildtool import BuildTool
 from .npmtoolmixin import NpmToolMixIn
 
 class bowerTool( NpmToolMixIn, BuildTool ):
+    BOWER_JSON = 'bower.json'
+    
     def autoDetect( self, config ) :
-        return self._autoDetectByCfg( config, 'bower.json' )
+        return self._autoDetectByCfg( config, self.BOWER_JSON )
 
     def loadConfig( self, config ) :
-        with open('bower.json', 'r') as content_file:
-            content = content_file.read()
-            object_pairs_hook = lambda pairs: OrderedDict( pairs )
-            content = json.loads( content, object_pairs_hook=object_pairs_hook )
+        content = self._loadJSONConfig( self.BOWER_JSON )
+        if content is None: return
+        
         f = 'name'
         if f in content and f not in config:
             config[f] = content[f]
@@ -28,7 +29,7 @@ class bowerTool( NpmToolMixIn, BuildTool ):
             if 'version' in json:
                 del json['version']
 
-        return self._updateJSONConfig( 'bower.json', updater )
+        return self._updateJSONConfig( self.BOWER_JSON, updater )
     
     def onPrepare( self, config ):
         bowerBin = config['env']['bowerBin']

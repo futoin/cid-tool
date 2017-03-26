@@ -21,6 +21,9 @@ from .mixins.util import UtilMixIn
 
 from .vcstool import VcsTool
 from .rmstool import RmsTool
+from .buildtool import BuildTool
+from .testtool import TestTool
+from .migrationtool import MigrationTool
 
 __all__ = ['CIDTool']
 
@@ -60,13 +63,17 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self._overrides = overrides
         self._initConfig()
         
-    def _forEachTool( self, cb, allow_failure=False ) :
+    def _forEachTool( self, cb, allow_failure=False, base=None ) :
         config = self._config
         tool_impl = self._tool_impl
         tools = config['tools']
 
         for t in tools :
             t = tool_impl[t]
+
+            if base and not isinstance(t, base):
+                continue
+
             try:
                 cb( config, t )
             except RuntimeError as e:
@@ -181,7 +188,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
 
         #--
         self._forEachTool(
-            lambda config, t: t.onPrepare( config )
+            lambda config, t: t.onPrepare( config ),
+            base=BuildTool
         )
 
     @cid_action
@@ -189,7 +197,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self._processWcDir()
         
         self._forEachTool(
-            lambda config, t: t.onBuild( config )
+            lambda config, t: t.onBuild( config ),
+            base=BuildTool
         )
 
     @cid_action
@@ -197,7 +206,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self._processWcDir()
         
         self._forEachTool(
-            lambda config, t: t.onPackage( config )
+            lambda config, t: t.onPackage( config ),
+            base=BuildTool
         )
         
         #---
@@ -268,7 +278,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         self._forEachTool(
             lambda config, t: t.onCheck( config ),
-            allow_failure = self._config.get('permissiveChecks', False)
+            allow_failure = self._config.get('permissiveChecks', False),
+            base=TestTool
         )
 
     @cid_action
@@ -282,7 +293,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self._processWcDir()
         
         self._forEachTool(
-            lambda config, t: t.onMigrate( config, location )
+            lambda config, t: t.onMigrate( config, location ),
+            base=MigrationTool
         )
         
     def _deployLock( self ):
@@ -538,10 +550,9 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             self.runDev( command )
             return
 
-    @cid_action
     def runDev( self, command ):
         pass
-    
+   
     @cid_action
     def ci_build( self, vcs_ref, rms_pool ):
         config = self._config
@@ -557,7 +568,6 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self.check()
         self.promote( self._lastPackage, rms_pool )
 
-    @cid_action
     def tool_exec( self, tool, args ):
         t = self._tool_impl[tool]
         bin = self._config['env'].get(tool + 'Bin')
@@ -567,7 +577,6 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         else :
             raise NotImplementedError( "Tool exec has not been implemented for %s" % tool )
     
-    @cid_action
     def tool_install( self, tool ):
         config = self._config
         env = config['env']
@@ -584,7 +593,6 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             t = self._tool_impl[tool]
             t.requireInstalled( env )
 
-    @cid_action
     def tool_uninstall( self, tool ):
         config = self._config
         env = config['env']
@@ -602,7 +610,6 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             if t.isInstalled( env ):
                 t.uninstallTool( env )
 
-    @cid_action
     def tool_update( self, tool ):
         config = self._config
         env = config['env']
@@ -619,7 +626,6 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             t = self._tool_impl[tool]
             t.updateTool( env )
 
-    @cid_action
     def tool_test( self, tool ):
         config = self._config
         env = config['env']
@@ -635,8 +641,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             if not t.isInstalled( env ) :
                 print( "Tool '%s' is missing" % tool )
                 sys.exit( 1 )
-
-    @cid_action
+                
     def tool_env( self, tool ):
         config = self._config
         env = config['env']
@@ -658,6 +663,32 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             
         for k, v in res.items():
             print("{0}='{1}'".format(k, v.replace("'", "\\'").replace('\\', '\\\\')))
+
+    def _tool_cmd( self, tool, base, method ):
+        config = self._config
+        env = config['env']
+
+        t = self._tool_impl[tool]
+
+        if isinstance(t, base):
+            getattr( t, method )( config )
+        else:
+            raise RuntimeError( '{0} tool does not support {1}'.format(tool, method) )
+        
+    def tool_prepare( self, tool ):
+        self._tool_cmd( tool, BuildTool, 'onPrepare' )
+
+    def tool_build( self, tool ):
+        self._tool_cmd( tool, BuildTool, 'onBuild' )
+
+    def tool_check( self, tool ):
+        self._tool_cmd( tool, TestTool, 'onCheck' )
+
+    def tool_package( self, tool ):
+        self._tool_cmd( tool, BuildTool, 'onPackage' )
+
+    def tool_migrate( self, tool ):
+        self._tool_cmd( tool, MigrationTool, 'onMigrate' )
 
     def _initConfig( self ):
         self._global_config = gc = self._loadJSON( '/etc/futoin/futoin.json', {'env':{}} )

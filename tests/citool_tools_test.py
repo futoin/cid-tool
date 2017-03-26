@@ -5,7 +5,6 @@ import os
 class citool_Tool_UTBase ( citool_UTBase ) :
     __test__ = False
     TOOL_NAME = 'invalid'
-    TOOL_MANAGED = True
     TOOL_ENV = {}
     _env_backup = None
 
@@ -28,7 +27,10 @@ class citool_Tool_UTBase ( citool_UTBase ) :
                 os.environ[k] = v
             else:
                 del os.environ[k]
-        
+
+class citool_Tool_UTCommon ( citool_Tool_UTBase ) :
+    TOOL_MANAGED = True
+    
     def test_10_tool_uninstall( self ):
         if self.TOOL_MANAGED:
             self._call_citool( [ 'tool', 'uninstall', self.TOOL_NAME ] )
@@ -58,7 +60,7 @@ class citool_Tool_UTBase ( citool_UTBase ) :
 #-----
 for t in ['bash', 'curl', 'git', 'hg', 'svn', 'gpg', 'scp', 'ssh', 'make', 'cmake']:
     cls = 'citool_Tool_10_' + t
-    globals()[cls] = type(cls, (citool_Tool_UTBase, ), {
+    globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
         '__test__' : True,
         'TOOL_NAME' : t,
         'TOOL_MANAGED' : False,
@@ -68,7 +70,7 @@ for t in ['bash', 'curl', 'git', 'hg', 'svn', 'gpg', 'scp', 'ssh', 'make', 'cmak
 #-----
 for t in ['nvm', 'rvm', 'phpbuild']:
     cls = 'citool_Tool_20_' + t
-    globals()[cls] = type(cls, (citool_Tool_UTBase, ), {
+    globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
         '__test__' : True,
         'TOOL_NAME' : t,
     })
@@ -77,7 +79,7 @@ for t in ['nvm', 'rvm', 'phpbuild']:
 #-----
 for t in ['node']: # python
     cls = 'citool_Tool_30_' + t
-    globals()[cls] = type(cls, (citool_Tool_UTBase, ), {
+    globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
         '__test__' : True,
         'TOOL_NAME' : t,
     })
@@ -106,7 +108,7 @@ for t, ti in mixed_tools.items():
     tenv = ti.get('env', {})
     if 'ver' in ti:
         tenv[ "{0}Ver".format(t) ] = ti['ver']
-    globals()[cls] = type(cls, (citool_Tool_UTBase, ), {
+    globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
         '__test__' : True,
         'TOOL_NAME' : t,
         'TOOL_ENV': tenv,
@@ -114,7 +116,7 @@ for t, ti in mixed_tools.items():
     })
     #--
     cls = "citool_Tool_30_{0}_system".format(t)
-    globals()[cls] = type(cls, (citool_Tool_UTBase, ), {
+    globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
         '__test__' : True,
         'TOOL_NAME' : t,
         'TOOL_MANAGED' : False,
@@ -124,7 +126,7 @@ for t, ti in mixed_tools.items():
 #-----
 for t in ['npm', 'gem', 'setuptools']:
     cls = 'citool_Tool_40_' + t
-    globals()[cls] = type(cls, (citool_Tool_UTBase, ), {
+    globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
         '__test__' : True,
         'TOOL_NAME' : t,
         'TOOL_MANAGED' : False,
@@ -135,7 +137,7 @@ for t in ['npm', 'gem', 'setuptools']:
 os.environ['dockerBin'] = '/bin/true'
 for t in ['composer', 'bundler', 'dockercompose']:
     cls = 'citool_Tool_50_' + t
-    globals()[cls] = type(cls, (citool_Tool_UTBase, ), {
+    globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
         '__test__' : True,
         'TOOL_NAME' : t,
     })
