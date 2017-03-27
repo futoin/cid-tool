@@ -12,10 +12,10 @@ class PackageMixIn( object ):
             )
 
     def _requireYum(self, packages):
-        yum = self._which('yum')
+        yum = self._which('dnf')
         
         if not yum:
-            yum = self._which('dnf')
+            yum = self._which('yum')
         
         if yum:
             self._trySudoCall(

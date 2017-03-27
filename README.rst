@@ -22,12 +22,15 @@ Supported technologies & tools (so far):
 * **cmake** (uses make in proper order)
 * **docker** (experimental)
     - **docker-compose**
+* **java** (experimental)
+    - **jre** for runtime
+    - **jdk** for development
 * **make**
 * **node**
     - **npm**
     - **bower**
     - **grunt**
-    - **grulp**
+    - **gulp**
     - **nvm** (implicit)
 * **php** - both system & any php-build supported
     - **composer**
@@ -135,4 +138,6 @@ Please see details in the FTN16 spec: ::
     cid tool exec <tool_name> [-- <tool_arg>...]
     
     cid tool (install|uninstall|update|test|env) [<tool_name>]
+
+    cid tool (prepare|build|check|package|migrate) <tool_name>
 

@@ -12,6 +12,7 @@
 * Fixed to ignore failure of missing config load (e.g. npm as dep of bower)
 * Implemented BuilTool unit tests and fixed: Bundler, CMake,
     Grunt (CLI install), Gulp 
+* Added experimental Java JRE & JDK support
 
 === 0.3.3 ===
 

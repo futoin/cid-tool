@@ -1,6 +1,6 @@
 
 from .citool_utbase import citool_UTBase
-import os
+import os, subprocess
 
 class citool_Tool_UTBase ( citool_UTBase ) :
     __test__ = False
@@ -58,13 +58,37 @@ class citool_Tool_UTCommon ( citool_Tool_UTBase ) :
 
 # 10
 #-----
-for t in ['bash', 'curl', 'git', 'hg', 'svn', 'gpg', 'scp', 'ssh', 'make', 'cmake']:
+for t in ['bash', 'curl', 'git', 'hg', 'svn', 'gpg', 'scp', 'ssh', 'make', 'cmake', 'jre', 'jdk']:
     cls = 'citool_Tool_10_' + t
     globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
         '__test__' : True,
         'TOOL_NAME' : t,
         'TOOL_MANAGED' : False,
     })
+
+# Auto-detect system Java after default is run
+class citool_Tool_JVMBase(citool_Tool_UTBase):
+    @classmethod
+    def setUpClass( cls ):
+        java_ver=subprocess.check_output(['java', '-version'])
+
+        if java_ver.find('1.8.0'):
+            java_ver='8'
+        else :
+            java_ver='7'
+            
+        cls.TOOL_ENV = { t + 'Ver': java_ver }
+        supet(citool_Tool_JVMBase, cls).setUpClass()
+
+
+for t in ['jre', 'jdk']:
+    cls = 'citool_Tool_11_' + t
+    globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
+        '__test__' : True,
+        'TOOL_NAME' : t,
+        'TOOL_MANAGED' : False,
+    })
+
     
 # 20
 #-----

@@ -26,7 +26,7 @@ class pythonTool( RuntimeTool ):
             self._requirePackages(['python'])
             self._requirePacman(['python2'])
 
-        self._requireEmerge('=dev-lang/python-{0}*'.format(env['pythonVer']))
+        self._requireEmerge(['=dev-lang/python-{0}*'.format(env['pythonVer'])])
     
     def uninstallTool( self, env ):
         pass

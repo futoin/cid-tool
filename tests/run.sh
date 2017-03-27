@@ -6,8 +6,9 @@ if ! test -e bin/cid; then
 fi
 
 # ArchLinux images comes without python
-if ! which python >/dev/null && which pacman; then
-    pacman -S --noconfirm --needed python
+if ! which python >/dev/null; then
+    which pacman && sudo pacman -S --noconfirm --needed python
+    which dnf && sudo dnf install -y python
 fi
 
 CID_BOOT=$(pwd)/bin/cid
