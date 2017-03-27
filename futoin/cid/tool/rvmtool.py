@@ -40,9 +40,12 @@ class rvmTool( BashToolMixIn, RunEnvTool ):
             self._callExternal([ env['rvmBin'], 'implode', '--force' ])
         except:
             pass
-        self._callBash( env,
-            'chmod -R g+w {0}; rm -rf {0}'
-            .format(env['rvmDir']) )
+        
+        rvm_dir = env['rvmDir']
+
+        if os.path.exists(rvm_dir):
+            self._rmTree(rvm_dir)
+
         self._have_tool = False
 
     def _envNames( self ) :

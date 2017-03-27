@@ -32,9 +32,10 @@ class nvmTool( BashToolMixIn, RunEnvTool ):
     
     def uninstallTool( self, env ):
         nvm_dir = env['nvmDir']
-        self._callBash( env,
-              'chmod -R g+w {0}; rm -rf {0}'
-               .format(nvm_dir) )
+        
+        if os.path.exists(nvm_dir):
+            self._rmTree(nvm_dir)
+            
         self._have_tool = False
             
     def _envNames( self ) :

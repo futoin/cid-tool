@@ -23,8 +23,9 @@ Supported technologies & tools (so far):
 * **docker** (experimental)
     - **docker-compose**
 * **java** (experimental)
-    - **jre** for runtime
-    - **jdk** for development
+    - **sdkman** for SDK management
+    - **jre** for runtime (uses system packages)
+    - **jdk** for development (uses system packages)
 * **make**
 * **node**
     - **npm**

@@ -32,9 +32,10 @@ class phpbuildTool( BashToolMixIn, RunEnvTool ):
     
     def uninstallTool( self, env ):
         phpbuild_dir = env['phpbuildDir']
-        self._callBash( env,
-              'chmod -R g+w {0}; rm -rf {0}'
-               .format(phpbuild_dir) )
+        
+        if os.path.exists(phpbuild_dir):
+            self._rmTree(phpbuild_dir)
+            
         self._have_tool = False
             
     def _envNames( self ) :

@@ -58,7 +58,7 @@ class citool_Tool_UTCommon ( citool_Tool_UTBase ) :
 
 # 10
 #-----
-for t in ['bash', 'curl', 'git', 'hg', 'svn', 'gpg', 'scp', 'ssh', 'make', 'cmake', 'jre', 'jdk']:
+for t in ['bash', 'curl', 'git', 'hg', 'svn', 'gpg', 'scp', 'ssh', 'make', 'cmake', 'tar', 'unzip', 'jre', 'jdk']:
     cls = 'citool_Tool_10_' + t
     globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
         '__test__' : True,
@@ -92,7 +92,7 @@ for t in ['jre', 'jdk']:
     
 # 20
 #-----
-for t in ['nvm', 'rvm', 'phpbuild']:
+for t in ['nvm', 'rvm', 'phpbuild', 'sdkman']:
     cls = 'citool_Tool_20_' + t
     globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
         '__test__' : True,

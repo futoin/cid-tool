@@ -38,9 +38,11 @@ class phpTool( BashToolMixIn, RuntimeTool ):
         if env['phpVer'] == self.SYSTEM_VER:
             return super(phpTool, self).uninstallTool( env )
 
-        self._callBash( env,
-              'chmod -R g+w {0}; rm -rf {0}'
-               .format(env['phpDir']) )
+        php_dir = env['phpDir']
+
+        if os.path.exists(php_dir):
+            self._rmTree(php_dir)
+
         self._have_tool = False
     
     def _envNames( self ) :
