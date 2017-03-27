@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.4.0 ===
 
 * Added "cid tool (prepare|build|check|package|migrate) <tool_name>"
 * Added new TestTool and MigrationTool bases
