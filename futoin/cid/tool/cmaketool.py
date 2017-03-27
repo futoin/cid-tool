@@ -14,6 +14,10 @@ class cmakeTool( BuildTool ):
         ] )
     
     def _installTool( self, env ):
+        self._requireDeb(['build-essential'])
+        self._requireRpm(['gcc', 'gcc-c++'])
+        self._requirePacman(['gcc'])
+            
         self._requirePackages(['cmake'])
         self._requireEmerge(['dev-util/cmake'])
         self._requirePacman(['cmake'])
