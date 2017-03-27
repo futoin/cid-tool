@@ -1,6 +1,6 @@
 
 from .citool_tools_test import citool_Tool_UTBase
-import os, re
+import os, re, sys, subprocess
 
 class cid_UTBase(citool_Tool_UTBase):
     __test__ = True
@@ -108,6 +108,27 @@ class cid_composer_Test(cid_UTBase):
         assert not os.path.exists('vendor/futoin/core-php-ri-executor')
 
 
+class cid_gradle_Test(cid_UTBase):
+    @classmethod
+    def setUpTool(cls):
+        cls._writeFile('build.gradle', '''
+defaultTasks 'test_file'
+task test_file {
+    doLast {
+        File tf = file('test_file.txt')
+        tf.text = 'Yes'
+    }
+}
+''')
+        
+    def test10_build( self ):
+        self._call_citool( [ 'tool', 'build', self.TOOL_NAME ] )
+
+        with open('test_file.txt', 'r') as f:
+            res = f.readlines()
+            res.index('Yes')
+
+
 class cid_grunt_Test(cid_UTBase):
     @classmethod
     def setUpTool(cls):
@@ -184,6 +205,27 @@ sometarget:
         with open('test_file.txt', 'r') as f:
             res = f.readlines()
             res.index('Yes\n')
+
+
+class cid_maven_Test(cid_UTBase):
+    @classmethod
+    def setUpTool(cls):
+        cls._call_citool( [
+            'tool', 'exec', cls.TOOL_NAME, '--',
+            'archetype:generate', '-DgroupId=com.mycompany.app',
+            '-DartifactId=my-app', '-DarchetypeArtifactId=maven-archetype-quickstart',
+            '-DinteractiveMode=false',
+        ] )
+        
+    def test10_build( self ):
+        os.chdir( os.path.join(self.TEST_DIR, 'my-app') )
+        self._call_citool( [ 'tool', 'build', self.TOOL_NAME ] )
+        assert os.path.exists('target')
+
+    def test20_package( self ):
+        os.chdir( os.path.join(self.TEST_DIR, 'my-app') )
+        self._call_citool( [ 'tool', 'package', self.TOOL_NAME ] )
+        assert os.path.exists('target/my-app-1.0-SNAPSHOT.jar')
 
 
 class cid_npm_Test(cid_UTBase):

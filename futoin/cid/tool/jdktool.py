@@ -5,14 +5,14 @@ from ..buildtool import BuildTool
 
 class jdkTool( BuildTool ):
     def getDeps( self ) :
-        return ['jre']
+        return ['java']
     
     def _envNames( self ) :
         return ['jdkBin', 'jdkVer']
     
     def _installTool( self, env ):
         if 'jdkVer' in env:
-            ver = env['jdkVer'].split('.')[0]
+            ver = env['jdkVer'][0]
             self._requireDeb(['openjdk-{0}-jdk'.format(ver)])
             self._requireYum(['java-1.{0}.0-openjdk-devel'.format(ver)])
             self._requireZypper(['java-1_{0}_0-openjdk-devel'.format(ver)])
@@ -34,7 +34,7 @@ class jdkTool( BuildTool ):
             return
         
         env.setdefault('jdkVer', '8')
-        ver = env['jdkVer'].split('.')[0]
+        ver = env['jdkVer'][0]
         
         candidates = [
             # Debian / Ubuntu
@@ -52,5 +52,6 @@ class jdkTool( BuildTool ):
             
             if bin_name:
                 env['jdkBin'] = bin_name[0]
+                self._addBinPath(os.path.basename(env['jdkBin']), True)
                 self._have_tool = True
                 break

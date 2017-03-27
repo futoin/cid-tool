@@ -9,7 +9,7 @@ class UtilMixIn( object ):
         env_to_set = env_to_set.split( "\n" )
 
         for e in env_to_set:
-            if not e: break
+            if not e: continue
             n, v = e.split('=', 1)
             os.environ[n] = v
 

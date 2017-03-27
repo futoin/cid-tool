@@ -58,7 +58,7 @@ class citool_Tool_UTCommon ( citool_Tool_UTBase ) :
 
 # 10
 #-----
-for t in ['bash', 'curl', 'git', 'hg', 'svn', 'gpg', 'scp', 'ssh', 'make', 'cmake', 'tar', 'unzip', 'jre', 'jdk']:
+for t in ['bash', 'curl', 'git', 'hg', 'svn', 'gpg', 'scp', 'ssh', 'make', 'cmake', 'tar', 'unzip', 'java', 'jdk']:
     cls = 'citool_Tool_10_' + t
     globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
         '__test__' : True,
@@ -78,12 +78,12 @@ class citool_Tool_JVMBase(citool_Tool_UTBase):
             java_ver='7'
             
         cls.TOOL_ENV = { t + 'Ver': java_ver }
-        supet(citool_Tool_JVMBase, cls).setUpClass()
+        super(citool_Tool_JVMBase, cls).setUpClass()
 
 
-for t in ['jre', 'jdk']:
+for t in ['java', 'jdk']:
     cls = 'citool_Tool_11_' + t
-    globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
+    globals()[cls] = type(cls, (citool_Tool_JVMBase, ), {
         '__test__' : True,
         'TOOL_NAME' : t,
         'TOOL_MANAGED' : False,
@@ -92,7 +92,7 @@ for t in ['jre', 'jdk']:
     
 # 20
 #-----
-for t in ['nvm', 'rvm', 'phpbuild', 'sdkman']:
+for t in ['nvm', 'rvm', 'phpbuild', 'sdkman', 'gradle', 'maven']:
     cls = 'citool_Tool_20_' + t
     globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
         '__test__' : True,

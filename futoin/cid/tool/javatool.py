@@ -3,13 +3,13 @@ import os, glob
 
 from ..runtimetool import RuntimeTool
 
-class jreTool( RuntimeTool ):
+class javaTool( RuntimeTool ):
     def _envNames( self ) :
-        return ['jreBin', 'jreVer']
+        return ['javaBin', 'javaVer']
     
     def _installTool( self, env ):
-        if 'jreVer' in env:
-            ver = env['jreVer'].split('.')[0]
+        if 'javaVer' in env:
+            ver = env['javaVer'][0]
             self._requireDeb(['openjdk-{0}-jre-headless'.format(ver)])
             self._requireYum(['java-1.{0}.0-openjdk'.format(ver)])
             self._requireZypper(['java-1_{0}_0-openjdk'.format(ver)])
@@ -26,15 +26,15 @@ class jreTool( RuntimeTool ):
         pass
 
     def initEnv( self, env ) :
-        if 'jreBin' in env or 'jreVer' not in env:
-            super(jreTool, self).initEnv( env, 'java' )
+        if 'javaBin' in env or 'javaVer' not in env:
+            super(javaTool, self).initEnv( env, 'java' )
             return
         
-        ver = env['jreVer'].split('.')[0]
+        ver = env['javaVer'][0]
         
         candidates = [
             # Debian / Ubuntu
-            "/usr/lib/jvm/java-{0}-openjdk*/bin/java".format(ver),
+            "/usr/lib/jvm/java-{0}-openjdk*/jre/bin/java".format(ver),
             # RedHat
             "/usr/lib/jvm/jre-1.{0}.0/bin/java".format(ver),
             # OpenSuse
@@ -47,7 +47,8 @@ class jreTool( RuntimeTool ):
             bin_name = glob.glob(c)
             
             if bin_name:
-                env['jreBin'] = bin_name[0]
+                env['javaBin'] = bin_name[0]
+                self._addBinPath(os.path.basename(env['javaBin']), True)
                 self._have_tool = True
                 break
             

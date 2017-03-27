@@ -47,7 +47,11 @@ config = {
         'License :: OSI Approved :: Apache Software License',
         'Topic :: Software Development :: Build Tools',
         'Topic :: System :: Installation/Setup',
+        'Programming Language :: C',
+        'Programming Language :: C++',
+        'Programming Language :: Java',
         'Programming Language :: JavaScript',
+        'Programming Language :: Other',
         'Programming Language :: PHP',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
@@ -60,7 +64,8 @@ config = {
         'Programming Language :: Unix Shell',
         'Environment :: Console',
     ],
-    'keywords': 'php ruby node nodejs npm gem rvm nvm grunt gulp bower puppet build deploy futoin',
+    'keywords': 'php ruby node nodejs npm gem rvm nvm grunt gulp bower \
+ puppet build deploy futoin cmake make gradle maven java composer bundler',
     'license': 'Apache 2.0',
 }
 

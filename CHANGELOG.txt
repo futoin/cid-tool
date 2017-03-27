@@ -14,6 +14,7 @@
     Grunt (CLI install), Gulp 
 * Added SDKMAN, zip and unzip tools
 * Added experimental Java JRE & JDK support
+* Added Gradle & Maven support
 
 === 0.3.3 ===
 
