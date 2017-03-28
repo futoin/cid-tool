@@ -26,6 +26,7 @@ Supported technologies & tools (so far):
     - **java** for runtime (uses system packages)
     - **jdk** for development (uses system packages)
     - **sdkman** for SDK management (besides JRE & JDK)
+    - **ant**
     - **gradle**
     - **maven**
 * **make**

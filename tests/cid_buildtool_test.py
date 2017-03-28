@@ -15,6 +15,58 @@ class cid_UTBase(citool_Tool_UTBase):
     def setUpTool(cls):
         pass
 
+class cid_ant_Test(cid_UTBase):
+    @classmethod
+    def setUpTool(cls):
+        os.makedirs(os.path.join('src', 'oata'))
+        cls._writeFile(os.path.join('src', 'oata', 'HelloWorld.java'), '''
+package oata;
+
+public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello World");
+    }
+}                       
+''')
+        
+        cls._writeFile('build.xml', '''
+<project>
+
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="build/classes"/>
+        <javac srcdir="src" destdir="build/classes"/>
+    </target>
+
+    <target name="jar">
+        <mkdir dir="build/jar"/>
+        <jar destfile="build/jar/HelloWorld.jar" basedir="build/classes">
+            <manifest>
+                <attribute name="Main-Class" value="oata.HelloWorld"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="run">
+        <java jar="build/jar/HelloWorld.jar" fork="true"/>
+    </target>
+
+</project>
+''')
+        
+    def test10_build( self ):
+        self._call_citool( [ 'tool', 'build', self.TOOL_NAME ] )
+        assert os.path.exists('build/classes/oata/HelloWorld.class')
+        assert not os.path.exists('build/jar/HelloWorld.jar')
+
+    def test20_package( self ):
+        self._call_citool( [ 'tool', 'package', self.TOOL_NAME ] )
+        assert os.path.exists('build/jar/HelloWorld.jar')
+
+
 
 class cid_bower_Test(cid_UTBase):
     @classmethod

@@ -1,11 +1,11 @@
 
-import os
+import os, re
 
 from .bashtoolmixin import BashToolMixIn
 
 class SdkmanToolMixIn( BashToolMixIn ):
     def getDeps( self ) :
-        return super( SdkmanToolMixIn, self ).getDeps() + [ 'sdkman' ]
+        return super( SdkmanToolMixIn, self ).getDeps() + [ 'sdkman', 'java' ]
 
     def _sdkName( self ):
         return self._name
@@ -28,6 +28,10 @@ class SdkmanToolMixIn( BashToolMixIn ):
             ),
             verbose=verbose
         )
+            
+    def _javaVersion( self, env ):
+        java_ver = self._callBash(env, '{0} -version 2>&1'.format(env['javaBin']), verbose=False)
+        return int(re.search('version "1\.([0-9]+)\.', java_ver).group(1))
         
     def _installTool( self, env ):
         self._setAutoAnswer( env )
@@ -68,7 +72,8 @@ class SdkmanToolMixIn( BashToolMixIn ):
         
         try:
             env_to_set = self._callSdkman( env,
-                'use {0} >/dev/null && env | grep -i {0}'.format(self._sdkName()),
+                'use {0} {1} >/dev/null && env | grep -i {0}'
+                .format(self._sdkName(), env.get(self._name + 'Ver', '')),
                 verbose = False
             )
         except:
