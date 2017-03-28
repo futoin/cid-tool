@@ -1,6 +1,6 @@
 
 from .citool_tools_test import citool_Tool_UTBase
-import os, re, sys, subprocess
+import os, re, sys, subprocess, platform
 
 class cid_UTBase(citool_Tool_UTBase):
     __test__ = True
@@ -82,6 +82,14 @@ add_executable (helloDemo hello.cpp)
         assert os.path.exists('Makefile')
 
 
+dist = platform.linux_distribution()
+if dist[0] == 'CentOS Linux' and dist[1].split('.') <= ['8', '0']:
+    composer_require = 'psr/log'
+    composer_require_dev = 'symfony/polyfill-mbstring'
+else :
+    composer_require = "futoin/core-php-ri-asyncsteps"
+    composer_require_dev = "futoin/core-php-ri-executor"
+
 class cid_composer_Test(cid_UTBase):
     @classmethod
     def setUpTool(cls):
@@ -90,22 +98,22 @@ class cid_composer_Test(cid_UTBase):
             "version" : "0.0.1",
             "description": "Futoin CID Composer Test",
             "require": {
-                "futoin/core-php-ri-asyncsteps": "*"
+                composer_require: "*"
             },
             "require-dev": {
-                "futoin/core-php-ri-executor": "*"
+                composer_require_dev: "*"
             },
         })
         
     def test10_prepare( self ):
         self._call_citool( [ 'tool', 'prepare', self.TOOL_NAME ] )
-        assert os.path.exists('vendor/futoin/core-php-ri-asyncsteps')
-        assert os.path.exists('vendor/futoin/core-php-ri-executor')
+        assert os.path.exists('vendor/' + composer_require)
+        assert os.path.exists('vendor/' + composer_require_dev)
 
     def test20_package( self ):
         self._call_citool( [ 'tool', 'package', self.TOOL_NAME ] )
-        assert os.path.exists('vendor/futoin/core-php-ri-asyncsteps')
-        assert not os.path.exists('vendor/futoin/core-php-ri-executor')
+        assert os.path.exists('vendor/' + composer_require)
+        assert not os.path.exists('vendor/' + composer_require_dev)
 
 
 class cid_gradle_Test(cid_UTBase):
