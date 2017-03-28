@@ -14,6 +14,9 @@ class antTool( SdkmanToolMixIn, BuildTool ):
             env['antVer'] = '1.9.8'
 
         SdkmanToolMixIn.initEnv(self, env)
+
+    def onPrepare( self, config ):
+        self._callExternal( [ config['env']['antBin'], 'clean' ] )
     
     def onBuild( self, config ):
         self._callExternal( [ config['env']['antBin'], 'compile' ] )
@@ -24,6 +27,4 @@ class antTool( SdkmanToolMixIn, BuildTool ):
     def onRun( self, config ):
         self._callExternal( [ config['env']['antBin'], 'run' ] )
 
-    def onClean( self, config ):
-        self._callExternal( [ config['env']['antBin'], 'clean' ] )
             

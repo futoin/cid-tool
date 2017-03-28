@@ -10,7 +10,7 @@ class sbtTool( SdkmanToolMixIn, BuildTool, TestTool ):
                 [ 'build.sbt' ]
         )
     
-    def onClean( self, config ):
+    def onPrepare( self, config ):
         self._callExternal( [ config['env']['sbtBin'], 'clean' ] )
 
     def onBuild( self, config ):
