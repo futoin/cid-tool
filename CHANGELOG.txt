@@ -3,6 +3,7 @@
 * Fixed SDKMAN tools (gradle, maven) uninstall & accidental install on "test"
 * Added support for SDKMAN tool {name}Ver environment variables
 * Added Ant support
+* Added Scala and SBT support
 
 === 0.4.0 ===
 

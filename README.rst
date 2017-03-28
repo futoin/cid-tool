@@ -22,7 +22,7 @@ Supported technologies & tools (so far):
 * **cmake** (uses make in proper order)
 * **docker** (experimental)
     - **docker-compose**
-* **java** (experimental)
+* **java**
     - **java** for runtime (uses system packages)
     - **jdk** for development (uses system packages)
     - **sdkman** for SDK management (besides JRE & JDK)
@@ -46,6 +46,8 @@ Supported technologies & tools (so far):
     - **gen**
     - **bundler**
     - **rvm** (implicit)
+* **scala**
+    **sbt** - Simple Build Tools for Scala
 * **scp** - for RMS
 
 Tested on the following OSes:

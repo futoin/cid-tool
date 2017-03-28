@@ -92,7 +92,7 @@ for t in ['java', 'jdk']:
     
 # 20
 #-----
-for t in ['nvm', 'rvm', 'phpbuild', 'sdkman', 'gradle', 'maven']:
+for t in ['nvm', 'rvm', 'phpbuild', 'sdkman', 'ant', 'gradle', 'maven', 'sbt', 'scala']:
     cls = 'citool_Tool_20_' + t
     globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
         '__test__' : True,

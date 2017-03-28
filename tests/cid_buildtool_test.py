@@ -1,6 +1,6 @@
 
 from .citool_tools_test import citool_Tool_UTBase
-import os, re, sys, subprocess, platform
+import os, re, sys, subprocess, platform, glob
 
 class cid_UTBase(citool_Tool_UTBase):
     __test__ = True
@@ -347,6 +347,32 @@ class cid_puppet_Test(cid_UTBase):
     def test20_package( self ):
         self._call_citool( [ 'tool', 'package', self.TOOL_NAME ] )
         assert os.path.exists('pkg/futoin-cidpuppettest-0.0.1.tar.gz')
+
+if os.environ.get('CIDTEST_NO_COMPILE', '0') != '1':
+    # SBT takes very long time for initial startup
+    class cid_sbt_Test(cid_UTBase):
+        @classmethod
+        def setUpTool(cls):
+            cls._writeFile('hello.scale', '''
+object Hi {
+  def main(args: Array[String]) = println("Hi!")
+}
+''')
+        
+            cls._writeFile('build.sbt', '''
+name := "hello"
+
+version := "0.1"
+''')
+            
+        def test10_build( self ):
+            self._call_citool( [ 'tool', 'build', self.TOOL_NAME ] )
+            assert os.path.exists('target')
+            assert not glob.glob('target/scala-*/hello_*-0.1.jar')
+
+        def test20_package( self ):
+            self._call_citool( [ 'tool', 'package', self.TOOL_NAME ] )
+            assert glob.glob('target/scala-*/hello_*-0.1.jar')
 
 
 class cid_setuptools_Test(cid_UTBase):
