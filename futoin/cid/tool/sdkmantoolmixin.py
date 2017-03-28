@@ -20,7 +20,7 @@ class SdkmanToolMixIn( BashToolMixIn ):
             verbose=False
         )
     
-    def _callSdkman( self, env, cmd, verbose=False ):
+    def _callSdkman( self, env, cmd, verbose=True ):
         return self._callBash( env,
             'source {0} >/dev/null && sdk {1}'.format(
                 env['sdkmanInit'],
@@ -48,15 +48,24 @@ class SdkmanToolMixIn( BashToolMixIn ):
 
         
     def uninstallTool( self, env ):
-        self._setAutoAnswer( env )
-        self._callSdkman( env,
-            'uninstall {0} {1}'.format(
-                self._sdkName(),
-                env.get(self._name + 'Ver', '')
-            )
-        )
+        tool_dir = os.path.join(env['sdkmanDir'], 'candidates', self._sdkName())
+        if os.path.exists(tool_dir):
+            print( 'Removing: {0}'.format(tool_dir) )
+            self._rmTree(tool_dir)
+        #self._setAutoAnswer( env )
+        #self._callSdkman( env,
+        #    'uninstall {0} {1}'.format(
+        #        self._sdkName(),
+        #        env.get(self._name + 'Ver', '')
+        #    )
+        #)
 
     def initEnv( self, env ) :
+        tool_dir = os.path.join(env['sdkmanDir'], 'candidates', self._sdkName(), 'current')
+        
+        if not os.path.exists(tool_dir):
+            return
+        
         try:
             env_to_set = self._callSdkman( env,
                 'use {0} >/dev/null && env | grep -i {0}'.format(self._sdkName()),
