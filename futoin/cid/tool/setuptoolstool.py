@@ -18,12 +18,13 @@ class setuptoolsTool( PipToolMixIn, BuildTool, TestTool ):
     def initEnv( self, env ):
         virtualenv_dir = env['virtualenvDir']
         self._have_tool = os.path.exists(os.path.join(virtualenv_dir, 'bin', 'easy_install'))
-
-    def onBuild( self, config ):
+        
+    def onPrepare( self, config ):
         for d in ['build', 'dist']:
             if os.path.exists(d):
                 self._rmTree(d)
 
+    def onBuild( self, config ):
         env = config['env']
         self._requirePip( env, 'wheel' )
         self._callExternal( [ env['pythonBin'], 'setup.py', 'sdist', 'bdist_wheel' ] )

@@ -14,6 +14,9 @@ class makeTool( BuildTool ):
             self._requireEmerge(['sys-devel/make'])
             self._requirePacman(['make'])
 
+    def onPrepare( self, config ):
+        self._callExternal( [ config['env']['makeBin'], 'clean' ] )
+
     def onBuild( self, config ):
         self._callExternal( [ config['env']['makeBin'] ] )
 

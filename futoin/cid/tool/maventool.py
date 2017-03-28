@@ -12,6 +12,9 @@ class mavenTool( SdkmanToolMixIn, BuildTool, TestTool ):
     
     def _binName( self ):
         return 'mvn'
+
+    def onPrepare( self, config ):
+        self._callExternal( [ config['env']['mavenBin'], 'clean' ] )
     
     def onBuild( self, config ):
         self._callExternal( [ config['env']['mavenBin'], 'compile' ] )

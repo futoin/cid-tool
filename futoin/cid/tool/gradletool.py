@@ -8,7 +8,13 @@ class gradleTool( SdkmanToolMixIn, BuildTool ):
                 config,
                 [ 'build.gradle' ]
         )
+
+    def onPrepare( self, config ):
+        self._callExternal( [ config['env']['gradleBin'], '-q', '--no-daemon', 'clean' ] )
     
     def onBuild( self, config ):
         self._callExternal( [ config['env']['gradleBin'], '-q', '--no-daemon' ] )
+
+    def onPackage( self, config ):
+        self._callExternal( [ config['env']['gradleBin'], '-q', '--no-daemon', 'dists' ] )
             
