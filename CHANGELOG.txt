@@ -4,6 +4,7 @@
 * Added support for SDKMAN tool {name}Ver environment variables
 * Added Ant support
 * Added Scala and SBT support
+* Changed CMake to build in dedicated folder and not to depend on make
 
 === 0.4.0 ===
 

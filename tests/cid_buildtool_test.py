@@ -131,7 +131,11 @@ add_executable (helloDemo hello.cpp)
         
     def test10_prepare( self ):
         self._call_citool( [ 'tool', 'prepare', self.TOOL_NAME ] )
-        assert os.path.exists('Makefile')
+        
+    def test20_build( self ):
+        self._call_citool( [ 'tool', 'build', self.TOOL_NAME ] )
+        assert os.path.exists('build/Makefile')
+        assert os.path.exists('build/helloDemo')
 
 
 dist = platform.linux_distribution()
