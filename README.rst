@@ -25,11 +25,11 @@ Supported technologies & tools (so far):
 * **go**
     - **gvm**
 * **java** for runtime (uses system packages)
-    - **jdk** for development (uses system packages)
-    - **sdkman** for SDK management (besides JRE & JDK)
     - **ant**
     - **gradle**
+    - **jdk** for development (uses system packages)
     - **maven**
+    - **sdkman** for SDK management (besides JRE & JDK)
 * **make**
 * **node**
     - **npm**
@@ -194,4 +194,39 @@ Please see details in the FTN16 spec: ::
 
     cid tool describe <tool_name>
         Show tool's detailed description.
+
+Excplicit futoin.json example
+-----------------------------
+
+futoin.json is not strictly required, but it allows to use full power of CID.
+
+.. code-block:: json
+
+    {
+      "name": "example-package",
+      "version": "0.4.2",
+      "actions": {
+        "package": []
+      },
+      "plugins": {
+        "examplerelease": "some.project.specific.release",
+        "examplehelper": "some.other.helpertool"
+      },
+      "tools": {
+        "examplerelease": true,
+        "python": "*",
+        "node": "stable"
+      },
+      "rms": "scp",
+      "rmsRepo": "rms@somehost",
+      "rmsPool": "ReleaseBuilds",
+      "main": {
+        "app": {
+          "tool": "python",
+          "path": "app.py",
+          "tune": {}
+        }
+      }
+    }
+
 

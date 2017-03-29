@@ -66,7 +66,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
     def _forEachTool( self, cb, allow_failure=False, base=None ) :
         config = self._config
         tool_impl = self._tool_impl
-        tools = config['tools']
+        tools = config['toolOrder']
 
         for t in tools :
             t = tool_impl[t]
@@ -582,7 +582,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         if tool :
             tools = [tool]
         else :
-            tools = config['tools']
+            tools = config['toolOrder']
 
         for tool in tools:
             t = self._tool_impl[tool]
@@ -598,7 +598,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         if tool :
             tools = [tool]
         else :
-            tools = reversed(config['tools'])
+            tools = reversed(config['toolOrder'])
 
         for tool in tools:
             t = self._tool_impl[tool]
@@ -615,7 +615,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         if tool :
             tools = [tool]
         else :
-            tools = config['tools']
+            tools = config['toolOrder']
 
         for tool in tools:
             t = self._tool_impl[tool]
@@ -628,7 +628,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         if tool :
             tools = [tool]
         else :
-            tools = config['tools']
+            tools = config['toolOrder']
 
         for tool in tools:
             t = self._tool_impl[tool]
@@ -644,7 +644,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         if tool :
             tools = [tool]
         else :
-            tools = config['tools']
+            tools = config['toolOrder']
             
         res = dict(os.environ)
         
@@ -826,9 +826,18 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         if curr_tool:
             tools = [ curr_tool ]
         else :
-            tools = config.get('tools', [])
+            config_tools = config.get('tools', {})
             
-            if not tools:
+            if config_tools:
+                if not isinstance(config_tools, dict):
+                    raise RuntimeError('futoin.json:tools must be a map of tool=>version')
+                tools = config_tools.keys()
+                
+                for (t, v) in config_tools.items():
+                    if v != '*' and v != True:
+                        env[t + 'Ver'] = v
+            else :
+                tools = []
                 for ( n, t ) in tool_impl.items():
                     if t.autoDetect( config ) :
                         tools.append( n )
@@ -875,7 +884,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         tools = []
         for d in dep_generations :
             tools.extend( d - set(tools) )
-        config['tools'] = tools
+        config['toolOrder'] = tools
 
         #--
         if config['toolTest']:

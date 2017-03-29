@@ -6,5 +6,10 @@
   },
   "plugins": {
     "release": "futoin.cid.misc.releasetool"
+  },
+  "tools": {
+    "release": "embedded",
+    "python": "*",
+    "setuptools": true
   }
 }
