@@ -9,6 +9,7 @@
 * Harmonized BuildTools to cleanup in onPrepare
 * Updated BuildTools tests
 * Changed default tool order to 0
+* Added "cid tool list" and "cid tool describe" commands
 
 === 0.4.0 ===
 

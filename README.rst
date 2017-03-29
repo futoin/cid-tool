@@ -7,7 +7,7 @@ Intro
 
 There are many continuous integration & delivery tools, but they are primarily
 targeted at own infrastructure. The demand for a new meta-tool is to merge
-many operation of different technologies like npm, composer, bundler, nvm,
+many operations of different technologies like npm, composer, bundler, nvm,
 rvm, php-build and others under a single tool for runtime setup, project
 development, build, deployment and running.
 
@@ -115,35 +115,88 @@ Usage
 Please see details in the FTN16 spec: ::
 
     cid tag <branch> [<next_version>] [--vcsRepo vcs_url] [--wcDir wc_dir]
+        Get the latest <branch>.
+        Update source for release & commit.
+        Create tag.
+        If <next_version> is omitted, the smallest version part is incremented.
+        Current version is determined by tools (e.g. from package.json)
     
     cid prepare [<vcs_ref>] [--vcsRepo vcs_url] [--wcDir wc_dir]
+        Retrieved the specific <vcs_ref>, if provided.
+        --vcsRepo is required, if not in VCS working copy.
+        Action depends on detected tools:
+        * should clean up the project
+        * should retrieve external dependencies
     
     cid build
+        Action depends on detected tools.
+        Runs tool-specific build/compilation.
     
     cid package
+        Action depends on detected tools.
+        Runs tool-specific package.
+        If package is not found then config.package folder is put into archive -
+            by default it's '.' relative to project root.
     
     cid check [--permissive]
+        Action depends on detected tools.
+        Runs tool-specific test/validation.
     
     cid promote <package> <rms_pool> [--rmsRepo rms_url]
         [--rmsHash type_value]
+        Promote package to Release Management System (RMS) or manage
+        package across RMS pools.
        
     cid deploy vcstag [<vcs_ref>] [--vcsRepo vcs_url] [--redeploy]
         [--deployDir deploy_dir]
+        Deploy from VCS tag.
        
     cid deploy vcsref <vcs_ref> [--vcsRepo vcs_url] [--redeploy]
         [--deployDir deploy_dir]
+        Deploy from VCS branch.
        
     cid deploy [rms] <rms_pool> [<package>] [--rmsRepo rms_url]
         [--rmsHash type_value] [--redeploy] [--deployDir deploy_dir] [--build]
+        Deploy from RMS.
     
     cid run [<command>]
+        Not implemented yet.
     
     cid ci_build <vcs_ref> <rms_pool> [--vcsRepo vcs_url] [--rmsRepo rms_url]
         [--permissive]
+        Run prepare, build and package in one run.
     
     cid tool exec <tool_name> [-- <tool_arg>...]
+        Execute <tool_name> binary with provided arguments.
+        Tool and all its dependencies are automatically installed.
+        Note: not all tools support execution.
     
-    cid tool (install|uninstall|update|test|env) [<tool_name>]
+    cid tool (install|uninstall|update) [<tool_name>]
+        Manage tools.
+        Note: not all tools support all kinds of actions.
+    
+    cid tool test [<tool_name>]
+        Test if tool is installed.
+
+    cid tool env [<tool_name>]
+        Dump tool-specific environment variables to be set in shell
+        for execution without CID.
+        Tool and all its dependencies are automatically installed.
 
     cid tool (prepare|build|check|package|migrate) <tool_name>
+        Run standard actions described above only for specific tool.
+        Tool and all its dependencies are automatically installed.
+        Note: auto-detection is skipped and tool is always run.
+    
+    cid tool list [describe]
+        Show a list of supported tools.
+        "describe" - also shows tool's documentation.
+        Note: individual tool describe is more verbose.
+
+    cid tool describe <tool_name>
+        Show tool's detailed description.
+
+
+Detailed list of tools
+----------------------
 

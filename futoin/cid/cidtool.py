@@ -691,6 +691,38 @@ class CIDTool( PathMixIn, UtilMixIn ) :
     def tool_migrate( self, tool ):
         self._tool_cmd( tool, MigrationTool, 'onMigrate' )
 
+    def tool_list( self, describe ):
+        print("List of tools supported by CID:")
+        for k in sorted(self._tool_impl.keys()):
+            if describe:
+                t = self._tool_impl[k]
+                doc = t.__doc__ or '!! Missing documentation.'
+                print("  * " + k + ': ' + doc)
+            else:
+                print("  * " + k)
+        print('End.')
+
+    def tool_describe( self, tool ):
+        t = self._tool_impl[tool]
+        
+        print('* Tool: ' + tool)
+        
+        deps = t.getDeps()
+        if deps:
+            print('* Dependencies: ' + ', '.join(deps))
+
+        rdeps = t.getPostDeps()
+        if rdeps:
+            print('* Reverse dependencies: ' + ', '.join(rdeps))
+            
+        order = t.getOrder()
+        if order:
+            print('* Order shift: {0}'.format(order))
+
+        print()
+        doc = t.__doc__ or '!! Missing documentation.'
+        print(doc)
+
     def _initConfig( self ):
         self._global_config = gc = self._loadJSON( '/etc/futoin/futoin.json', {'env':{}} )
         self._user_config = uc = self._loadJSON( os.path.join( os.environ.get('HOME','/'), 'futoin.json' ), {'env':{}} )

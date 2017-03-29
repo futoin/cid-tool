@@ -16,6 +16,8 @@ Usage:
     cid tool exec <tool_name> [-- <tool_arg>...]
     cid tool (install|uninstall|update|test|env) [<tool_name>]
     cid tool (prepare|build|check|package|migrate) <tool_name>
+    cid tool list [describe]
+    cid tool describe <tool_name>
 
 Options:
     --vcsRepo vcs_type:vcs_url
@@ -83,7 +85,7 @@ def run():
         #---
         tool = args['<tool_name>']
         overrides['tool'] = tool
-        overrides['toolTest'] = args['test'] or args['uninstall']
+        overrides['toolTest'] = args['test'] or args['uninstall'] or args['describe']
         
         #---
         if args['--permissive']:
@@ -97,6 +99,8 @@ def run():
         elif args['tool'] :
             if args['exec']:
                 cit.tool_exec( tool, args['<tool_arg>'] )
+            elif args['list']:
+                cit.tool_list(args['describe'])
             else:
                 subcmds = [
                     'install',
@@ -109,6 +113,7 @@ def run():
                     'check',
                     'package',
                     'migrate',
+                    'describe',
                 ]
                 for cmd in subcmds:
                     if args[cmd]:
