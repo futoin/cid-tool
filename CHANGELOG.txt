@@ -8,6 +8,7 @@
 * Changed CMake to build in dedicated folder and not to depend on make
 * Harmonized BuildTools to cleanup in onPrepare
 * Updated BuildTools tests
+* Changed default tool order to 0
 
 === 0.4.0 ===
 

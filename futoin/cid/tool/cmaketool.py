@@ -5,7 +5,7 @@ from ..buildtool import BuildTool
 
 class cmakeTool( BuildTool ):
     def getOrder( self ):
-        return self.DEFAULT_ORDER - 10
+        return -10
 
     def autoDetect( self, config ) :
         return self._autoDetectByCfg( config, [
