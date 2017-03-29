@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.4.1 ===
 
 * Fixed SDKMAN tools (gradle, maven) uninstall & accidental install on "test"
 * Added support for SDKMAN tool {name}Ver environment variables
