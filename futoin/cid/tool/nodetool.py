@@ -13,21 +13,17 @@ Home: https://nodejs.org/en/
         return [ 'nvm', 'bash' ]
 
     def _installTool( self, env ):
-        nvm_dir = env['nvmDir']
-        node_version = env['nodeVer']
         self._callBash( env,
-                'source {0}/nvm.sh --no-use && nvm install {1}'
-                .format(nvm_dir, node_version))
+                'source {0} --no-use && nvm install {1}'
+                .format(env['nvmInit'], env['nodeVer']))
             
     def updateTool( self, env ):
         self._installTool( env )
         
     def uninstallTool( self, env ):
-        nvm_dir = env['nvmDir']
-        node_version = env['nodeVer']
         self._callBash( env,
-              'source {0}/nvm.sh --no-use && nvm deactivate && nvm uninstall {1}'
-              .format(nvm_dir, node_version) )
+              'source {0} --no-use && nvm deactivate && nvm uninstall {1}'
+              .format(env['nvmInit'], env['nodeVer']) )
         self._have_tool = False
 
     def envNames( self ) :
@@ -36,13 +32,12 @@ Home: https://nodejs.org/en/
     def initEnv( self, env ) :
         node_version = env.setdefault('nodeVer', 'stable')
 
-        nvm_dir = env['nvmDir']
-
         try:
             env_to_set = self._callBash( env,
-                'source {0}/nvm.sh --no-use && \
+                'source {0} --no-use && \
                 nvm use {1} >/dev/null && \
-                env | egrep "(NVM_|\.nvm)"'.format(nvm_dir, node_version),
+                env | egrep "(NVM_|\.nvm)"'
+                .format(env['nvmInit'], node_version),
                 verbose = False
             )
         except:

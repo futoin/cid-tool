@@ -1,5 +1,5 @@
 
-import os
+import os, subprocess
 
 from ..runenvtool import RunEnvTool
 from .bashtoolmixin import BashToolMixIn
@@ -46,4 +46,12 @@ Home: https://github.com/creationix/nvm
     
     def initEnv( self, env ) :
         nvm_dir = env.setdefault('nvmDir', self.NVM_DIR_DEFAULT)
-        self._have_tool = os.path.exists(os.path.join(nvm_dir, 'nvm.sh'))
+        env_init = os.path.join(nvm_dir, 'nvm.sh')
+        env['nvmInit'] = env_init
+        self._have_tool = os.path.exists(env_init)
+        
+    def onExec( self, env, args ):
+        self._callBashInteractive(env,
+                '. {0} && nvm {1}'
+                .format(env['nvmInit'], subprocess.list2cmdline(args))
+        )

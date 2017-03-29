@@ -570,12 +570,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
 
     def tool_exec( self, tool, args ):
         t = self._tool_impl[tool]
-        bin = self._config['env'].get(tool + 'Bin')
-
-        if bin :
-            _call_cmd([bin] + args)
-        else :
-            raise NotImplementedError( "Tool exec has not been implemented for %s" % tool )
+        t.onExec(self._config['env'], args)
     
     def tool_install( self, tool ):
         config = self._config

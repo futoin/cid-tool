@@ -28,6 +28,12 @@ class PathMixIn( object ):
                 return None
             raise e
         
+    def _callInteractive( self, cmd ):
+        try:
+            return subprocess.call( cmd )
+        except KeyboardInterrupt:
+            pass
+        
     def _trySudoCall( self, cmd, errmsg=None ):
         try:
             self._callExternal(['sudo', '-n'] + cmd)

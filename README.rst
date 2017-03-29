@@ -1,5 +1,5 @@
 
-CID - FutoIn Continuous Integration & Delivery Tool - Reference Implementation
+CID - The Manager of Managers - FutoIn Continuous Integration & Delivery Tool
 ==============================================================================
 
 Intro

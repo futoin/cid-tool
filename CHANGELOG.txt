@@ -1,4 +1,7 @@
 
+=== (next) ===
+* Changed tool exec to execute in interactive shell
+
 === 0.4.2 ===
 * Fixed gemInstallArgs issue when exported in env
 

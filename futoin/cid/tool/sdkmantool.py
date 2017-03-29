@@ -1,5 +1,5 @@
 
-import os
+import os, subprocess
 
 from ..runenvtool import RunEnvTool
 from .bashtoolmixin import BashToolMixIn
@@ -43,3 +43,10 @@ Home: http://sdkman.io/
         env_init = os.path.join(dir, 'bin', 'sdkman-init.sh')
         env['sdkmanInit'] = env_init
         self._have_tool = os.path.exists(env_init)
+        
+        
+    def onExec( self, env, args ):
+        self._callBashInteractive(env,
+                '. {0} && sdk {1}'
+                .format(env['sdkmanInit'], subprocess.list2cmdline(args))
+        )

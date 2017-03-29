@@ -100,4 +100,12 @@ updates = {
 @return a list of files to be committed
 """
         return []
+    
+    def onExec( self, env, args ):
+        bin = env.get(self._name + 'Bin', None)
+
+        if bin :
+            self._callInteractive([bin] + args)
+        else :
+            raise NotImplementedError( "Tool exec has not been implemented for %s" % self._name )
 

@@ -9,3 +9,11 @@ class BashToolMixIn( object ):
             '--noprofile', '--norc',
             '-c', cmd,
         ], *args, **nargs )
+    
+    def _callBashInteractive( self, env, cmd ):
+        return self._callInteractive([
+            env['bashBin'],
+            '--noprofile', '--norc',
+            '-c', cmd,
+        ])
+
