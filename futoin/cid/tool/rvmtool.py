@@ -64,5 +64,6 @@ Stable RVM is used by default.
         env.setdefault('rvmVer', self.RVM_LATEST) 
         rvm_dir = env.setdefault('rvmDir', self.RVM_DIR_DEFAULT)
         rvm_bin_dir = os.path.join(rvm_dir, 'bin')
-        rvm_bin = env.setdefault('rvmBin', os.path.join(rvm_bin_dir, 'rvm'))
+        rvm_bin = env['rvmBin'] = os.path.join(rvm_bin_dir, 'rvm')
+        env['rvmInit'] = os.path.join(rvm_dir, 'scripts', 'rvm')
         self._have_tool = os.path.exists(rvm_bin)

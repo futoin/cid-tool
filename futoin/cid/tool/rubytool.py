@@ -53,9 +53,9 @@ if binary versions are not found for specific system.
 
         try:
             env_to_set = self._callBash( env,
-                'source {0}/scripts/rvm && \
+                'source {0} && \
                 rvm use {1} >/dev/null && \
-                env | grep "rvm"'.format(rvm_dir, ruby_ver),
+                env | grep "rvm"'.format(env['rvmInit'], ruby_ver),
                 verbose = False
             )
         except:
