@@ -28,11 +28,16 @@ class PathMixIn( object ):
                 return None
             raise e
         
-    def _callInteractive( self, cmd ):
-        try:
-            return subprocess.call( cmd )
-        except KeyboardInterrupt:
-            pass
+    def _callInteractive( self, cmd, replace=True ):
+        if replace:
+            sys.stdout.flush()
+            sys.stderr.flush()
+            os.execv(cmd[0], cmd)
+        else:
+            try:
+                return subprocess.call( cmd )
+            except KeyboardInterrupt:
+                pass
         
     def _trySudoCall( self, cmd, errmsg=None ):
         try:

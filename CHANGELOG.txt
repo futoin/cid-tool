@@ -1,6 +1,6 @@
 
 === (next) ===
-* Changed tool exec to execute in interactive shell
+* Changed "tool exec" to execute interactively instead of CID (not as child)
 
 === 0.4.2 ===
 * Fixed gemInstallArgs issue when exported in env
