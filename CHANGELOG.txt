@@ -1,4 +1,7 @@
 
+=== (next) ===
+* Fixed gemInstallArgs issue when exported in env
+
 === 0.4.1 ===
 
 * Fixed SDKMAN tools (gradle, maven) uninstall & accidental install on "test"

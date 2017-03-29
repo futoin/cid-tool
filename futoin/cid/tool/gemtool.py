@@ -46,4 +46,4 @@ gemInstallArgs is forcibly set by tool depending on its version.
             else :
                 installArgs += ['--no-ri', '--no-rdoc']
                 
-            env['gemInstallArgs'] = installArgs
+            env['gemInstallArgs'] = ' '.join(installArgs)

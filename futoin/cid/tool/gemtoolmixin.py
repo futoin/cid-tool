@@ -13,13 +13,13 @@ class GemToolMixIn( object ):
         if puppet_ver:
             version_arg = ['--version', puppet_ver]
 
-        self._callExternal( [ env['gemBin'], 'install', self._gemName() ] + env['gemInstallArgs'] + version_arg )
+        self._callExternal( [ env['gemBin'], 'install', self._gemName() ] + env['gemInstallArgs'].split(' ') + version_arg )
         
     def updateTool( self, env ):
         if env.get(self._name + 'Ver', None) :
             self._installTool( self, env )
         else :
-            self._callExternal( [ env['gemBin'], 'update', self._gemName() ] + env['gemInstallArgs'] )
+            self._callExternal( [ env['gemBin'], 'update', self._gemName() ] + env['gemInstallArgs'].split(' ') )
         
     def uninstallTool( self, env ):
         self._callExternal( [ env['gemBin'], 'uninstall', self._gemName() ] )
