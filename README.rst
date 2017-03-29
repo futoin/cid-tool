@@ -22,8 +22,9 @@ Supported technologies & tools (so far):
 * **cmake** (uses make in proper order)
 * **docker** (experimental)
     - **docker-compose**
-* **java**
-    - **java** for runtime (uses system packages)
+* **go**
+    - **gvm**
+* **java** for runtime (uses system packages)
     - **jdk** for development (uses system packages)
     - **sdkman** for SDK management (besides JRE & JDK)
     - **ant**

@@ -58,7 +58,8 @@ class citool_Tool_UTCommon ( citool_Tool_UTBase ) :
 
 # 10
 #-----
-for t in ['bash', 'curl', 'git', 'hg', 'svn', 'gpg', 'scp', 'ssh', 'make', 'cmake', 'tar', 'unzip', 'java', 'jdk']:
+for t in ['bash', 'curl', 'git', 'hg', 'svn', 'gpg', 'scp', 'ssh',
+          'make', 'cmake', 'tar', 'unzip', 'java', 'jdk']:
     cls = 'citool_Tool_10_' + t
     globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
         '__test__' : True,
@@ -92,7 +93,8 @@ for t in ['java', 'jdk']:
     
 # 20
 #-----
-for t in ['nvm', 'rvm', 'phpbuild', 'sdkman', 'ant', 'gradle', 'maven', 'sbt', 'scala']:
+for t in ['nvm', 'rvm', 'phpbuild', 'sdkman', 'ant',
+          'gradle', 'maven', 'sbt', 'scala', 'gvm']:
     cls = 'citool_Tool_20_' + t
     globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
         '__test__' : True,
@@ -101,7 +103,7 @@ for t in ['nvm', 'rvm', 'phpbuild', 'sdkman', 'ant', 'gradle', 'maven', 'sbt', '
 
 # 30
 #-----
-for t in ['node']: # python
+for t in ['node', 'go']:
     cls = 'citool_Tool_30_' + t
     globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
         '__test__' : True,
@@ -117,6 +119,12 @@ mixed_tools = {
         'env': {
             'pythonVer': '2',
         },
+        'managed': False,
+    },
+    'php' : {
+        'managed': False,
+    },
+    'ruby' : {
         'managed': False,
     },
 }

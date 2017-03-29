@@ -1,6 +1,7 @@
 
 === (next) ===
 * Changed "tool exec" to execute interactively instead of CID (not as child)
+* Added GVM and Golang support
 
 === 0.4.2 ===
 * Fixed gemInstallArgs issue when exported in env
