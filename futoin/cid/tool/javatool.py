@@ -4,7 +4,16 @@ import os, glob
 from ..runtimetool import RuntimeTool
 
 class javaTool( RuntimeTool ):
-    def _envNames( self ) :
+    """Java Runtime Environment.
+    
+Home: http://openjdk.java.net/
+
+Due to issues with Oracle's licensing, cid
+supports only automatic installation of OpenJDK.
+
+javaVer supports only one digits like 7, 8, 9.
+"""
+    def envNames( self ) :
         return ['javaBin', 'javaVer']
     
     def _installTool( self, env ):
@@ -38,7 +47,7 @@ class javaTool( RuntimeTool ):
             # RedHat
             "/usr/lib/jvm/jre-1.{0}.0/bin/java".format(ver),
             # OpenSuse
-            "/usr/lib*/jvm/jre-1.7.0/bin/java".format(ver),
+            "/usr/lib*/jvm/jre-1.{0}.0/bin/java".format(ver),
             # Default oracle
             "/opt/jdk/jdk1.{0}*/bin/java".format(ver),
         ]

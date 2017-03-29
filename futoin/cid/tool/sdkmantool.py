@@ -5,13 +5,16 @@ from ..runenvtool import RunEnvTool
 from .bashtoolmixin import BashToolMixIn
 
 class sdkmanTool( BashToolMixIn, RunEnvTool ):
-    "SDK Man for Java"
+    """SDK Man for Java.
+
+Home: http://sdkman.io/
+"""
     SDKMAN_DIR_DEFAULT = os.path.join(os.environ['HOME'], '.sdkman')
 
     def getDeps( self ) :
         return [ 'bash', 'curl', 'unzip', 'zip' ]
             
-    def _envNames( self ) :
+    def envNames( self ) :
         return ['sdkmanDir', 'sdkmanGet']
     
     def _installTool( self, env ):

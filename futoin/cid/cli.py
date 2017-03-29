@@ -16,7 +16,7 @@ Usage:
     cid tool exec <tool_name> [-- <tool_arg>...]
     cid tool (install|uninstall|update|test|env) [<tool_name>]
     cid tool (prepare|build|check|package|migrate) <tool_name>
-    cid tool list [describe]
+    cid tool list
     cid tool describe <tool_name>
 
 Options:
@@ -100,7 +100,7 @@ def run():
             if args['exec']:
                 cit.tool_exec( tool, args['<tool_arg>'] )
             elif args['list']:
-                cit.tool_list(args['describe'])
+                cit.tool_list()
             else:
                 subcmds = [
                     'install',

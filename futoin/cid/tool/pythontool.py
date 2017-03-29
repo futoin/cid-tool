@@ -6,13 +6,20 @@ import os
 from ..runtimetool import RuntimeTool
 
 class pythonTool( RuntimeTool ):
+    """Python is a programming language.
+    
+Home: https://www.python.org/
+
+Only the first part of pythonVer is used for installation of
+system packages OS-specific way.
+"""    
     VER_CMD = 'import sys; print( sys.version[:3] )'
     
     def getPostDeps( self ) :
         # hackish hack
         return ['virtualenv']
     
-    def _envNames( self ) :
+    def envNames( self ) :
         return ['pythonBin', 'pythonVer']
     
     def _installTool( self, env ):

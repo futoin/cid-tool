@@ -3,6 +3,17 @@ from ..buildtool import BuildTool
 from .sdkmantoolmixin import SdkmanToolMixIn
 
 class antTool( SdkmanToolMixIn, BuildTool ):
+    """Ant build tool for Java applications.
+    
+Home: http://ant.apache.org/
+
+Ant is auto-detected based on build.xml.
+The tool assumes the following targets: clean, compile, jar, run
+
+Ant is setup through SDKMan!
+
+Note: If detected Java version is less than 8 then Ant 1.9.8 is used.
+"""
     def autoDetect( self, config ) :
         return self._autoDetectByCfg(
                 config,

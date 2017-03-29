@@ -28,19 +28,19 @@ class SubTool( PathMixIn, PackageMixIn, UtilMixIn, object ):
     def _installTool( self, env ):
         raise NotImplementedError( "Tool (%s) must be manually installed"  % self._name )
     
-    def _envNames( self ) :
+    def envNames( self ) :
         return [ self._name + 'Bin' ]
     
     def importEnv( self, env ):
         environ = os.environ
 
-        for name in self._envNames():
+        for name in self.envNames():
             val = environ.get(name, None)
             if val is not None:
                 env[name] = val
                 
     def exportEnv( self, env, dst):
-        for name in self._envNames():
+        for name in self.envNames():
             if name in env:
                 dst[name] = env[name]
     

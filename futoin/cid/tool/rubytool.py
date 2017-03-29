@@ -3,6 +3,15 @@ from ..runtimetool import RuntimeTool
 from .bashtoolmixin import BashToolMixIn
 
 class rubyTool( BashToolMixIn, RuntimeTool ):
+    """Ruby is a dynamic, open source programming language.
+    
+Home: https://www.ruby-lang.org/en/
+
+System Ruby is used by default.
+If rubyVer is set then RVM is used to setup custom rubies.
+That may lead to long time and resource consumption due to compilation,
+if binary versions are not found for specific system.
+"""
     def getDeps( self ) :
         return [ 'rvm' ]
 
@@ -34,7 +43,7 @@ class rubyTool( BashToolMixIn, RuntimeTool ):
             ])
             self._have_tool = False
 
-    def _envNames( self ) :
+    def envNames( self ) :
         return ['rubyVer', 'rubyBin' ]
 
     def initEnv( self, env ) :

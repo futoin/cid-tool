@@ -5,6 +5,12 @@ from ..buildtool import BuildTool
 from .npmtoolmixin import NpmToolMixIn
 
 class bowerTool( NpmToolMixIn, BuildTool ):
+    """Bower: a package manager for the web.
+    
+Home: https://bower.io/
+
+Auto-detected based on bower.json
+"""
     BOWER_JSON = 'bower.json'
     
     def autoDetect( self, config ) :

@@ -4,6 +4,14 @@ from ..testtool import TestTool
 from .sdkmantoolmixin import SdkmanToolMixIn
 
 class mavenTool( SdkmanToolMixIn, BuildTool, TestTool ):
+    """Apache Maven is a software project management and comprehension tool.
+
+Home: https://maven.apache.org/
+
+Auto-detected based on pom.xml
+
+Expects clean, compile, package and test targets.
+"""    
     def autoDetect( self, config ) :
         return self._autoDetectByCfg(
                 config,

@@ -5,6 +5,10 @@ from ..runtimetool import RuntimeTool
 from .bashtoolmixin import BashToolMixIn
 
 class nodeTool( BashToolMixIn, RuntimeTool ):
+    """Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine.
+    
+Home: https://nodejs.org/en/    
+"""
     def getDeps( self ) :
         return [ 'nvm', 'bash' ]
 
@@ -26,7 +30,7 @@ class nodeTool( BashToolMixIn, RuntimeTool ):
               .format(nvm_dir, node_version) )
         self._have_tool = False
 
-    def _envNames( self ) :
+    def envNames( self ) :
         return ['nodeBin', 'nodeVer']
     
     def initEnv( self, env ) :

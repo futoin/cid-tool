@@ -4,6 +4,12 @@ from ..runenvtool import RunEnvTool
 from .piptoolmixin import PipToolMixIn
 
 class dockercomposeTool( PipToolMixIn, BuildTool, RunEnvTool ):
+    """Compose is a tool for defining and running multi-container Docker applications.
+    
+Home: https://docs.docker.com/compose/
+
+Experimental support.
+"""
     def autoDetect( self, config ) :
         return self._autoDetectByCfg(
                 config,

@@ -5,7 +5,12 @@ from ..runenvtool import RunEnvTool
 from .bashtoolmixin import BashToolMixIn
 
 class rvmTool( BashToolMixIn, RunEnvTool ):
-    "Ruby Version Manager"
+    """Ruby Version Manager.
+    
+Home: https://rvm.io/
+
+Stable RVM is used by default.
+"""
     
     RVM_DIR_DEFAULT = os.path.join(os.environ['HOME'], '.rvm')
     RVM_LATEST = 'stable'
@@ -48,7 +53,7 @@ class rvmTool( BashToolMixIn, RunEnvTool ):
 
         self._have_tool = False
 
-    def _envNames( self ) :
+    def envNames( self ) :
         return ['rvmVer', 'rvmDir', 'rvmBin', 'rvmGet', 'rvmGpgKey' ]
 
     def initEnv( self, env ) :

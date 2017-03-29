@@ -5,7 +5,10 @@ from ..runenvtool import RunEnvTool
 from .bashtoolmixin import BashToolMixIn
 
 class nvmTool( BashToolMixIn, RunEnvTool ):
-    "Node Version Manager"
+    """Node Version Manager.
+
+Home: https://github.com/creationix/nvm    
+"""
     NVM_DIR_DEFAULT = os.path.join(os.environ['HOME'], '.nvm')
     NVM_LATEST = '$(git describe --abbrev=0 --tags --match "v[0-9]*")'
 
@@ -38,7 +41,7 @@ class nvmTool( BashToolMixIn, RunEnvTool ):
             
         self._have_tool = False
             
-    def _envNames( self ) :
+    def envNames( self ) :
         return ['nvmDir', 'nvmGit', 'nvmVer']
     
     def initEnv( self, env ) :

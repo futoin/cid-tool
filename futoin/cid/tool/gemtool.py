@@ -4,11 +4,25 @@ import os
 from ..buildtool import BuildTool
 
 class gemTool( BuildTool ):
+    """RubyGems: Find, install, and publish RubyGems.
+    
+Home: https://rubygems.org/
+
+If rubyVer is equal to system then gems are installed in
+user's folder gemDir.
+
+gemDir is equal to ~/.gem by default.
+
+gemInstallArgs is forcibly set by tool depending on its version.
+"""    
     def getDeps( self ) :
         return [ 'ruby' ]
         
     def uninstallTool( self, env ):
         pass
+    
+    def envNames(self):
+        return ['gemBin', 'gemDir', 'gemInstallArgs']
     
     def initEnv( self, env ) :
         installArgs = []

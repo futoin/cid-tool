@@ -6,6 +6,10 @@ from ..vcstool import VcsTool
 from ..rmstool import RmsTool
 
 class svnTool( VcsTool, RmsTool ):
+    """Apache Subversion: Enterprise-class centralized version control for the masses.
+    
+Home: https://subversion.apache.org/
+"""    
     _rev = None
     
     def _installTool( self, env ):

@@ -4,6 +4,12 @@ import os
 from ..buildtool import BuildTool
 
 class pipTool( BuildTool ):
+    """The PyPA recommended tool for installing Python packages.
+    
+Home: https://pypi.python.org/pypi/pip
+
+Auto-detected based on requirements.txt
+"""    
     REQUIREMENTS_FILE = 'requirements.txt'
 
     def autoDetect( self, config ) :
@@ -15,7 +21,7 @@ class pipTool( BuildTool ):
     def getDeps( self ) :
         return [ 'python', 'virtualenv' ]
 
-    def _envNames( self ) :
+    def envNames( self ) :
         return ['pipBin', 'pipVer']
 
     def _installTool( self, env ):

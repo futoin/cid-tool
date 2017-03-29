@@ -2,7 +2,13 @@
 from ..runenvtool import RunEnvTool
 
 class gpgTool( RunEnvTool ):
-    def _envNames( self ) :
+    """The GNU Privacy Guard.
+
+Home: https://www.gnupg.org/
+
+gpgKeyServer is hkp://keyserver.ubuntu.com:80 by default
+"""    
+    def envNames( self ) :
         return ['gpgBin', 'gpgKeyServer']
    
     def _installTool( self, env ):

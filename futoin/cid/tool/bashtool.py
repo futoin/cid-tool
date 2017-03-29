@@ -2,4 +2,7 @@
 from ..runenvtool import RunEnvTool
 
 class bashTool( RunEnvTool ):
-    pass
+    """Bash is an sh-compatible command language interpreter.
+    
+Mostly used for internal purposes.
+"""

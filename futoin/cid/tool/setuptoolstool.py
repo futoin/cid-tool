@@ -6,6 +6,12 @@ from ..testtool import TestTool
 from .piptoolmixin import PipToolMixIn
 
 class setuptoolsTool( PipToolMixIn, BuildTool, TestTool ):
+    """Easily download, build, install, upgrade, and uninstall Python packages.
+    
+Home: https://pypi.python.org/pypi/setuptools
+
+Not assumed to be used directly.
+"""    
     def autoDetect( self, config ) :
         return self._autoDetectByCfg(
                 config,

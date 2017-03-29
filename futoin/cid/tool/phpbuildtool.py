@@ -5,7 +5,10 @@ from ..runenvtool import RunEnvTool
 from .bashtoolmixin import BashToolMixIn
 
 class phpbuildTool( BashToolMixIn, RunEnvTool ):
-    "php build tool"
+    """Builds PHP so that multiple versions can be used side by side.
+    
+Home: https://github.com/php-build/php-build
+"""
     PHPBUILD_DIR_DEFAULT = os.path.join(os.environ['HOME'], '.phpbuild')
     PHPBUILD_LATEST = 'master'
 
@@ -38,7 +41,7 @@ class phpbuildTool( BashToolMixIn, RunEnvTool ):
             
         self._have_tool = False
             
-    def _envNames( self ) :
+    def envNames( self ) :
         return ['phpbuildDir', 'phpbuildBin', 'phpbuildGit', 'phpbuildVer']
     
     def initEnv( self, env ) :

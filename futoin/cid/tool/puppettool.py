@@ -6,9 +6,17 @@ from .gemtoolmixin import GemToolMixIn
 
 
 class puppetTool( GemToolMixIn, BuildTool ):
+    """Puppet system automation.
+    
+Home: https://puppet.com/
+
+Auto-detected based on metadata.json
+
+Primary purpose is to support Puppet module development.
+"""    
     METADATA_FILE = 'metadata.json'
 
-    def _envNames( self ) :
+    def envNames( self ) :
         return ['puppetVer', 'puppetBin' ]
     
     def initEnv( self, env ):

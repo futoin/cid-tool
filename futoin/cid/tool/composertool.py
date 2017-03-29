@@ -5,6 +5,16 @@ from ..buildtool import BuildTool
 from .bashtoolmixin import BashToolMixIn
 
 class composerTool( BashToolMixIn, BuildTool ):
+    """Dependency Manager for PHP.
+    
+Home: https://getcomposer.org/
+
+Auto-detected based on composer.json
+
+Composer is installed in composerDir as single Phar with "composer" name without
+extension.
+composerDir is equal to user's ~/bin/ folder by default.
+"""
     COMPOSER_JSON = 'composer.json'
     
     def _installTool( self, env ):
@@ -26,7 +36,7 @@ class composerTool( BashToolMixIn, BuildTool ):
         os.remove(env['composerBin'])
         self._have_tool = False
         
-    def _envNames( self ) :
+    def envNames( self ) :
         return [ 'composerDir', 'composerBin', 'composerGet' ]
 
     def initEnv( self, env ) :

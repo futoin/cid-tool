@@ -10,6 +10,8 @@
 * Updated BuildTools tests
 * Changed default tool order to 0
 * Added "cid tool list" and "cid tool describe" commands
+* Updated README with better description of commands
+* Added basic documentation of supported tools
 
 === 0.4.0 ===
 

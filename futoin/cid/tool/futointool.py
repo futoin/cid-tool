@@ -2,6 +2,14 @@
 from ..runenvtool import RunEnvTool
 
 class futoinTool( RunEnvTool ):
+    """futoin.json updater as defined in FTN16.
+    
+Home: https://github.com/futoin/specs/blob/master/draft/ftn16_cid_tool.md
+
+Auto-detected based on futoin.json
+
+futoin.json is the only file read by FutoIn CID itself.
+"""
     def autoDetect( self, config ) :
         return self._autoDetectByCfg( config, 'futoin.json' )
 

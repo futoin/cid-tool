@@ -3,6 +3,12 @@ from ..buildtool import BuildTool
 from .npmtoolmixin import NpmToolMixIn
 
 class gruntTool( NpmToolMixIn, BuildTool ):
+    """Grunt: The JavaScript Task Runner.
+    
+Home: https://gruntjs.com/    
+
+Auto-detected based on Gruntfile.json or Gruntfile.coffee
+"""    
     def autoDetect( self, config ) :
         return self._autoDetectByCfg(
                 config,

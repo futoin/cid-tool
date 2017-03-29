@@ -4,10 +4,19 @@ import os, glob
 from ..buildtool import BuildTool
 
 class jdkTool( BuildTool ):
+    """Java Development Kit.
+    
+Home: http://openjdk.java.net/
+
+Due to issues with Oracle's licensing, cid
+supports only automatic installation of OpenJDK.
+
+javaVer supports only one digits like 7, 8, 9.
+"""
     def getDeps( self ) :
         return ['java']
     
-    def _envNames( self ) :
+    def envNames( self ) :
         return ['jdkBin', 'jdkVer']
     
     def _installTool( self, env ):
@@ -42,7 +51,7 @@ class jdkTool( BuildTool ):
             # RedHat
             "/usr/lib/jvm/java-1.{0}.0/bin/javac".format(ver),
             # OpenSuse
-            "/usr/lib*/jvm/java-1.7.0/bin/javac".format(ver),
+            "/usr/lib*/jvm/java-1.{0}.0/bin/javac".format(ver),
             # Default oracle
             "/opt/jdk/jdk1.{0}*/bin/javac".format(ver),
         ]

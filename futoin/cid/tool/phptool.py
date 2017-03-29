@@ -7,6 +7,15 @@ from ..runtimetool import RuntimeTool
 from .bashtoolmixin import BashToolMixIn
 
 class phpTool( BashToolMixIn, RuntimeTool ):
+    """PHP is a popular general-purpose scripting language that is especially suited to web development.
+    
+Home: http://php.net/
+
+By default system PHP is used.
+
+However, if phpVer is set then we use php-build which make consume a lot of time and
+resources due to lack of trusted binary builds.
+"""    
     PHP_DIR = os.path.join(os.environ['HOME'], '.php')
     
     def getDeps( self ) :
@@ -45,7 +54,7 @@ class phpTool( BashToolMixIn, RuntimeTool ):
 
         self._have_tool = False
     
-    def _envNames( self ) :
+    def envNames( self ) :
         return ['phpDir', 'phpBin', 'phpVer', 'phpfpmBin']
     
     def initEnv( self, env ) :

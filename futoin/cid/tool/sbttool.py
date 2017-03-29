@@ -4,6 +4,16 @@ from ..testtool import TestTool
 from .sdkmantoolmixin import SdkmanToolMixIn
 
 class sbtTool( SdkmanToolMixIn, BuildTool, TestTool ):
+    """The interactive build tool (Scala).
+    
+Home: http://www.scala-sbt.org/
+
+Auto-detected based on build.sbt
+
+Installed via SDKMan!
+
+First run of SBT may consume a lot of time on post-installation steps.
+"""
     def autoDetect( self, config ) :
         return self._autoDetectByCfg(
                 config,

@@ -5,6 +5,12 @@ from ..vcstool import VcsTool
 from .bashtoolmixin import BashToolMixIn
 
 class hgTool( BashToolMixIn, VcsTool ):
+    """Mercurial SCM.
+    
+Home: https://www.mercurial-scm.org/
+
+Auto-detected based on .hg folder
+"""
     def getDeps( self ) :
         return [ 'bash' ]
     

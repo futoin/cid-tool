@@ -188,15 +188,9 @@ Please see details in the FTN16 spec: ::
         Tool and all its dependencies are automatically installed.
         Note: auto-detection is skipped and tool is always run.
     
-    cid tool list [describe]
+    cid tool list
         Show a list of supported tools.
-        "describe" - also shows tool's documentation.
-        Note: individual tool describe is more verbose.
 
     cid tool describe <tool_name>
         Show tool's detailed description.
-
-
-Detailed list of tools
-----------------------
 

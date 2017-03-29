@@ -5,6 +5,8 @@ import re
 from ..rmstool import RmsTool
 
 class scpTool( RmsTool ):
+    """secure copy."""
+    
     REMOTE_PATTERN = '^([a-zA-Z][a-zA-Z0-9_]+@[a-zA-Z][a-zA-Z0-9_]+)(:(.+))?$'
     REMOTE_GRP_USER_HOST = 1
     REMOTE_GRP_PATH = 3

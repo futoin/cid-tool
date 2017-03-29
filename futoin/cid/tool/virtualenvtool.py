@@ -5,6 +5,10 @@ from ..runenvtool import RunEnvTool
 from .bashtoolmixin import BashToolMixIn
 
 class virtualenvTool( BashToolMixIn, RunEnvTool ):
+    """Virtual Python Environment builder.
+    
+Home: https://pypi.python.org/pypi/virtualenv
+"""
     def getDeps( self ) :
         return [ 'bash', 'python' ]
     
@@ -14,7 +18,7 @@ class virtualenvTool( BashToolMixIn, RunEnvTool ):
         # So, CID can be in system and in each virtualenv as well
         return ['cid']
     
-    def _envNames( self ) :
+    def envNames( self ) :
         return [ 'virtualenvDir', 'virtualenvVer']
     
     def _installTool( self, env ):

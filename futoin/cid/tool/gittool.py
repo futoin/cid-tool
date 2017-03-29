@@ -5,6 +5,15 @@ from ..vcstool import VcsTool
 from .bashtoolmixin import BashToolMixIn
 
 class gitTool( BashToolMixIn, VcsTool ):
+    """Git distributed version control system.
+    
+Home: https://git-scm.com/
+
+Auto-detected based on .git folder.
+
+Git tool forcibly sets user.email and user.name, 
+if not set by user.
+"""    
     _rev = None
     
     def getDeps(self):

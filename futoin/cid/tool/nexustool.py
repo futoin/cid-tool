@@ -2,4 +2,8 @@
 from ..rmstool import RmsTool
 
 class nexusTool( RmsTool ):
-    pass
+    """Sonatype Nexus RMS.
+Home: http://www.sonatype.org/nexus/
+
+NOT IMPLEMENTED YET.
+"""
