@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.4.4 ===
 * Fixed to make GVM happy with toolchain deps even for binary installation
 * Added sanitization of futoin.json input variables:
     - Unknown variables are dropped for future compatibility
