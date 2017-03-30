@@ -1,6 +1,10 @@
 
 === (next) ===
 * Fixed to make GVM happy with toolchain deps even for binary installation
+* Added sanitization of futoin.json input variables:
+    - Unknown variables are dropped for future compatibility
+    - Known variables have basic type check with abort on error
+* Changed exception stack trace to more clean error messages
 
 === 0.4.3 ===
 * Changed "tool exec" to execute interactively instead of CID (not as child)
