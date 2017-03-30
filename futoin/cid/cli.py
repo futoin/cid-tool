@@ -2,17 +2,17 @@
 """FutoIn Continuous Integration & Delivery Tool.
 
 Usage:
-    cid tag <branch> [<next_version>] [--vcsRepo vcs_url] [--wcDir wc_dir]
-    cid prepare [<vcs_ref>] [--vcsRepo vcs_url] [--wcDir wc_dir]
+    cid tag <branch> [<next_version>] [--vcsRepo=vcs_repo] [--wcDir=wc_dir]
+    cid prepare [<vcs_ref>] [--vcsRepo=vcs_repo] [--wcDir=wc_dir]
     cid build [--debug]
     cid package
     cid check [--permissive]
-    cid promote <package> <rms_pool> [--rmsRepo rms_url] [--rmsHash type_value]
-    cid deploy vcstag [<vcs_ref>] [--vcsRepo vcs_url] [--redeploy] [--deployDir deploy_dir]    
-    cid deploy vcsref <vcs_ref> [--vcsRepo vcs_url] [--redeploy] [--deployDir deploy_dir]    
-    cid deploy [rms] <rms_pool> [<package>] [--rmsRepo rms_url] [--rmsHash type_value] [--redeploy] [--deployDir deploy_dir] [--build]
+    cid promote <package> <rms_pool> [--rmsRepo=rms_repo] [--rmsHash=rms_hash]
+    cid deploy vcstag [<vcs_ref>] [--vcsRepo=vcs_repo] [--redeploy] [--deployDir=deploy_dir]
+    cid deploy vcsref <vcs_ref> [--vcsRepo=vcs_repo] [--redeploy] [--deployDir=deploy_dir]
+    cid deploy [rms] <rms_pool> [<package>] [--rmsRepo=rms_repo] [--rmsHash=rms_hash] [--redeploy] [--deployDir=deploy_dir] [--build]
     cid run [<command>]
-    cid ci_build <vcs_ref> <rms_pool> [--vcsRepo vcs_url] [--rmsRepo rms_url] [--permissive] [--debug]
+    cid ci_build <vcs_ref> <rms_pool> [--vcsRepo=vcs_repo] [--rmsRepo=rms_repo] [--permissive] [--debug]
     cid tool exec <tool_name> [-- <tool_arg>...]
     cid tool (install|uninstall|update|test|env) [<tool_name>]
     cid tool (prepare|build|check|package|migrate) <tool_name>
@@ -21,15 +21,15 @@ Usage:
 
 Options:
     -h --help                       Show this screen.
-    --vcsRepo vcs_type:vcs_url      VCS repository URL
-    --rmsRepo rms_type:rms_url      RMS repository URL
-    --wcDir wc_dir                  Working copy directory (project root)
-    --rmsHash hash_type:value       Package hash for validation
-    --deployDir deploy_dir          Destination for deployment
-    --redeploy                      Force redeploy
-    --build                         Build during deploy
-    --permissive                    Ignore test failures
-    --debug                         Build in debug mode, if applicable
+    --vcsRepo=vcs_repo              VCS repository URL in vcs_type:vcs_url format.
+    --rmsRepo=rms_repo              RMS repository URL in rms_type:rms_url format.
+    --wcDir=wc_dir                  Working copy directory (project root).
+    --rmsHash=rms_hash              Package hash for validation in hash_type:value format.
+    --deployDir=deploy_dir          Destination for deployment.
+    --redeploy                      Force redeploy.
+    --build                         Build during deploy.
+    --permissive                    Ignore test failures.
+    --debug                         Build in debug mode, if applicable.
 """
 
 from __future__ import print_function, absolute_import
