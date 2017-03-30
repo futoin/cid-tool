@@ -118,21 +118,21 @@ Usage
 
 Please see details in the FTN16 spec: ::
 
-    cid tag <branch> [<next_version>] [--vcsRepo vcs_url] [--wcDir wc_dir]
+    cid tag <branch> [<next_version>] [--vcsRepo=<vcs_repo>] [--wcDir=<wc_dir>]
         Get the latest <branch>.
         Update source for release & commit.
         Create tag.
         If <next_version> is omitted, the smallest version part is incremented.
         Current version is determined by tools (e.g. from package.json)
     
-    cid prepare [<vcs_ref>] [--vcsRepo vcs_url] [--wcDir wc_dir]
+    cid prepare [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--wcDir=<wc_dir>]
         Retrieved the specific <vcs_ref>, if provided.
         --vcsRepo is required, if not in VCS working copy.
         Action depends on detected tools:
         * should clean up the project
         * should retrieve external dependencies
     
-    cid build
+    cid build [--debug]
         Action depends on detected tools.
         Runs tool-specific build/compilation.
     
@@ -146,28 +146,29 @@ Please see details in the FTN16 spec: ::
         Action depends on detected tools.
         Runs tool-specific test/validation.
     
-    cid promote <package> <rms_pool> [--rmsRepo rms_url]
-        [--rmsHash type_value]
+    cid promote <package> <rms_pool> [--rmsRepo=<rms_repo>]
+        [--rmsHash=<rms_hash>]
         Promote package to Release Management System (RMS) or manage
         package across RMS pools.
        
-    cid deploy vcstag [<vcs_ref>] [--vcsRepo vcs_url] [--redeploy]
-        [--deployDir deploy_dir]
+    cid deploy vcstag [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--redeploy]
+        [--deployDir=<deploy_dir>]
         Deploy from VCS tag.
        
-    cid deploy vcsref <vcs_ref> [--vcsRepo vcs_url] [--redeploy]
-        [--deployDir deploy_dir]
+    cid deploy vcsref <vcs_ref> [--vcsRepo=<vcs_repo>] [--redeploy]
+        [--deployDir=<deploy_dir>]
         Deploy from VCS branch.
        
-    cid deploy [rms] <rms_pool> [<package>] [--rmsRepo rms_url]
-        [--rmsHash type_value] [--redeploy] [--deployDir deploy_dir] [--build]
+    cid deploy [rms] <rms_pool> [<package>] [--rmsRepo=<rms_repo>]
+        [--rmsHash=<rms_hash>] [--redeploy] [--deployDir=<deploy_dir>]
+        [--build]
         Deploy from RMS.
     
     cid run [<command>]
         Not implemented yet.
     
-    cid ci_build <vcs_ref> <rms_pool> [--vcsRepo vcs_url] [--rmsRepo rms_url]
-        [--permissive]
+    cid ci_build <vcs_ref> <rms_pool> [--vcsRepo=<vcs_repo>]
+        [--rmsRepo=<rms_repo>] [--permissive] [--debug]
         Run prepare, build and package in one run.
     
     cid tool exec <tool_name> [-- <tool_arg>...]
