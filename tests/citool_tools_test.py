@@ -94,7 +94,7 @@ for t in ['java', 'jdk']:
 # 20
 #-----
 for t in ['nvm', 'rvm', 'phpbuild', 'sdkman', 'ant',
-          'gradle', 'maven', 'sbt', 'scala', 'gvm']:
+          'gradle', 'maven', 'sbt', 'scala', 'gvm', 'rustup']:
     cls = 'citool_Tool_20_' + t
     globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
         '__test__' : True,
@@ -127,6 +127,9 @@ mixed_tools = {
     'ruby' : {
         'managed': False,
     },
+    'rust' : {
+        'ver': '1.8.0',
+    }
 }
         
 if os.environ.get('CIDTEST_NO_COMPILE', '0') != '1':

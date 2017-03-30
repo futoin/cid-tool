@@ -47,6 +47,9 @@ Supported technologies & tools (so far):
     - **gen**
     - **bundler**
     - **rvm** (implicit)
+* **rust**
+    - **rustup**
+    - **cargo**
 * **scala**
     **sbt** - Simple Build Tools for Scala
 * **scp** - for RMS

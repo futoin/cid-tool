@@ -136,6 +136,21 @@ gem 'thor', '0.19.1'
 
 
 #=============================================================================
+class cid_cargo_Test(cid_BuildTool_UTBase):
+    __test__ = True
+    
+    @classmethod
+    def setUpTool(cls):
+        cls._call_citool( [
+            'tool', 'exec', cls.TOOL_NAME, '--',
+            'init', '--bin', '--name', 'hello',
+        ] )
+        
+    def _test_build( self ):
+        assert os.path.exists('target/release')
+        assert not os.path.exists('target/debug')
+
+#=============================================================================
 class cid_cmake_Test(cid_BuildTool_UTBase):
     __test__ = True
     
