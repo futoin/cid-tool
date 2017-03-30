@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.4.3 ===
 * Changed "tool exec" to execute interactively instead of CID (not as child)
 * Added GVM and Golang support
 * Added Rust, rustup and Cargo tool support
