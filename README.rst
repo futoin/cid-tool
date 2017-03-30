@@ -215,6 +215,7 @@ futoin.json is not strictly required, but it allows to use full power of CID.
         "examplerelease": "some.project.specific.release",
         "examplehelper": "some.other.helpertool"
       },
+      "vcs": "git",
       "tools": {
         "examplerelease": true,
         "python": "*",

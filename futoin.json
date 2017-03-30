@@ -7,6 +7,7 @@
   "plugins": {
     "release": "futoin.cid.misc.releasetool"
   },
+  "vcs": "git",
   "tools": {
     "release": "embedded",
     "python": "*",
