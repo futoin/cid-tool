@@ -5,6 +5,8 @@
     - Unknown variables are dropped for future compatibility
     - Known variables have basic type check with abort on error
 * Changed exception stack trace to more clean error messages
+* Fixed to auto-add futoin tool to project, if futoin.json is read from it
+    - Solves problem of disabled auto-detection
 
 === 0.4.3 ===
 * Changed "tool exec" to execute interactively instead of CID (not as child)

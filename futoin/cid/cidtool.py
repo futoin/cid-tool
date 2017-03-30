@@ -809,6 +809,11 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                     'Config variable "{0}" type "{1}" is not instance of "{2}"'
                     .format(k, v.__class__.__name__, req_t[0].__name__)
                 )
+
+        # Make sure futoinTool is enabled, if futoin.json is present.
+        # Otherwise, auto-detection gets disabled and futoin.json is not updated
+        if config['tools'] and 'futoin' not in config['tools']:
+            config['tools']['futoin'] = True
     
     def _loadJSON( self, file_name, defvalue ):
         try :
