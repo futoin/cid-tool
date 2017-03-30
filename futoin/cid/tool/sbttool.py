@@ -29,7 +29,7 @@ First run of SBT may consume a lot of time on post-installation steps.
     def onPackage( self, config ):
         self._callExternal( [ config['env']['sbtBin'], 'package' ] )
             
-    def onRun( self, config ):
+    def onRunDev( self, config ):
         self._callExternal( [ config['env']['sbtBin'], 'run' ] )
             
     def onCheck( self, config ):

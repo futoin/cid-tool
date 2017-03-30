@@ -35,7 +35,7 @@ Note: If detected Java version is less than 8 then Ant 1.9.8 is used.
     def onPackage( self, config ):
         self._callExternal( [ config['env']['antBin'], 'jar' ] )
         
-    def onRun( self, config ):
+    def onRunDev( self, config ):
         self._callExternal( [ config['env']['antBin'], 'run' ] )
 
             
