@@ -74,7 +74,7 @@ class PathMixIn( object ):
 
         if add_dir not in dir_list:
             if first :
-                dir_list[0:0] = add_dir
+                dir_list[0:0] = [add_dir]
             else :
                 dir_list.append(add_dir)
 

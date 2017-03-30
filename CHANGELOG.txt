@@ -4,6 +4,7 @@
 * Added GVM and Golang support
 * Fixed invalid handling of "tools" in futoin.json. Now, it expects a map
     of tool=>version pairs as described in FTN16
+* Fixed bug when path was not properly prepended, affects java, jdk, php
 
 === 0.4.2 ===
 * Fixed gemInstallArgs issue when exported in env

@@ -25,7 +25,8 @@ Home: https://github.com/moovweb/gvm
         self._callBash( env,
               '{0} < <({1} -s -S -L {2})'
                .format(env['bashBin'], env['curlBin'], env['gvmInstaller']),
-               suppress_fail=True)
+               suppress_fail=True # error when Go is not yet installed
+        )
             
     def updateTool( self, env ):
         self._installTool( env )
