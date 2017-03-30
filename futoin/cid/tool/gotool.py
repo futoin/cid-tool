@@ -16,6 +16,12 @@ through CID, but you can install source releases through
         return [ 'gvm', 'bash' ]
     
     def _installTool( self, env ):
+        # in case GVM is already installed without these deps
+        self._requireDeb(['binutils', 'bison', 'gcc', 'build-essential'])
+        self._requireRpm(['bison', 'gcc', 'glibc-devel'])
+        self._requireEmergeDepsOnly(['dev-lang/go'])
+        self._requirePacman(['bison', 'gcc', 'glibc',])
+
         self._callBash( env,
             'source {0} && gvm install {1} --binary'
             .format(env['gvmInit'], env['goVer'])
@@ -36,11 +42,14 @@ through CID, but you can install source releases through
 
     def initEnv( self, env ) :
         if 'goVer' not in env:
-            env['goVer'] = self._callBash( env,
-                'source {0} && gvm listall | egrep "go[0-9]\.[0-9]+(\.[0-9]+)?$" | sort -rV'
-                .format(env['gvmInit']),
-                verbose=False
-            ).split("\n")[0].strip()
+            try:
+                env['goVer'] = self._callBash( env,
+                    'source {0} && gvm listall | egrep "go[0-9]\.[0-9]+(\.[0-9]+)?$" | sort -rV'
+                    .format(env['gvmInit']),
+                    verbose=False
+                ).split("\n")[0].strip()
+            except:
+                return
             
         ver = env['goVer']
 

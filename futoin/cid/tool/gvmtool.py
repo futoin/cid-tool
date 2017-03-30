@@ -17,10 +17,10 @@ Home: https://github.com/moovweb/gvm
         return [ 'bash', 'git', 'hg', 'curl', 'make' ]
 
     def _installTool( self, env ):
-        #self._requireDeb(['binutils', 'bison', 'gcc', 'build-essential'])
-        #self._requireRpm(['bison', 'gcc', 'glibc-devel'])
-        #self._requireEmergeDepsOnly(['dev-lang/go'])
-        #self._requirePacman(['bison', 'gcc', 'glibc',])
+        self._requireDeb(['binutils', 'bison', 'gcc', 'build-essential'])
+        self._requireRpm(['bison', 'gcc', 'glibc-devel'])
+        self._requireEmergeDepsOnly(['dev-lang/go'])
+        self._requirePacman(['bison', 'gcc', 'glibc',])
 
         self._callBash( env,
               '{0} < <({1} -s -S -L {2})'

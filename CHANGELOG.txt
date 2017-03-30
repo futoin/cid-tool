@@ -1,4 +1,7 @@
 
+=== (next) ===
+* Fixed to make GVM happy with toolchain deps even for binary installation
+
 === 0.4.3 ===
 * Changed "tool exec" to execute interactively instead of CID (not as child)
 * Added GVM and Golang support
