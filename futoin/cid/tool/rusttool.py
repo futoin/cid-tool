@@ -1,9 +1,9 @@
 
 import os
 
-from ..buildtool import BuildTool
+from ..runtimetool import RuntimeTool
 
-class rustTool( BuildTool ):
+class rustTool( RuntimeTool ):
     """Rust is a systems programming language.
     
 Home: https://www.rust-lang.org

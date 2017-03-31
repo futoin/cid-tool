@@ -41,11 +41,15 @@ def cid_action( f ):
             fn = f.__name__
 
         if fn in config.get('actions', {}) :
-            for a in config['actions'][fn] :
-                if a == '<default>':
-                    f( self, *args, **kwargs )
-                else :
-                    _call_cmd( ['sh', '-c', a] )
+            for act in config['actions'][fn] :
+                if not isinstance(act, list):
+                    act = [act]
+                    
+                for cmd in act:
+                    if cmd == '<default>':
+                        f( self, *args, **kwargs )
+                    else :
+                        _call_cmd( ['sh', '-c', cmd] )
         else :
             f( self, *args, **kwargs )
     return custom_f
@@ -79,7 +83,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         'tools' : dict,
         'package' : list,
         'persistent' : list,
-        'main' : dict,
+        'entryPoints' : dict,
         'configenv' : dict,
         'webcfg' : dict,
         'actions' : dict,
@@ -810,10 +814,24 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                     .format(k, v.__class__.__name__, req_t[0].__name__)
                 )
 
+        #---
         # Make sure futoinTool is enabled, if futoin.json is present.
         # Otherwise, auto-detection gets disabled and futoin.json is not updated
-        if config['tools'] and 'futoin' not in config['tools']:
-            config['tools']['futoin'] = True
+        tools = config.get('tools', None)
+
+        if tools and 'futoin' not in tools:
+            tools['futoin'] = True
+        
+        #---
+        entry_points = config.get('entryPoints', None)
+
+        if entry_points:
+            for (en, ep) in entry_points.items():
+                for k in ['tool', 'file']:
+                    if k not in ep:
+                        error_exit('Entry point "{0}" is missing "{1}"'.format(en, k))
+                if 'tune' in ep and not isinstance(ep['tune'], dict):
+                    error_exit('Entry point "{0}" has invalid tune parameter'.format(en))
     
     def _loadJSON( self, file_name, defvalue ):
         try :
