@@ -550,7 +550,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         os.rename( 'current.tmp', 'current' )
         
         # Re-run
-        self.run( 'reload' )
+        self._reloadServices()
         
         # Cleanup old packages and deploy dirs
         self._deployCleanup( cleanup_whitelist )
@@ -576,6 +576,9 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             
             
     def _deployServices( self, subdir ):
+        pass
+    
+    def _reloadServices( self ):
         pass
     
     def run( self, command, args ):
