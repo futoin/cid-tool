@@ -61,3 +61,10 @@ javaVer supports only one digits like 7, 8, 9.
                 self._have_tool = True
                 break
             
+    def onRun( self, config, file, args, tune ):
+        env = config['env']
+        self._callInteractive([
+            env[self._name + 'Bin'], '-jar', file
+        ] + args)
+            
+            

@@ -3,6 +3,8 @@
 * Fixed to properly auto-add 'futoin' to existing config 'tools'
 * Added .entryPoints error checking
 * Fixed rustTool to inherit from RuntimeTool
+* Added experimental "cid run" command changes
+* Added dummy exeTool
 
 === 0.4.4 ===
 * Fixed to make GVM happy with toolchain deps even for binary installation

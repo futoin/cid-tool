@@ -24,6 +24,7 @@ from .rmstool import RmsTool
 from .buildtool import BuildTool
 from .testtool import TestTool
 from .migrationtool import MigrationTool
+from .runtimetool import RuntimeTool
 
 __all__ = ['CIDTool']
 
@@ -577,18 +578,58 @@ class CIDTool( PathMixIn, UtilMixIn ) :
     def _deployServices( self, subdir ):
         pass
     
-    @cid_action
-    def run( self, command ):
+    def run( self, command, args ):
         self._processWcDir()
         
         config = self._config
-        if config.get('vcs', None) :
-            self.runDev( command )
-            return
+        entry_points = config.get('entryPoints', {})
+        actions = config.get('actions', {})
+        
+        if command:
+            if command in entry_points:
+                ep = entry_points[command]
+                
+                # Do stuff required to get the tool ready
+                tool = ep['tool']
+                self._overrides['tool'] = tool
+                self._initConfig()
+                
+                # 
+                config = self._config
+                t = self._tool_impl[tool]
+                
+                if isinstance(t, RuntimeTool):
+                    t.onRun(config, ep['file'], args, ep.get('tune', {}))
+                else:
+                    error_exit('"{0}" does not support "run" command')
+                
+            elif command in actions:
+                act = actions[command]
+                
+                if not isinstance(act, list):
+                    act = [act]
+                
+                for cmd in act:
+                    _call_cmd( ['sh', '-c', '{0} {1}'.format(
+                        cmd, subprocess.list2cmdline(args)
+                    )] )
+            else:
+                error_exit('Unknown "{0}" action or entry point'.format(command))
+        else:
+            for cmd in entry_points:
+                pid = os.fork()
 
-    def runDev( self, command ):
-        pass
-   
+                if not pid:
+                    sys.stdin.close()
+                    os.dup2(open(os.devnull, 'r'), 0)
+                    self.run(cmd, None)
+                    
+            i = len(entry_points)
+            
+            while i > 0:
+                os.wait()
+                i -= 1
+                   
     @cid_action
     def ci_build( self, vcs_ref, rms_pool ):
         config = self._config

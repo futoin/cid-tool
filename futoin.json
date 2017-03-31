@@ -12,5 +12,11 @@
     "release": "embedded",
     "python": "*",
     "setuptools": true
+  },
+  "entryPoints": {
+    "main": {
+      "tool" : "exe",
+      "file" : "bin/cid"
+    }
   }
 }

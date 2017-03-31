@@ -11,7 +11,8 @@ Usage:
     cid deploy vcstag [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>]
     cid deploy vcsref <vcs_ref> [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>]
     cid deploy [rms] <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--rmsHash=<rms_hash>] [--redeploy] [--deployDir=<deploy_dir>] [--build]
-    cid run [<command>]
+    cid run
+    cid run <command> [<command_arg>...]
     cid ci_build <vcs_ref> <rms_pool> [--vcsRepo=<vcs_repo>] [--rmsRepo=<rms_repo>] [--permissive] [--debug]
     cid tool exec <tool_name> [-- <tool_arg>...]
     cid tool (install|uninstall|update|test|env) [<tool_name>]
@@ -150,7 +151,7 @@ def run():
             else :
                 cit.deploy( 'rms', args['<rms_pool>'], args['<package>'] )
         elif args['run'] :
-            cit.run( args['<command>'] or 'start' )
+            cit.run( args['<command>'], args['<command_arg>'] )
         elif args['ci_build'] :
             cit.ci_build( args['<vcs_ref>'], args['<rms_pool>'] )
         else:
