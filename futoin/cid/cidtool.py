@@ -584,6 +584,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         config = self._config
         entry_points = config.get('entryPoints', {})
         actions = config.get('actions', {})
+        args = args or []
         
         if command:
             if command in entry_points:
@@ -621,7 +622,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
 
                 if not pid:
                     sys.stdin.close()
-                    os.dup2(open(os.devnull, 'r'), 0)
+                    sys.stdin = open(os.devnull, 'r')
                     self.run(cmd, None)
                     
             i = len(entry_points)
