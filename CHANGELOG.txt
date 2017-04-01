@@ -7,6 +7,12 @@
 * Added dummy exeTool
 * Changed to run vagrant unit tests outside of sync folder
 * Added support for APT/DNF/Yum/Zypper custom repositories
+* Changed to use Zulu JDK instead of system packages
+    - Still possible to override with custom install & jdkDir
+    - changed jdkTool to support jdkDir instead of jdkBin
+    - Added setup of JAVA_HOME & JRE_HOME for javaTool
+    - Added setup of JAVA_HOME & JDK_HOME for jdkTool
+    - ArchLinux & Gentoo still use system OpenJDK builds
 
 === 0.4.4 ===
 * Fixed to make GVM happy with toolchain deps even for binary installation
