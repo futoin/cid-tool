@@ -14,10 +14,10 @@ Home: https://github.com/moovweb/gvm
     GVM_INSTALLER_DEFAULT = 'https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer'
 
     def getDeps( self ) :
-        return [ 'bash', 'git', 'hg', 'curl', 'make' ]
+        return [ 'bash', 'git', 'hg', 'curl', 'make', 'binutils' ]
 
     def _installTool( self, env ):
-        self._requireDeb(['binutils', 'bison', 'gcc', 'build-essential'])
+        self._requireDeb(['bison', 'gcc', 'build-essential'])
         self._requireRpm(['bison', 'gcc', 'glibc-devel'])
         self._requireEmergeDepsOnly(['dev-lang/go'])
         self._requirePacman(['bison', 'gcc', 'glibc',])

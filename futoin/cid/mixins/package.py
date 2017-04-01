@@ -73,7 +73,7 @@ class PackageMixIn( object ):
             )
         
     def _addAptRepo(self, name, entry, gpg_key):
-        self._requireDeb(['software-properties-common'])
+        self._requireDeb(['software-properties-common', 'apt-transport-https', 'ca-certificates'])
         apt_add_repository = self._which('apt-add-repository')
         
         if not apt_add_repository:
@@ -125,6 +125,7 @@ class PackageMixIn( object ):
         yumcfgmgr = self._which('yum-config-manager')
         
         if dnf:
+            self._requireYum(['dnf-plugins-core'])
             self._trySudoCall(
                 [dnf, 'config-manager', '--add-repo', url],
                 errmsg = 'WARNING: you may need to import GPG key manually!'

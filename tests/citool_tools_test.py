@@ -59,7 +59,7 @@ class citool_Tool_UTCommon ( citool_Tool_UTBase ) :
 # 10
 #-----
 for t in ['bash', 'curl', 'git', 'hg', 'svn', 'gpg', 'scp', 'ssh',
-          'make', 'cmake', 'tar', 'unzip']:
+          'make', 'cmake', 'tar', 'unzip', 'gcc', 'binutils']:
     cls = 'citool_Tool_10_' + t
     globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
         '__test__' : True,

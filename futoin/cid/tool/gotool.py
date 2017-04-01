@@ -13,14 +13,14 @@ through CID, but you can install source releases through
 "cid tool exec gvm -- install sourcetag".
 """
     def getDeps( self ) :
-        return [ 'gvm', 'bash' ]
+        return [ 'gvm', 'bash', 'binutils', 'gcc' ]
     
     def _installTool( self, env ):
         # in case GVM is already installed without these deps
-        self._requireDeb(['binutils', 'bison', 'gcc', 'build-essential'])
-        self._requireRpm(['bison', 'gcc', 'glibc-devel'])
+        self._requireDeb(['bison', 'build-essential'])
+        self._requireRpm(['bison', 'glibc-devel'])
         self._requireEmergeDepsOnly(['dev-lang/go'])
-        self._requirePacman(['bison', 'gcc', 'glibc',])
+        self._requirePacman(['bison', 'glibc',])
 
         self._callBash( env,
             'source {0} && gvm install {1} --binary'

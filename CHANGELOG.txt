@@ -17,6 +17,7 @@
     requirements for dependencies
 * Updated SDKMAN-based tools to properly require minimal Java version:
     - Gradle (8), Maven (7), SBT(8), Scala(8)
+* Added gcc and binutils tools
 
 === 0.4.4 ===
 * Fixed to make GVM happy with toolchain deps even for binary installation
