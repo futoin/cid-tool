@@ -334,7 +334,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
     def _lockCommon( self, lock, file, flags ):
         assert self.__dict__[lock] is None
-        self.__dict__[lock] = os.open(self.DEPLOY_LOCK_FILE, os.O_WRONLY|os.O_CREAT)
+        self.__dict__[lock] = os.open(file, os.O_WRONLY|os.O_CREAT)
         try:
             fcntl.flock(self.__dict__[lock], flags)
         except Exception as e:
@@ -376,6 +376,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             self._vcstag_deploy(p1)
         else:
             error_exit( 'Not supported deploy mode: ' + mode )
+            
+        self._deployUnlock()
         
     def _rms_deploy( self, rms_pool, package=None ):
         config = self._config
@@ -559,7 +561,6 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         # Cleanup old packages and deploy dirs
         self._deployCleanup( cleanup_whitelist )
-        self._deployUnlock()
         
     def _deployCleanup( self, whitelist ):
         if os.path.exists('current'):
