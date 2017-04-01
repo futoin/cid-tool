@@ -4,7 +4,7 @@ from __future__ import print_function, absolute_import
 from .citool_utbase import citool_UTBase
 from futoin.cid.rmstool import RmsTool
 
-import os, stat
+import os, stat, fcntl
 import subprocess
 import glob
 
@@ -59,7 +59,7 @@ console.log('NODE');
         
         cls._writeFile('php_file.php', """
 <?php
-echo 'PHP';
+echo "PHP\n";
 """)
         
         cls._writeFile('python_file.py', """
@@ -132,7 +132,7 @@ object Hi {
     def _test_run(self, cmd, expect):
         (r, w) = os.pipe()
         self._call_citool(['run', cmd], stdout=w)
-        res = os.read(r, 1024).strip()
+        res = os.read(r, 4096).strip()
         os.close(r)
         os.close(w)
         
@@ -172,4 +172,53 @@ object Hi {
     
     def test26_run_scala_ep( self ):
         self._test_run('scala_ep', 'SCALA')
+        
+    def test50_run_all( self ):
+        #w = open('result.txt', 'w')
+        #self._call_citool(['run'], stdout=w)
+        #w.close()
+        #res = self._readFile('result.txt')
+        
+        (r, w) = os.pipe()
+        self._call_citool(['run'], stdout=w)
+        
+        flag = fcntl.fcntl(r, fcntl.F_GETFL)
+        fcntl.fcntl(r, fcntl.F_SETFL, flag | os.O_NONBLOCK)
+        
+        try:
+            res = os.read(r, 4096)
+            
+            while True:
+                res += os.read(r, 4096)
+        except IOError:
+            pass
+        except OSError:
+            pass
+        
+        os.close(r)
+        os.close(w)
+        
+        try:
+            res = str(res, 'utf8')
+        except:
+            pass
+
+        res = sorted(res.strip().split("\n"))
+
+        expect = sorted([
+            'CustomCommand',
+            'CustomList1',
+            'CustomList2',
+            'EXE',
+            'GO',
+            'JAVA',
+            'NODE',
+            'PHP',
+            'PYTHON',
+            'RUBY',
+            'SCALA'
+        ])
+        
+        self.assertEqual(res, expect)
+        
     

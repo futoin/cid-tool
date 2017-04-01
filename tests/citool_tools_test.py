@@ -38,10 +38,9 @@ class citool_Tool_UTCommon ( citool_Tool_UTBase ) :
     def test_20_tool_test( self ):
         if self.TOOL_MANAGED:
             try:
-                self._call_citool( [ 'tool', 'test', self.TOOL_NAME ] )
+                self._call_citool( [ 'tool', 'test', self.TOOL_NAME ], returncode=1 )
             except:
-                return
-            raise RuntimeError('Tool must not be present')
+                raise RuntimeError('Tool must not be present')
 
     def test_30_tool_install( self ):
         self._call_citool( [ 'tool', 'install', self.TOOL_NAME ] )

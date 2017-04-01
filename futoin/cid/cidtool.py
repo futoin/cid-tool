@@ -732,8 +732,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             t = self._tool_impl[tool]
             
             if not t.isInstalled( env ) :
-                # Should go to stdout
-                print( "Tool '%s' is missing" % tool )
+                error_exit( "Tool '%s' is missing" % tool )
                 
     def tool_env( self, tool ):
         config = self._config

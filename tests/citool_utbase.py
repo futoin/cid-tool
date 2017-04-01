@@ -90,10 +90,15 @@ class citool_UTBase ( unittest.TestCase ) :
         cls._writeFile( file_name, json.dumps( content ) )
         
     @classmethod
-    def _readJSON( cls, file_name ):
+    def _readFile( cls, file_name ):
         with open(file_name, 'r') as content_file:
             content = content_file.read()
-            object_pairs_hook = lambda pairs: OrderedDict( pairs )
-            return json.loads( content, object_pairs_hook=object_pairs_hook )
+            return content
+        
+    @classmethod
+    def _readJSON( cls, file_name ):
+        content = cls._readFile(file_name)
+        object_pairs_hook = lambda pairs: OrderedDict( pairs )
+        return json.loads( content, object_pairs_hook=object_pairs_hook )
         
         
