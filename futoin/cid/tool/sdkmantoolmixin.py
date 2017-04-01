@@ -2,8 +2,9 @@
 import os, re
 
 from .bashtoolmixin import BashToolMixIn
+from .javatoolmixin import JavaToolMixIn
 
-class SdkmanToolMixIn( BashToolMixIn ):
+class SdkmanToolMixIn( BashToolMixIn, JavaToolMixIn ):
     def getDeps( self ) :
         return super( SdkmanToolMixIn, self ).getDeps() + [ 'sdkman', 'java' ]
 

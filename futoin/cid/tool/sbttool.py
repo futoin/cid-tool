@@ -21,7 +21,10 @@ Build targets:
     check -> test
 Override targets with .config.toolTune.
 
+Requires Java >= 8.
 """
+    _MIN_JAVA = '8'
+    
     def autoDetect( self, config ) :
         return self._autoDetectByCfg(
                 config,

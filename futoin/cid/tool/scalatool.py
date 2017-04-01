@@ -8,4 +8,7 @@ class scalaTool( SdkmanToolMixIn, RuntimeTool ):
 Home: https://www.scala-lang.org/
 
 Installed via SDKMan!
+
+Requires Java >= 8.
 """
+    _MIN_JAVA = '8'

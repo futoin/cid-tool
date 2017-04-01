@@ -59,32 +59,9 @@ class citool_Tool_UTCommon ( citool_Tool_UTBase ) :
 # 10
 #-----
 for t in ['bash', 'curl', 'git', 'hg', 'svn', 'gpg', 'scp', 'ssh',
-          'make', 'cmake', 'tar', 'unzip', 'java', 'jdk']:
+          'make', 'cmake', 'tar', 'unzip']:
     cls = 'citool_Tool_10_' + t
     globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
-        '__test__' : True,
-        'TOOL_NAME' : t,
-        'TOOL_MANAGED' : False,
-    })
-
-# Auto-detect system Java after default is run
-class citool_Tool_JVMBase(citool_Tool_UTBase):
-    @classmethod
-    def setUpClass( cls ):
-        java_ver=subprocess.check_output(['java', '-version'])
-
-        if java_ver.find('1.8.0'):
-            java_ver='8'
-        else :
-            java_ver='7'
-            
-        cls.TOOL_ENV = { t + 'Ver': java_ver }
-        super(citool_Tool_JVMBase, cls).setUpClass()
-
-
-for t in ['java', 'jdk']:
-    cls = 'citool_Tool_11_' + t
-    globals()[cls] = type(cls, (citool_Tool_JVMBase, ), {
         '__test__' : True,
         'TOOL_NAME' : t,
         'TOOL_MANAGED' : False,
@@ -111,6 +88,14 @@ for t in ['node', 'go']:
     })
     
 mixed_tools = {
+    'java': {
+        'ver': '7',
+        'managed': False,
+    },
+    'jdk': {
+        'ver': '8',
+        'managed': False,
+    },
     'python' : {
         'ver': '2.7',
         'managed': False,

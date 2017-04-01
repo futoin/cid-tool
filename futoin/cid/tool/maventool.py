@@ -19,7 +19,10 @@ Build targets:
     check -> test
 Override targets with .config.toolTune.
 
-"""    
+Requires Java >= 7.
+"""
+    _MIN_JAVA = '7'
+    
     def autoDetect( self, config ) :
         return self._autoDetectByCfg(
                 config,
