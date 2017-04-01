@@ -125,8 +125,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         vcstool = config.get('vcs', None)
         
         if not vcstool:
-            print( 'Unknown VCS. Please set through --vcsRepo or project manifest' )
-            sys.exit( 1 )
+            error_exit( 'Unknown VCS. Please set through --vcsRepo or project manifest' )
             
         vcstool = self._tool_impl[vcstool]
             
@@ -134,8 +133,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             config['vcsRepo'] = vcstool.vcsGetRepo( config )
             
             if not config['vcsRepo']:
-                print( 'Unknown VCS repo. Please set through --vcsRepo or project manifest' )
-                sys.exit( 1 )
+                error_exit( 'Unknown VCS repo. Please set through --vcsRepo or project manifest' )
         
         return vcstool
 
@@ -144,12 +142,10 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         rmstool = config.get('rms', None)
         
         if not rmstool:
-            print( 'Unknown RMS. Please set through --rmsRepo or project manifest' )
-            sys.exit( 1 )
+            error_exit( 'Unknown RMS. Please set through --rmsRepo or project manifest' )
         
         if not config.get('rmsRepo', None): # also check it set
-            print( 'Unknown RMS repo. Please set through --rmsRepo or project manifest' )
-            sys.exit( 1 )
+            error_exit( 'Unknown RMS repo. Please set through --rmsRepo or project manifest' )
         
         return self._tool_impl[rmstool]
 
@@ -168,8 +164,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
     @cid_action
     def tag( self, branch, next_version=None ):
         if next_version and not re.match('^[0-9]+\.[0-9]+\.[0-9]+$', next_version):
-            print( 'Valid version format: x.y.z', file=sys.stderr )
-            sys.exit( 1 )
+            error_exit( 'Valid version format: x.y.z' )
             
         self._processWcDir()
             
@@ -393,8 +388,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             package_list = fnmatch.filter(package_list, package)
             
         if not package_list:
-            print( "No package found", file = sys.stderr )
-            sys.exit( 1 )
+            error_exit( "No package found" )
             
         package = self._getLatest(package_list)
             
@@ -407,8 +401,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         # Check if already deployed:
         if os.path.exists( package_noext ) and not config['reDeploy']:
-            print( "Package has been already deployed. Use --redeploy.")
-            return
+            error_exit( "Package has been already deployed. Use --redeploy.")
         
         # Retrieve package, if not available
         if not os.path.exists( package_basename ) :
@@ -454,8 +447,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         # Check if already deployed:
         if os.path.exists( target_dir ) and not config['reDeploy']:
-            print( "Package has been already deployed. Use --redeploy.")
-            return
+            error_exit( "Package has been already deployed. Use --redeploy.")
            
         # Retrieve tag
         target_tmp = target_dir + '.tmp'
@@ -476,8 +468,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             tag_list = fnmatch.filter(tag_list, vcs_ref)
             
         if not tag_list:
-            print( "No tags found", file = sys.stderr )
-            sys.exit( 1 )
+            error_exit( "No tags found" )
             
         vcs_ref = self._getLatest(tag_list)
         target_dir = vcs_ref.replace(os.sep, '_').replace(':', '_')
@@ -487,8 +478,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         # Check if already deployed:
         if os.path.exists( target_dir ) and not config['reDeploy']:
-            print( "Package has been already deployed. Use --redeploy.")
-            return
+            error_exit( "Package has been already deployed. Use --redeploy.")
            
         # Retrieve tag
         vcs_ref_tmp = target_dir + '.tmp'
@@ -742,8 +732,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             t = self._tool_impl[tool]
             
             if not t.isInstalled( env ) :
+                # Should go to stdout
                 print( "Tool '%s' is missing" % tool )
-                sys.exit( 1 )
                 
     def tool_env( self, tool ):
         config = self._config
@@ -899,7 +889,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         for (k, v) in config.items():
             if k not in conf_vars:
-                print('WARN: Removing unknown config variable "{0}"'.format(k), file=sys.stder)
+                warn('Removing unknown config variable "{0}"'.format(k))
                 del config[k]
             elif not isinstance(v, conf_vars[k]):
                 req_t = conf_vars[k]
