@@ -4,6 +4,15 @@ from __future__ import print_function, absolute_import
 import os, tempfile
 
 class PackageMixIn( object ):
+    def _isFedora( self ):
+        return os.path.exists('/etc/fedora-release')
+    
+    def _isGentoo( self ):
+        return os.path.exists('/etc/gentoo-release')
+
+    def _isArchLinux( self ):
+        return os.path.exists('/etc/arch-release')
+    
     def _requireDeb(self, packages):
         apt_get = self._which('apt-get')
         
@@ -64,7 +73,7 @@ class PackageMixIn( object ):
             )
         
     def _addAptRepo(self, name, entry, gpg_key):
-        self._requirePackages(['software-properties-common'])
+        self._requireDeb(['software-properties-common'])
         apt_add_repository = self._which('apt-add-repository')
         
         if not apt_add_repository:

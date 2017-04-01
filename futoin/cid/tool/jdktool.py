@@ -72,9 +72,14 @@ jdkVer supports:
             #"/opt/jdk/jdk1.{0}*/bin/javac".format(ver),
         ]
         
-        if self._which('pacman') or self._which('emerge'):
+        if self._isGentoo() or self._isArchLinux():
             candidates += [
                 "/usr/lib/jvm/java-{0}-openjdk*/bin/javac".format(ver),
+            ]
+            
+        if self._isFedora():
+            candidates += [
+                "/usr/lib/jvm/java-1.{0}.0/bin/javac".format(ver),
             ]
         
         for c in candidates:

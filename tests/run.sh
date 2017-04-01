@@ -18,6 +18,10 @@ if [ "$(id -un)" = "vagrant" ]; then
     sudo chown vagrant:$(id -gn) $CIDTEST_RUN_DIR
 fi
 
+if ! grep -q "$(hostname)" /etc/hosts; then
+    echo "127.0.0.1 $(hostname)" | sudo tee /etc/hosts
+fi
+
 CID_BOOT=$(pwd)/bin/cid
 
 if [ "$1" = 'fast' ]; then

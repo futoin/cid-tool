@@ -21,11 +21,15 @@ javaVer supports:
     
     def _installTool( self, env ):
         if 'javaVer' in env:
+            ver = env['javaVer'].split('.')[0]
+
+            if self._isFedora():
+                self._requireYum(['java-1.{0}.0-openjdk'.format(ver)])
+                return
+            
             self._addAptRepo('zulu', 'deb http://repos.azulsystems.com/debian stable main', self._ZULU_GPG_KEY)
             self._addYumRepo('zulu', 'http://repos.azulsystems.com/rhel/zulu.repo', self._ZULU_GPG_KEY)
             self._addZypperRepo('zulu', 'http://repos.azulsystems.com/sles/latest', self._ZULU_GPG_KEY)
-            
-            ver = env['javaVer'].split('.')[0]
             
             # leaving here for possible future use
             #self._requireDeb(['openjdk-{0}-jre-headless'.format(ver)])
@@ -73,9 +77,14 @@ javaVer supports:
             #"/opt/jdk/jdk1.{0}*/bin/java".format(ver),
         ]
 
-        if self._which('pacman') or self._which('emerge'):
+        if self._isGentoo() or self._isArchLinux():
             candidates += [
                 "/usr/lib/jvm/java-{0}-openjdk*/jre/bin/java".format(ver),
+            ]
+            
+        if self._isFedora():
+            candidates += [
+                "/usr/lib/jvm/jre-1.{0}.0/bin/java".format(ver),
             ]
         
         for c in candidates:

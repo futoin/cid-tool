@@ -5,8 +5,14 @@ from .bashtoolmixin import BashToolMixIn
 from .javatoolmixin import JavaToolMixIn
 
 class SdkmanToolMixIn( BashToolMixIn, JavaToolMixIn ):
+    _NEED_JDK = True
+    
     def getDeps( self ) :
-        return super( SdkmanToolMixIn, self ).getDeps() + [ 'sdkman', 'java' ]
+        return (
+            super( SdkmanToolMixIn, self ).getDeps() +
+            [ 'sdkman', 'java' ] +
+            (self._NEED_JDK and ['jdk'] or [])
+        )
 
     def _sdkName( self ):
         return self._name
