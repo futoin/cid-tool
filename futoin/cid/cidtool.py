@@ -334,15 +334,15 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
     def _lockCommon( self, lock, file, flags ):
         assert self.__dict__[lock] is None
-        self.__dict__[lock] = open(self.DEPLOY_LOCK_FILE, 'w')
+        self.__dict__[lock] = os.open(self.DEPLOY_LOCK_FILE, os.O_WRONLY|os.O_CREAT)
         try:
-            fcntl.flock(self.__dict__[lock], fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except:
-            error_exit('FAILED to acquire{0}! '.format(lock.replace('_', ' ')))
+            fcntl.flock(self.__dict__[lock], flags)
+        except Exception as e:
+            error_exit('FAILED to acquire{0}: {1}'.format(lock.replace('_', ' '), e))
     
     def _unlockCommon( self, lock ):
         fcntl.flock(self.__dict__[lock], fcntl.LOCK_UN)
-        self.__dict__[lock].close()
+        os.close(self.__dict__[lock])
         self.__dict__[lock] = None
         
     def _deployLock( self ):
