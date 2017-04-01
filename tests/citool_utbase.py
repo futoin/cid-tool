@@ -7,6 +7,7 @@ import sys
 import stat
 import shutil
 import json
+from collections import OrderedDict
 
 CIDTEST_BIN = os.environ.get('CIDTEST_BIN', None)
 
@@ -87,4 +88,12 @@ class citool_UTBase ( unittest.TestCase ) :
     @classmethod
     def _writeJSON( cls, file_name, content ):
         cls._writeFile( file_name, json.dumps( content ) )
+        
+    @classmethod
+    def _readJSON( cls, file_name ):
+        with open(file_name, 'r') as content_file:
+            content = content_file.read()
+            object_pairs_hook = lambda pairs: OrderedDict( pairs )
+            return json.loads( content, object_pairs_hook=object_pairs_hook )
+        
         

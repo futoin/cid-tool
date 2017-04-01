@@ -11,7 +11,7 @@ Auto-detected based on futoin.json
 futoin.json is the only file read by FutoIn CID itself.
 """
     def autoDetect( self, config ) :
-        return self._autoDetectByCfg( config, 'futoin.json' )
+        return self._autoDetectByCfg( config, self._FUTOIN_JSON )
 
     def initEnv( self, env ):
         self._have_tool = True
@@ -22,4 +22,4 @@ futoin.json is the only file read by FutoIn CID itself.
                 if f in updates :
                         json[f] = updates[f]
 
-        return self._updateJSONConfig( 'futoin.json', updater )
+        return self._updateJSONConfig( self._FUTOIN_JSON, updater )

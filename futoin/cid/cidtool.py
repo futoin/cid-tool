@@ -71,26 +71,26 @@ class CIDTool( PathMixIn, UtilMixIn ) :
     except NameError:
         _str_type = str
     
-    CONFIG_VARS = {
-        'name' : _str_type,
-        'version' : _str_type,
-        'vcsRepo' : _str_type,
-        'vcs' : _str_type,
-        'deployBuild' : bool,
-        'permissiveChecks' : bool,
-        'rmsRepo' : _str_type,
-        'rmsPool' : _str_type,
-        'rms' : _str_type,
-        'tools' : dict,
-        'toolTune' : dict,
-        'package' : list,
-        'persistent' : list,
-        'entryPoints' : dict,
-        'configenv' : dict,
-        'webcfg' : dict,
-        'actions' : dict,
-        'plugins' : dict,
-    }
+    CONFIG_VARS = OrderedDict([
+        ('name', _str_type),
+        ('version', _str_type),
+        ('vcs', _str_type),
+        ('vcsRepo', _str_type),
+        ('deployBuild', bool),
+        ('permissiveChecks', bool),
+        ('rms', _str_type),
+        ('rmsRepo', _str_type),
+        ('rmsPool', _str_type),
+        ('tools', dict),
+        ('toolTune', dict),
+        ('package', list),
+        ('persistent', list),
+        ('entryPoints', dict),
+        ('configenv', dict),
+        ('webcfg', dict),
+        ('actions', dict),
+        ('plugins', dict),
+    ])
     
     DEPLOY_LOCK_FILE = '.futoin.lock'
     _deploy_lock = False
@@ -160,7 +160,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         if wcDir != os.getcwd():
             os.chdir( wcDir )
-            self._overrides['wcDir'] = config['wcDir'] = '.'
+            self._overrides['wcDir'] = config['wcDir'] = os.getcwd()
             self._initConfig()
 
     @cid_action
@@ -802,16 +802,41 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         doc = t.__doc__.strip() or '!! Missing documentation.'
         print(doc)
         print()
+        
+    def init_project( self, project_name ):
+        self._processWcDir()
+
+        if os.path.exists(self._FUTOIN_JSON):
+            error_exit('futoin.json already exists in project root')
+
+        config = self._config
+        new_config = OrderedDict()
+        
+        if project_name:
+            new_config['name'] = project_name
+        elif 'name' not in config:
+            new_config['name'] = os.path.basename(config['wcDir'])
+        
+        for cv in self.CONFIG_VARS:
+            try:
+                val = config[cv]
+
+                if val is not None and cv not in new_config:
+                    new_config[cv] = val
+            except KeyError:
+                pass
+        
+        self._writeJSONConfig(self._FUTOIN_JSON, new_config)
 
     def _initConfig( self ):
-        self._global_config = gc = self._loadJSON( '/etc/futoin/futoin.json', {'env':{}} )
-        self._user_config = uc = self._loadJSON( os.path.join( os.environ.get('HOME','/'), 'futoin.json' ), {'env':{}} )
-        self._project_config = pc = self._loadJSON( 'futoin.json', {} )
+        self._global_config = gc = self._loadJSON( os.path.join('/', 'etc', 'futoin', self._FUTOIN_JSON), {'env':{}} )
+        self._user_config = uc = self._loadJSON( os.path.join( os.environ.get('HOME','/'), self._FUTOIN_JSON ), {'env':{}} )
+        self._project_config = pc = self._loadJSON( self._FUTOIN_JSON, {} )
 
         deploy_dir = self._overrides.get( 'deployDir', None )
         dc = {'env':{}}
         if deploy_dir :
-            dc = self._loadJSON( os.path.join( deploy_dir, 'futoin.json' ), dc )
+            dc = self._loadJSON( os.path.join( deploy_dir, self._FUTOIN_JSON ), dc )
         self._deploy_config = dc
         
         config = OrderedDict( pc )

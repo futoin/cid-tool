@@ -1,10 +1,12 @@
 
 from __future__ import print_function, absolute_import
 
-import os, json, stat, shutil
+import os, json, stat, shutil, sys
 from collections import OrderedDict
 
 class UtilMixIn( object ):
+    _FUTOIN_JSON = 'futoin.json'
+    
     def _updateEnvFromOutput( self, env_to_set ):
         env_to_set = env_to_set.split( "\n" )
 
@@ -45,12 +47,15 @@ class UtilMixIn( object ):
             
         updater( content )
         
+        self._writeJSONConfig( file_name, content, indent, separators )
+            
+        return [ file_name ]
+    
+    def _writeJSONConfig( self, file_name, content, indent=2, separators=(',', ': ')):
         with open(file_name, 'w') as content_file:
             content =  json.dumps( content, indent=indent, separators=separators )
             content_file.write( content )
             content_file.write( "\n" )
-            
-        return [ file_name ]
     
     def _updateTextFile( self, file_name, updater ) :
         with open(file_name, 'r') as content_file:
@@ -75,4 +80,8 @@ class UtilMixIn( object ):
         
     def _getTune( self, config, key, default=None ):
         return config.get('toolTune', {}).get(self._name, {}).get(key, default)
+    
+    def _errorExit( self, msg ):
+        print('ERR: '+msg, file=sys.stderr)
+        sys.exit(1)
         

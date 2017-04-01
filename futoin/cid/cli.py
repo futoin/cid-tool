@@ -19,6 +19,7 @@ Usage:
     cid tool (prepare|build|check|package|migrate) <tool_name>
     cid tool list
     cid tool describe <tool_name>
+    cid init [<project_name>] [--vcsRepo=<vcs_repo>] [--rmsRepo=<rms_repo>] [--permissive]
 
 Options:
     -h --help                       Show this screen.
@@ -103,9 +104,7 @@ def run():
         #---
         cit = CIDTool( overrides = overrides )
         
-        if args['tag'] :
-            cit.tag( args['<branch>'], args['<next_version>'] )
-        elif args['tool'] :
+        if args['tool'] :
             if args['exec']:
                 cit.tool_exec( tool, args['<tool_arg>'] )
             elif args['list']:
@@ -131,6 +130,10 @@ def run():
                 else:
                     print( "Unknown Command" )
                     sys.exit( 1 )
+        elif args['init'] :
+            cit.init_project( args['<project_name>'] )
+        elif args['tag'] :
+            cit.tag( args['<branch>'], args['<next_version>'] )
         elif args['prepare'] :
             cit.prepare( args['<vcs_ref>'] )
         elif args['build'] :

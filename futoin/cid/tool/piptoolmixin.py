@@ -13,7 +13,7 @@ class PipToolMixIn( object ):
         self._callExternal( [ env['pipBin'], 'install', '-q', '--upgrade', self._pipName() ] )
         
     def uninstallTool( self, env ):
-        self._callExternal( [ env['pipBin'], 'uninstall', '-q', self._pipName() ] )
+        self._callExternal( [ env['pipBin'], 'uninstall', '--yes', '-q', self._pipName() ] )
         self._have_tool = False
 
     def _requirePythonDev( self, env ):
