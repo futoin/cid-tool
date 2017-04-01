@@ -57,8 +57,7 @@ public class Hello {
 console.log('NODE');
 """)
         
-        cls._writeFile('php_file.php', """
-<?php
+        cls._writeFile('php_file.php', """<?php
 echo "PHP\n";
 """)
         
@@ -174,26 +173,10 @@ object Hi {
         self._test_run('scala_ep', 'SCALA')
         
     def test50_run_all( self ):
-        #w = open('result.txt', 'w')
-        #self._call_citool(['run'], stdout=w)
-        #w.close()
-        #res = self._readFile('result.txt')
-        
         (r, w) = os.pipe()
         self._call_citool(['run'], stdout=w)
         
-        flag = fcntl.fcntl(r, fcntl.F_GETFL)
-        fcntl.fcntl(r, fcntl.F_SETFL, flag | os.O_NONBLOCK)
-        
-        try:
-            res = os.read(r, 4096)
-            
-            while True:
-                res += os.read(r, 4096)
-        except IOError:
-            pass
-        except OSError:
-            pass
+        res = os.read(r, 4096)
         
         os.close(r)
         os.close(w)
@@ -206,9 +189,6 @@ object Hi {
         res = sorted(res.strip().split("\n"))
 
         expect = sorted([
-            'CustomCommand',
-            'CustomList1',
-            'CustomList2',
             'EXE',
             'GO',
             'JAVA',
