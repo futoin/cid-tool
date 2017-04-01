@@ -83,6 +83,10 @@ javaVer supports:
             ]
             
         if self._isFedora():
+            if int(ver) < 8:
+                ver = '8'
+                env['javaVer'] = ver
+                
             candidates += [
                 "/usr/lib/jvm/jre-1.{0}.0/bin/java".format(ver),
             ]

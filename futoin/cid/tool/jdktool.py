@@ -25,7 +25,12 @@ jdkVer supports:
     
     def _installTool( self, env ):
         if 'jdkVer' in env:
-            ver = env['jdkVer'][0]
+            ver = env['jdkVer'].split('.')[0]
+            
+            if self._isFedora():
+                self._requireYum(['java-1.{0}.0-openjdk-devel'.format(ver)])
+                return
+            
             # Zulu is installed in javaTool
             # leaving it here for possible future use
             #self._requireDeb(['openjdk-{0}-jdk'.format(ver)])
@@ -57,7 +62,7 @@ jdkVer supports:
             return
         
         env.setdefault('jdkVer', env['javaVer'])
-        ver = env['jdkVer'][0]
+        ver = env['jdkVer'].split('.')[0]
         
         candidates = [
             # Zulu
@@ -78,6 +83,10 @@ jdkVer supports:
             ]
             
         if self._isFedora():
+            if int(ver) < 8:
+                ver = '8'
+                env['jdkDir'] = ver
+            
             candidates += [
                 "/usr/lib/jvm/java-1.{0}.0/bin/javac".format(ver),
             ]
