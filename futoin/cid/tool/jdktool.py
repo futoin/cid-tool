@@ -1,9 +1,9 @@
 
 import os, glob
 
-from ..buildtool import BuildTool
+from ..runenvtool import RunEnvTool
 
-class jdkTool( BuildTool ):
+class jdkTool( RunEnvTool ):
     """Java Development Kit.
     
 Home: http://openjdk.java.net/

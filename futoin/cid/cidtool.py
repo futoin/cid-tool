@@ -82,6 +82,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         'rmsPool' : _str_type,
         'rms' : _str_type,
         'tools' : dict,
+        'toolTune' : dict,
         'package' : list,
         'persistent' : list,
         'entryPoints' : dict,
@@ -605,7 +606,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                 if isinstance(t, RuntimeTool):
                     t.onRun(config, ep['file'], args, ep.get('tune', {}))
                 else:
-                    error_exit('"{0}" does not support "run" command')
+                    error_exit('Tool "{0}" for "{1}" does not support "run" command'.format(tool, command))
                 
             elif command in actions:
                 act = actions[command]
@@ -877,6 +878,16 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                         error_exit('Entry point "{0}" is missing "{1}"'.format(en, k))
                 if 'tune' in ep and not isinstance(ep['tune'], dict):
                     error_exit('Entry point "{0}" has invalid tune parameter'.format(en))
+        
+        #---
+        toolTune = config.get('toolTune', None)
+        
+        if toolTune:
+            for (tn, tune) in toolTune.items():
+                if not isinstance(tune, dict):
+                    error_exit('Tool tune "{0}" is not of map type'.format(tn))
+        
+        #---
     
     def _loadJSON( self, file_name, defvalue ):
         try :

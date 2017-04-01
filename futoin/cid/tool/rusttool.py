@@ -1,9 +1,9 @@
 
 import os
 
-from ..runtimetool import RuntimeTool
+from ..runenvtool import RunEnvTool
 
-class rustTool( RuntimeTool ):
+class rustTool( RunEnvTool ):
     """Rust is a systems programming language.
     
 Home: https://www.rust-lang.org

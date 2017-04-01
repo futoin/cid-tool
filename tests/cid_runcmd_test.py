@@ -70,13 +70,7 @@ print('PYTHON');
 puts 'RUBY'
 """)
         
-        cls._writeFile('rust_file.rs', """
-fn main() {
-    println!("RUST");
-}
-""")
-        
-        cls._writeFile('hello.scala', '''
+        cls._writeFile('scala_file.scala', '''
 object Hi {
   def main(args: Array[String]) = println("SCALA")
 }
@@ -120,10 +114,6 @@ object Hi {
                 'ruby_ep' : {
                     'tool': 'ruby',
                     'file': 'ruby_file.rb',
-                },
-                'rust_ep' : {
-                    'tool': 'rust',
-                    'file': 'rust_file.rs',
                 },
                 'scala_ep' : {
                     'tool': 'scala',
@@ -180,9 +170,6 @@ object Hi {
     def test25_run_ruby_ep( self ):
         self._test_run('ruby_ep', 'RUBY')
     
-    def test26_run_rust_ep( self ):
-        self._test_run('rust_ep', 'RUST')
-    
-    def test27_run_scala_ep( self ):
+    def test26_run_scala_ep( self ):
         self._test_run('scala_ep', 'SCALA')
     

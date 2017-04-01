@@ -11,6 +11,14 @@ Home: https://maven.apache.org/
 Auto-detected based on pom.xml
 
 Expects clean, compile, package and test targets.
+
+Build targets:
+    prepare -> clean
+    build -> compile
+    package -> package
+    check -> test
+Override targets with .config.toolTune.
+
 """    
     def autoDetect( self, config ) :
         return self._autoDetectByCfg(
@@ -22,15 +30,19 @@ Expects clean, compile, package and test targets.
         return 'mvn'
 
     def onPrepare( self, config ):
-        self._callExternal( [ config['env']['mavenBin'], 'clean' ] )
+        target = self._getTune(config, 'prepare', 'clean')
+        self._callExternal( [ config['env']['mavenBin'], target ] )
     
     def onBuild( self, config ):
-        self._callExternal( [ config['env']['mavenBin'], 'compile' ] )
+        target = self._getTune(config, 'build', 'compile')
+        self._callExternal( [ config['env']['mavenBin'], target ] )
         
     def onPackage( self, config ):
-        self._callExternal( [ config['env']['mavenBin'], 'package' ] )
+        target = self._getTune(config, 'package', 'package')
+        self._callExternal( [ config['env']['mavenBin'], target ] )
 
     def onCheck( self, config ):
-        self._callExternal( [ config['env']['mavenBin'], 'test' ] )
+        target = self._getTune(config, 'check', 'test')
+        self._callExternal( [ config['env']['mavenBin'], target ] )
 
             

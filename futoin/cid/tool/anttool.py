@@ -13,6 +13,13 @@ The tool assumes the following targets: clean, compile, jar, run
 Ant is setup through SDKMan!
 
 Note: If detected Java version is less than 8 then Ant 1.9.8 is used.
+
+Build targets:
+    prepare -> clean
+    build -> compile
+    package -> jar
+Override targets with .config.toolTune.
+
 """
     def autoDetect( self, config ) :
         return self._autoDetectByCfg(
@@ -27,13 +34,16 @@ Note: If detected Java version is less than 8 then Ant 1.9.8 is used.
         SdkmanToolMixIn.initEnv(self, env)
 
     def onPrepare( self, config ):
-        self._callExternal( [ config['env']['antBin'], 'clean' ] )
+        target = self._getTune(config, 'prepare', 'clean')
+        self._callExternal( [ config['env']['antBin'], target ] )
     
     def onBuild( self, config ):
-        self._callExternal( [ config['env']['antBin'], 'compile' ] )
+        target = self._getTune(config, 'build', 'compile')
+        self._callExternal( [ config['env']['antBin'], target ] )
         
     def onPackage( self, config ):
-        self._callExternal( [ config['env']['antBin'], 'jar' ] )
+        target = self._getTune(config, 'package', 'jar')
+        self._callExternal( [ config['env']['antBin'], target ] )
         
     def onRunDev( self, config ):
         self._callExternal( [ config['env']['antBin'], 'run' ] )

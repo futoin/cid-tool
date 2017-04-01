@@ -28,7 +28,14 @@ Build uses the default target.
         self._callExternal( [ config['env']['makeBin'], 'clean' ] )
 
     def onBuild( self, config ):
-        self._callExternal( [ config['env']['makeBin'] ] )
+        target = self._getTune(config, 'build')
+        
+        if target:
+            args = [target]
+        else:
+            args = []
+
+        self._callExternal( [ config['env']['makeBin'] ] + args )
 
 
 

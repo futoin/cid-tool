@@ -11,6 +11,12 @@ class setuptoolsTool( PipToolMixIn, BuildTool, TestTool ):
 Home: https://pypi.python.org/pypi/setuptools
 
 Not assumed to be used directly.
+
+Build targets:
+    prepare -> {removes build & dist folders}
+    build -> ['sdist', 'bdist_wheel']
+Override targets with .config.toolTune.    
+
 """    
     def autoDetect( self, config ) :
         return self._autoDetectByCfg(
@@ -26,14 +32,25 @@ Not assumed to be used directly.
         self._have_tool = os.path.exists(os.path.join(virtualenv_dir, 'bin', 'easy_install'))
         
     def onPrepare( self, config ):
-        for d in ['build', 'dist']:
+        targets = self._getTune(config, 'prepare', ['build', 'dist'])
+        
+        if not isinstance(targets, list):
+            targets = [targets]
+        
+        for d in targets:
             if os.path.exists(d):
                 self._rmTree(d)
 
     def onBuild( self, config ):
         env = config['env']
         self._requirePip( env, 'wheel' )
-        self._callExternal( [ env['pythonBin'], 'setup.py', 'sdist', 'bdist_wheel' ] )
+        
+        targets = self._getTune(config, 'build', ['sdist', 'bdist_wheel'])
+
+        if not isinstance(targets, list):
+            targets = [targets]
+        
+        self._callExternal( [ env['pythonBin'], 'setup.py' ] + targets )
     
 
     def onCheck( self, config ):

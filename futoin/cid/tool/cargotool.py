@@ -8,6 +8,13 @@ class cargoTool( BuildTool, TestTool ):
     """Cargo, Rust;s Package Manager.
     
 Home: http://doc.crates.io/
+
+Build targets:
+    prepare -> clean
+    build -> build
+    check -> test
+Override targets with .config.toolTune.
+
 """
     def autoDetect( self, config ) :
         return self._autoDetectByCfg(
@@ -33,7 +40,7 @@ Home: http://doc.crates.io/
             args.append('--release')
         
         
-        self._callExternal( [ config['env']['cargoBin'], 'build', ] + args)
+        self._callExternal( [ config['env']['cargoBin'], 'build' ] + args)
     
     def onPackage( self, config ):
         pass

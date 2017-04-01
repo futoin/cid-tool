@@ -220,7 +220,13 @@ futoin.json is not strictly required, but it allows to use full power of CID.
       "tools": {
         "examplerelease": true,
         "python": "*",
-        "node": "stable"
+        "node": "stable",
+        "gradle": "*"
+      },
+      "toolTune" : {
+        "gradle": {
+          "package": "jar"
+        }
       },
       "rms": "scp",
       "rmsRepo": "rms@somehost",

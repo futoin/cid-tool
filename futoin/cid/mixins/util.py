@@ -71,4 +71,8 @@ class UtilMixIn( object ):
         for ( path, dirs, files ) in os.walk( dir ) :
             for id in dirs + files :
                 os.chmod( os.path.join( path, id ), stat.S_IRWXU )
-        shutil.rmtree(dir)        
+        shutil.rmtree(dir)
+        
+    def _getTune( self, config, key, default=None ):
+        return config.get('toolTune', {}).get(self._name, {}).get(key, default)
+        

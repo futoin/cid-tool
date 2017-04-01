@@ -13,6 +13,14 @@ Auto-detected based on build.sbt
 Installed via SDKMan!
 
 First run of SBT may consume a lot of time on post-installation steps.
+
+Build targets:
+    prepare -> clean
+    build -> compile
+    package -> package
+    check -> test
+Override targets with .config.toolTune.
+
 """
     def autoDetect( self, config ) :
         return self._autoDetectByCfg(
@@ -21,16 +29,21 @@ First run of SBT may consume a lot of time on post-installation steps.
         )
     
     def onPrepare( self, config ):
-        self._callExternal( [ config['env']['sbtBin'], 'clean' ] )
+        target = self._getTune(config, 'prepare', 'clean')
+        self._callExternal( [ config['env']['sbtBin'], target ] )
 
     def onBuild( self, config ):
-        self._callExternal( [ config['env']['sbtBin'], 'compile' ] )
+        target = self._getTune(config, 'build', 'compile')
+        self._callExternal( [ config['env']['sbtBin'], target ] )
 
     def onPackage( self, config ):
-        self._callExternal( [ config['env']['sbtBin'], 'package' ] )
+        target = self._getTune(config, 'package', 'package')
+        self._callExternal( [ config['env']['sbtBin'], target ] )
             
     def onRunDev( self, config ):
-        self._callExternal( [ config['env']['sbtBin'], 'run' ] )
+        target = self._getTune(config, 'run', 'check')
+        self._callExternal( [ config['env']['sbtBin'], target ] )
             
     def onCheck( self, config ):
-        self._callExternal( [ config['env']['sbtBin'], 'test' ] )
+        target = self._getTune(config, 'check', 'test')
+        self._callExternal( [ config['env']['sbtBin'], target ] )

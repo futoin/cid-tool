@@ -8,6 +8,13 @@ class gradleTool( SdkmanToolMixIn, BuildTool ):
 Home: https://gradle.org/
 
 Auto-detected based on build.gradle.
+
+Build targets:
+    prepare -> clean
+    build -> <default> without explicit target
+    package -> dists
+Override targets with .config.toolTune.
+
 """    
     def autoDetect( self, config ) :
         return self._autoDetectByCfg(
@@ -16,11 +23,20 @@ Auto-detected based on build.gradle.
         )
 
     def onPrepare( self, config ):
-        self._callExternal( [ config['env']['gradleBin'], '-q', '--no-daemon', 'clean' ] )
+        target = self._getTune(config, 'prepare', 'clean')
+        self._callExternal( [ config['env']['gradleBin'], '-q', '--no-daemon', target ] )
     
     def onBuild( self, config ):
-        self._callExternal( [ config['env']['gradleBin'], '-q', '--no-daemon' ] )
+        target = self._getTune(config, 'build')
+        
+        if target:
+            args = [target]
+        else:
+            args = []
+            
+        self._callExternal( [ config['env']['gradleBin'], '-q', '--no-daemon' ] + args )
 
     def onPackage( self, config ):
-        self._callExternal( [ config['env']['gradleBin'], '-q', '--no-daemon', 'dists' ] )
+        target = self._getTune(config, 'package', 'dists')
+        self._callExternal( [ config['env']['gradleBin'], '-q', '--no-daemon', target ] )
             
