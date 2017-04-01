@@ -15,7 +15,7 @@ fi
 if [ "$(id -un)" = "vagrant" ]; then
     export CIDTEST_RUN_DIR=/testrun
     sudo mkdir -p $CIDTEST_RUN_DIR
-    sudo chown vagrant:vagrant $CIDTEST_RUN_DIR
+    sudo chown vagrant:$(id -gn) $CIDTEST_RUN_DIR
 fi
 
 CID_BOOT=$(pwd)/bin/cid
