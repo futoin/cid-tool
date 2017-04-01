@@ -93,9 +93,11 @@ class CIDTool( PathMixIn, UtilMixIn ) :
     ])
     
     DEPLOY_LOCK_FILE = '.futoin.lock'
-    _deploy_lock = False
+    GLOBAL_LOCK_FILE = os.path.join(os.environ['HOME'], '.futoin-global.lock')
 
     def __init__( self, overrides ) :
+        self._deploy_lock = None
+        self._global_lock = None
         self._startup_env = dict(os.environ)
         self._tool_impl = None
         self._overrides = overrides
@@ -335,18 +337,30 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             base=MigrationTool
         )
         
-    def _deployLock( self ):
-        self._deploy_lock = open(self.DEPLOY_LOCK_FILE, 'w')
+    def _lockCommon( self, lock, file, flags ):
+        assert self.__dict__[lock] is None
+        self.__dict__[lock] = open(self.DEPLOY_LOCK_FILE, 'w')
         try:
-            fcntl.flock(self._deploy_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            fcntl.flock(self.__dict__[lock], fcntl.LOCK_EX | fcntl.LOCK_NB)
         except:
-            print('FAILED to acquire deploy lock! ', file=sys.stderr)
-            sys.exit( 1 )
+            error_exit('FAILED to acquire{0}! '.format(lock.replace('_', ' ')))
+    
+    def _unlockCommon( self, lock ):
+        fcntl.flock(self.__dict__[lock], fcntl.LOCK_UN)
+        self.__dict__[lock].close()
+        self.__dict__[lock] = None
+        
+    def _deployLock( self ):
+        self._lockCommon('_deploy_lock', self.DEPLOY_LOCK_FILE, fcntl.LOCK_EX | fcntl.LOCK_NB)
     
     def _deployUnlock( self ):
-        fcntl.flock(self._deploy_lock, fcntl.LOCK_UN)
-        self._deploy_lock.close()
-        self._deploy_lock = None
+        self._unlockCommon('_deploy_lock')
+        
+    def _globalLock( self ):
+        self._lockCommon('_global_lock', self.GLOBAL_LOCK_FILE, fcntl.LOCK_EX)
+    
+    def _globalUnlock( self ):
+        self._unlockCommon('_global_lock')
     
     @cid_action
     def deploy( self, mode, p1, p2=None ):
@@ -665,10 +679,14 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             tools = [tool]
         else :
             tools = config['toolOrder']
+            
+        self._globalLock()
 
         for tool in tools:
             t = self._tool_impl[tool]
             t.requireInstalled( env )
+            
+        self._globalUnlock()
 
     def tool_uninstall( self, tool ):
         config = self._config
@@ -681,11 +699,15 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             tools = [tool]
         else :
             tools = reversed(config['toolOrder'])
+            
+        self._globalLock()
 
         for tool in tools:
             t = self._tool_impl[tool]
             if t.isInstalled( env ):
                 t.uninstallTool( env )
+                
+        self._globalUnlock()
 
     def tool_update( self, tool ):
         config = self._config
@@ -698,10 +720,14 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             tools = [tool]
         else :
             tools = config['toolOrder']
+            
+        self._globalLock()
 
         for tool in tools:
             t = self._tool_impl[tool]
             t.updateTool( env )
+            
+        self._globalUnlock()
 
     def tool_test( self, tool ):
         config = self._config
@@ -1052,11 +1078,17 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                 t.importEnv( env )
                 t.initEnv( env )
         else :
+            # note, it may have some undesired effect on parallel execution,
+            # but let's leave that for now
+            self._globalLock()
+            
             for tool in tools :
                 t = tool_impl[tool]
                 t.requireInstalled( env )
                 if tool != curr_tool:
                     t.loadConfig( config )
+                    
+            self._globalUnlock()
 
         # Solves generic issues of ordering independent tools in
         # later execution with predictable results:

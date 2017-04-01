@@ -19,6 +19,7 @@
     - Gradle (8), Maven (7), SBT(8), Scala(8)
 * Added gcc and binutils tools
 * Added new "cid init" command as speced in FTN16
+* Implemented global tool management lock
 
 === 0.4.4 ===
 * Fixed to make GVM happy with toolchain deps even for binary installation
