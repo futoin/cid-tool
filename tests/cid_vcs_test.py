@@ -8,12 +8,12 @@ import os
 import subprocess
 import glob
 
-class citool_VCSUTBase ( citool_UTBase ) :
+class cid_VCS_UTBase ( citool_UTBase ) :
     __test__ = False
     
     @classmethod
     def setUpClass( cls ):
-        super(citool_VCSUTBase, cls).setUpClass()
+        super(cid_VCS_UTBase, cls).setUpClass()
         
         test_tar = os.path.basename( cls.TEST_DIR )
         cmd = [
@@ -144,7 +144,8 @@ class citool_VCSUTBase ( citool_UTBase ) :
         
         os.chdir( 'test_deploy' )
         self._call_citool( [ 'deploy', 'Prod',
-                            '--rmsRepo', 'scp:' + rms_dir ] )
+                            '--rmsRepo', 'scp:' + rms_dir,
+                            '--redeploy'] )
         
         self.assertTrue(glob.glob('wc-CI-1.3.0-*'))
         
@@ -161,7 +162,8 @@ class citool_VCSUTBase ( citool_UTBase ) :
         self.assertTrue(glob.glob('wc-1.2.3-*'))
         
         self._call_citool( [ 'deploy', 'Builds', package,
-                            '--rmsRepo', 'scp:' + rms_dir ] )
+                            '--rmsRepo', 'scp:' + rms_dir ],
+                            returncode=1 )
         
         self.assertTrue(glob.glob('wc-1.2.3-*'))
         
@@ -177,7 +179,7 @@ class citool_VCSUTBase ( citool_UTBase ) :
         self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO ] )
         self.assertTrue(os.path.exists('v1.3.0'))
         
-        self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO ] )
+        self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO ], returncode=1 )
         self.assertTrue(os.path.exists('v1.3.0'))
         
         self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO, '--redeploy' ] )
@@ -189,7 +191,7 @@ class citool_VCSUTBase ( citool_UTBase ) :
         self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO, 'v1.2.*' ] )
         self.assertTrue(os.path.exists('v1.2.4'))
 
-        self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO, 'v1.2.4' ] )
+        self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO, 'v1.2.4' ], returncode=1 )
         self.assertTrue(os.path.exists('v1.2.4'))
 
         self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO, 'v1.2.*', '--redeploy' ] )
@@ -204,9 +206,27 @@ class citool_VCSUTBase ( citool_UTBase ) :
         self._call_citool( [ 'deploy', 'vcsref', 'branch_A', '--vcsRepo', self.VCS_REPO ] )
         self.assertTrue(glob.glob('branch_A_*'))
         
-        self._call_citool( [ 'deploy', 'vcsref', 'branch_A', '--vcsRepo', self.VCS_REPO ] )
+        self._call_citool( [ 'deploy', 'vcsref', 'branch_A', '--vcsRepo', self.VCS_REPO ], returncode=1 )
         self.assertTrue(glob.glob('branch_A_*'))
         
         self._call_citool( [ 'deploy', 'vcsref', 'branch_A', '--vcsRepo', self.VCS_REPO, '--redeploy' ] )
         self.assertTrue(glob.glob('branch_A_*'))
         
+
+#=============================================================================        
+class cid_git_Test ( cid_VCS_UTBase ) :
+    __test__ = True
+    TEST_DIR = os.path.join(cid_VCS_UTBase.TEST_RUN_DIR, 'test_git')
+    VCS_REPO = 'git:' + os.path.join( TEST_DIR, 'repo' )
+        
+#=============================================================================
+class cid_hg_Test ( cid_VCS_UTBase ) :
+    __test__ = True
+    TEST_DIR = os.path.join(cid_VCS_UTBase.TEST_RUN_DIR, 'test_hg')
+    VCS_REPO = 'hg:' + os.path.join( TEST_DIR, 'repo' )
+
+#=============================================================================
+class cid_svn_Test ( cid_VCS_UTBase ) :
+    __test__ = True
+    TEST_DIR = os.path.join(cid_VCS_UTBase.TEST_RUN_DIR, 'test_svn')
+    VCS_REPO = 'svn:file://' + os.path.join( TEST_DIR, 'repo' )
