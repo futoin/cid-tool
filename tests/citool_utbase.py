@@ -11,21 +11,22 @@ import json
 CIDTEST_BIN = os.environ.get('CIDTEST_BIN', None)
 
 if CIDTEST_BIN:
-    CIDTEST_BIN_EXT = True
-else :
     CIDTEST_BIN_EXT = False
+else :
+    CIDTEST_BIN_EXT = True
     CIDTEST_BIN = os.path.dirname( __file__ ) + '/../bin/cid'
 
 class citool_UTBase ( unittest.TestCase ) :
     TEST_DIR = 'invalid'
-    TEST_RUN_DIR = os.path.realpath(
+    TEST_RUN_DIR = os.environ.get('CIDTEST_RUN_DIR', os.path.realpath(
         os.path.join(os.path.dirname(__file__), '..', 'testrun')
-    )
+    ))
     __test__ = False
     _dev_null = open(os.devnull, 'w')
 
     @classmethod
     def setUpClass( cls ):
+        print('Python: ' + sys.executable)
         try:
             os.makedirs( cls.TEST_RUN_DIR )
         except:

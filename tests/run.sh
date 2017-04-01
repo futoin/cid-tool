@@ -11,6 +11,13 @@ if ! which python >/dev/null; then
     which dnf && sudo dnf install -y python
 fi
 
+# Run test out of sync folder
+if [ "$(id -un)" = "vagrant" ]; then
+    export CIDTEST_RUN_DIR=/testrun
+    sudo mkdir -p $CIDTEST_RUN_DIR
+    sudo chown vagrant:vagrant $CIDTEST_RUN_DIR
+fi
+
 CID_BOOT=$(pwd)/bin/cid
 
 if [ "$1" = 'fast' ]; then

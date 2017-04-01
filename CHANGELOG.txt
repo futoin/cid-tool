@@ -5,6 +5,7 @@
 * Fixed rustTool to inherit from RuntimeTool
 * Added experimental "cid run" command changes
 * Added dummy exeTool
+* Changed to run vagrant unit tests outside of sync folder
 
 === 0.4.4 ===
 * Fixed to make GVM happy with toolchain deps even for binary installation
