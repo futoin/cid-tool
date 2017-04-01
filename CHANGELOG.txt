@@ -13,6 +13,8 @@
     - Added setup of JAVA_HOME & JRE_HOME for javaTool
     - Added setup of JAVA_HOME & JDK_HOME for jdkTool
     - ArchLinux & Gentoo still use system OpenJDK builds
+* Added feature of SubTool.envDeps() to automatically set version
+    requirements for dependencies
 
 === 0.4.4 ===
 * Fixed to make GVM happy with toolchain deps even for binary installation

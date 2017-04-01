@@ -1014,6 +1014,11 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         for d in dep_generations :
             tools.extend( d - set(tools) )
         config['toolOrder'] = tools
+        
+        #--
+        for tool in tools :
+            t = tool_impl[tool]
+            t.envDeps( env )
 
         #--
         if config['toolTest']:

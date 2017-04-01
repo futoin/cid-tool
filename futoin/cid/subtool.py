@@ -19,6 +19,9 @@ class SubTool( PathMixIn, PackageMixIn, UtilMixIn, object ):
     def getDeps( self ) :
         return []
     
+    def envDeps( self, env ):
+        pass
+    
     def getPostDeps( self ) :
         return []
     
