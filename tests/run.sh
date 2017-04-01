@@ -53,6 +53,7 @@ if [ -z "$1" ]; then
     tests+=" tests/citool_hg_test.py"
     tests+=" tests/citool_svn_test.py"
     tests+=" tests/cid_buildtool_test.py"
+    tests+=" tests/cid_runcmd_test.py"
 else
     tests="$*"
 fi

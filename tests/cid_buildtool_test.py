@@ -411,7 +411,7 @@ class cid_sbt_Test(cid_BuildTool_UTBase):
     
     @classmethod
     def setUpTool(cls):
-        cls._writeFile('hello.scale', '''
+        cls._writeFile('hello.scala', '''
 object Hi {
   def main(args: Array[String]) = println("Hi!")
 }
