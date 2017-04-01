@@ -1,6 +1,8 @@
 
 from __future__ import print_function, absolute_import
 
+import os, tempfile
+
 class PackageMixIn( object ):
     def _requireDeb(self, packages):
         apt_get = self._which('apt-get')
@@ -59,5 +61,79 @@ class PackageMixIn( object ):
             self._trySudoCall(
                 [pacman, '-S', '--noconfirm', '--needed'] + packages,
                 errmsg='WARNING: you may need to install build deps manually !'
+            )
+        
+    def _addAptRepo(self, name, entry, gpg_key):
+        self._requirePackages(['software-properties-common'])
+        apt_add_repository = self._which('apt-add-repository')
+        
+        if not apt_add_repository:
+            return
+        
+        (fd, tf) = tempfile.mkstemp('cidgpg', text=True)
+        os.write(fd, gpg_key.encode(encoding='UTF-8'))
+        os.close(fd)
+
+        self._trySudoCall(
+            ['apt-key', 'add', tf],
+            errmsg = 'WARNING: you may need to import GPG key manually!'
+        )
+        
+        os.remove(tf)
+            
+        self._trySudoCall(
+            [apt_add_repository, '--yes', entry],
+            errmsg = 'WARNING: you may need to add repo manually!'
+        )
+        
+        self._trySudoCall(
+            ['apt-get', 'update'],
+            errmsg = 'WARNING: you may need to update cache APT manually!'
+        )
+            
+    def _addRpmKey(self, gpg_key):
+        rpm = self._which('rpm')
+        
+        if not rpm:
+            return
+            
+        (fd, tf) = tempfile.mkstemp('cidgpg', text=True)
+        os.write(fd, gpg_key.encode(encoding='UTF-8'))
+        os.close(fd)
+            
+        self._trySudoCall(
+            [rpm, '--import', tf],
+            errmsg = 'WARNING: you may need to import GPG key manually!'
+        )
+        
+        os.remove(tf)
+            
+    
+    def _addYumRepo(self, name, url, gpg_key):
+        self._addRpmKey(gpg_key)
+
+        dnf = self._which('dnf')
+        yumcfgmgr = self._which('yum-config-manager')
+        
+        if dnf:
+            self._trySudoCall(
+                [dnf, 'config-manager', '--add-repo', url],
+                errmsg = 'WARNING: you may need to import GPG key manually!'
+            )
+        elif yumcfgmgr:
+            self._trySudoCall(
+                [yumcfgmgr, '--add-repo', url],
+                errmsg = 'WARNING: you may need to import GPG key manually!'
+            )
+
+    def _addZypperRepo(self, name, url, gpg_key):
+        self._addRpmKey(gpg_key)
+        
+        zypper = self._which('zypper')
+        
+        if zypper:
+            self._trySudoCall(
+                [zypper, 'addrepo', url, name],
+                errmsg = 'WARNING: you may need to zypper repo manually!'
             )
         

@@ -95,6 +95,12 @@ of apt-get, dnf, zypper or yum in sudoers. Example: ::
 
     username ALL=(ALL) NOPASSWD: /usr/bin/apt-get install
     username ALL=(ALL) NOPASSWD: /usr/bin/apt-get install *
+    username ALL=(ALL) NOPASSWD: /usr/bin/apt-get update
+    username ALL=(ALL) NOPASSWD: /usr/bin/apt-add-repository
+    username ALL=(ALL) NOPASSWD: /usr/bin/apt-add-repository *
+    # Potential security issue, you may want to install GPG keys manually
+    username ALL=(ALL) NOPASSWD: /usr/bin/apt-key add
+    username ALL=(ALL) NOPASSWD: /usr/bin/apt-key add *
     
     username ALL=(ALL) NOPASSWD: /usr/bin/dnf install
     username ALL=(ALL) NOPASSWD: /usr/bin/dnf install *
@@ -107,9 +113,18 @@ of apt-get, dnf, zypper or yum in sudoers. Example: ::
 
     username ALL=(ALL) NOPASSWD: /usr/bin/zypper install
     username ALL=(ALL) NOPASSWD: /usr/bin/zypper install *
+    username ALL=(ALL) NOPASSWD: /usr/bin/zypper addrepo
+    username ALL=(ALL) NOPASSWD: /usr/bin/zypper addrepo *
     
     username ALL=(ALL) NOPASSWD: /usr/bin/yum install
     username ALL=(ALL) NOPASSWD: /usr/bin/yum install *
+    username ALL=(ALL) NOPASSWD: /usr/bin/yum-config-manager --add-repo
+    username ALL=(ALL) NOPASSWD: /usr/bin/yum-config-manager --add-repo *
+    
+    # For dnf, yum and zypper
+    # Potential security issue, you may want to install GPG keys manually
+    username ALL=(ALL) NOPASSWD: /usr/bin/rpm --import
+    username ALL=(ALL) NOPASSWD: /usr/bin/rpm --import *
 
 *Note: there are duplications with asterisk as some OSes have patched sudo*
 

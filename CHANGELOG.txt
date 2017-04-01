@@ -6,6 +6,7 @@
 * Added experimental "cid run" command changes
 * Added dummy exeTool
 * Changed to run vagrant unit tests outside of sync folder
+* Added support for APT/DNF/Yum/Zypper custom repositories
 
 === 0.4.4 ===
 * Fixed to make GVM happy with toolchain deps even for binary installation
