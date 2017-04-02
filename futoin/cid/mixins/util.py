@@ -3,6 +3,7 @@ from __future__ import print_function, absolute_import
 
 import os, json, stat, shutil, sys, grp
 from collections import OrderedDict
+from ..coloring import Coloring
 
 class UtilMixIn( object ):
     _FUTOIN_JSON = 'futoin.json'
@@ -81,8 +82,14 @@ class UtilMixIn( object ):
     def _getTune( self, config, key, default=None ):
         return config.get('toolTune', {}).get(self._name, {}).get(key, default)
     
+    def _info( self, msg ):
+        print(Coloring.info('INFO: '+msg), file=sys.stderr)
+    
+    def _warn( self, msg ):
+        print(Coloring.warn('WARN: '+msg), file=sys.stderr)
+    
     def _errorExit( self, msg ):
-        print('ERR: '+msg, file=sys.stderr)
+        print(Coloring.error('ERR: '+msg), file=sys.stderr)
         sys.exit(1)
         
     def _haveGroup( self, grpname ):

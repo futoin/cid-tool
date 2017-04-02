@@ -2,6 +2,7 @@
 from __future__ import print_function, absolute_import
 
 import os, sys, subprocess
+from ..coloring import Coloring
 
 class PathMixIn( object ):
     _dev_null = None
@@ -9,7 +10,9 @@ class PathMixIn( object ):
     def _callExternal( self, cmd, suppress_fail=False, verbose=True ) :
         try:
             if verbose and not suppress_fail:
-                print( 'Call: ' + subprocess.list2cmdline( cmd ), file=sys.stderr )
+                print( Coloring.infoLabel('Call: ') +
+                      Coloring.info(subprocess.list2cmdline( cmd )),
+                      file=sys.stderr )
                 stderr = sys.stderr
             else:
                 if not PathMixIn._dev_null:
@@ -46,7 +49,7 @@ class PathMixIn( object ):
             if not errmsg:
                 errmsg = 'WARNING: you may need to call failed command manually !'
 
-            print( errmsg, file=sys.stderr )
+            print( Coloring.warn(errmsg), file=sys.stderr )
     
     def _which( self, program ):
         "Copied from stackoverflow"

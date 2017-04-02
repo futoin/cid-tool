@@ -4,6 +4,7 @@ from __future__ import print_function, absolute_import
 import hashlib
 
 from .subtool import SubTool
+from .coloring import Coloring
 
 __all__ = ['RmsTool']
 
@@ -48,8 +49,8 @@ class RmsTool( SubTool ):
         else :
             file_hash = cls.rmsCalcHash( file_name, 'sha256' )
             
-            print( "File: " + file_name )
-            print( "Hash: " + file_hash )
+            print( Coloring.label("File: ") + file_name )
+            print( Coloring.label("Hash: ") + file_hash )
             yn = raw_input( "Is it correct? (Y/N) " )
             
             if yn not in ( 'Y', 'y' ):

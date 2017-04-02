@@ -37,6 +37,7 @@ Options:
 from __future__ import print_function, absolute_import
 
 from .cidtool import CIDTool
+from .coloring import Coloring
 
 try:
     from docopt import docopt
@@ -44,16 +45,16 @@ except ImportError:
     # fallback to "hardcoded"
     from futoin.cid.contrib.docopt import docopt
 
-import os, sys
+import os, sys, traceback
 
 if sys.version_info < (2,7):
-    print( 'Sorry, but only Python version >= 2.7 is supported!' )
+    print( 'Sorry, but only Python version >= 2.7 is supported!', file=sys.stderr )
     sys.exit( 1 )
 
 from . import __version__ as version
 __all__ = ['run']
 
-def run():
+def runInner():
     args = docopt( __doc__, version='FutoIn CIDTool v{0}'.format(version) )
 
     if type(args) == str:
@@ -128,7 +129,7 @@ def run():
                         getattr( cit, 'tool_'+cmd )( tool )
                         break
                 else:
-                    print( "Unknown Command" )
+                    print( "ERR: Unknown Command", file=sys.stderr )
                     sys.exit( 1 )
         elif args['init'] :
             cit.init_project( args['<project_name>'] )
@@ -158,5 +159,14 @@ def run():
         elif args['ci_build'] :
             cit.ci_build( args['<vcs_ref>'], args['<rms_pool>'] )
         else:
-            print( "Unknown Command" )
+            print( "ERR: Unknown Command", file=sys.stderr )
             sys.exit( 1 )
+
+def run():
+    try:
+        runInner()
+    except Exception as e:
+        print(file=sys.stderr)
+        print(Coloring.error('ERR: ' + str(e)), file=sys.stderr)
+        print(file=sys.stderr)
+        print(Coloring.warn(traceback.format_exc()), file=sys.stderr)

@@ -18,6 +18,7 @@ from collections import OrderedDict
 
 from .mixins.path import PathMixIn
 from .mixins.util import UtilMixIn
+from .coloring import Coloring
 
 from .vcstool import VcsTool
 from .rmstool import RmsTool
@@ -26,10 +27,14 @@ from .testtool import TestTool
 from .migrationtool import MigrationTool
 from .runtimetool import RuntimeTool
 
+
 __all__ = ['CIDTool']
 
 def _call_cmd( cmd ):
-    print( 'Call: ' + subprocess.list2cmdline( cmd ), file=sys.stderr )
+    print( Coloring.infoLabel('Call: ') +
+            Coloring.info(subprocess.list2cmdline( cmd )),
+            file=sys.stderr )
+
     subprocess.call( cmd, stdin=subprocess.PIPE )    
 
 def cid_action( f ):
@@ -54,13 +59,6 @@ def cid_action( f ):
         else :
             f( self, *args, **kwargs )
     return custom_f
-
-def error_exit(msg):
-    print('ERR: '+msg, file=sys.stderr)
-    sys.exit(1)
-    
-def warn(msg):
-    print('WARN: '+msg, file=sys.stderr)
 
 class CIDTool( PathMixIn, UtilMixIn ) :
     TO_GZIP = '\.(js|json|css|svg|txt)$'
@@ -125,7 +123,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         vcstool = config.get('vcs', None)
         
         if not vcstool:
-            error_exit( 'Unknown VCS. Please set through --vcsRepo or project manifest' )
+            self._errorExit( 'Unknown VCS. Please set through --vcsRepo or project manifest' )
             
         vcstool = self._tool_impl[vcstool]
             
@@ -133,7 +131,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             config['vcsRepo'] = vcstool.vcsGetRepo( config )
             
             if not config['vcsRepo']:
-                error_exit( 'Unknown VCS repo. Please set through --vcsRepo or project manifest' )
+                self._errorExit( 'Unknown VCS repo. Please set through --vcsRepo or project manifest' )
         
         return vcstool
 
@@ -142,10 +140,10 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         rmstool = config.get('rms', None)
         
         if not rmstool:
-            error_exit( 'Unknown RMS. Please set through --rmsRepo or project manifest' )
+            self._errorExit( 'Unknown RMS. Please set through --rmsRepo or project manifest' )
         
         if not config.get('rmsRepo', None): # also check it set
-            error_exit( 'Unknown RMS repo. Please set through --rmsRepo or project manifest' )
+            self._errorExit( 'Unknown RMS repo. Please set through --rmsRepo or project manifest' )
         
         return self._tool_impl[rmstool]
 
@@ -164,7 +162,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
     @cid_action
     def tag( self, branch, next_version=None ):
         if next_version and not re.match('^[0-9]+\.[0-9]+\.[0-9]+$', next_version):
-            error_exit( 'Valid version format: x.y.z' )
+            self._errorExit( 'Valid version format: x.y.z' )
             
         self._processWcDir()
             
@@ -181,7 +179,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             if 'version' in config :
                 next_version = config['version']
             else :
-                error_exit( 'current project version is unknown' )
+                self._errorExit( 'current project version is unknown' )
 
             next_version = next_version.split('.')
             next_version[-1] = str(int(next_version[-1]) + 1)
@@ -338,7 +336,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         try:
             fcntl.flock(self.__dict__[lock], flags)
         except Exception as e:
-            error_exit('FAILED to acquire{0}: {1}'.format(lock.replace('_', ' '), e))
+            self._errorExit('FAILED to acquire{0}: {1}'.format(lock.replace('_', ' '), e))
     
     def _unlockCommon( self, lock ):
         fcntl.flock(self.__dict__[lock], fcntl.LOCK_UN)
@@ -375,7 +373,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         elif mode == 'vcstag':
             self._vcstag_deploy(p1)
         else:
-            error_exit( 'Not supported deploy mode: ' + mode )
+            self._errorExit( 'Not supported deploy mode: ' + mode )
             
         self._deployUnlock()
         
@@ -390,7 +388,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             package_list = fnmatch.filter(package_list, package)
             
         if not package_list:
-            error_exit( "No package found" )
+            self._errorExit( "No package found" )
             
         package = self._getLatest(package_list)
             
@@ -403,7 +401,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         # Check if already deployed:
         if os.path.exists( package_noext ) and not config['reDeploy']:
-            error_exit( "Package has been already deployed. Use --redeploy.")
+            self._errorExit( "Package has been already deployed. Use --redeploy.")
         
         # Retrieve package, if not available
         if not os.path.exists( package_basename ) :
@@ -424,7 +422,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         elif package_ext == '.tar':
             _call_cmd( ['tar', 'xf', package_basename, '-C', package_noext_tmp ] )
         else:
-            error_exit('Not supported package format: ' + package_ext)
+            self._errorExit('Not supported package format: ' + package_ext)
         
         # Common processing
         self._deployCommon( package_noext_tmp, package_noext, [package] )
@@ -449,7 +447,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         # Check if already deployed:
         if os.path.exists( target_dir ) and not config['reDeploy']:
-            error_exit( "Package has been already deployed. Use --redeploy.")
+            self._errorExit( "Package has been already deployed. Use --redeploy.")
            
         # Retrieve tag
         target_tmp = target_dir + '.tmp'
@@ -470,7 +468,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             tag_list = fnmatch.filter(tag_list, vcs_ref)
             
         if not tag_list:
-            error_exit( "No tags found" )
+            self._errorExit( "No tags found" )
             
         vcs_ref = self._getLatest(tag_list)
         target_dir = vcs_ref.replace(os.sep, '_').replace(':', '_')
@@ -480,7 +478,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         # Check if already deployed:
         if os.path.exists( target_dir ) and not config['reDeploy']:
-            error_exit( "Package has been already deployed. Use --redeploy.")
+            self._errorExit( "Package has been already deployed. Use --redeploy.")
            
         # Retrieve tag
         vcs_ref_tmp = target_dir + '.tmp'
@@ -611,7 +609,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                 if isinstance(t, RuntimeTool):
                     t.onRun(config, ep['file'], args, ep.get('tune', {}))
                 else:
-                    error_exit('Tool "{0}" for "{1}" does not support "run" command'.format(tool, command))
+                    self._errorExit('Tool "{0}" for "{1}" does not support "run" command'.format(tool, command))
                 
             elif command in actions:
                 act = actions[command]
@@ -624,7 +622,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                         cmd, subprocess.list2cmdline(args)
                     )] )
             else:
-                error_exit('Unknown "{0}" action or entry point'.format(command))
+                self._errorExit('Unknown "{0}" action or entry point'.format(command))
         else:
             for cmd in entry_points:
                 pid = os.fork()
@@ -664,7 +662,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         env = config['env']
         
         if self._isExternalToolsSetup( env ):
-            error_exit('environment requires external installation of tools')
+            self._errorExit('environment requires external installation of tools')
 
         if tool :
             tools = [tool]
@@ -684,7 +682,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         env = config['env']
         
         if self._isExternalToolsSetup( env ):
-            error_exit('environment requires external management of tools')
+            self._errorExit('environment requires external management of tools')
 
         if tool :
             tools = [tool]
@@ -705,7 +703,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         env = config['env']
         
         if self._isExternalToolsSetup( env ):
-            error_exit('environment requires external management of tools')
+            self._errorExit('environment requires external management of tools')
 
         if tool :
             tools = [tool]
@@ -733,7 +731,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             t = self._tool_impl[tool]
             
             if not t.isInstalled( env ) :
-                error_exit( "Tool '%s' is missing" % tool )
+                self._errorExit( "Tool '%s' is missing" % tool )
                 
     def tool_env( self, tool ):
         config = self._config
@@ -767,7 +765,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             t.loadConfig( config ) # see self._initTools()
             getattr( t, method )( config )
         else:
-            error_exit('{0} tool does not support {1}'.format(tool, method))
+            self._errorExit('{0} tool does not support {1}'.format(tool, method))
         
     def tool_prepare( self, tool ):
         self._tool_cmd( tool, BuildTool, 'onPrepare' )
@@ -788,42 +786,42 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         print("List of tools supported by CID:")
         for k in sorted(self._tool_impl.keys()):
             t = self._tool_impl[k]
-            doc = t.__doc__.strip() or '!! Missing documentation.'
+            doc = t.__doc__.strip() or Coloring.warn('!! Missing documentation.')
             doc = doc.split("\n")[0]
-            print("  * " + k + ': ' + doc)
+            print(Coloring.infoLabel("  * " + k + ': ') + Coloring.info(doc))
         print('End.')
 
     def tool_describe( self, tool ):
         t = self._tool_impl[tool]
         
-        print('* Tool: ' + tool)
+        print(Coloring.infoLabel('* Tool: ') + Coloring.warn(tool))
         
         env_vars = t.envNames()
         if env_vars:
-            print('* Environment variables: ' + ', '.join(env_vars))
+            print(Coloring.infoLabel('* Environment variables: ') + ', '.join(env_vars))
 
         deps = t.getDeps()
         if deps:
-            print('* Dependencies: ' + ', '.join(deps))
+            print(Coloring.infoLabel('* Dependencies: ') + ', '.join(deps))
 
         rdeps = t.getPostDeps()
         if rdeps:
-            print('* Reverse dependencies: ' + ', '.join(rdeps))
+            print(Coloring.infoLabel('* Reverse dependencies: ') + ', '.join(rdeps))
             
         order = t.getOrder()
         if order:
-            print('* Order shift: {0}'.format(order))
+            print(Coloring.infoLabel('* Order shift: ') + str(order))
 
         print()
-        doc = t.__doc__.strip() or '!! Missing documentation.'
-        print(doc)
+        doc = t.__doc__.strip() or Coloring.warn('!! Missing documentation.')
+        print(Coloring.info(doc))
         print()
         
     def init_project( self, project_name ):
         self._processWcDir()
 
         if os.path.exists(self._FUTOIN_JSON):
-            error_exit('futoin.json already exists in project root')
+            self._errorExit('futoin.json already exists in project root')
 
         config = self._config
         new_config = OrderedDict()
@@ -859,16 +857,16 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self._sanitizeConfig( config )
         
         if 'env' in pc:
-            error_exit('.env node must not be set in project config')
+            self._errorExit('.env node must not be set in project config')
 
         if 'env' not in dc or len( dc ) != 1:
-            error_exit('Deploy config must have the only .env node')
+            self._errorExit('Deploy config must have the only .env node')
         
         if 'env' not in uc or len( uc ) != 1:
-            error_exit('User config must have the only .env node')
+            self._errorExit('User config must have the only .env node')
         
         if 'env' not in gc or len( gc ) != 1:
-            error_exit('Global config must have the only .env node')
+            self._errorExit('Global config must have the only .env node')
         
         env = OrderedDict( dc['env'] )
         
@@ -889,14 +887,14 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         for (k, v) in config.items():
             if k not in conf_vars:
-                warn('Removing unknown config variable "{0}"'.format(k))
+                self._warn('Removing unknown config variable "{0}"'.format(k))
                 del config[k]
             elif not isinstance(v, conf_vars[k]):
                 req_t = conf_vars[k]
                 if isinstance(req_t, tuple):
                     req_t = req_t[0]
                     
-                error_exit(
+                self._errorExit(
                     'Config variable "{0}" type "{1}" is not instance of "{2}"'
                     .format(k, v.__class__.__name__, req_t[0].__name__)
                 )
@@ -916,9 +914,9 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             for (en, ep) in entry_points.items():
                 for k in ['tool', 'file']:
                     if k not in ep:
-                        error_exit('Entry point "{0}" is missing "{1}"'.format(en, k))
+                        self._errorExit('Entry point "{0}" is missing "{1}"'.format(en, k))
                 if 'tune' in ep and not isinstance(ep['tune'], dict):
-                    error_exit('Entry point "{0}" has invalid tune parameter'.format(en))
+                    self._errorExit('Entry point "{0}" has invalid tune parameter'.format(en))
         
         #---
         toolTune = config.get('toolTune', None)
@@ -926,7 +924,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         if toolTune:
             for (tn, tune) in toolTune.items():
                 if not isinstance(tune, dict):
-                    error_exit('Tool tune "{0}" is not of map type'.format(tn))
+                    self._errorExit('Tool tune "{0}" is not of map type'.format(tn))
         
         #---
     
@@ -1000,7 +998,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             
             if config_tools:
                 if not isinstance(config_tools, dict):
-                    error_exit('futoin.json:tools must be a map of tool=>version pairs')
+                    self._errorExit('futoin.json:tools must be a map of tool=>version pairs')
                 tools = list(config_tools.keys())
                 
                 for (t, v) in config_tools.items():
@@ -1021,7 +1019,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                     tools.append( tool )
 
                     if not isinstance(tool_impl[ tool ], base):
-                        error_exit('Tool {0} does not suite {1} type'.format(tool, item))
+                        self._errorExit('Tool {0} does not suite {1} type'.format(tool, item))
 
         # add all deps
         #--

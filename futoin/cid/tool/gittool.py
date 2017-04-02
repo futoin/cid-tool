@@ -157,7 +157,7 @@ if not set by user.
             remote_url = self.vcsGetRepo( config, vcs_cache_dir )
             
             if self._gitCompareRepo(vcsRepo,  remote_url):
-                print('WARNING: removing git cache on remote URL mismatch: {0} != {1}'
+                self._warn('removing git cache on remote URL mismatch: {0} != {1}'
                       .format(remote_url, vcsRepo))
                 self._rmTree(vcs_cache_dir)
         

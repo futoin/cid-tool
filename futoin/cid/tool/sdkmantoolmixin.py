@@ -64,7 +64,7 @@ class SdkmanToolMixIn( BashToolMixIn, JavaToolMixIn ):
     def uninstallTool( self, env ):
         tool_dir = os.path.join(env['sdkmanDir'], 'candidates', self._sdkName())
         if os.path.exists(tool_dir):
-            print( 'Removing: {0}'.format(tool_dir) )
+            self._info( 'Removing: {0}'.format(tool_dir) )
             self._rmTree(tool_dir)
         #self._setAutoAnswer( env )
         #self._callSdkman( env,
