@@ -60,6 +60,12 @@ Docker EE or other installation methods are out of scope for now.
             self._requirePackages(['docker-engine'])
             self._requireEmerge(['app-emulation/docker'])
             self._requirePacman(['docker'])
+            
+            self._trySudoCall(
+                ['/bin/systemctl', 'start', 'docker'],
+                errmsg = 'WARNING: you may need to start Docker manually !'
+            )
+            
             return
             
         ver = env.get('dockerVer', None)
