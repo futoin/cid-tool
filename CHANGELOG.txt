@@ -20,6 +20,7 @@
 * Added gcc and binutils tools
 * Added new "cid init" command as speced in FTN16
 * Implemented global tool management lock
+* Added Docker CE installation support
 
 === 0.4.4 ===
 * Fixed to make GVM happy with toolchain deps even for binary installation

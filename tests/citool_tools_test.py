@@ -58,7 +58,7 @@ class citool_Tool_UTCommon ( citool_Tool_UTBase ) :
 # 10
 #-----
 for t in ['bash', 'curl', 'git', 'hg', 'svn', 'gpg', 'scp', 'ssh',
-          'make', 'cmake', 'tar', 'unzip', 'gcc', 'binutils']:
+          'make', 'cmake', 'tar', 'unzip', 'gcc', 'binutils', 'docker']:
     cls = 'citool_Tool_10_' + t
     globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
         '__test__' : True,
@@ -153,7 +153,6 @@ for t in ['npm', 'gem', 'setuptools']:
 
 # 50
 #-----
-os.environ['dockerBin'] = '/bin/true'
 for t in ['composer', 'bundler', 'dockercompose']:
     cls = 'citool_Tool_50_' + t
     globals()[cls] = type(cls, (citool_Tool_UTCommon, ), {
