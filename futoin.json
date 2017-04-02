@@ -1,6 +1,6 @@
 {
   "name": "futoin-cid",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "actions": {
     "package": []
   },
@@ -15,8 +15,8 @@
   },
   "entryPoints": {
     "main": {
-      "tool" : "exe",
-      "file" : "bin/cid"
+      "tool": "exe",
+      "file": "bin/cid"
     }
   }
 }

@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.4.5 ===
 * Fixed to properly auto-add 'futoin' to existing config 'tools'
 * Added .entryPoints error checking
 * Fixed rustTool to inherit from RuntimeTool
