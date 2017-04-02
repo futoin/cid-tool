@@ -31,7 +31,7 @@ Override targets with .config.toolTune.
         if self._javaVersion( env ) < 8:
             env['antVer'] = '1.9.8'
 
-        SdkmanToolMixIn.initEnv(self, env)
+        super(antTool, self).initEnv(env)
 
     def onPrepare( self, config ):
         target = self._getTune(config, 'prepare', 'clean')

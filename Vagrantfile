@@ -44,7 +44,7 @@ which apt-get && apt-get update || true
             if box.split('/')[0] == 'centos'
                 dist_controller = 'IDE'
                 
-                config.vm.provision "shell", inline: <<-SHELL
+                node.vm.provision "shell", inline: <<-SHELL
 sudo cat > /etc/yum.repos.d/wandisco-svn.repo <<EOC
 [WANdiscoSVN]
 name=WANdisco SVN Repo 1.9

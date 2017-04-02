@@ -1,6 +1,6 @@
 
 from .citool_utbase import citool_UTBase
-import os, subprocess
+import os, subprocess, sys
 
 class citool_Tool_UTBase ( citool_UTBase ) :
     __test__ = False

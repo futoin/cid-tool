@@ -1066,7 +1066,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             for tool in tools :
                 t = tool_impl[tool]
                 t.importEnv( env )
-                t.initEnv( env )
+                if not t.isInstalled( env ):
+                    break
         else :
             # note, it may have some undesired effect on parallel execution,
             # but let's leave that for now
