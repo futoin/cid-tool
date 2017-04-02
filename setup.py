@@ -33,11 +33,7 @@ config = {
     'entry_points': {
         'console_scripts': [
             'cid=futoin.cid.cli:run',
-            'cid%s=futoin.cid.cli:run' % sys.version[:1],
-            'cid%s=futoin.cid.cli:run' % sys.version[:3],
             'futoin-cid=futoin.cid.cli:run',
-            'futoin-cid%s=futoin.cid.cli:run' % sys.version[:1],
-            'futoin-cid%s=futoin.cid.cli:run' % sys.version[:3],
         ],
     },
     'classifiers': [

@@ -1,4 +1,8 @@
 
+=== (next) ===
+* Removed python-version specific commands from setup.py
+    (solves universal wheel entry_points)
+
 === 0.5.0 ===
 * Bumped version to properly represent amount of changes
 
