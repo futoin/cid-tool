@@ -7,6 +7,8 @@ class dockerTool( BuildTool, RunEnvTool ):
     
 Home: https://www.docker.com/
 
+Experimental support.
+
 Docker CE support is added for CentOS, Fedora, Debian and Ubuntu.
 For other systems, "docker" or "docker-engine" packages is tried to be installed.
 
@@ -67,7 +69,16 @@ Docker EE or other installation methods are out of scope for now.
         else :
             self._requirePackages(['docker-ce'])
             
+        self._trySudoCall(
+            ['/bin/systemctl', 'start', 'docker'],
+            errmsg = 'WARNING: you may need to start Docker manually !'
+        )
 
     def onBuild( self, config ):
-        self._callExternal( [ config['env']['dockerBin'], 'build' ] )
-        
+        cmd = [ config['env']['dockerBin'], 'build', '.' ]
+
+        if self._haveGroup('docker'):
+            self._callExternal( cmd )
+        else:
+            self._callExternal( ['sudo'] + cmd )
+

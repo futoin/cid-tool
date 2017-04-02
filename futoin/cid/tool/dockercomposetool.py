@@ -31,6 +31,9 @@ Experimental support.
 
     def onBuild( self, config ):
         self._callExternal( [ config['env']['dockercomposeBin'], 'build' ] )
+
+    def onPackage(self, config):
+        self._callExternal( [ config['env']['dockercomposeBin'], 'bundle' ] )
         
     def initEnv( self, env ) :
         super(dockercomposeTool, self).initEnv( env, 'docker-compose' )

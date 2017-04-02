@@ -131,6 +131,15 @@ of apt-get, dnf, zypper or yum in sudoers. Example: ::
     # Potential security issue, you may want to install GPG keys manually
     username ALL=(ALL) NOPASSWD: /usr/bin/rpm --import
     username ALL=(ALL) NOPASSWD: /usr/bin/rpm --import *
+    
+    # to launch some newly installed services (e.g. Docker)
+    username ALL=(ALL) NOPASSWD: /bin/systemctl start
+    username ALL=(ALL) NOPASSWD: /bin/systemctl start *
+    
+    # or add username as member of docker group
+    username ALL=(ALL) NOPASSWD: /usr/bin/docker
+    username ALL=(ALL) NOPASSWD: /usr/bin/docker *
+    
 
 *Note: there are duplications with asterisk as some OSes have patched sudo*
 

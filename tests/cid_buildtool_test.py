@@ -1,6 +1,6 @@
 
 from .citool_tools_test import citool_Tool_UTBase
-import os, re, sys, subprocess, platform, glob
+import os, re, sys, subprocess, platform, glob, stat
 
 #=============================================================================
 class cid_BuildTool_UTBase(citool_Tool_UTBase):
@@ -174,7 +174,7 @@ add_executable (helloDemo hello.cpp)
 
 
 #=============================================================================
-php_ver = subprocess.check_output("echo '<?php echo phpversion();' | php", shell=True)
+php_ver = subprocess.check_output("echo '<?php echo phpversion();' | php 2>/dev/null || echo '5.4'", shell=True)
 
 try:
     php_ver = str(php_ver, 'utf8')
@@ -213,6 +213,16 @@ class cid_composer_Test(cid_BuildTool_UTBase):
         assert os.path.exists('vendor/' + composer_require)
         assert not os.path.exists('vendor/' + composer_require_dev)
 
+#=============================================================================
+class cid_docker_Test(cid_BuildTool_UTBase):
+    __test__ = True
+    
+    @classmethod
+    def setUpTool(cls):
+        cls._writeFile('Dockerfile', '''
+FROM busybox
+CMD echo "Hello World!"
+''')
 
 #=============================================================================
 class cid_gradle_Test(cid_BuildTool_UTBase):

@@ -1,7 +1,7 @@
 
 from __future__ import print_function, absolute_import
 
-import os, json, stat, shutil, sys
+import os, json, stat, shutil, sys, grp
 from collections import OrderedDict
 
 class UtilMixIn( object ):
@@ -84,4 +84,9 @@ class UtilMixIn( object ):
     def _errorExit( self, msg ):
         print('ERR: '+msg, file=sys.stderr)
         sys.exit(1)
+        
+    def _haveGroup( self, grpname ):
+        gid = grp.getgrnam(grpname)[2]
+        return gid in os.getgroups()
+        
         
