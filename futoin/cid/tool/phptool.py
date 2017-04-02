@@ -159,7 +159,7 @@ resources due to lack of trusted binary builds.
 
         # Extra repo before the rest
         #---
-        self._requireYum(['epel-release'])
+        self._requireYumEPEL()
         
         self._requireRpm([
             'binutils',

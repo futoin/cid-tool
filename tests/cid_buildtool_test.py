@@ -174,8 +174,14 @@ add_executable (helloDemo hello.cpp)
 
 
 #=============================================================================
-dist = platform.linux_distribution()
-if dist[0] == 'CentOS Linux' and dist[1].split('.') <= ['8', '0']:
+php_ver = subprocess.check_output("echo '<?php echo phpversion();' | php", shell=True)
+
+try:
+    php_ver = str(php_ver, 'utf8')
+except:
+    pass
+
+if php_ver < '5.5':
     composer_require = 'psr/log'
     composer_require_dev = 'symfony/polyfill-mbstring'
 else :

@@ -20,13 +20,13 @@ class PipToolMixIn( object ):
         if int(env['pythonVer'].split('.')[0]) == 3:
             self._requireDeb(['python3-dev'])
             self._requireZypper(['python3-devel'])
-            self._requireYum(['epel-release'])
+            self._requireYumEPEL()
             self._requireYum(['python34-devel'])
             self._requirePacman(['python'])
         else:
             self._requireDeb(['python-dev'])
             self._requireZypper(['python-devel'])
-            self._requireYum(['epel-release'])
+            self._requireYumEPEL()
             self._requireYum(['python-devel'])
             self._requirePacman(['python2'])
             

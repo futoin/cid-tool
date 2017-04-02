@@ -7,7 +7,10 @@ class dockerTool( BuildTool, RunEnvTool ):
     
 Home: https://www.docker.com/
 
-Experimental support.
+Docker CE support is added for CentOS, Fedora, Debian and Ubuntu.
+For other systems, "docker" or "docker-engine" packages is tried to be installed.
+
+Docker EE or other installation methods are out of scope for now.
 """
     def autoDetect( self, config ) :
         return self._autoDetectByCfg(
@@ -50,7 +53,9 @@ Experimental support.
             )
             
         else:
+            self._requireYumEPEL()
             self._requirePackages(['docker'])
+            self._requirePackages(['docker-engine'])
             self._requireEmerge(['app-emulation/docker'])
             self._requirePacman(['docker'])
             return

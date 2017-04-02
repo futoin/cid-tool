@@ -27,6 +27,8 @@ which apt-get && apt-get update || true
         #'funtoo' => 'tonyczeh/funtoo-generic64-pure64',
         #'gentoo' => 'cmiles/gentoo-amd64-minimal',
         'archlinux' => 'ogarcia/archlinux-x64',
+        # behaves similar to CentOS, but limited
+        #'ol_7' => 'boxcutter/ol73',
         
         'debian_stretch' => 'fujimakishouten/debian-stretch64',
         'ubuntu_trusty' => 'bento/ubuntu-14.04',
@@ -36,7 +38,6 @@ which apt-get && apt-get update || true
         
         # TODO: 
         #'macos' => 'jhcook/macos-sierra',
-        #'ol_7' => ' boxcutter/ol73',
     }.each do |name, box|
         config.vm.define('cid_' + name) do |node|
             node.vm.box = box

@@ -26,7 +26,8 @@ system packages OS-specific way.
         if int(env['pythonVer'].split('.')[0]) == 3:
             self._requireDeb(['python3'])
             self._requireZypper(['python3'])
-            self._requireYum(['epel-release'])
+                
+            self._requireYumEPEL()
             self._requireYum(['python34'])
             self._requirePacman(['python'])
         else:

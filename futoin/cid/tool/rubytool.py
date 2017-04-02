@@ -94,7 +94,7 @@ if binary versions are not found for specific system.
 
         # Extra repo before the rest
         #---
-        self._requireYum(['epel-release'])
+        self._requireYumEPEL()
 
         self._requireRpm([
             'binutils',

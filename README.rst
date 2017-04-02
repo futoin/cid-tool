@@ -67,8 +67,14 @@ Tested on the following OSes:
     - **25**
 * **Gentoo**
     - Well... CID does support emerge, but you are on your own here ;)
+        Not included in standard test cycle.
 * **OpenSUSE**
     - **42.1 Leap**
+* **Oracle Linux**
+    - **7** - supported as CentOS, but some packages (e.g. Docker) must be
+        installed manually. Not included in standard test cycle.
+* **RedHat Enterprise Linux**
+    - **7** - see notes for Oracle Linux
 * **Ubuntu**
     - **14.04 LTS - Trusty**
     - **16.04 LTS - Xenial**

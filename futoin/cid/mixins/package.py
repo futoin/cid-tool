@@ -22,6 +22,13 @@ class PackageMixIn( object ):
     def _isUbuntu( self ):
         return platform.linux_distribution()[0] == 'Ubuntu'
     
+    def _isOracleLinux( self ):
+        return os.path.exists('/etc/oracle-release')
+
+    def _isRHEL( self ):
+        "Note: make sure to check after CentOS/Fedora/Oracle"
+        return os.path.exists('/etc/redhat-release')
+
     def _requireDeb(self, packages):
         apt_get = self._which('apt-get')
         
@@ -175,4 +182,12 @@ class PackageMixIn( object ):
                 [zypper, 'addrepo', url, name],
                 errmsg = 'WARNING: you may need to zypper repo manually!'
             )
+            
+    def _requireYumEPEL(self):
+        if self._isOracleLinux() or self._isRHEL():
+            ver = platform.linux_distribution()[1].split('.')[0]
+            self._requireYum(['https://dl.fedoraproject.org/pub/epel/epel-release-latest-{0}.noarch.rpm'.format(ver)])
+        else:
+            self._requireYum(['epel-release'])
+
         
