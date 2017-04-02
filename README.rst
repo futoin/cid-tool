@@ -213,6 +213,13 @@ Please see details in the FTN16 spec: ::
 
     cid tool describe <tool_name>
         Show tool's detailed description.
+        
+    cid init [<project_name>] [--vcsRepo=<vcs_repo>]
+        [--rmsRepo=<rms_repo>] [--permissive]
+        Initialize futoin.json with automatically detected data.
+        
+        If <project_name> is omitted and not known from
+        auto-detection then basename of containing folder is used.
 
 Excplicit futoin.json example
 -----------------------------
