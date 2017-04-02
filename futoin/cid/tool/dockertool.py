@@ -50,9 +50,9 @@ Experimental support.
             )
             
         else:
-            self._requirePackages('docker')
-            self._requireEmerge('app-emulation/docker')
-            self._requirePacman('docker')
+            self._requirePackages(['docker'])
+            self._requireEmerge(['app-emulation/docker'])
+            self._requirePacman(['docker'])
             return
             
         ver = env.get('dockerVer', None)
