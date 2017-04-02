@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.5.1 ===
 * Removed python-version specific commands from setup.py
     (solves universal wheel entry_points)
 
