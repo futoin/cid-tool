@@ -27,6 +27,13 @@ javaVer supports:
                 self._requireYum(['java-1.{0}.0-openjdk'.format(ver)])
                 return
             
+            if self._isMacOS():
+                if ver == '8':
+                    self._requireDmg('http://cdn.azul.com/zulu/bin/zulu8.20.0.5-jdk8.0.121-macosx_x64.dmg')
+                elif ver == '7':
+                    self._requireDmg('http://cdn.azul.com/zulu/bin/zulu7.17.0.5-jdk7.0.131-macosx_x64.dmg')
+                return
+            
             self._addAptRepo('zulu', 'deb http://repos.azulsystems.com/debian stable main', self._ZULU_GPG_KEY)
             self._addYumRepo('zulu', 'http://repos.azulsystems.com/rhel/zulu.repo', self._ZULU_GPG_KEY)
             self._addZypperRepo('zulu', 'http://repos.azulsystems.com/sles/latest', self._ZULU_GPG_KEY)

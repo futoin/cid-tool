@@ -11,9 +11,6 @@ Vagrant.configure("2") do |config|
         end
     end
     
-    # make sure present on all boxes
-    config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync__exclude: ".git/", create: true, group: 'root'
-    
     config.vm.provision "shell", inline: <<-SHELL
 which apt-get && apt-get update || true
     SHELL
@@ -29,7 +26,9 @@ which apt-get && apt-get update || true
         'archlinux' => 'ogarcia/archlinux-x64',
         # behaves similar to CentOS, but limited
         #'ol_7' => 'boxcutter/ol73',
+        # not part of standard test cycle
         #'macos' => 'jhcook/macos-sierra',
+        #'macos' => 'http://files.dryga.com/boxes/osx-sierra-0.3.1.box',
         
         'debian_stretch' => 'fujimakishouten/debian-stretch64',
         'ubuntu_trusty' => 'bento/ubuntu-14.04',
@@ -39,6 +38,8 @@ which apt-get && apt-get update || true
     }.each do |name, box|
         config.vm.define('cid_' + name) do |node|
             node.vm.box = box
+            
+            group = 'root'
             
             if box.split('/')[0] == 'centos'
                 dist_controller = 'IDE'
@@ -57,6 +58,7 @@ EOC
                 dist_controller = 'IDE Controller'
             elsif name == 'macos'
                 dist_controller = 'SATA'
+                group = 'staff'
             else
                 dist_controller = 'SATA Controller'
             end
@@ -68,6 +70,8 @@ EOC
                     "--hostiocache", "on"
                 ]
             end
+            
+            node.vm.synced_folder ".", "/vagrant", type: "rsync", rsync__exclude: ".git/", create: true, group: group
         end
     end
 end

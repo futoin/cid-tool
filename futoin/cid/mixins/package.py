@@ -1,7 +1,7 @@
 
 from __future__ import print_function, absolute_import
 
-import os, tempfile, subprocess, platform
+import os, tempfile, subprocess, platform, glob
 
 class PackageMixIn( object ):
     def _isCentOS( self ):
@@ -28,11 +28,17 @@ class PackageMixIn( object ):
     def _isRHEL( self ):
         "Note: make sure to check after CentOS/Fedora/Oracle"
         return os.path.exists('/etc/redhat-release')
+    
+    def _isMacOS( self ):
+        return platform.system() == 'Darwin'
 
     def _requireDeb(self, packages):
         apt_get = self._which('apt-get')
         
         if apt_get:
+            if not isinstance(packages, list):
+                packages = [packages]
+            
             self._trySudoCall(
                 [apt_get, 'install', '-y'] + packages,
                 errmsg = 'WARNING: you may need to install build deps manually !'
@@ -45,6 +51,9 @@ class PackageMixIn( object ):
             yum = self._which('yum')
         
         if yum:
+            if not isinstance(packages, list):
+                packages = [packages]
+            
             self._trySudoCall(
                 [yum, 'install', '-y'] + packages,
                 errmsg = 'WARNING: you may need to install build deps manually !'
@@ -54,6 +63,9 @@ class PackageMixIn( object ):
         zypper = self._which('zypper')
 
         if zypper:
+            if not isinstance(packages, list):
+                packages = [packages]
+            
             self._trySudoCall(
                 [zypper, 'install', '-y'] + packages,
                 errmsg='WARNING: you may need to install build deps manually !'
@@ -71,18 +83,27 @@ class PackageMixIn( object ):
         emerge = self._which('emerge')
 
         if emerge:
+            if not isinstance(packages, list):
+                packages = [packages]
+            
             self._trySudoCall(
                 [emerge] + packages,
                 errmsg='WARNING: you may need to install build deps manually !'
             )
 
     def _requireEmergeDepsOnly(self, packages):
+        if not isinstance(packages, list):
+            packages = [packages]
+        
         self._requireEmerge(['--onlydeps'] + packages)
         
     def _requirePacman(self, packages):
         pacman = self._which('pacman')
 
         if pacman:
+            if not isinstance(packages, list):
+                packages = [packages]
+            
             self._trySudoCall(
                 [pacman, '-S', '--noconfirm', '--needed'] + packages,
                 errmsg='WARNING: you may need to install build deps manually !'
@@ -190,4 +211,44 @@ class PackageMixIn( object ):
         else:
             self._requireYum(['epel-release'])
 
+    def _requireHomebrew(self, packages):
+        if not self._isMacOS():
+            return
         
+        if not isinstance(packages, list):
+            packages = [packages]
+        
+        brew = self._which('brew')
+        
+        if not brew:
+            self._callExternal(['bash', '-c', '/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"'])
+            brew = self._which('brew')
+            
+        for package in packages:
+            self._callExternal([brew, 'install', package])
+            
+    def _requireDmg(self, packages):
+        if not self._isMacOS():
+            return
+        
+        if not isinstance(packages, list):
+            packages = [packages]
+
+        curl = self._which('curl')
+        hdiutil = self._which('hdiutil')
+        installer = self._which('installer')
+        volumes_dir = '/Volumes'
+            
+        for package in packages:
+            base_name = package.split('/')[-1]
+            local_name = os.path.join(os.environ['HOME'])
+            self._callExternal([curl, '-o', base_name, package])
+            
+            volumes = set(os.listdir(volumes_dir))
+            self._trySudoCall([hdiutil, 'attach', local_name])
+            volume = (set(os.listdir(volumes_dir)) - volumes)[0]
+            
+            pkg = glob.glob(os.path.join(volumes_dir, volume, '*.pkg'))
+            self._trySudoCall([installer, '-package', pkg, '-target', '/'])
+            
+            self._trySudoCall([hdiutil, 'dettach', local_name])

@@ -18,6 +18,7 @@ Auto-detected based on .hg folder
         self._requirePackages(['mercurial'])
         self._requireEmerge(['dev-vcs/mercurial'])
         self._requirePacman(['mercurial'])
+        self._requireHomebrew('mercurial')
     
     def autoDetect( self, config ) :
         return self._autoDetectVCS( config, '.hg' )

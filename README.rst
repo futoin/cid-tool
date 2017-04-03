@@ -68,6 +68,8 @@ Tested on the following OSes:
 * **Gentoo**
     - Well... CID does support emerge, but you are on your own here ;)
         Not included in standard test cycle.
+* **macOS**
+    - Very preliminary support. Help wanted for testing.
 * **OpenSUSE**
     - **42.1 Leap**
 * **Oracle Linux**
@@ -99,6 +101,7 @@ If pip is not available then it's strongly suggested to install one first: ::
 To allow cid automatically install system packages, please allow execution
 of apt-get, dnf, zypper or yum in sudoers. Example: ::
 
+    # Debian / Ununtu
     username ALL=(ALL) NOPASSWD: /usr/bin/apt-get install
     username ALL=(ALL) NOPASSWD: /usr/bin/apt-get install *
     username ALL=(ALL) NOPASSWD: /usr/bin/apt-get update
@@ -108,30 +111,37 @@ of apt-get, dnf, zypper or yum in sudoers. Example: ::
     username ALL=(ALL) NOPASSWD: /usr/bin/apt-key add
     username ALL=(ALL) NOPASSWD: /usr/bin/apt-key add *
     
+    # Fedora and future RedHat-based
     username ALL=(ALL) NOPASSWD: /usr/bin/dnf install
     username ALL=(ALL) NOPASSWD: /usr/bin/dnf install *
 
+    # Gentoo Linux
     username ALL=(ALL) NOPASSWD: /usr/bin/emerge
     username ALL=(ALL) NOPASSWD: /usr/bin/emerge *
     
+    # ArchLinux
     username ALL=(ALL) NOPASSWD: /usr/bin/pacman
     username ALL=(ALL) NOPASSWD: /usr/bin/pacman *
 
+    # OpenSuSe and possibly SLES
     username ALL=(ALL) NOPASSWD: /usr/bin/zypper install
     username ALL=(ALL) NOPASSWD: /usr/bin/zypper install *
     username ALL=(ALL) NOPASSWD: /usr/bin/zypper addrepo
     username ALL=(ALL) NOPASSWD: /usr/bin/zypper addrepo *
     
+    # Other RedHat-based
     username ALL=(ALL) NOPASSWD: /usr/bin/yum install
     username ALL=(ALL) NOPASSWD: /usr/bin/yum install *
     username ALL=(ALL) NOPASSWD: /usr/bin/yum-config-manager --add-repo
     username ALL=(ALL) NOPASSWD: /usr/bin/yum-config-manager --add-repo *
     
+    # For RedHat family
     # For dnf, yum and zypper
     # Potential security issue, you may want to install GPG keys manually
     username ALL=(ALL) NOPASSWD: /usr/bin/rpm --import
     username ALL=(ALL) NOPASSWD: /usr/bin/rpm --import *
     
+    # Mostly Docker-specific
     # to launch some newly installed services (e.g. Docker)
     username ALL=(ALL) NOPASSWD: /bin/systemctl start
     username ALL=(ALL) NOPASSWD: /bin/systemctl start *
@@ -139,6 +149,12 @@ of apt-get, dnf, zypper or yum in sudoers. Example: ::
     # or add username as member of docker group
     username ALL=(ALL) NOPASSWD: /usr/bin/docker
     username ALL=(ALL) NOPASSWD: /usr/bin/docker *
+    
+    # Mac OS X
+    # Not fully tested
+    username ALL=(ALL) NOPASSWD: /usr/bin/installer
+    username ALL=(ALL) NOPASSWD: /usr/bin/hdiutil
+    
     
 
 *Note: there are duplications with asterisk as some OSes have patched sudo*

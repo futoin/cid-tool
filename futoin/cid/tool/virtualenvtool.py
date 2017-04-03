@@ -52,6 +52,9 @@ Home: https://pypi.python.org/pypi/virtualenv
                 self._requireEmerge(['dev-python/pip'])
                 self._requirePacman(['python-pip'])
                 
+                if self._isMacOS():
+                    self._trySudoCall(['easy_install', 'pip'])
+                
                 pip = self._which('pip')
                 
             if pip:

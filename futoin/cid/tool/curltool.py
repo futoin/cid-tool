@@ -10,3 +10,4 @@ Home: https://curl.haxx.se/
         self._requirePackages(['curl'])
         self._requireEmerge(['net-misc/curl'])
         self._requirePacman(['curl'])
+        self._requireHomebrew('curl')
