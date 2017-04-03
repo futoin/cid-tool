@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.5.2 ===
 * Added missing README for "cid init"
 * Added RHEL & Oracle Linux support
 * Minor improvements to Docker & DockerCompose support
