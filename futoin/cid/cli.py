@@ -170,3 +170,8 @@ def run():
         print(Coloring.error('ERR: ' + str(e)), file=sys.stderr)
         print(file=sys.stderr)
         print(Coloring.warn(traceback.format_exc()), file=sys.stderr)
+    except KeyboardInterrupt as e:
+        print(file=sys.stderr)
+        print(Coloring.error('User abort'), file=sys.stderr)
+        print(file=sys.stderr)
+        

@@ -1,4 +1,7 @@
 
+=== (next) ===
+* Added nice handling of user abort (no default call stack)
+
 === 0.5.2 ===
 * Added missing README for "cid init"
 * Added RHEL & Oracle Linux support
