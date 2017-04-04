@@ -284,7 +284,7 @@ futoin.json is not strictly required, but it allows to use full power of CID.
       "rms": "scp",
       "rmsRepo": "rms@somehost",
       "rmsPool": "ReleaseBuilds",
-      "main": {
+      "entryPoints": {
         "app": {
           "tool": "python",
           "path": "app.py",
