@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.5.3 ===
 * Added nice handling of user abort (no default call stack)
 * Added preliminary and not yet tested support for macOS
 
