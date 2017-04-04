@@ -6,6 +6,12 @@
     unconditionally configure output coloring
 * Fixed composer not to disable scripts on package command
 * Updated php to also install sqlite module
+* Deployment procedure fixes:
+    * Fixed to properly enable build in vcstag/vcsref mode
+    * Fixed build to happen before read-only permissions are set
+    * Fixed deployDir != '.' cases
+    * Added safety feature to make sure deployDir is empty
+        or already has deploy lock in it
 
 === 0.5.3 ===
 * Added nice handling of user abort (no default call stack)

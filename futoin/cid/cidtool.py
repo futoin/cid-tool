@@ -90,7 +90,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         ('plugins', dict),
     ])
     
-    DEPLOY_LOCK_FILE = '.futoin.lock'
+    DEPLOY_LOCK_FILE = '.futoin-deploy.lock'
     GLOBAL_LOCK_FILE = os.path.join(os.environ['HOME'], '.futoin-global.lock')
 
     def __init__( self, overrides ) :
@@ -173,6 +173,9 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         vcstool.vcsCheckout( config, branch )
         self._initConfig()
         config = self._config
+        
+        if 'name' not in config:
+            self._errorExit('Failed to detect project "name"')
         
         # Set new version
         if next_version is None:
@@ -282,8 +285,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         #---
         buildTimestamp = datetime.datetime.utcnow().strftime( '%Y%m%d%H%M%S' )
-        name = config['name'].split('/')[-1]
-        version = config['version']
+        name = config.get('name', 'UNKNOWN').split('/')[-1]
+        version = config.get('version', 'UNKNOWN')
         vcs_ref = config.get( 'vcsRef', None )
         
         # Note: unless run in clean ci_build process,
@@ -344,7 +347,11 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self.__dict__[lock] = None
         
     def _deployLock( self ):
-        self._lockCommon('_deploy_lock', self.DEPLOY_LOCK_FILE, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        self._lockCommon(
+            '_deploy_lock',
+            os.path.join(self._config['deployDir'], self.DEPLOY_LOCK_FILE),
+            fcntl.LOCK_EX | fcntl.LOCK_NB
+        )
     
     def _deployUnlock( self ):
         self._unlockCommon('_deploy_lock')
@@ -359,10 +366,24 @@ class CIDTool( PathMixIn, UtilMixIn ) :
     def deploy( self, mode, p1, p2=None ):
         # Get to deploy folder
         deploy_dir = self._config['deployDir']
-        if deploy_dir:
-            if not os.path.exists( deploy_dir ) :
-                os.makedirs( deploy_dir )
-            os.chdir( deploy_dir )
+        
+        if not deploy_dir:
+            deploy_dir = os.path.realpath('.')
+            self._config['deployDir'] = deploy_dir
+            self._initConfig()
+
+        placeholder = os.path.join(deploy_dir, self.DEPLOY_LOCK_FILE)
+
+        if not os.path.exists( deploy_dir ) :
+            os.makedirs( deploy_dir )
+            open(placeholder, 'w').close()
+        elif not os.path.exists(placeholder) and os.listdir(deploy_dir):
+            self._errorExit(
+                "Deployment dir '{0}' is missing safety placeholder {1}."
+                .format(deploy_dir, os.path.basename(placeholder))
+            )
+            
+        os.chdir( deploy_dir )
 
         self._deployLock()
         
@@ -376,6 +397,10 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             self._errorExit( 'Not supported deploy mode: ' + mode )
             
         self._deployUnlock()
+        
+    def _redeployExit( self, deploy_type ):
+        self._warn( deploy_type + " has been already deployed. Use --redeploy.")
+        sys.exit(0)
         
     def _rms_deploy( self, rms_pool, package=None ):
         config = self._config
@@ -401,7 +426,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         # Check if already deployed:
         if os.path.exists( package_noext ) and not config['reDeploy']:
-            self._errorExit( "Package has been already deployed. Use --redeploy.")
+            self._redeployExit('Package')
         
         # Retrieve package, if not available
         if not os.path.exists( package_basename ) :
@@ -447,7 +472,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         # Check if already deployed:
         if os.path.exists( target_dir ) and not config['reDeploy']:
-            self._errorExit( "Package has been already deployed. Use --redeploy.")
+            self._redeployExit('VCS ref')
            
         # Retrieve tag
         target_tmp = target_dir + '.tmp'
@@ -478,7 +503,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         # Check if already deployed:
         if os.path.exists( target_dir ) and not config['reDeploy']:
-            self._errorExit( "Package has been already deployed. Use --redeploy.")
+            self._redeployExit('VCS tag')
            
         # Retrieve tag
         vcs_ref_tmp = target_dir + '.tmp'
@@ -500,6 +525,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
 
     def _deployCommon( self, tmp, dst, cleanup_whitelist ):
         config = self._config
+        config['wcDir'] = os.path.realpath(tmp)
         
         # Setup persistent folders
         persistent_dir = os.path.abspath( config['env'].get('persistentDir', 'persistent') )
@@ -519,6 +545,18 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                 self._rmTree( dd )
             
             os.symlink( pd, dd )
+        
+                
+        # Build
+        if config.get('deployBuild', False):
+            self.prepare(None)
+            self.build()
+            
+        # Complete migration
+        self.migrate( tmp )
+        
+        # return back
+        os.chdir(config['deployDir'])
             
         # Setup read-only permissions
         dir_perm = stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP
@@ -531,17 +569,6 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                 os.chmod( os.path.join( path, d ), dir_perm )
             for f in files :
                 os.chmod( os.path.join( path, f ), file_perm )
-                
-        # Build
-        if config.get('deployBuild', False):
-            cwd = os.getcwd()
-            config['wcDir'] = tmp
-            self.prepare(None)
-            self.build()
-            os.chdir(cwd)
-            
-        # Complete migration
-        self.migrate( tmp )
         
         # Setup per-user services
         self._deployServices( tmp )
@@ -550,6 +577,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         if os.path.exists( dst ):
             # re-deploy case
             os.rename( dst, dst + '.tmprm' )
+
         os.rename( tmp, dst )
         os.symlink( dst, 'current.tmp' )
         os.rename( 'current.tmp', 'current' )

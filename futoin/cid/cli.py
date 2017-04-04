@@ -89,11 +89,17 @@ def runInner():
         deploy_dir = args['--deployDir']
         overrides['deployDir'] = deploy_dir and os.path.realpath(deploy_dir) or None
         overrides['reDeploy'] = args['--redeploy'] and True or False
+
         if args['--build']:
             overrides['deployBuild'] = True
+
         if args['--debug']:
             overrides['debugBuild'] = True
         
+        # enable vcsref & vcstag build by default
+        if args['deploy'] and (args['vcsref'] or args['vcstag']):
+            overrides['deployBuild'] = True
+
         #---
         overrides['vcsRef'] = args['<vcs_ref>']
 
