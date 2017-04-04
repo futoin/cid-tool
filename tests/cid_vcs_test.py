@@ -162,8 +162,7 @@ class cid_VCS_UTBase ( citool_UTBase ) :
         self.assertTrue(glob.glob('wc-1.2.3-*'))
         
         self._call_citool( [ 'deploy', 'Builds', package,
-                            '--rmsRepo', 'scp:' + rms_dir ],
-                            returncode=1 )
+                            '--rmsRepo', 'scp:' + rms_dir ] )
         
         self.assertTrue(glob.glob('wc-1.2.3-*'))
         
@@ -179,7 +178,7 @@ class cid_VCS_UTBase ( citool_UTBase ) :
         self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO ] )
         self.assertTrue(os.path.exists('v1.3.0'))
         
-        self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO ], returncode=1 )
+        self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO ] )
         self.assertTrue(os.path.exists('v1.3.0'))
         
         self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO, '--redeploy' ] )
@@ -191,7 +190,7 @@ class cid_VCS_UTBase ( citool_UTBase ) :
         self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO, 'v1.2.*' ] )
         self.assertTrue(os.path.exists('v1.2.4'))
 
-        self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO, 'v1.2.4' ], returncode=1 )
+        self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO, 'v1.2.4' ] )
         self.assertTrue(os.path.exists('v1.2.4'))
 
         self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO, 'v1.2.*', '--redeploy' ] )
@@ -206,7 +205,7 @@ class cid_VCS_UTBase ( citool_UTBase ) :
         self._call_citool( [ 'deploy', 'vcsref', 'branch_A', '--vcsRepo', self.VCS_REPO ] )
         self.assertTrue(glob.glob('branch_A_*'))
         
-        self._call_citool( [ 'deploy', 'vcsref', 'branch_A', '--vcsRepo', self.VCS_REPO ], returncode=1 )
+        self._call_citool( [ 'deploy', 'vcsref', 'branch_A', '--vcsRepo', self.VCS_REPO ] )
         self.assertTrue(glob.glob('branch_A_*'))
         
         self._call_citool( [ 'deploy', 'vcsref', 'branch_A', '--vcsRepo', self.VCS_REPO, '--redeploy' ] )

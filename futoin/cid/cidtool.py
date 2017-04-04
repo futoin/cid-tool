@@ -369,7 +369,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         if not deploy_dir:
             deploy_dir = os.path.realpath('.')
-            self._config['deployDir'] = deploy_dir
+            self._overrides['deployDir'] = deploy_dir
             self._initConfig()
 
         placeholder = os.path.join(deploy_dir, self.DEPLOY_LOCK_FILE)

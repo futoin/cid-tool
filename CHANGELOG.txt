@@ -12,6 +12,8 @@
     * Fixed deployDir != '.' cases
     * Added safety feature to make sure deployDir is empty
         or already has deploy lock in it
+* Restored behavior not to fail, if already deployed - exit
+    with success
 
 === 0.5.3 ===
 * Added nice handling of user abort (no default call stack)

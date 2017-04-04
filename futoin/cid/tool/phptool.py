@@ -367,6 +367,7 @@ resources due to lack of trusted binary builds.
             'php*-phar',
             'php*-soap',
             'php*-sockets',
+            'php*-sqlite',
             'php*-tidy',
             'php*-xmlreader',
             'php*-xmlrpc',
@@ -383,6 +384,7 @@ resources due to lack of trusted binary builds.
             'php-pecl-apcu',
             'php-pecl-imagick',
             'php-pecl-msgpack',
+            'php-pecl-sqlite',
             'php-pecl-ssh2',
             'php-pecl-zendopcache',
         ])
