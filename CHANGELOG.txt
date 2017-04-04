@@ -4,6 +4,8 @@
 * Added previously not documented "cid migrate" command
 * Added CID_COLOR=yes|no environment variable support to 
     unconditionally configure output coloring
+* Fixed composer not to disable scripts on package command
+* Updated php to also install sqlite module
 
 === 0.5.3 ===
 * Added nice handling of user abort (no default call stack)

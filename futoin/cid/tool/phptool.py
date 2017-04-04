@@ -335,6 +335,7 @@ resources due to lack of trusted binary builds.
             "php.*-msgpack",
             "php.*-ssh2",
             "php.*-soap",
+            "php.*-sqlite",
             "php.*-xml",
             "php.*-xmlrpc",
             "php.*-xsl",

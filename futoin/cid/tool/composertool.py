@@ -76,5 +76,5 @@ composerDir is equal to user's ~/bin/ folder by default.
         
     def onPackage( self, config ):
         composerBin = config['env']['composerBin']
-        self._callExternal( [ composerBin, 'install', '--no-dev' ] )
+        self._callExternal( [ composerBin, 'install', '--no-dev', '--no-scripts' ] )
 
