@@ -2,6 +2,8 @@
 === (next) ===
 * Minor corrections in README
 * Added previously not documented "cid migrate" command
+* Added CID_COLOR=yes|no environment variable support to 
+    unconditionally configure output coloring
 
 === 0.5.3 ===
 * Added nice handling of user abort (no default call stack)

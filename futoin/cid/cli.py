@@ -61,6 +61,9 @@ def runInner():
     if type(args) == str:
         print(args)
     else:
+        if 'CID_COLOR' in os.environ:
+            Coloring.enable(os.environ['CID_COLOR'] == 'yes')
+        
         overrides = {}
         #---
         vcsArg = args.get('--vcsRepo', None)
