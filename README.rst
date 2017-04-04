@@ -251,6 +251,12 @@ Please see details in the FTN16 spec: ::
         
         If <project_name> is omitted and not known from
         auto-detection then basename of containing folder is used.
+        
+    cid migrate
+        Runs data migration tasks.
+
+        Provided for overriding default procedures in scope of
+        deployment procedure.
 
 Excplicit futoin.json example
 -----------------------------

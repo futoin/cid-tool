@@ -11,6 +11,7 @@ Usage:
     cid deploy vcstag [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>]
     cid deploy vcsref <vcs_ref> [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>]
     cid deploy [rms] <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--rmsHash=<rms_hash>] [--redeploy] [--deployDir=<deploy_dir>] [--build]
+    cid migrate
     cid run
     cid run <command> [<command_arg>...]
     cid ci_build <vcs_ref> <rms_pool> [--vcsRepo=<vcs_repo>] [--rmsRepo=<rms_repo>] [--permissive] [--debug]
@@ -23,11 +24,11 @@ Usage:
 
 Options:
     -h --help                       Show this screen.
-    --vcsRepo=<vcs_repo>              VCS repository URL in vcs_type:vcs_url format.
-    --rmsRepo=<rms_repo>              RMS repository URL in rms_type:rms_url format.
-    --wcDir=<wc_dir>                  Working copy directory (project root).
-    --rmsHash=<rms_hash>              Package hash for validation in hash_type:value format.
-    --deployDir=<deploy_dir>          Destination for deployment.
+    --vcsRepo=<vcs_repo>            VCS repository URL in vcs_type:vcs_url format.
+    --rmsRepo=<rms_repo>            RMS repository URL in rms_type:rms_url format.
+    --wcDir=<wc_dir>                Working copy directory (project root).
+    --rmsHash=<rms_hash>            Package hash for validation in hash_type:value format.
+    --deployDir=<deploy_dir>        Destination for deployment.
     --redeploy                      Force redeploy.
     --build                         Build during deploy.
     --permissive                    Ignore test failures.
@@ -147,13 +148,13 @@ def runInner():
             cit.promote( args['<package>'], args['<rms_pool>'] )
         elif args['deploy'] :
             if args['vcsref']:
-                overrides['deployBuild'] = True
                 cit.deploy( 'vcsref', args['<vcs_ref>'] )
             elif args['vcstag']:
-                overrides['deployBuild'] = True
                 cit.deploy( 'vcstag', args['<vcs_ref>'] )
             else :
                 cit.deploy( 'rms', args['<rms_pool>'], args['<package>'] )
+        elif args['migrate'] :
+            cit.migrate()
         elif args['run'] :
             cit.run( args['<command>'], args['<command_arg>'] )
         elif args['ci_build'] :
