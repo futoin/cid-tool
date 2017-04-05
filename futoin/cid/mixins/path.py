@@ -1,7 +1,7 @@
 
 from __future__ import print_function, absolute_import
 
-import os, sys, subprocess
+import os, sys, subprocess, glob
 from ..coloring import Coloring
 
 class PathMixIn( object ):
@@ -85,3 +85,10 @@ class PathMixIn( object ):
 
     def _addBinPath( self, bin_dir, first=False ) :
         self._addEnvPath( 'PATH', bin_dir, first=first)
+
+    def _addPackageFiles( self, config, pattern ):
+        files = glob.glob(pattern)
+        
+        config.setdefault('packageFiles', [])
+        config['packageFiles'] += files
+        

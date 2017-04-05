@@ -251,6 +251,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
     def package( self ):
         self._processWcDir()
         
+        #---
         self._info('Running "package" in tools')
         self._forEachTool(
             lambda config, t: t.onPackage( config ),
@@ -259,11 +260,11 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         #---
         config = self._config
-        package_file = config.get( 'package_file', None )
+        package_files = config.get('packageFiles', [])
 
-        if package_file:
-            self._info('Found binary artifacts from tools: {0}'.format(package_file))
-            self._lastPackage = package_file
+        if package_files:
+            self._info('Found binary artifacts from tools: {0}'.format(package_files))
+            self._lastPackages = package_files
             return
 
         #---
@@ -327,7 +328,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self._info('Creating package {0}'.format(package_file))
         _call_cmd( ['tar', 'cJf', package_file,
                     '--exclude=' + package_file, '--exclude-vcs' ] + package_content )
-        self._lastPackage = package_file
+        self._lastPackages = [package_file]
     
     @cid_action
     def check( self ):
@@ -728,12 +729,13 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         if os.path.exists( wcDir ) and wcDir != os.getcwd():
             os.rename( wcDir, '{0}.bak{1}'.format(wcDir, int(time.time())) )
         
-        self._lastPackage = None
+        self._lastPackages = None
         self.prepare( vcs_ref )
         self.build()
         self.package()
         self.check()
-        self.promote( self._lastPackage, rms_pool )
+        for p in self._lastPackages:
+            self.promote( p, rms_pool )
 
     def tool_exec( self, tool, args ):
         t = self._tool_impl[tool]
@@ -860,6 +862,11 @@ class CIDTool( PathMixIn, UtilMixIn ) :
 
     def tool_package( self, tool ):
         self._tool_cmd( tool, BuildTool, 'onPackage' )
+        
+        package_files = self._config.get('packageFiles', [])
+        
+        if package_files:
+            self._info('Package files: {0}'.format(package_files))
 
     def tool_migrate( self, tool ):
         self._tool_cmd( tool, MigrationTool, 'onMigrate' )

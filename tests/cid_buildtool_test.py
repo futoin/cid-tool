@@ -149,6 +149,9 @@ class cid_cargo_Test(cid_BuildTool_UTBase):
     def _test_build( self ):
         assert os.path.exists('target/release')
         assert not os.path.exists('target/debug')
+        
+    def _test_package( self ):
+        assert glob.glob('target/package/*.crate')
 
 #=============================================================================
 class cid_cmake_Test(cid_BuildTool_UTBase):
@@ -412,6 +415,10 @@ class cid_puppet_Test(cid_BuildTool_UTBase):
   "version": "0.0.1",
   "summary": "Futoin CID Puppet Test",
 })
+        os.mkdir('pkg')
+        
+    def _test_prepare( self ):
+        assert not os.path.exists('pkg')
         
     def _test_build( self ):
         assert os.path.exists('pkg')

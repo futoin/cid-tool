@@ -13,6 +13,7 @@ Build targets:
     prepare -> clean
     build -> <default> without explicit target
     package -> dists
+    packageGlob -> '*.jar'
 Override targets with .config.toolTune.
 
 Requires Java >= 7.
@@ -42,4 +43,7 @@ Requires Java >= 7.
     def onPackage( self, config ):
         target = self._getTune(config, 'package', 'dists')
         self._callExternal( [ config['env']['gradleBin'], '-q', '--no-daemon', target ] )
+        
+        packageGlob = self._getTune(config, 'packageGlob', '*.jar')
+        self._addPackageFiles(config, packageGlob)
             

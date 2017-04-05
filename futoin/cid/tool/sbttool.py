@@ -42,6 +42,7 @@ Requires Java >= 8.
     def onPackage( self, config ):
         target = self._getTune(config, 'package', 'package')
         self._callExternal( [ config['env']['sbtBin'], target ] )
+        self._addPackageFiles(config, 'target/scala-*/*.jar')
             
     def onRunDev( self, config ):
         target = self._getTune(config, 'run', 'check')

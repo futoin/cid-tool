@@ -43,6 +43,7 @@ Requires Java >= 7.
     def onPackage( self, config ):
         target = self._getTune(config, 'package', 'package')
         self._callExternal( [ config['env']['mavenBin'], target ] )
+        self._addPackageFiles(config, 'target/*.jar')
 
     def onCheck( self, config ):
         target = self._getTune(config, 'check', 'test')

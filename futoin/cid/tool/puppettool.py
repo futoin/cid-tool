@@ -54,10 +54,13 @@ Primary purpose is to support Puppet module development.
                         json[f] = updates[f]
 
         return self._updateJSONConfig( self.METADATA_FILE, updater )
+    
+    def onPrepare(self, config):
+        if os.path.exists('pkg'):
+            self._rmTree('pkg')
 
     def onBuild( self, config ):
         puppetBin = config['env']['puppetBin']
-        self._callExternal( ['rm', 'pkg', '-rf'] )
         self._callExternal( [puppetBin, 'module', 'build'] )
 
     def onPackage( self, config ):
@@ -69,4 +72,4 @@ Primary purpose is to support Puppet module development.
         if not os.path.exists( package_file ) :
             raise RuntimeError( 'Puppet Module built package is missing: ' + package_file )
 
-        config['package_file'] = package_file
+        self._addPackageFiles(config, package_file)
