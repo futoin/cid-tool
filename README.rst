@@ -54,6 +54,23 @@ Supported technologies & tools (so far):
     **sbt** - Simple Build Tools for Scala
 * **scp** - for RMS
 
+
+Supported Version Control Systems(VCS):
+
+* **Git**
+* **Mercurial**
+* **Subversion**
+
+Supported Release Management Systems (RMS):
+
+* **scp** - SSH-based secure copy 
+* Not implemented, but planned:
+    * Archiva
+    * Artifactory
+    * Nexus
+    * Subversion as RMS
+
+
 Tested on the following OSes:
 
 * **ArchLinux**
