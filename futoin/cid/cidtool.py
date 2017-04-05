@@ -122,32 +122,40 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             
     def _getVcsTool( self ):
         config = self._config
-        vcstool = config.get('vcs', None)
+        vcs = config.get('vcs', None)
         
-        if not vcstool:
+        if not vcs:
             self._errorExit( 'Unknown VCS. Please set through --vcsRepo or project manifest' )
             
-        vcstool = self._tool_impl[vcstool]
+        vcstool = self._tool_impl[vcs]
             
         if not config.get('vcsRepo', None): # also check it set
             config['vcsRepo'] = vcstool.vcsGetRepo( config )
             
             if not config['vcsRepo']:
                 self._errorExit( 'Unknown VCS repo. Please set through --vcsRepo or project manifest' )
+
+        # Make sure these are present event after config is re-read
+        self._overrides['vcs'] = vcs
+        self._overrides['vcsRepo'] = config['vcsRepo']
         
         return vcstool
 
     def _getRmsTool( self ):
         config = self._config
-        rmstool = config.get('rms', None)
+        rms = config.get('rms', None)
         
-        if not rmstool:
+        if not rms:
             self._errorExit( 'Unknown RMS. Please set through --rmsRepo or project manifest' )
         
         if not config.get('rmsRepo', None): # also check it set
             self._errorExit( 'Unknown RMS repo. Please set through --rmsRepo or project manifest' )
         
-        return self._tool_impl[rmstool]
+        # Make sure these are present event after config is re-read
+        self._overrides['rms'] = rms
+        self._overrides['rmsRepo'] = config['rmsRepo']
+        
+        return self._tool_impl[rms]
 
     def _processWcDir( self ):
         config = self._config
@@ -170,9 +178,10 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             
         config = self._config
         vcstool = self._getVcsTool()
+        vcsrepo = config['vcsRepo']
         
         #---
-        self._info('Getting source branch {0} from {1}'.format(branch, config['vcsRepo']))
+        self._info('Getting source branch {0} from {1}'.format(branch, vcsrepo))
         vcstool.vcsCheckout( config, branch )
         self._initConfig()
         config = self._config
@@ -213,7 +222,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         vcstool.vcsTag( config, tag, message )
 
         #---
-        self._info('Pushing changes to {0}'.format(config['vcsRepo']))
+        self._info('Pushing changes to {0}'.format(vcsrepo))
         vcstool.vcsPush( config, [ branch, tag ] )
 
     @cid_action

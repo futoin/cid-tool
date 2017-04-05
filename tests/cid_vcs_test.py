@@ -40,7 +40,12 @@ class cid_VCS_UTBase ( citool_UTBase ) :
             'tag', 'branch_A', '1.3.0',
             '--vcsRepo', self.VCS_REPO,
             '--wcDir', 'build_ver' ] )
-        
+
+    def test_22_tag_ver( self ):
+        self._call_citool( [
+            'tag', 'branch_A',
+            '--wcDir', 'build_ver' ] )
+            
     def test_30_prepare( self ):
         self._call_citool( [ 'prepare', 'branch_A', '--vcsRepo', self.VCS_REPO, '--wcDir', 'prep_dir' ] )
         self._goToBase()
@@ -85,7 +90,7 @@ class cid_VCS_UTBase ( citool_UTBase ) :
                             '--rmsHash', pkg_hash ] )
         
         self._goToBase()
-        content = subprocess.check_output( 'tar tJf rms_repo/Prod/wc-CI-1.3.0-*.txz | /usr/bin/sort -f', shell=True )
+        content = subprocess.check_output( 'tar tJf rms_repo/Prod/wc-CI-1.3.1-*.txz | /usr/bin/sort -f', shell=True )
         try:
             content = str(content, 'utf8')
         except TypeError:
@@ -137,7 +142,7 @@ class cid_VCS_UTBase ( citool_UTBase ) :
         self._call_citool( [ 'deploy', 'Prod',
                             '--rmsRepo', 'scp:' + rms_dir ] )
 
-        self.assertTrue(glob.glob('wc-CI-1.3.0-*'))
+        self.assertTrue(glob.glob('wc-CI-1.3.1-*'))
         
     def test_51_rms_redeploy( self ):
         rms_dir = os.path.realpath( 'rms_repo' )
@@ -147,7 +152,7 @@ class cid_VCS_UTBase ( citool_UTBase ) :
                             '--rmsRepo', 'scp:' + rms_dir,
                             '--redeploy'] )
         
-        self.assertTrue(glob.glob('wc-CI-1.3.0-*'))
+        self.assertTrue(glob.glob('wc-CI-1.3.1-*'))
         
     def test_52_rms_deploy_package( self ):
         rms_dir = os.path.realpath( 'rms_repo' )
@@ -176,13 +181,13 @@ class cid_VCS_UTBase ( citool_UTBase ) :
         os.chdir( 'test_deploy' )
         
         self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO ] )
-        self.assertTrue(os.path.exists('v1.3.0'))
+        self.assertTrue(os.path.exists('v1.3.1'))
         
         self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO ] )
-        self.assertTrue(os.path.exists('v1.3.0'))
+        self.assertTrue(os.path.exists('v1.3.1'))
         
         self._call_citool( [ 'deploy', 'vcstag', '--vcsRepo', self.VCS_REPO, '--redeploy' ] )
-        self.assertTrue(os.path.exists('v1.3.0'))
+        self.assertTrue(os.path.exists('v1.3.1'))
         
     def test_61_vcstag_deploy_ref( self ):
         os.chdir( 'test_deploy' )
