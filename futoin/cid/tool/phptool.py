@@ -384,7 +384,6 @@ resources due to lack of trusted binary builds.
             'php-pecl-apcu',
             'php-pecl-imagick',
             'php-pecl-msgpack',
-            'php-pecl-sqlite',
             'php-pecl-ssh2',
             'php-pecl-zendopcache',
         ])
@@ -394,6 +393,9 @@ resources due to lack of trusted binary builds.
                 "php.*-mbstring",
                 "php.*-opcache",
                 "php.*-zip",
+            ])
+            self._requireYum([
+                'php-pecl-sqlite',
             ])
         except:
             pass
