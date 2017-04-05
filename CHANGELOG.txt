@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.5.5 ===
 * Cosmetic improvement to error/warning/info messages
 * Changed sys.exit(1) to RuntimeException handled in single place
     - Produces helpful callstack
