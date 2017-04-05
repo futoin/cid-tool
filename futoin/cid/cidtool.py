@@ -298,7 +298,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             vcstool = self._getVcsTool()
             vcs_ref = vcstool.vcsGetRevision( config )
             package_file = '{0}-CI-{1}-{2}-{3}'.format(
-                    name, version, vcs_ref, buildTimestamp )
+                    name, version, buildTimestamp, vcs_ref )
 
         if 'target' in config:
             package_file += '-{0}'.format( config['target'] )
