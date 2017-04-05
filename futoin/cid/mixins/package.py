@@ -41,7 +41,7 @@ class PackageMixIn( object ):
             
             self._trySudoCall(
                 [apt_get, 'install', '-y'] + packages,
-                errmsg = 'WARNING: you may need to install build deps manually !'
+                errmsg = 'you may need to install the packages manually !'
             )
 
     def _requireYum(self, packages):
@@ -56,7 +56,7 @@ class PackageMixIn( object ):
             
             self._trySudoCall(
                 [yum, 'install', '-y'] + packages,
-                errmsg = 'WARNING: you may need to install build deps manually !'
+                errmsg = 'you may need to install the packages manually !'
             )
 
     def _requireZypper(self, packages):        
@@ -68,7 +68,7 @@ class PackageMixIn( object ):
             
             self._trySudoCall(
                 [zypper, 'install', '-y'] + packages,
-                errmsg='WARNING: you may need to install build deps manually !'
+                errmsg='you may need to install the packages manually !'
             )
             
     def _requireRpm(self, packages):
@@ -88,7 +88,7 @@ class PackageMixIn( object ):
             
             self._trySudoCall(
                 [emerge] + packages,
-                errmsg='WARNING: you may need to install build deps manually !'
+                errmsg='you may need to install the build deps manually !'
             )
 
     def _requireEmergeDepsOnly(self, packages):
@@ -106,7 +106,7 @@ class PackageMixIn( object ):
             
             self._trySudoCall(
                 [pacman, '-S', '--noconfirm', '--needed'] + packages,
-                errmsg='WARNING: you may need to install build deps manually !'
+                errmsg='you may need to install the build deps manually !'
             )
         
     def _addAptRepo(self, name, entry, gpg_key):
@@ -128,7 +128,7 @@ class PackageMixIn( object ):
 
             self._trySudoCall(
                 ['apt-key', 'add', tf],
-                errmsg = 'WARNING: you may need to import GPG key manually!'
+                errmsg = 'you may need to import the PGP key manually!'
             )
             
             os.remove(tf)
@@ -144,12 +144,12 @@ class PackageMixIn( object ):
             
         self._trySudoCall(
             [apt_add_repository, '--yes', entry],
-            errmsg = 'WARNING: you may need to add repo manually!'
+            errmsg = 'you may need to add the repo manually!'
         )
         
         self._trySudoCall(
             ['apt-get', 'update'],
-            errmsg = 'WARNING: you may need to update cache APT manually!'
+            errmsg = 'you may need to update APT cache manually!'
         )
             
     def _addRpmKey(self, gpg_key):
@@ -167,7 +167,7 @@ class PackageMixIn( object ):
             
         self._trySudoCall(
             [rpm, '--import', tf],
-            errmsg = 'WARNING: you may need to import GPG key manually!'
+            errmsg = 'you may need to import the PGP key manually!'
         )
         
         os.remove(tf)
@@ -183,14 +183,14 @@ class PackageMixIn( object ):
             self._requireYum(['dnf-plugins-core'])
             self._trySudoCall(
                 [dnf, 'config-manager', '--add-repo', url],
-                errmsg = 'WARNING: you may need to import GPG key manually!'
+                errmsg = 'you may need to add the repo manually!'
             )
         elif yum:
             self._requireYum(['yum-utils'])
             yumcfgmgr = self._which('yum-config-manager')
             self._trySudoCall(
                 [yumcfgmgr, '--add-repo', url],
-                errmsg = 'WARNING: you may need to import GPG key manually!'
+                errmsg = 'you may need to add the repo manually!'
             )
 
     def _addZypperRepo(self, name, url, gpg_key=None):
@@ -201,7 +201,7 @@ class PackageMixIn( object ):
         if zypper:
             self._trySudoCall(
                 [zypper, 'addrepo', url, name],
-                errmsg = 'WARNING: you may need to zypper repo manually!'
+                errmsg = 'you may need to add the repo manually!'
             )
             
     def _requireYumEPEL(self):

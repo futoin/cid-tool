@@ -56,7 +56,7 @@ from . import __version__ as version
 __all__ = ['run']
 
 def runInner():
-    args = docopt( __doc__, version='FutoIn CIDTool v{0}'.format(version) )
+    args = docopt( __doc__, version='FutoIn CID v{0}'.format(version) )
 
     if type(args) == str:
         print(args)
@@ -69,14 +69,20 @@ def runInner():
         vcsArg = args.get('--vcsRepo', None)
 
         if vcsArg:
-            (overrides['vcs'],
-             overrides['vcsRepo']) = vcsArg.split(':', 1)
+            try:
+                (overrides['vcs'],
+                overrides['vcsRepo']) = vcsArg.split(':', 1)
+            except ValueError:
+                raise RuntimeError('Invalid argument to --vcsRepo')
         #---
         rmsArg = args.get('--rmsRepo', None)
 
         if rmsArg:
-            (overrides['rms'],
-             overrides['rmsRepo']) = rmsArg.split(':', 1)
+            try:
+                (overrides['rms'],
+                overrides['rmsRepo']) = rmsArg.split(':', 1)
+            except ValueError:
+                raise RuntimeError('Invalid argument to --rmsRepo')
         overrides['rmsHash'] = args['--rmsHash']
         overrides['rmsPool'] = args['<rms_pool>']
         #---
@@ -139,8 +145,7 @@ def runInner():
                         getattr( cit, 'tool_'+cmd )( tool )
                         break
                 else:
-                    print( "ERR: Unknown Command", file=sys.stderr )
-                    sys.exit( 1 )
+                    raise RuntimeError( "Unknown Command" )
         elif args['init'] :
             cit.init_project( args['<project_name>'] )
         elif args['tag'] :
@@ -169,21 +174,20 @@ def runInner():
         elif args['ci_build'] :
             cit.ci_build( args['<vcs_ref>'], args['<rms_pool>'] )
         else:
-            print( "ERR: Unknown Command", file=sys.stderr )
-            sys.exit( 1 )
+            raise RuntimeError( "Unknown Command" )
 
 def run():
     try:
         runInner()
     except Exception as e:
         print(file=sys.stderr)
-        print(Coloring.error('ERR: ' + str(e)), file=sys.stderr)
+        print(Coloring.error('ERROR: ' + str(e)), file=sys.stderr)
         print(file=sys.stderr)
         print(Coloring.warn(traceback.format_exc()), file=sys.stderr)
         sys.exit(1)
     except KeyboardInterrupt as e:
         print(file=sys.stderr)
-        print(Coloring.error('User abort'), file=sys.stderr)
+        print(Coloring.error('Exit on user abort'), file=sys.stderr)
         print(file=sys.stderr)
         sys.exit(1)
         

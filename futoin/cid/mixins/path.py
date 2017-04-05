@@ -47,9 +47,9 @@ class PathMixIn( object ):
             self._callExternal(['sudo', '-n'] + cmd)
         except:
             if not errmsg:
-                errmsg = 'WARNING: you may need to call failed command manually !'
+                errmsg = 'you may need to call the the failed command manually !'
 
-            print( Coloring.warn(errmsg), file=sys.stderr )
+            self._warn(errmsg)
     
     def _which( self, program ):
         "Copied from stackoverflow"

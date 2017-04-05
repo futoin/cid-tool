@@ -86,11 +86,10 @@ class UtilMixIn( object ):
         print(Coloring.info('INFO: '+msg), file=sys.stderr)
     
     def _warn( self, msg ):
-        print(Coloring.warn('WARN: '+msg), file=sys.stderr)
+        print(Coloring.warn('WARNING: '+msg), file=sys.stderr)
     
     def _errorExit( self, msg ):
-        print(Coloring.error('ERR: '+msg), file=sys.stderr)
-        sys.exit(1)
+        raise RuntimeError(msg)
         
     def _haveGroup( self, grpname ):
         gid = grp.getgrnam(grpname)[2]

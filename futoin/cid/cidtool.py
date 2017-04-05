@@ -508,8 +508,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         rev = vcstool.vcsGetRefRevision( config, vcs_cache, vcs_ref )
             
         if not rev:
-            print( "No VCS refs found", file = sys.stderr )
-            sys.exit( 1 )
+            self._errorExit( "No VCS refs found")
             
         target_dir = vcs_ref.replace(os.sep, '_').replace(':', '_')
         target_dir += '__' + rev

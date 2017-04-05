@@ -1,4 +1,9 @@
 
+=== (next) ===
+* Cosmetic improvement to error/warning/info messages
+* Changed sys.exit(1) to RuntimeException handled in single place
+    - Produces helpful callstack
+
 === 0.5.4 ===
 * Minor corrections in README
 * Added previously not documented "cid migrate" command
