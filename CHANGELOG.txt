@@ -16,6 +16,10 @@
     with success
 * Changed default CI build package name according to FTN16
 * Added info messages for operation in progress
+* Changed to allow deployment futoin.json to override
+    project config settings
+* Added support for GZip static & checksums generation in
+    default package logic
 
 === 0.5.3 ===
 * Added nice handling of user abort (no default call stack)

@@ -82,6 +82,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         ('tools', dict),
         ('toolTune', dict),
         ('package', list),
+        ('packageGzipStatic', bool),
+        ('packageChecksums', bool),
         ('persistent', list),
         ('entryPoints', dict),
         ('configenv', dict),
@@ -260,37 +262,46 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         package_file = config.get( 'package_file', None )
 
         if package_file:
+            self._info('Found binary artifacts from tools: {0}'.format(package_file))
             self._lastPackage = package_file
             return
 
         #---
         package_content = config.get( 'package', [ '.' ] )
+
         if type(package_content) != type([]):
             package_content = [ package_content ] 
+
         package_content.sort()
         package_content_cmd = subprocess.list2cmdline( package_content )
         
+        self._info('Generating package from {0}'.format(package_content))
+        
         # Note: It is assumed that web root is in the package content
         #---
-        walk_list = os.walk( config.get( 'webcfg', {}).get( 'root', '.' ) )
-        to_gzip_re = re.compile( self.TO_GZIP, re.I )
-        for ( path, dirs, files ) in walk_list :
-            for f in files :
-                if to_gzip_re.search( f ):
-                    f = os.path.join( path, f )
-                    with open(f, 'rb') as f_in:
-                        with gzip.open(f + '.gz', 'wb', 9) as f_out:
-                            shutil.copyfileobj(f_in, f_out)
+        if config.get('packageGzipStatic', True):
+            self._info('Generating GZip files of static content')
+            walk_list = os.walk( config.get( 'webcfg', {}).get( 'root', '.' ) )
+            to_gzip_re = re.compile( self.TO_GZIP, re.I )
+            for ( path, dirs, files ) in walk_list :
+                for f in files :
+                    if to_gzip_re.search( f ):
+                        f = os.path.join( path, f )
+                        with open(f, 'rb') as f_in:
+                            with gzip.open(f + '.gz', 'wb', 9) as f_out:
+                                shutil.copyfileobj(f_in, f_out)
         
         #---
-        checksums_file = '.package.checksums'
-        try:
-            package_content.index( '.' )
-        except ValueError:
-            package_content.append( checksums_file )
-        cmd = 'find {0} -type f | sort | xargs sha512sum >{1}'.format(
-                package_content_cmd, checksums_file )
-        _call_cmd( ['sh', '-c', cmd] )
+        if config.get('packageChecksums', True):
+            self._info('Generating checksums')
+            checksums_file = '.package.checksums'
+            try:
+                package_content.index( '.' )
+            except ValueError:
+                package_content.append( checksums_file )
+            cmd = 'find {0} -type f | sort | xargs sha512sum >{1}'.format(
+                    package_content_cmd, checksums_file )
+            _call_cmd( ['sh', '-c', cmd] )
         
         #---
         buildTimestamp = datetime.datetime.utcnow().strftime( '%Y%m%d%H%M%S' )
@@ -529,7 +540,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             
         vcs_ref = self._getLatest(tag_list)
         target_dir = vcs_ref.replace(os.sep, '_').replace(':', '_')
-        self._info('Found tag}'.format(vcs_ref))
+        self._info('Found tag {0}'.format(vcs_ref))
             
         # cleanup first, in case of incomplete actions
         self._info('Pre-cleanup of deploy directory')
@@ -919,7 +930,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self._project_config = pc = self._loadJSON( self._FUTOIN_JSON, {} )
 
         deploy_dir = self._overrides.get( 'deployDir', None )
-        dc = {'env':{}}
+        dc = {}
         if deploy_dir :
             dc = self._loadJSON( os.path.join( deploy_dir, self._FUTOIN_JSON ), dc )
         self._deploy_config = dc
@@ -930,8 +941,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         if 'env' in pc:
             self._errorExit('.env node must not be set in project config')
 
-        if 'env' not in dc or len( dc ) != 1:
-            self._errorExit('Deploy config must have the only .env node')
+        if 'env' not in dc:
+            dc['env'] = {}
         
         if 'env' not in uc or len( uc ) != 1:
             self._errorExit('User config must have the only .env node')
@@ -945,8 +956,13 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             env.setdefault( k, v )
         for ( k, v ) in gc.items():
             env.setdefault( k, v )
-        
+
         self._initEnv( env )
+
+        # Deployment config can override project config
+        for (k, v) in dc.items():
+            config[k] = v
+
         config['env'] = env
         config.update( self._overrides )
         self._config = config
