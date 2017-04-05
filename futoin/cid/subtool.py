@@ -73,6 +73,7 @@ class SubTool( PathMixIn, PackageMixIn, UtilMixIn, object ):
             if self._isExternalToolsSetup( env ):
                 raise RuntimeError( "Tool (%s) must be installed externally (env config)"  % self._name )
             else :
+                self._warn('Auto-installing required "{0}" tool'.format(self._name))
                 self._installTool( env )
 
             self.initEnv( env )

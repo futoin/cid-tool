@@ -169,7 +169,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         config = self._config
         vcstool = self._getVcsTool()
         
-        # make a clean checkout
+        #---
+        self._info('Getting source branch {0} from {1}'.format(branch, config['vcsRepo']))
         vcstool.vcsCheckout( config, branch )
         self._initConfig()
         config = self._config
@@ -189,7 +190,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             next_version = '.'.join( next_version )
         config['version'] = next_version
         
-        # Update files for release
+        #---
+        self._info('Updating files for release')
         to_commit = []        
         self._forEachTool(
             lambda config, t: to_commit.extend(
@@ -197,16 +199,19 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             )
         )
         
-        # Commit updated files
+        #---
+        self._info('Committing updated files')
         message = "Updated for release %s %s" % ( config['name'], config['version'] )
         vcstool.vcsCommit( config, message, to_commit )
         
-        # Craete a tag
+        #---
         tag = "v%s" % next_version
+        self._info('Creating a tag {0}'.format(tag))
         message = "Release %s %s" % ( config['name'], config['version'] )
         vcstool.vcsTag( config, tag, message )
 
-        # Push changes for DVCS
+        #---
+        self._info('Pushing changes to {0}'.format(config['vcsRepo']))
         vcstool.vcsPush( config, [ branch, tag ] )
 
     @cid_action
@@ -219,10 +224,12 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         if vcs_ref:
             vcstool = self._getVcsTool()
 
+            self._info('Getting source ref {0} from {1}'.format(vcs_ref, config['vcsRepo']))
             vcstool.vcsCheckout( config, vcs_ref )
             self._initConfig()
 
         #--
+        self._info('Running "prepare" in tools')
         self._forEachTool(
             lambda config, t: t.onPrepare( config ),
             base=BuildTool
@@ -232,6 +239,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
     def build( self ):
         self._processWcDir()
         
+        self._info('Running "build" in tools')
         self._forEachTool(
             lambda config, t: t.onBuild( config ),
             base=BuildTool
@@ -241,6 +249,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
     def package( self ):
         self._processWcDir()
         
+        self._info('Running "package" in tools')
         self._forEachTool(
             lambda config, t: t.onPackage( config ),
             base=BuildTool
@@ -304,6 +313,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             package_file += '-{0}'.format( config['target'] )
             
         package_file += '.txz'
+        self._info('Creating package {0}'.format(package_file))
         _call_cmd( ['tar', 'cJf', package_file,
                     '--exclude=' + package_file, '--exclude-vcs' ] + package_content )
         self._lastPackage = package_file
@@ -312,6 +322,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
     def check( self ):
         self._processWcDir()
         
+        self._info('Running "check" in tools')
         self._forEachTool(
             lambda config, t: t.onCheck( config ),
             allow_failure = self._config.get('permissiveChecks', False),
@@ -322,12 +333,15 @@ class CIDTool( PathMixIn, UtilMixIn ) :
     def promote( self, package, rms_pool ):
         config = self._config
         rmstool = self._getRmsTool()
+        
+        self._info('Promoting {0} package to {1} pool'.format(package, rms_pool))
         rmstool.rmsPromote( config, package, rms_pool )
         
     @cid_action
     def migrate( self, location ):
         self._processWcDir()
         
+        self._info('Running "migrate" in tools')
         self._forEachTool(
             lambda config, t: t.onMigrate( config, location ),
             base=MigrationTool
@@ -371,10 +385,13 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             deploy_dir = os.path.realpath('.')
             self._overrides['deployDir'] = deploy_dir
             self._initConfig()
+        
+        self._info('Using {0} as deploy directory'.format(deploy_dir))
 
         placeholder = os.path.join(deploy_dir, self.DEPLOY_LOCK_FILE)
 
         if not os.path.exists( deploy_dir ) :
+            self._info('Creating deploy directory')
             os.makedirs( deploy_dir )
             open(placeholder, 'w').close()
         elif not os.path.exists(placeholder) and os.listdir(deploy_dir):
@@ -407,6 +424,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         rmstool = self._getRmsTool()
 
         # Find out package to deploy
+        self._info('Finding package in RMS')
         package_list = rmstool.rmsGetList( config, rms_pool, package )
 
         if package:
@@ -416,8 +434,10 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             self._errorExit( "No package found" )
             
         package = self._getLatest(package_list)
+        self._info('Found package {0}'.format(package))
             
         # cleanup first, in case of incomplete actions
+        self._info('Pre-cleanup of deploy directory')
         self._deployCleanup( [package] )
 
         # Prepare package name components
@@ -425,11 +445,15 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         ( package_noext, package_ext ) = os.path.splitext( package_basename )
         
         # Check if already deployed:
-        if os.path.exists( package_noext ) and not config['reDeploy']:
-            self._redeployExit('Package')
+        if os.path.exists( package_noext ):
+            if config['reDeploy']:
+                self._warn('Forcing re-deploy of the package')
+            else:
+                self._redeployExit('Package')
         
         # Retrieve package, if not available
         if not os.path.exists( package_basename ) :
+            self._info('Retrieving the package')
             rmstool.rmsRetrieve( config, rms_pool, package )
             
         package_noext_tmp = package_noext + '.tmp'
@@ -438,6 +462,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         os.mkdir( package_noext_tmp )
         
         # Unpack package to temporary folder
+        self._info('Extracting the package')
         if package_ext == '.txz':
             _call_cmd( ['tar', 'xJf', package_basename, '-C', package_noext_tmp ] )
         elif package_ext == '.tbz2':
@@ -457,6 +482,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         vcstool = self._getVcsTool()
 
         # Find out package to deploy
+        self._info('Getting the latest revision of {0}'.format(vcs_ref))
         vcs_cache = self.VCS_CACHE_DIR
         rev = vcstool.vcsGetRefRevision( config, vcs_cache, vcs_ref )
             
@@ -468,13 +494,18 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         target_dir += '__' + rev
             
         # cleanup first, in case of incomplete actions
+        self._info('Pre-cleanup of deploy directory')
         self._deployCleanup( [vcs_cache, target_dir] )
         
         # Check if already deployed:
-        if os.path.exists( target_dir ) and not config['reDeploy']:
-            self._redeployExit('VCS ref')
+        if os.path.exists( target_dir ):
+            if config['reDeploy']:
+                self._warn('Forcing re-deploy of the VCS ref')
+            else:
+                self._redeployExit('VCS ref')
            
         # Retrieve tag
+        self._info('Retrieving the VCS ref')
         target_tmp = target_dir + '.tmp'
         vcstool.vcsExport( config, vcs_cache, vcs_ref, target_tmp )
 
@@ -486,6 +517,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         vcstool = self._getVcsTool()
 
         # Find out package to deploy
+        self._info('Finding tag in VCS')
         vcs_cache = self.VCS_CACHE_DIR
         tag_list = vcstool.vcsListTags( config, vcs_cache, vcs_ref )
 
@@ -497,15 +529,21 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             
         vcs_ref = self._getLatest(tag_list)
         target_dir = vcs_ref.replace(os.sep, '_').replace(':', '_')
+        self._info('Found tag}'.format(vcs_ref))
             
         # cleanup first, in case of incomplete actions
+        self._info('Pre-cleanup of deploy directory')
         self._deployCleanup( [vcs_cache, target_dir] )
         
         # Check if already deployed:
-        if os.path.exists( target_dir ) and not config['reDeploy']:
-            self._redeployExit('VCS tag')
+        if os.path.exists( target_dir ):
+            if config['reDeploy']:
+                self._warn('Forcing re-deploy of the VCS tag')
+            else :
+                self._redeployExit('VCS tag')
            
         # Retrieve tag
+        self._info('Retrieving the VCS tag')
         vcs_ref_tmp = target_dir + '.tmp'
         vcstool.vcsExport( config, vcs_cache, vcs_ref, vcs_ref_tmp )
 
@@ -528,6 +566,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         config['wcDir'] = os.path.realpath(tmp)
         
         # Setup persistent folders
+        self._info('Setting up read-write directories')
         persistent_dir = os.path.abspath( config['env'].get('persistentDir', 'persistent') )
         wdir_wperm = stat.S_IRUSR | stat.S_IXUSR | \
                     stat.S_IRGRP | stat.S_IXGRP | \
@@ -549,6 +588,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                 
         # Build
         if config.get('deployBuild', False):
+            self._info('Building project in deployment')
             self.prepare(None)
             self.build()
             
@@ -559,6 +599,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         os.chdir(config['deployDir'])
             
         # Setup read-only permissions
+        self._info('Setting up read-only permissions')
         dir_perm = stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP
         file_perm = stat.S_IRUSR | stat.S_IRGRP
         walk_list = os.walk( tmp )
@@ -574,6 +615,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self._deployServices( tmp )
         
         # Move in place
+        self._info('Switching current deployment')
         if os.path.exists( dst ):
             # re-deploy case
             os.rename( dst, dst + '.tmprm' )
@@ -586,6 +628,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self._reloadServices()
         
         # Cleanup old packages and deploy dirs
+        self._info('Post-cleanup of deploy directory')
         self._deployCleanup( cleanup_whitelist )
         
     def _deployCleanup( self, whitelist ):

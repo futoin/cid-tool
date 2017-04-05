@@ -15,6 +15,7 @@
 * Restored behavior not to fail, if already deployed - exit
     with success
 * Changed default CI build package name according to FTN16
+* Added info messages for operation in progress
 
 === 0.5.3 ===
 * Added nice handling of user abort (no default call stack)
