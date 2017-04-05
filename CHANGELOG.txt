@@ -24,6 +24,7 @@
     - Added new tool API _addPackageFiles()
     - Updated ant, cargo, gradle, maven, puppet and sbt to
         properly set binary artifacts for RMS upload
+* Fixed to properly exit with error status on exception
 
 === 0.5.3 ===
 * Added nice handling of user abort (no default call stack)
