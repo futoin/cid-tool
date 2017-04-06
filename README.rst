@@ -24,10 +24,10 @@ Supported technologies & tools (so far):
     - **docker-compose**
 * **go**
     - **gvm**
-* **java** for runtime (uses Zulu JDK unless overriden by javaBin)
+* **java** for runtime (uses Zulu JDK unless overridden by javaBin)
     - **ant**
     - **gradle**
-    - **jdk** for development (uses Zulu JDK unless overriden by jdkDir)
+    - **jdk** for development (uses Zulu JDK unless overridden by jdkDir)
     - **maven**
     - **sdkman** for SDK management (besides JRE & JDK)
 * **make**
