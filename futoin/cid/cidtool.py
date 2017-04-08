@@ -943,7 +943,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         user_home = os.environ.get('HOME','/')
         user_config_path = os.path.join( user_home, '.' + self._FUTOIN_JSON )
         
-        if not os.path.exists(user_config_path):
+        if not os.path.exists(user_config_path) and user_home != self._overrides['wcDir']:
             user_config_path = os.path.join( user_home, self._FUTOIN_JSON )
         
         self._global_config = gc = self._loadJSON( os.path.join('/', 'etc', 'futoin', self._FUTOIN_JSON), {'env':{}} )
@@ -1062,6 +1062,13 @@ class CIDTool( PathMixIn, UtilMixIn ) :
 
         env.setdefault( 'binDir', os.path.join(os.environ['HOME'], 'bin') )
         self._addBinPath( env['binDir'] )
+        
+    def _checkKnownTool(self, tool, tool_impl=None):
+        if tool_impl is None:
+            tool_impl = self._tool_impl
+        
+        if tool not in tool_impl:
+            self._errorExit('Implementation for "{0}" was not found'.format(tool))
 
     def _initTools( self ):
         config = self._config
@@ -1107,11 +1114,13 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             if config_tools:
                 if not isinstance(config_tools, dict):
                     self._errorExit('futoin.json:tools must be a map of tool=>version pairs')
-                tools = list(config_tools.keys())
                 
-                for (t, v) in config_tools.items():
+                for (tool, v) in config_tools.items():
+                    self._checkKnownTool(tool, tool_impl)
+                    tools.append( tool )
+
                     if v != '*' and v != True:
-                        env[t + 'Ver'] = v
+                        env[tool + 'Ver'] = v
             else :
                 tools = []
                 for ( n, t ) in tool_impl.items():
@@ -1124,6 +1133,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                 tool = config.get(item, None)
 
                 if tool:
+                    self._checkKnownTool(tool, tool_impl)
                     tools.append( tool )
 
                     if not isinstance(tool_impl[ tool ], base):
@@ -1143,6 +1153,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
 
             for g in dep_generations[curr_index:]:
                 for tn in g:
+                    self._checkKnownTool(tn, tool_impl)
                     t = tool_impl[tn]
                     moredeps = set(t.getDeps())
                     if moredeps:

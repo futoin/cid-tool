@@ -10,9 +10,10 @@ import glob
 
 from collections import OrderedDict
 
-class cid_initcmd_Test ( citool_UTBase ) :
+class cid_misc_Test ( citool_UTBase ) :
     __test__ = True
     TEST_DIR = os.path.join(citool_UTBase.TEST_RUN_DIR, 'misc')
+    ORIG_HOME = os.environ['HOME']
     
     def setUp(self):
         self.setUpClass()
@@ -20,12 +21,17 @@ class cid_initcmd_Test ( citool_UTBase ) :
         os.mkdir(self.TEST_DIR)
         os.chdir(self.TEST_DIR)
         
-        subprocess.check_call('sudo mkdir -p /etc/futoin && chmod 777 /etc/futoin', shell=True)
+        subprocess.check_call('sudo mkdir -p /etc/futoin && sudo chmod 777 /etc/futoin', shell=True)
+        
+        home = os.path.join(self.TEST_DIR, 'home')
+        os.mkdir(home)
+        os.environ['HOME'] = home
         
     def tearDown(self):
+        os.environ['HOME'] = self.ORIG_HOME
         subprocess.call('sudo rm /etc/futoin -rf', shell=True)
             
-    def check_global_config(self):
+    def test_global_config(self):
         self._writeJSON('/etc/futoin/futoin.json', {
             'env' : {}
         })
@@ -38,7 +44,7 @@ class cid_initcmd_Test ( citool_UTBase ) :
         
         self._call_citool(['tool', 'list'], returncode=1)
 
-    def check_user_config_notdot(self):
+    def test_user_config_notdot(self):
         self._writeJSON(os.path.join(os.environ['HOME'], 'futoin.json'), {
             'env' : {}
         })
@@ -51,7 +57,7 @@ class cid_initcmd_Test ( citool_UTBase ) :
         
         self._call_citool(['tool', 'list'], returncode=1)
 
-    def check_user_dot_config(self):
+    def test_user_dot_config(self):
         self._writeJSON(os.path.join(os.environ['HOME'], '.futoin.json'), {
             'env' : {}
         })
@@ -63,4 +69,13 @@ class cid_initcmd_Test ( citool_UTBase ) :
         })
         
         self._call_citool(['tool', 'list'], returncode=1)
+
+    def test_unknown_tool(self):
+        self._writeJSON(os.path.join(self.TEST_DIR, 'futoin.json'), {
+            'tools' : {
+                'unknown_tool' : True,
+            }
+        })
+        self._call_citool(['tool', 'list'], returncode=1)
+
 
