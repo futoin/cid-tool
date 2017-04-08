@@ -1138,6 +1138,18 @@ class CIDTool( PathMixIn, UtilMixIn ) :
 
                     if not isinstance(tool_impl[ tool ], base):
                         self._errorExit('Tool {0} does not suite {1} type'.format(tool, item))
+                        
+            # Make sure tools defined in entryPoints are auto-detected
+            #--
+            for (ep, ed) in config.get('entryPoints', {}):
+                tool = ed.get('tool', None)
+                
+                if tool:
+                    self._checkKnownTool(tool, tool_impl)
+                    tools.append( tool )
+
+                    if not isinstance(tool_impl[ tool ], RuntimeTool):
+                        self._errorExit('Tool {0} does not suite RuntimeTool type'.format(tool))
 
         # add all deps
         #--

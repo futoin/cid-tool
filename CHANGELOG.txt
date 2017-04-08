@@ -4,6 +4,7 @@
     specs. Left fallback to ${HOME}/futoin.json, if ${HOME} is not
     working directory.
 * Added better error checking of unknown tools
+* Fixed to auto-detect tools listed in config.entryPoints
 
 === 0.5.5 ===
 * Cosmetic improvement to error/warning/info messages
