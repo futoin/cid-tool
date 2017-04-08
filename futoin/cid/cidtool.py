@@ -324,9 +324,17 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         if vcs_ref == 'v' + version :
             package_file = '{0}-{1}-{2}'.format(
                     name, version, buildTimestamp )
-        else :
-            vcstool = self._getVcsTool()
-            vcs_ref = vcstool.vcsGetRevision( config )
+        else:
+            vcs_ref = 'UNKNOWN'
+            
+            if config.get('vcs', None):
+                try:
+                    vcstool = self._getVcsTool()
+                    vcs_ref = vcstool.vcsGetRevision( config )
+                except subprocess.CalledProcessError as e:
+                    if config.get('vcsRepo', None):
+                        raise e
+                
             package_file = '{0}-CI-{1}-{2}-{3}'.format(
                     name, version, buildTimestamp, vcs_ref )
 
