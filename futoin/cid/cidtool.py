@@ -940,8 +940,14 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self._writeJSONConfig(self._FUTOIN_JSON, new_config)
 
     def _initConfig( self ):
+        user_home = os.environ.get('HOME','/')
+        user_config_path = os.path.join( user_home, '.' + self._FUTOIN_JSON )
+        
+        if not os.path.exists(user_config_path):
+            user_config_path = os.path.join( user_home, self._FUTOIN_JSON )
+        
         self._global_config = gc = self._loadJSON( os.path.join('/', 'etc', 'futoin', self._FUTOIN_JSON), {'env':{}} )
-        self._user_config = uc = self._loadJSON( os.path.join( os.environ.get('HOME','/'), self._FUTOIN_JSON ), {'env':{}} )
+        self._user_config = uc = self._loadJSON( user_config_path, {'env':{}} )
         self._project_config = pc = self._loadJSON( self._FUTOIN_JSON, {} )
 
         deploy_dir = self._overrides.get( 'deployDir', None )
