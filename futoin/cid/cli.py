@@ -15,11 +15,12 @@ Usage:
     cid run
     cid run <command> [<command_arg>...]
     cid ci_build <vcs_ref> <rms_pool> [--vcsRepo=<vcs_repo>] [--rmsRepo=<rms_repo>] [--permissive] [--debug]
-    cid tool exec <tool_name> [-- <tool_arg>...]
-    cid tool (install|uninstall|update|test|env) [<tool_name>]
-    cid tool (prepare|build|check|package|migrate) <tool_name>
+    cid tool exec <tool_name> [<tool_version>] [-- <tool_arg>...]
+    cid tool (install|uninstall|update|test|env) [<tool_name> [<tool_version>]]
+    cid tool (prepare|build|check|package|migrate) <tool_name> [<tool_version>]
     cid tool list
     cid tool describe <tool_name>
+    cid tool detect
     cid init [<project_name>] [--vcsRepo=<vcs_repo>] [--rmsRepo=<rms_repo>] [--permissive]
 
 Options:
@@ -111,8 +112,15 @@ def runInner():
 
         #---
         tool = args['<tool_name>']
+        tool_ver = args['<tool_version>']
         overrides['tool'] = tool
-        overrides['toolTest'] = args['test'] or args['uninstall'] or args['describe']
+        overrides['toolVer'] = tool_ver != '--' and tool_ver or None
+        overrides['toolTest'] = (
+            args['test'] or
+            args['uninstall'] or
+            args['describe'] or
+            args['detect']
+        )
         
         #---
         if args['--permissive']:
@@ -126,6 +134,8 @@ def runInner():
                 cit.tool_exec( tool, args['<tool_arg>'] )
             elif args['list']:
                 cit.tool_list()
+            elif args['detect']:
+                cit.tool_detect()
             else:
                 subcmds = [
                     'install',

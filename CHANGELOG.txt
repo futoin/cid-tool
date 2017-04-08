@@ -5,6 +5,8 @@
     working directory.
 * Added better error checking of unknown tools
 * Fixed to auto-detect tools listed in config.entryPoints
+* Added "cid tool detect"
+* Added tool version support as parameter to "cid tool *" commands
 
 === 0.5.5 ===
 * Cosmetic improvement to error/warning/info messages

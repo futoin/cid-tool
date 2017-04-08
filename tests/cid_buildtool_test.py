@@ -26,6 +26,22 @@ class cid_BuildTool_UTBase(citool_Tool_UTBase):
         self._call_citool( [ 'tool', 'package', self.TOOL_NAME ] )
         self._test_package()
         
+    def test40_tool_detect( self ):
+        (r, w) = os.pipe()
+        self._call_citool( [ 'tool', 'detect' ], stdout=w )
+        res = os.read(r, 4096)
+        os.close(r)
+        os.close(w)
+        
+        try: res = str(res, 'utf8')
+        except: pass
+        
+        for l in res.split("\n"):
+            if l.split('=')[0] == self.TOOL_NAME:
+                break
+        else:
+            raise RuntimeError('Failed to find the tool in detection')
+        
     def _test_prepare( self ):
         pass
     

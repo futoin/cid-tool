@@ -52,8 +52,39 @@ class citool_Tool_UTCommon ( citool_Tool_UTBase ) :
         self._call_citool( [ 'tool', 'update', self.TOOL_NAME ] )
         
     def test_60_tool_env( self ):
-        self._call_citool( [ 'tool', 'env', self.TOOL_NAME ] )
-        # TODO: better test output
+        (r, w) = os.pipe()
+        self._call_citool( [ 'tool', 'env', self.TOOL_NAME ], stdout=w )
+        res = os.read(r, 4096)
+        os.close(r)
+        os.close(w)
+        
+        try: res = str(res, 'utf8')
+        except: pass
+        
+        vars = {}
+        for l in res.split("\n"):
+            if l:
+                n, v = l.split('=')
+                vars[n] = v
+        
+        ver_var = self.TOOL_NAME + 'Ver'
+        
+        if ver_var in self.TOOL_ENV:
+            tool_ver = self.TOOL_ENV[ver_var]
+            self.assertEqual(vars[ver_var], tool_ver)
+            
+            del os.environ[ver_var]
+            
+            (r, w) = os.pipe()
+            self._call_citool( [ 'tool', 'env', self.TOOL_NAME, tool_ver ], stdout=w )
+            res2 = os.read(r, 4096)
+            os.close(r)
+            os.close(w)
+            
+            try: res2 = str(res2, 'utf8')
+            except: pass
+            
+            self.assertEqual(res, res2)
 
 # 10
 #-----

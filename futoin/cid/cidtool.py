@@ -914,6 +914,18 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         print(Coloring.info(doc))
         print()
         
+    def tool_detect( self ):
+        config = self._config
+        env = config['env']
+
+        for t in config['toolOrder']:
+            ver = env.get(t+'Ver', None)
+            
+            if ver:
+                print("{0}={1}".format(t, ver))
+            else:
+                print(t)
+
     def init_project( self, project_name ):
         self._processWcDir()
 
@@ -1108,13 +1120,18 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         if curr_tool:
             tools = [ curr_tool ]
+            tool_ver = config.get('toolVer', None)
+            
+            if tool_ver:
+                config['env'][curr_tool + 'Ver'] = tool_ver
         else :
             config_tools = config.get('tools', {})
+            tools = []
             
             if config_tools:
                 if not isinstance(config_tools, dict):
                     self._errorExit('futoin.json:tools must be a map of tool=>version pairs')
-                
+
                 for (tool, v) in config_tools.items():
                     self._checkKnownTool(tool, tool_impl)
                     tools.append( tool )
@@ -1122,7 +1139,6 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                     if v != '*' and v != True:
                         env[tool + 'Ver'] = v
             else :
-                tools = []
                 for ( n, t ) in tool_impl.items():
                     if t.autoDetect( config ) :
                         tools.append( n )
@@ -1141,7 +1157,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                         
             # Make sure tools defined in entryPoints are auto-detected
             #--
-            for (ep, ed) in config.get('entryPoints', {}):
+            for (ep, ed) in config.get('entryPoints', {}).items():
                 tool = ed.get('tool', None)
                 
                 if tool:
