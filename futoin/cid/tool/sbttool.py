@@ -8,8 +8,6 @@ class sbtTool( SdkmanToolMixIn, BuildTool, TestTool ):
     
 Home: http://www.scala-sbt.org/
 
-Auto-detected based on build.sbt
-
 Installed via SDKMan!
 
 First run of SBT may consume a lot of time on post-installation steps.
@@ -25,11 +23,8 @@ Requires Java >= 8.
 """
     _MIN_JAVA = '8'
     
-    def autoDetect( self, config ) :
-        return self._autoDetectByCfg(
-                config,
-                [ 'build.sbt' ]
-        )
+    def autoDetectFiles( self ) :
+        return 'build.sbt'
     
     def onPrepare( self, config ):
         target = self._getTune(config, 'prepare', 'clean')

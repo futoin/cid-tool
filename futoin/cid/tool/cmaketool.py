@@ -14,10 +14,8 @@ Build folder is configurable through cmakeBuildDir env.
     def getOrder( self ):
         return -10
 
-    def autoDetect( self, config ) :
-        return self._autoDetectByCfg( config, [
-            'CMakeLists.txt'
-        ] )
+    def autoDetectFiles( self ) :
+        return 'CMakeLists.txt'
     
     def envNames( self ):
         return ['cmakeBin', 'cmakeBuildDir']

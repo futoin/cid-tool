@@ -9,8 +9,6 @@ class composerTool( BashToolMixIn, BuildTool ):
     
 Home: https://getcomposer.org/
 
-Auto-detected based on composer.json
-
 Composer is installed in composerDir as single Phar with "composer" name without
 extension.
 composerDir is equal to user's ~/bin/ folder by default.
@@ -48,8 +46,8 @@ composerDir is equal to user's ~/bin/ folder by default.
 
         self._have_tool = os.path.exists( composer_bin )
 
-    def autoDetect( self, config ) :
-        return self._autoDetectByCfg( config, self.COMPOSER_JSON )
+    def autoDetectFiles( self ) :
+        return self.COMPOSER_JSON
     
     def getDeps( self ) :
         return [ 'php', 'curl', 'bash' ]

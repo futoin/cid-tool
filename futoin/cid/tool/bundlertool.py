@@ -6,14 +6,9 @@ class bundlerTool( GemToolMixIn, BuildTool ):
     """Bundler: The best way to manage a Ruby application's gems.
     
 Home: http://bundler.io/
-
-Auto-detected based on Gemfile.
 """
-    def autoDetect( self, config ) :
-        return self._autoDetectByCfg(
-                config,
-                [ 'Gemfile' ]
-        )
+    def autoDetectFiles( self ) :
+        return 'Gemfile'
 
     def initEnv( self, env ) :
         super(bundlerTool, self).initEnv( env, 'bundle' )

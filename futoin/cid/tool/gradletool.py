@@ -7,8 +7,6 @@ class gradleTool( SdkmanToolMixIn, BuildTool ):
 
 Home: https://gradle.org/
 
-Auto-detected based on build.gradle.
-
 Build targets:
     prepare -> clean
     build -> <default> without explicit target
@@ -20,11 +18,8 @@ Requires Java >= 7.
 """
     _MIN_JAVA = '7'
     
-    def autoDetect( self, config ) :
-        return self._autoDetectByCfg(
-                config,
-                [ 'build.gradle' ]
-        )
+    def autoDetectFiles( self ) :
+        return 'build.gradle'
 
     def onPrepare( self, config ):
         target = self._getTune(config, 'prepare', 'clean')

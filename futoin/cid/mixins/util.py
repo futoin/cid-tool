@@ -15,6 +15,9 @@ class UtilMixIn( object ):
             if not e: continue
             n, v = e.split('=', 1)
             os.environ[n] = v
+            
+    def autoDetectFiles( self ):
+        return None
 
     def _autoDetectByCfg( self, config, file_name ) :
         if self._name in config.get( 'toolOrder', [] ) :

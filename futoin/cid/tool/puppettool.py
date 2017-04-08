@@ -10,8 +10,6 @@ class puppetTool( GemToolMixIn, BuildTool ):
     
 Home: https://puppet.com/
 
-Auto-detected based on metadata.json
-
 Primary purpose is to support Puppet module development.
 """    
     METADATA_FILE = 'metadata.json'
@@ -31,11 +29,8 @@ Primary purpose is to support Puppet module development.
                 self._have_tool = False
                 del env['puppetBin']
 
-    def autoDetect( self, config ) :
-        return self._autoDetectByCfg( config, [
-            self.METADATA_FILE,
-            'manifests',
-        ] )
+    def autoDetectFiles( self ) :
+        return self.METADATA_FILE
 
     def loadConfig( self, config ) :
         content = self._loadJSONConfig( self.METADATA_FILE )

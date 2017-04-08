@@ -15,14 +15,12 @@ Not assumed to be used directly.
 Build targets:
     prepare -> {removes build & dist folders}
     build -> ['sdist', 'bdist_wheel']
+    package -> {uses result of build in dist/}
 Override targets with .config.toolTune.    
 
 """    
-    def autoDetect( self, config ) :
-        return self._autoDetectByCfg(
-                config,
-                [ 'setup.py' ]
-        )
+    def autoDetectFiles( self ) :
+        return 'setup.py'
     
     def uninstallTool( self, env ):
         pass

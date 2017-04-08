@@ -8,8 +8,6 @@ class mavenTool( SdkmanToolMixIn, BuildTool, TestTool ):
 
 Home: https://maven.apache.org/
 
-Auto-detected based on pom.xml
-
 Expects clean, compile, package and test targets.
 
 Build targets:
@@ -23,11 +21,8 @@ Requires Java >= 7.
 """
     _MIN_JAVA = '7'
     
-    def autoDetect( self, config ) :
-        return self._autoDetectByCfg(
-                config,
-                [ 'pom.xml' ]
-        )
+    def autoDetectFiles( self ) :
+        return 'pom.xml'
     
     def _binName( self ):
         return 'mvn'

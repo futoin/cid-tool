@@ -7,7 +7,6 @@ class antTool( SdkmanToolMixIn, BuildTool ):
     
 Home: http://ant.apache.org/
 
-Ant is auto-detected based on build.xml.
 The tool assumes the following targets: clean, compile, jar, run
 
 Ant is setup through SDKMan!
@@ -21,11 +20,8 @@ Build targets:
 Override targets with .config.toolTune.
 
 """
-    def autoDetect( self, config ) :
-        return self._autoDetectByCfg(
-                config,
-                [ 'build.xml' ]
-        )
+    def autoDetectFiles( self ) :
+        return [ 'build.xml' ]
     
     def initEnv( self, env ) :
         if self._javaVersion( env ) < 8:

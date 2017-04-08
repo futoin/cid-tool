@@ -16,11 +16,8 @@ Build targets:
 Override targets with .config.toolTune.
 
 """
-    def autoDetect( self, config ) :
-        return self._autoDetectByCfg(
-                config,
-                [ 'Cargo.toml' ]
-        )
+    def autoDetectFiles( self ) :
+        return 'Cargo.toml'
         
     def getDeps( self ) :
         return [ 'rust' ]

@@ -9,8 +9,6 @@ class gitTool( BashToolMixIn, VcsTool ):
     
 Home: https://git-scm.com/
 
-Auto-detected based on .git folder.
-
 Git tool forcibly sets user.email and user.name, 
 if not set by user.
 """    
@@ -19,8 +17,8 @@ if not set by user.
     def getDeps(self):
         return ['bash', 'tar']
 
-    def autoDetect( self, config ) :
-        return self._autoDetectVCS( config, '.git' )
+    def autoDetectFiles( self ) :
+        return '.git'
     
     def _installTool( self, env ):
         self._requirePackages(['git'])

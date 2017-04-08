@@ -10,11 +10,8 @@ Home: https://docs.docker.com/compose/
 
 Experimental support.
 """
-    def autoDetect( self, config ) :
-        return self._autoDetectByCfg(
-                config,
-                [ 'docker-compose.yml', 'docker-compose.yaml' ]
-        )
+    def autoDetectFiles( self ) :
+        return [ 'docker-compose.yml', 'docker-compose.yaml' ]
     
     def getDeps( self ) :
         return [ 'pip', 'docker' ]

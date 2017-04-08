@@ -15,15 +15,15 @@ class cid_BuildTool_UTBase(cid_Tool_UTBase):
         pass
     
     def test10_prepare( self ):
-        self._call_cid( [ 'tool', 'prepare', self.TOOL_NAME ] )
+        self._call_cid( [ 'prepare' ] )
         self._test_prepare()
         
     def test20_build( self ):
-        self._call_cid( [ 'tool', 'build', self.TOOL_NAME ] )
+        self._call_cid( [ 'build' ] )
         self._test_build()
 
     def test30_package( self ):
-        self._call_cid( [ 'tool', 'package', self.TOOL_NAME ] )
+        self._call_cid( [ 'package' ] )
         self._test_package()
         
     def test40_tool_detect( self ):

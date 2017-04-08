@@ -895,6 +895,18 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         print(Coloring.infoLabel('* Tool: ') + Coloring.warn(tool))
         
+        auto_detect = t.autoDetectFiles()
+        if auto_detect:
+            if not isinstance(auto_detect, list):
+                auto_detect = [auto_detect]
+            print(Coloring.infoLabel('* Auto-detection (files): ') + ', '.join(auto_detect))
+        
+        if isinstance(t, VcsTool):
+            print(Coloring.infoLabel('* Auto-detected, if set as VCS '))
+
+        if isinstance(t, RmsTool):
+            print(Coloring.infoLabel('* Auto-detected, if set as RMS '))
+        
         env_vars = t.envNames()
         if env_vars:
             print(Coloring.infoLabel('* Environment variables: ') + ', '.join(env_vars))

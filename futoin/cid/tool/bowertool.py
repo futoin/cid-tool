@@ -8,13 +8,11 @@ class bowerTool( NpmToolMixIn, BuildTool ):
     """Bower: a package manager for the web.
     
 Home: https://bower.io/
-
-Auto-detected based on bower.json
 """
     BOWER_JSON = 'bower.json'
     
-    def autoDetect( self, config ) :
-        return self._autoDetectByCfg( config, self.BOWER_JSON )
+    def autoDetectFiles( self ) :
+        return self.BOWER_JSON
 
     def loadConfig( self, config ) :
         content = self._loadJSONConfig( self.BOWER_JSON )

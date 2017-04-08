@@ -14,11 +14,8 @@ For other systems, "docker" or "docker-engine" packages is tried to be installed
 
 Docker EE or other installation methods are out of scope for now.
 """
-    def autoDetect( self, config ) :
-        return self._autoDetectByCfg(
-                config,
-                [ 'Dockerfile' ]
-        )
+    def autoDetectFiles( self ) :
+        return 'Dockerfile'
     
     def getDeps( self ):
         return ['curl']

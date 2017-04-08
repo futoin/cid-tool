@@ -7,16 +7,11 @@ class pipTool( BuildTool ):
     """The PyPA recommended tool for installing Python packages.
     
 Home: https://pypi.python.org/pypi/pip
-
-Auto-detected based on requirements.txt
 """    
     REQUIREMENTS_FILE = 'requirements.txt'
 
-    def autoDetect( self, config ) :
-        return self._autoDetectByCfg(
-                config,
-                [ self.REQUIREMENTS_FILE ]
-        )
+    def autoDetectFiles( self ) :
+        return self.REQUIREMENTS_FILE
     
     def getDeps( self ) :
         return [ 'python', 'virtualenv' ]

@@ -8,8 +8,6 @@ class hgTool( BashToolMixIn, VcsTool ):
     """Mercurial SCM.
     
 Home: https://www.mercurial-scm.org/
-
-Auto-detected based on .hg folder
 """
     def getDeps( self ) :
         return [ 'bash' ]
@@ -20,8 +18,8 @@ Auto-detected based on .hg folder
         self._requirePacman(['mercurial'])
         self._requireHomebrew('mercurial')
     
-    def autoDetect( self, config ) :
-        return self._autoDetectVCS( config, '.hg' )
+    def autoDetectFiles( self ) :
+        return '.hg'
 
     def vcsGetRepo( self, config, wc_dir=None ):
         return self._callExternal( [

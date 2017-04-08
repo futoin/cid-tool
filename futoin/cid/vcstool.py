@@ -6,6 +6,9 @@ from .subtool import SubTool
 __all__ = ['VcsTool']
 
 class VcsTool( SubTool ):
+    def autoDetect(self, config):
+        return self._autoDetectVCS( config, self.autoDetectFiles() )
+
     def vcsGetRepo( self, config ):
         raise NotImplementedError( self._name )
     

@@ -7,13 +7,11 @@ class npmTool( BuildTool ):
     """npm is the package manager for JavaScript.
     
 Home: https://www.npmjs.com/    
-
-Auto-detected based on package.json
 """
     PACKAGE_JSON = 'package.json'
     
-    def autoDetect( self, config ) :
-        return self._autoDetectByCfg( config, self.PACKAGE_JSON )
+    def autoDetectFiles( self ) :
+        return self.PACKAGE_JSON
     
     def getDeps( self ) :
         return [ 'node' ]

@@ -6,12 +6,10 @@ class futoinTool( RunEnvTool ):
     
 Home: https://github.com/futoin/specs/blob/master/draft/ftn16_cid_tool.md
 
-Auto-detected based on futoin.json
-
 futoin.json is the only file read by FutoIn CID itself.
 """
-    def autoDetect( self, config ) :
-        return self._autoDetectByCfg( config, self._FUTOIN_JSON )
+    def autoDetectFiles( self ) :
+        return self._FUTOIN_JSON
 
     def initEnv( self, env ):
         self._have_tool = True

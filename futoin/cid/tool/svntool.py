@@ -17,10 +17,13 @@ Home: https://subversion.apache.org/
         self._requireEmerge(['dev-vcs/subversion'])
         self._requirePacman(['subversion'])
         self._requireHomebrew('subversion')
+        
+    def autoDetectFiles( self ):
+        return '.svn'
     
     def autoDetect( self, config ) :
-        return ( self._autoDetectVCS( config, '.svn' )
-                or RmsTool.autoDetect( self, config ) )
+        return ( VcsTool.autoDetect( self, config ) or
+                 RmsTool.autoDetect( self, config ) )
     
     def vcsGetRepo( self, config, wc_dir=None ):
         svn_info = self._callExternal([

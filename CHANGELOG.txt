@@ -16,6 +16,7 @@
 * NEW: Added "cid tool detect"
 * NEW: Added tool version support as parameter to "cid tool *" commands
 * NEW: Added tool version sanitization to drop bug-fix/patch parts
+* NEW: Added automatically generated auto-detection info to "tool describe"
 
 === 0.5.5 ===
 * Cosmetic improvement to error/warning/info messages

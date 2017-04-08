@@ -64,6 +64,11 @@ class SubTool( PathMixIn, PackageMixIn, UtilMixIn, VersionMixIn, object ):
             self._have_tool = True
     
     def autoDetect( self, config ) :
+        files = self.autoDetectFiles()
+        
+        if files:
+            return self._autoDetectByCfg(config, files)
+
         return False
     
     def requireInstalled( self, env ) :

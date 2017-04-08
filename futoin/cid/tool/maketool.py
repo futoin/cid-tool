@@ -6,18 +6,15 @@ class makeTool( BuildTool ):
     
 Home: https://www.gnu.org/software/make/
 
-Auto-detected based on 'GNUmakefile', 'makefile' or 'Makefile'.
-
-
 Expects presence of "clean" target.
 Build uses the default target.
 """
-    def autoDetect( self, config ) :
-        return self._autoDetectByCfg( config, [
+    def autoDetectFiles( self ) :
+        return [
             'GNUmakefile',
             'makefile',
             'Makefile',
-        ] )
+        ]
     
     def _installTool( self, env ):
             self._requirePackages(['make'])

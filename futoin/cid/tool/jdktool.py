@@ -23,6 +23,9 @@ jdkVer supports:
     def envNames( self ) :
         return ['jdkDir', 'jdkVer']
     
+    def getVersionParts( self ):
+        return 1
+    
     def _installTool( self, env ):
         if 'jdkVer' in env:
             ver = env['jdkVer'].split('.')[0]
