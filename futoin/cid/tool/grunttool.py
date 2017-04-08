@@ -12,7 +12,7 @@ Auto-detected based on Gruntfile.json or Gruntfile.coffee
     def autoDetect( self, config ) :
         return self._autoDetectByCfg(
                 config,
-                [ 'Gruntfile.json', 'Gruntfile.coffee' ]
+                [ 'Gruntfile.js', 'Gruntfile.coffee' ]
         )
 
     def _npmName(self):
