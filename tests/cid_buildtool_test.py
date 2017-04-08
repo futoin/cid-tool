@@ -1,9 +1,9 @@
 
-from .citool_tools_test import citool_Tool_UTBase
+from .cid_utbase import cid_Tool_UTBase
 import os, re, sys, subprocess, platform, glob, stat
 
 #=============================================================================
-class cid_BuildTool_UTBase(citool_Tool_UTBase):
+class cid_BuildTool_UTBase(cid_Tool_UTBase):
     @classmethod
     def setUpClass(cls):
         cls.TOOL_NAME = re.match(r'^cid_(.+)_Test$', cls.__name__).group(1)
@@ -15,20 +15,20 @@ class cid_BuildTool_UTBase(citool_Tool_UTBase):
         pass
     
     def test10_prepare( self ):
-        self._call_citool( [ 'tool', 'prepare', self.TOOL_NAME ] )
+        self._call_cid( [ 'tool', 'prepare', self.TOOL_NAME ] )
         self._test_prepare()
         
     def test20_build( self ):
-        self._call_citool( [ 'tool', 'build', self.TOOL_NAME ] )
+        self._call_cid( [ 'tool', 'build', self.TOOL_NAME ] )
         self._test_build()
 
     def test30_package( self ):
-        self._call_citool( [ 'tool', 'package', self.TOOL_NAME ] )
+        self._call_cid( [ 'tool', 'package', self.TOOL_NAME ] )
         self._test_package()
         
     def test40_tool_detect( self ):
         (r, w) = os.pipe()
-        self._call_citool( [ 'tool', 'detect' ], stdout=w )
+        self._call_cid( [ 'tool', 'detect' ], stdout=w )
         res = os.read(r, 4096)
         os.close(r)
         os.close(w)
@@ -144,7 +144,7 @@ gem 'thor', '0.19.1'
         
     def _test_prepare( self ):
         with open('res.txt', 'w') as f:
-            self._call_citool( [ 'tool', 'exec', 'gem', '--', 'list' ], stdout=f )
+            self._call_cid( [ 'tool', 'exec', 'gem', '--', 'list' ], stdout=f )
             
         with open('res.txt', 'r') as f:
             res = f.readlines()
@@ -157,7 +157,7 @@ class cid_cargo_Test(cid_BuildTool_UTBase):
     
     @classmethod
     def setUpTool(cls):
-        cls._call_citool( [
+        cls._call_cid( [
             'tool', 'exec', cls.TOOL_NAME, '--',
             'init', '--bin', '--name', 'hello',
         ] )
@@ -290,7 +290,7 @@ module.exports = function(grunt) {
                 "grunt": "*"
             },
         })
-        cls._call_citool( [ 'tool', 'prepare', 'npm' ] )
+        cls._call_cid( [ 'tool', 'prepare', 'npm' ] )
         
         
     def _test_build( self ):
@@ -322,7 +322,7 @@ gulp.task('default', function() {
             },
         })
             
-        cls._call_citool( [ 'tool', 'prepare', 'npm' ] )
+        cls._call_cid( [ 'tool', 'prepare', 'npm' ] )
         
         
     def _test_build( self ):
@@ -356,7 +356,7 @@ class cid_maven_Test(cid_BuildTool_UTBase):
     
     @classmethod
     def setUpTool(cls):
-        cls._call_citool( [
+        cls._call_cid( [
             'tool', 'exec', cls.TOOL_NAME, '--',
             'archetype:generate', '-DgroupId=com.mycompany.app',
             '-DartifactId=my-app', '-DarchetypeArtifactId=maven-archetype-quickstart',
@@ -413,7 +413,7 @@ nose==1.3.7
         
     def _test_prepare( self ):
         with open('req.txt', 'w') as f:
-            self._call_citool( [ 'tool', 'exec', self.TOOL_NAME, '--', 'freeze' ], stdout=f )
+            self._call_cid( [ 'tool', 'exec', self.TOOL_NAME, '--', 'freeze' ], stdout=f )
             
         with open('req.txt', 'r') as f:
             res = f.readlines()

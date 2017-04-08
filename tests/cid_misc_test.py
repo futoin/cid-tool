@@ -1,7 +1,7 @@
 
 from __future__ import print_function, absolute_import
 
-from .citool_utbase import citool_UTBase
+from .cid_utbase import cid_UTBase
 from futoin.cid.rmstool import RmsTool
 
 import os, stat
@@ -10,9 +10,9 @@ import glob
 
 from collections import OrderedDict
 
-class cid_misc_Test ( citool_UTBase ) :
+class cid_misc_Test ( cid_UTBase ) :
     __test__ = True
-    TEST_DIR = os.path.join(citool_UTBase.TEST_RUN_DIR, 'misc')
+    TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'misc')
     ORIG_HOME = os.environ['HOME']
     
     def setUp(self):
@@ -35,40 +35,40 @@ class cid_misc_Test ( citool_UTBase ) :
         self._writeJSON('/etc/futoin/futoin.json', {
             'env' : {}
         })
-        self._call_citool(['tool', 'list'])
+        self._call_cid(['tool', 'list'])
         
         
         self._writeJSON('/etc/futoin/futoin.json', {
             'invalid' : {}
         })
         
-        self._call_citool(['tool', 'list'], returncode=1)
+        self._call_cid(['tool', 'list'], returncode=1)
 
     def test_user_config_notdot(self):
         self._writeJSON(os.path.join(os.environ['HOME'], 'futoin.json'), {
             'env' : {}
         })
-        self._call_citool(['tool', 'list'])
+        self._call_cid(['tool', 'list'])
         
         
         self._writeJSON(os.path.join(os.environ['HOME'], 'futoin.json'), {
             'invalid' : {}
         })
         
-        self._call_citool(['tool', 'list'], returncode=1)
+        self._call_cid(['tool', 'list'], returncode=1)
 
     def test_user_dot_config(self):
         self._writeJSON(os.path.join(os.environ['HOME'], '.futoin.json'), {
             'env' : {}
         })
-        self._call_citool(['tool', 'list'])
+        self._call_cid(['tool', 'list'])
         
         
         self._writeJSON(os.path.join(os.environ['HOME'], '.futoin.json'), {
             'invalid' : {}
         })
         
-        self._call_citool(['tool', 'list'], returncode=1)
+        self._call_cid(['tool', 'list'], returncode=1)
 
     def test_unknown_tool(self):
         self._writeJSON(os.path.join(self.TEST_DIR, 'futoin.json'), {
@@ -76,6 +76,6 @@ class cid_misc_Test ( citool_UTBase ) :
                 'unknown_tool' : True,
             }
         })
-        self._call_citool(['tool', 'list'], returncode=1)
+        self._call_cid(['tool', 'list'], returncode=1)
 
 

@@ -1,7 +1,7 @@
 
 from __future__ import print_function, absolute_import
 
-from .citool_utbase import citool_UTBase
+from .cid_utbase import cid_UTBase
 from futoin.cid.rmstool import RmsTool
 
 import os, stat
@@ -10,9 +10,9 @@ import glob
 
 from collections import OrderedDict
 
-class cid_initcmd_Test ( citool_UTBase ) :
+class cid_initcmd_Test ( cid_UTBase ) :
     __test__ = True
-    TEST_DIR = os.path.join(citool_UTBase.TEST_RUN_DIR, 'initcmd')
+    TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'initcmd')
     
     def setUp(self):
         self.setUpClass()
@@ -21,7 +21,7 @@ class cid_initcmd_Test ( citool_UTBase ) :
         os.chdir(self.TEST_DIR)
             
     def test10_init(self):
-        self._call_citool(['init'])
+        self._call_cid(['init'])
         cfg = self._readJSON('futoin.json')
         
         self.assertEquals(cfg, OrderedDict([
@@ -29,7 +29,7 @@ class cid_initcmd_Test ( citool_UTBase ) :
         ]))
     
     def test11_init_name(self):
-        self._call_citool(['init', 'some_name'])
+        self._call_cid(['init', 'some_name'])
         cfg = self._readJSON('futoin.json')
         
         self.assertEquals(cfg, OrderedDict([
@@ -46,7 +46,7 @@ class cid_initcmd_Test ( citool_UTBase ) :
             },
         })
         
-        self._call_citool(['init', '--vcsRepo=git:someRepo.git'])
+        self._call_cid(['init', '--vcsRepo=git:someRepo.git'])
         cfg = self._readJSON('futoin.json')
         
         self.assertEquals(cfg, OrderedDict([

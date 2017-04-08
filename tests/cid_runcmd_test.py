@@ -1,16 +1,16 @@
 
 from __future__ import print_function, absolute_import
 
-from .citool_utbase import citool_UTBase
+from .cid_utbase import cid_UTBase
 from futoin.cid.rmstool import RmsTool
 
 import os, stat, fcntl
 import subprocess
 import glob
 
-class cid_runcmd_Test ( citool_UTBase ) :
+class cid_runcmd_Test ( cid_UTBase ) :
     __test__ = True
-    TEST_DIR = os.path.join(citool_UTBase.TEST_RUN_DIR, 'runcmd')
+    TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'runcmd')
     
     @classmethod
     def setUpClass( cls ):
@@ -126,11 +126,11 @@ object Hi {
             }
         })
                 
-        cls._call_citool(['tool', 'package', 'gradle'])
+        cls._call_cid(['tool', 'package', 'gradle'])
             
     def _test_run(self, cmd, expect):
         (r, w) = os.pipe()
-        self._call_citool(['run', cmd], stdout=w)
+        self._call_cid(['run', cmd], stdout=w)
         res = os.read(r, 4096).strip()
         os.close(r)
         os.close(w)
@@ -174,7 +174,7 @@ object Hi {
         
     def test50_run_all( self ):
         (r, w) = os.pipe()
-        self._call_citool(['run'], stdout=w)
+        self._call_cid(['run'], stdout=w)
         
         res = os.read(r, 4096)
         

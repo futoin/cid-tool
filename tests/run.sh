@@ -52,8 +52,8 @@ fi
 
 if [ -z "$1" ]; then
     tests=
-    tests+=" tests/citool_tools_test.py"
     tests+=" tests/cid_vcs_test.py"
+    tests+=" tests/cid_install_test.py"
     tests+=" tests/cid_buildtool_test.py"
     tests+=" tests/cid_runcmd_test.py"
     tests+=" tests/cid_initcmd_test.py"

@@ -17,7 +17,7 @@ else :
     CIDTEST_BIN_EXT = True
     CIDTEST_BIN = os.path.dirname( __file__ ) + '/../bin/cid'
 
-class citool_UTBase ( unittest.TestCase ) :
+class cid_UTBase ( unittest.TestCase ) :
     TEST_DIR = 'invalid'
     TEST_RUN_DIR = os.environ.get('CIDTEST_RUN_DIR', os.path.realpath(
         os.path.join(os.path.dirname(__file__), '..', 'testrun')
@@ -49,7 +49,7 @@ class citool_UTBase ( unittest.TestCase ) :
         self._goToBase()
 
     @classmethod
-    def _call_citool( cls, args, stdin=None, stdout=None, returncode=0 ) :
+    def _call_cid( cls, args, stdin=None, stdout=None, returncode=0 ) :
         cmd = []
         
         if CIDTEST_BIN_EXT:
@@ -101,4 +101,28 @@ class citool_UTBase ( unittest.TestCase ) :
         object_pairs_hook = lambda pairs: OrderedDict( pairs )
         return json.loads( content, object_pairs_hook=object_pairs_hook )
         
+class cid_Tool_UTBase ( cid_UTBase ) :
+    __test__ = False
+    TOOL_NAME = 'invalid'
+    TOOL_ENV = {}
+    _env_backup = None
+
+    @classmethod
+    def setUpClass( cls ):
+        cls._env_backup = {}
+        cls.TEST_DIR = os.path.join(cls.TEST_RUN_DIR, 'tool_'+cls.TOOL_NAME)
+        super(cid_Tool_UTBase, cls).setUpClass()
+        os.mkdir( cls.TEST_DIR )
+        os.chdir( cls.TEST_DIR )
         
+        for k, v in cls.TOOL_ENV.items():
+            cls._env_backup[k] = os.environ.get(k, None)
+            os.environ[k] = v
+            
+    @classmethod
+    def tearDownClass( cls ):
+        for k, v in cls._env_backup.items():
+            if v:
+                os.environ[k] = v
+            else:
+                del os.environ[k]
