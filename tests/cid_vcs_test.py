@@ -149,9 +149,17 @@ module.exports = function(grunt) {
     def test_40_release_build( self ):
         rms_dir = os.path.realpath( 'rms_repo' )
 
+        # no release
+        self._call_cid( [ 'ci_build', 'v1.2.4',
+                            '--vcsRepo', self.VCS_REPO ] )
+        
+        self.assertFalse(glob.glob(os.path.join(rms_dir, 'Builds', 'wc-1.2.4-*')))
+
         self._call_cid( [ 'ci_build', 'v1.2.4', 'Builds',
                             '--vcsRepo', self.VCS_REPO,
                             '--rmsRepo', 'scp:' + rms_dir ] )
+        
+        self.assertTrue(glob.glob(os.path.join(rms_dir, 'Builds', 'wc-1.2.4-*')))
         
     def test_50_rms_deploy( self ):
         rms_dir = os.path.realpath( 'rms_repo' )
