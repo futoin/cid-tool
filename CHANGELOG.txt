@@ -1,20 +1,21 @@
 
 === (next) ===
-* Fixed to properly search for ${HOME}/.futoin.json as defined in
+* FIXED: to properly search for ${HOME}/.futoin.json as defined in
     specs. Left fallback to ${HOME}/futoin.json, if ${HOME} is not
     working directory.
-* Added better error checking of unknown tools
-* Fixed to auto-detect tools listed in config.entryPoints
-* Added "cid tool detect"
-* Added tool version support as parameter to "cid tool *" commands
-* Fixed broken auto-detection for Gruntfile.js
-* Changed auto-detection mechanism to use pre-created set of
+* FIXED: to auto-detect tools listed in config.entryPoints
+* FIXED: broken auto-detection for Gruntfile.js
+* FIXED: setuptools to properly add generated packages to global state
+* CHANGED: auto-detection mechanism to use pre-created set of
     project root files instead of using filesystem to support
     possible "remote" auto-detection.
-* Revised error messages & fixed to use proper API instead of
+* CHANGED: ci_build command to allow operation without RMS
+* CHANGED: Revised error messages & fixed to use proper API instead of
     direct exceptions
-* Added tool version sanitization to drop bug-fix/patch parts
-* Fixed setuptools to properly add generated packages to global state
+* NEW: Added better error checking of unknown tools
+* NEW: Added "cid tool detect"
+* NEW: Added tool version support as parameter to "cid tool *" commands
+* NEW: Added tool version sanitization to drop bug-fix/patch parts
 
 === 0.5.5 ===
 * Cosmetic improvement to error/warning/info messages

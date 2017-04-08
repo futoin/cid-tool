@@ -239,7 +239,7 @@ Please see details in the FTN16 spec: ::
         Tool and all its dependencies are automatically installed.
         Note: not all tools support execution.
     
-    cid tool (install|uninstall|update) [<tool_name>]
+    cid tool (install|uninstall|update) [<tool_name>] [<tool_version>]
         Manage tools.
         Note: not all tools support all kinds of actions.
     
@@ -251,7 +251,7 @@ Please see details in the FTN16 spec: ::
         for execution without CID.
         Tool and all its dependencies are automatically installed.
 
-    cid tool (prepare|build|check|package|migrate) <tool_name>
+    cid tool (prepare|build|check|package|migrate) <tool_name> [<tool_version>]
         Run standard actions described above only for specific tool.
         Tool and all its dependencies are automatically installed.
         Note: auto-detection is skipped and tool is always run.
@@ -261,6 +261,10 @@ Please see details in the FTN16 spec: ::
 
     cid tool describe <tool_name>
         Show tool's detailed description.
+        
+    cid tool detect
+        Show list of auto-detected tools for current project
+        with possible version numbers.
         
     cid init [<project_name>] [--vcsRepo=<vcs_repo>]
         [--rmsRepo=<rms_repo>] [--permissive]

@@ -742,8 +742,10 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self.build()
         self.package()
         self.check()
-        for p in self._lastPackages:
-            self.promote( p, rms_pool )
+        
+        if rms_pool:
+            for p in self._lastPackages:
+                self.promote( p, rms_pool )
 
     def tool_exec( self, tool, args ):
         t = self._tool_impl[tool]
