@@ -45,7 +45,7 @@ Home: https://subversion.apache.org/
         elif self._callExternal( [ svnBin, 'ls', tag_path ], suppress_fail=True ) :
             svn_repo_path = tag_path
         else:
-            raise RuntimeError( "VCS ref was not found: " + vcs_ref )
+            self._errorExit( "VCS ref was not found: " + vcs_ref )
 
         if os.path.isdir( '.svn' ):
             self._callExternal( [ svnBin, 'switch', svn_repo_path ] )

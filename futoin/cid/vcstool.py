@@ -39,7 +39,7 @@ class VcsTool( SubTool ):
         
         if vcsDir in config['projectRootSet']:
             if config.get( 'vcs', self._name ) != self._name:
-                raise RuntimeError( 'Another VCS type {0} has been already detected!'.format(config['vcs']) )
+                self._errorExit( 'Another VCS type {0} has been already detected!'.format(config['vcs']) )
             config['vcs'] = self._name
             return True
         

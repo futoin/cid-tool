@@ -63,7 +63,7 @@ Home: https://pypi.python.org/pypi/virtualenv
             virtualenv = self._which('virtualenv')
             
             if not virtualenv:
-                raise RuntimeError('Failed to find virtualenv')
+                self._errorExit('Failed to find virtualenv')
 
             self._callExternal([
                 virtualenv,

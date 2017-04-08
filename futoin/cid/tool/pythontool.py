@@ -68,8 +68,8 @@ system packages OS-specific way.
             ).strip()
             
             if python_ver[:3] > python_ver_fact:
-                raise RuntimeError(
-                    'Too old python version {0} when {1} is required'
+                self._errorExit(
+                    'Too old python version "{0}" when "{1}" is required'
                     .format(python_ver, python_ver_fact)
                 )
             env['pythonVer'] = python_ver_fact

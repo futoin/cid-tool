@@ -82,7 +82,7 @@ if not set by user.
             remote_url = self.vcsGetRepo( config, '.git')
             
             if not self._gitCompareRepo( vcsRepo, remote_url ) :
-                raise RuntimeError( "Git remote mismatch: {0} != {1}"
+                self._errorExit( "Git remote mismatch: '{0}' != '{1}'"
                     .format(vcsRepo, remote_url ) )
 
             self._callExternal( [ gitBin, 'fetch', '-q'  ] )
@@ -132,7 +132,7 @@ if not set by user.
             self._rev = res.split()[0]
             return self._rev
         
-        raise RuntimeError( "Uknown Git ref: {0}".format( branch ) )
+        self._errorExit( "Uknown Git ref: '{0}'".format( branch ) )
     
 
     def vcsListTags( self, config, vcs_cache_dir, tag_hint ) :

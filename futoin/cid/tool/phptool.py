@@ -80,7 +80,7 @@ resources due to lack of trusted binary builds.
             defs = fnmatch.filter(defs, php_ver + '*')
             
             if not defs:
-                raise RuntimeError('PHP version %s not found' % php_ver)
+                self._errorExit('PHP version "{0}" not found'.format(php_ver) )
             
             def castver(v):
                 try: return int(v)

@@ -11,6 +11,8 @@
 * Changed auto-detection mechanism to use pre-created set of
     project root files instead of using filesystem to support
     possible "remote" auto-detection.
+* Revised error messages & fixed to use proper API instead of
+    direct exceptions
 
 === 0.5.5 ===
 * Cosmetic improvement to error/warning/info messages

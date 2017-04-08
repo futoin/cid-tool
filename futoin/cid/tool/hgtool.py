@@ -36,7 +36,7 @@ Auto-detected based on .hg folder
             if 'vcsRepo' in config:
                 remote_info = self.vcsGetRepo( config, '.' )
                 if remote_info != config['vcsRepo'] :
-                    raise RuntimeError( "Hg remote mismatch: " + remote_info )
+                    self._errorExit( "Hg remote mismatch: " + remote_info )
 
             self._callExternal( [ hgBin, 'pull' ] )
         else :
@@ -96,7 +96,7 @@ Auto-detected based on .hg folder
             if r[0] == branch:
                 return r[1]
             
-        raise RuntimeError( "Uknown Hg ref: {0}".format( branch ) )
+        self._errorExit( "Uknown Hg ref: {0}".format( branch ) )
 
     def vcsListTags( self, config, vcs_cache_dir, tag_hint ) :
         self._hgCache( config, vcs_cache_dir )

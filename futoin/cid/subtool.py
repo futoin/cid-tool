@@ -29,7 +29,7 @@ class SubTool( PathMixIn, PackageMixIn, UtilMixIn, object ):
         return 0
     
     def _installTool( self, env ):
-        raise NotImplementedError( "Tool (%s) must be manually installed"  % self._name )
+        self._errorExit( 'Tool "{0}" must be manually installed'.format(self._name) )
     
     def envNames( self ) :
         return [ self._name + 'Bin' ]
@@ -71,7 +71,7 @@ class SubTool( PathMixIn, PackageMixIn, UtilMixIn, object ):
 
         if not self._have_tool:
             if self._isExternalToolsSetup( env ):
-                raise RuntimeError( "Tool (%s) must be installed externally (env config)"  % self._name )
+                self._errorExit( 'Tool "{0}" must be installed externally (env config)'.format(self._name) )
             else :
                 self._warn('Auto-installing required "{0}" tool'.format(self._name))
                 self._installTool( env )
@@ -79,7 +79,7 @@ class SubTool( PathMixIn, PackageMixIn, UtilMixIn, object ):
             self.initEnv( env )
             
             if not self._have_tool:
-                raise RuntimeError( "Failed to install " + self._name )
+                self._errorExit( 'Failed to install "{0}"'.format(self._name) )
 
     def isInstalled( self, env ):
         self.initEnv( env )
@@ -90,7 +90,7 @@ class SubTool( PathMixIn, PackageMixIn, UtilMixIn, object ):
         
     def uninstallTool( self, env ):
         self._have_tool = False
-        raise RuntimeError( "Tool (%s) must be uninstalled externally"  % self._name )
+        self._errorExit( 'Tool "{0}" must be uninstalled externally'.format(self._name) )
 
     def loadConfig( self, config ) :
         pass
@@ -111,5 +111,5 @@ updates = {
         if bin :
             self._callInteractive([bin] + args)
         else :
-            raise NotImplementedError( "Tool exec has not been implemented for %s" % self._name )
+            self._errorExit( 'Exec command has not been implemented for "{0}"'.format(self._name) )
 

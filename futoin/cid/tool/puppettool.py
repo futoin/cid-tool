@@ -70,6 +70,6 @@ Primary purpose is to support Puppet module development.
         )
 
         if not os.path.exists( package_file ) :
-            raise RuntimeError( 'Puppet Module built package is missing: ' + package_file )
+            self._errorExit( 'Puppet Module built package is missing: ' + package_file )
 
         self._addPackageFiles(config, package_file)
