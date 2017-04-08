@@ -19,6 +19,9 @@ javaVer supports:
     def envNames( self ) :
         return ['javaBin', 'javaVer']
     
+    def getVersionParts( self ):
+        return 1
+    
     def _installTool( self, env ):
         if 'javaVer' in env:
             ver = env['javaVer'].split('.')[0]

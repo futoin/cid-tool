@@ -1213,6 +1213,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         if config['toolTest']:
             for tool in tools :
                 t = tool_impl[tool]
+                t.sanitizeVersion( env )
                 t.importEnv( env )
                 if not t.isInstalled( env ):
                     break
@@ -1223,6 +1224,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             
             for tool in tools :
                 t = tool_impl[tool]
+                t.sanitizeVersion( env )
                 t.requireInstalled( env )
                 if tool != curr_tool:
                     t.loadConfig( config )

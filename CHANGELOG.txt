@@ -13,6 +13,7 @@
     possible "remote" auto-detection.
 * Revised error messages & fixed to use proper API instead of
     direct exceptions
+* Added tool version sanitization to drop bug-fix/patch parts
 
 === 0.5.5 ===
 * Cosmetic improvement to error/warning/info messages

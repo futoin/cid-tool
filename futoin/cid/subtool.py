@@ -6,10 +6,11 @@ import os
 from .mixins.util import UtilMixIn
 from .mixins.path import PathMixIn
 from .mixins.package import PackageMixIn
+from .mixins.version import VersionMixIn
 
 __all__ = ['SubTool']
 
-class SubTool( PathMixIn, PackageMixIn, UtilMixIn, object ):
+class SubTool( PathMixIn, PackageMixIn, UtilMixIn, VersionMixIn, object ):
     SYSTEM_VER = 'system'
     
     def __init__( self, name ) :
