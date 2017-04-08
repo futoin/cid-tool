@@ -8,6 +8,9 @@
 * Added "cid tool detect"
 * Added tool version support as parameter to "cid tool *" commands
 * Fixed broken auto-detection for Gruntfile.js
+* Changed auto-detection mechanism to use pre-created set of
+    project root files instead of using filesystem to support
+    possible "remote" auto-detection.
 
 === 0.5.5 ===
 * Cosmetic improvement to error/warning/info messages

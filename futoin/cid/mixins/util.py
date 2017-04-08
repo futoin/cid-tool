@@ -17,14 +17,16 @@ class UtilMixIn( object ):
             os.environ[n] = v
 
     def _autoDetectByCfg( self, config, file_name ) :
-        if self._name in config.get( 'tools', [] ) :
+        if self._name in config.get( 'toolOrder', [] ) :
             return True
         
         if type( file_name ) is type( '' ):
             file_name = [ file_name ]
+            
+        root_list = config['projectRootSet']
 
         for f in file_name :
-            if os.path.exists( f ) :
+            if f in root_list :
                 return True
         
         return False

@@ -1085,6 +1085,9 @@ class CIDTool( PathMixIn, UtilMixIn ) :
     def _initTools( self ):
         config = self._config
         env = config['env']
+        
+        #---
+        config['projectRootSet'] = set(os.listdir('.'))
 
         #---
         tool_impl = self._tool_impl
