@@ -14,6 +14,7 @@
 * Revised error messages & fixed to use proper API instead of
     direct exceptions
 * Added tool version sanitization to drop bug-fix/patch parts
+* Fixed setuptools to properly add generated packages to global state
 
 === 0.5.5 ===
 * Cosmetic improvement to error/warning/info messages

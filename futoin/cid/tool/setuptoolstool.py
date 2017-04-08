@@ -52,6 +52,9 @@ Override targets with .config.toolTune.
         
         self._callExternal( [ env['pythonBin'], 'setup.py' ] + targets )
     
+    def onPackage(self, config):
+        target = self._getTune(config, 'package', 'dist')
+        self._addPackageFiles(config, os.path.join('target', '*'))
 
     def onCheck( self, config ):
         env = config['env']
