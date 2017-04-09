@@ -28,7 +28,7 @@ Home: https://pypi.python.org/pypi/virtualenv
         
         # virtualenv depends on ensurepip and provides no setuptools
         # ensurepip is not packaged on all OSes...
-        if False and int(python_ver[0]) == 3 and int(python_ver[1]) >= 3:
+        if False : #and int(python_ver[0]) == 3 and int(python_ver[1]) >= 3:
             self._callExternal([
                 env['pythonRawBin'],
                 '-m', 'venv',

@@ -45,14 +45,14 @@ system packages OS-specific way.
         python_ver = env.setdefault('pythonVer', '3')
         bin_name = None
         
-        if self._which('emerge'):
+        if self._isGentoo():
             if len(python_ver) == 3:
                 os.environ['EPYTHON'] = 'python{0}'.format(python_ver)
             elif int(python_ver.split('.')[0]) == 3:
                 os.environ['EPYTHON'] = 'python3.4'
             else:
                 os.environ['EPYTHON'] = 'python2.7'
-        elif self._which('pacman'):
+        elif self._isArchLinux():
             if int(python_ver.split('.')[0]) == 2:
                 bin_name = 'python2'
         elif int(python_ver.split('.')[0]) == 3:
@@ -67,10 +67,9 @@ system packages OS-specific way.
                 verbose = False
             ).strip()
             
-            if python_ver[:3] > python_ver_fact:
+            if python_ver.split('.') > python_ver_fact.split('.'):
                 self._errorExit(
                     'Too old python version "{0}" when "{1}" is required'
                     .format(python_ver, python_ver_fact)
                 )
-            env['pythonVer'] = python_ver_fact
 
