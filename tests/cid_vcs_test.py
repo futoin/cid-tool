@@ -240,6 +240,10 @@ class cid_git_Test ( cid_VCS_UTBase ) :
         self._call_cid( [ 'tool', 'exec', 'git', '--',
                          'add', '-A' ] )
         self._call_cid( [ 'tool', 'exec', 'git', '--',
+                         'config', 'user.email', 'test@example.com' ] )
+        self._call_cid( [ 'tool', 'exec', 'git', '--',
+                         'config', 'user.name', 'unit test' ] )
+        self._call_cid( [ 'tool', 'exec', 'git', '--',
                          'commit', '-m', 'Initial commit' ] )
         self._call_cid( [ 'tool', 'exec', 'git', '--',
                          'checkout', '-b', 'branch_A' ] )
