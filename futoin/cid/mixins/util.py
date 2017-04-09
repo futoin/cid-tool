@@ -78,6 +78,9 @@ class UtilMixIn( object ):
         return env['externalSetup']['installTools']
     
     def _rmTree( self, dir ):
+        print( Coloring.infoLabel('Removing: ') + Coloring.info(dir),
+                file=sys.stderr )
+        
         os.chmod( dir, stat.S_IRWXU )
         for ( path, dirs, files ) in os.walk( dir ) :
             for id in dirs + files :
