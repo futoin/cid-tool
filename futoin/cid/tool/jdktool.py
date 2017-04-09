@@ -27,7 +27,10 @@ jdkVer supports:
         return 1
     
     def _installTool( self, env ):
-        ver = env['jdkVer'].split('.')[0]
+        if env.get('jdkDir', None):
+            return
+        
+        ver = env['jdkVer']
         
         # Zulu is installed in javaTool
         # leaving it here for possible future use
@@ -41,7 +44,7 @@ jdkVer supports:
         pass
 
     def initEnv( self, env ) :
-        if 'jdkDir' in env:
+        if env.get('jdkDir', None):
             java_home = env['jdkDir']
             bin_dir = os.path.join(java_home, 'bin')
             
@@ -54,7 +57,7 @@ jdkVer supports:
             return
         
         env.setdefault('jdkVer', env['javaVer'])
-        ver = env['jdkVer'].split('.')[0]
+        ver = env['jdkVer']
         
         candidates = [
             # Zulu

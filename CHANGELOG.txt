@@ -1,8 +1,9 @@
 
 === (next) ===
+* FIXED: Fixed to setup Zulu JDK on Fedora
+* FIXED: To check for actual value instead of presence of var in env
 * NEW: Added info message on _rmTree() call
 * NEW: Added release date to automatic CHANGELOG.txt update
-* FIXED: Fixed to setup Zulu JDK on Fedora
 
 === 0.6.0 ===
 * FIXED: to properly search for ${HOME}/.futoin.json as defined in

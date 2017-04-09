@@ -23,6 +23,9 @@ javaVer supports:
         return 1
     
     def _installTool( self, env ):
+        if env.get('javaBin', None):
+            return
+
         ver = env['javaVer']
         
         if self._isMacOS():
@@ -50,7 +53,7 @@ javaVer supports:
         pass
 
     def initEnv( self, env ) :
-        if 'javaBin' in env:
+        if env.get('javaBin', None):
             bin_dir = os.path.dirname(env['javaBin'])
             java_home = os.path.dirname(env['javaBin'])
             

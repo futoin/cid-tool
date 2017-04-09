@@ -37,7 +37,7 @@ class SdkmanToolMixIn( BashToolMixIn, JavaToolMixIn ):
         )
             
     def _javaVersion( self, env ):
-        if 'javaBin' not in env:
+        if not env.get('javaBin', None):
             return 0
     
         java_ver = self._callBash(env, '{0} -version 2>&1'.format(env['javaBin']), verbose=False)
@@ -75,7 +75,7 @@ class SdkmanToolMixIn( BashToolMixIn, JavaToolMixIn ):
         #)
 
     def initEnv( self, env ) :
-        if 'sdkmanDir' not in env:
+        if not env.get('sdkmanDir', None):
             return
 
         tool_dir = os.path.join(env['sdkmanDir'], 'candidates', self._sdkName(), 'current')

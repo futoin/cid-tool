@@ -8,7 +8,7 @@ class JavaToolMixIn( object ):
             return
         
         for ek in ['javaVer', 'jdkVer']:
-            if ek in env:
+            if env.get(ek, None):
                 if int(env[ek]) < int(self._MIN_JAVA):
                     self._errorExit('{0} requires minimal {1}={2}'
                         .format(self._name, ek, self._MIN_JAVA))

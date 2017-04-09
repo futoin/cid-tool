@@ -52,7 +52,7 @@ class SubTool( PathMixIn, PackageMixIn, UtilMixIn, VersionMixIn, object ):
         name = self._name
         bin_env = name + 'Bin'
 
-        if bin_env not in env :
+        if not env.get(bin_env, None) :
             if bin_name is None:
                 bin_name = name
 

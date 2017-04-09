@@ -42,7 +42,7 @@ through CID, but you can install source releases through
         return ['goVer', 'goBin' ]
 
     def initEnv( self, env ) :
-        if 'goVer' not in env:
+        if not env.get('goVer', None):
             try:
                 env['goVer'] = self._callBash( env,
                     'source {0} && gvm listall | egrep "go[0-9]\.[0-9]+(\.[0-9]+)?$" | sort -rV'
