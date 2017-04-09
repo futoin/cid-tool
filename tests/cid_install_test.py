@@ -45,7 +45,7 @@ class cid_Tool_UTCommon ( cid_Tool_UTBase ) :
         
         if ver_var in self.TOOL_ENV:
             tool_ver = self.TOOL_ENV[ver_var]
-            self.assertEqual(vars[ver_var], tool_ver)
+            self.assertEqual(vars[ver_var], "'{0}'".format(tool_ver))
             
             del os.environ[ver_var]
             
@@ -54,6 +54,8 @@ class cid_Tool_UTCommon ( cid_Tool_UTBase ) :
             res2 = os.read(r, 4096)
             os.close(r)
             os.close(w)
+            
+            os.environ[ver_var] = tool_ver
             
             try: res2 = str(res2, 'utf8')
             except: pass

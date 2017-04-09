@@ -10,6 +10,9 @@ Home: https://www.rust-lang.org
 """
     def getDeps( self ) :
         return [ 'rustup' ]
+    
+    def getVersionParts( self ):
+        return 3
 
     def _installTool( self, env ):
         self._callExternal( [

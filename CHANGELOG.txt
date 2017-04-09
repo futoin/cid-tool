@@ -8,6 +8,7 @@
 * FIXED: setuptools to properly add generated packages to global state
 * FIXED: to allow "cid package" to complete, if VCS is not known
 * FIXED: to allow tagging with no automatic file changes 
+* FIXED: to always dump "cid tool env" in sorted order
 * CHANGED: auto-detection mechanism to use pre-created set of
     project root files instead of using filesystem to support
     possible "remote" auto-detection.
