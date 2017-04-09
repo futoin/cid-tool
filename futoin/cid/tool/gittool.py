@@ -104,6 +104,13 @@ if not set by user.
         env = config['env']
         gitBin = env['gitBin']
         self._checkGitConfig(env)
+
+        if files:
+            self._callExternal( [ gitBin, 'add' ] + files )
+        else:
+            self._callExternal( [ gitBin, 'add', '-A' ] )
+            files = []
+
         self._callExternal( [ gitBin, 'commit', '-q', '-m', message ] + files )
     
     def vcsTag( self, config, tag, message ):
@@ -111,8 +118,9 @@ if not set by user.
         self._callExternal( [ gitBin, 'tag', '-a', '-m', message, tag ] )
     
     def vcsPush( self, config, refs ):
+        refs = refs or []
         gitBin = config['env']['gitBin']
-        self._callExternal( [ gitBin, 'push', '-q', 'origin' ] + refs )
+        self._callExternal( [ gitBin, '-c', 'push.default=current', 'push', '-q', 'origin' ] + refs )
         
     def vcsGetRevision( self, config ) :
         gitBin = config['env']['gitBin']

@@ -60,9 +60,17 @@ Home: https://subversion.apache.org/
     
     def vcsCommit( self, config, message, files ):
         svnBin = config['env']['svnBin']
+        if files:
+            commit_files = files
+        else:
+            commit_files = []
+            files = ['--depth=infinity', '.']
+
+        self._callExternal( [ svnBin, 'add', '--force', ] + files )
+
         self._callExternal(
                 [ svnBin, 'commit',
-                 '-m', message ] + files )
+                 '-m', message ] + commit_files )
     
     def vcsTag( self, config, tag, message ):
         env = config['env']
@@ -78,6 +86,7 @@ Home: https://subversion.apache.org/
         self._callExternal( [
             svnBin, 'copy',
             '-m', message,
+            '--parents',
             svn_url,
             '%s/tags/%s' % ( config['vcsRepo'], tag )
         ] )

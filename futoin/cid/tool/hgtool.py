@@ -44,6 +44,7 @@ Home: https://www.mercurial-scm.org/
     
     def vcsCommit( self, config, message, files ):
         hgBin = config['env']['hgBin']
+        files = files or ['-A']
         self._callExternal( [ hgBin, 'commit', '-m', message ] + files )
     
     def vcsTag( self, config, tag, message ):
@@ -51,6 +52,7 @@ Home: https://www.mercurial-scm.org/
         self._callExternal( [ hgBin, 'tag', '-m', message, tag ] )
     
     def vcsPush( self, config, refs ):
+        refs = refs or []
         env = config['env']
         hgBin = env['hgBin']
         opts = []
