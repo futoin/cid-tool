@@ -211,9 +211,12 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         )
         
         #---
-        self._info('Committing updated files')
-        message = "Updated for release %s %s" % ( config['name'], config['version'] )
-        vcstool.vcsCommit( config, message, to_commit )
+        if to_commit:
+            self._info('Committing updated files')
+            message = "Updated for release %s %s" % ( config['name'], config['version'] )
+            vcstool.vcsCommit( config, message, to_commit )
+        else:
+            self._info('Nothing to commit')
         
         #---
         tag = "v%s" % next_version
