@@ -1,6 +1,7 @@
 
 === (next) ===
-* NEW: added info message on _rmTree() call
+* NEW: Added info message on _rmTree() call
+* NEW: Added release date to automatic CHANGELOG.txt update
 
 === 0.6.0 ===
 * FIXED: to properly search for ${HOME}/.futoin.json as defined in

@@ -1,5 +1,6 @@
 
 import os, re
+import datetime
 
 from ..buildtool import BuildTool
 
@@ -23,9 +24,10 @@ class releaseTool( BuildTool ):
                 )
         def cl_updater( content ):
             if 'version' in updates:
+                date = datetime.datetime.utcnow().isoformat().split('T')[0]
                 return re.sub(
                     r'^=== \(next\) ===$',
-                    '=== {0} ==='.format(updates['version']),
+                    '=== {0} ({1}) ==='.format(updates['version'], date),
                     content,
                     count = 1,
                     flags=re.MULTILINE
