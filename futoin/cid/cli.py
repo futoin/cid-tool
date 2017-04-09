@@ -2,6 +2,7 @@
 """FutoIn Continuous Integration & Delivery Tool.
 
 Usage:
+    cid init [<project_name>] [--vcsRepo=<vcs_repo>] [--rmsRepo=<rms_repo>] [--permissive]
     cid tag <branch> [<next_version>] [--vcsRepo=<vcs_repo>] [--wcDir=<wc_dir>]
     cid prepare [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--wcDir=<wc_dir>]
     cid build [--debug]
@@ -21,7 +22,12 @@ Usage:
     cid tool list
     cid tool describe <tool_name>
     cid tool detect
-    cid init [<project_name>] [--vcsRepo=<vcs_repo>] [--rmsRepo=<rms_repo>] [--permissive]
+    cid vcs checkout <vcs_ref> [--vcsRepo=<vcs_repo>] [--wcDir=<wc_dir>]
+    cid vcs commit <commit_msg> [<commit_files>...]
+    cid vcs merge <vcs_ref>
+    cid vcs branch <vcs_ref> <new_vcs_ref>
+    cid vcs delete <vcs_ref>
+    
 
 Options:
     -h --help                       Show this screen.
@@ -156,6 +162,13 @@ def runInner():
                         break
                 else:
                     raise RuntimeError( "Unknown Command" )
+        elif args['vcs'] :
+            if args['checkout']:
+                cit.vcs_checkout( args['<vcs_ref>'] )
+            elif args['commit']:
+                cit.vcs_commit( args['<commit_msg>'], args['<commit_files>'] )
+            else:
+                raise RuntimeError( "Not implemented yet." )
         elif args['init'] :
             cit.init_project( args['<project_name>'] )
         elif args['tag'] :

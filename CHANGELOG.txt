@@ -18,6 +18,7 @@
 * NEW: Added tool version support as parameter to "cid tool *" commands
 * NEW: Added tool version sanitization to drop bug-fix/patch parts
 * NEW: Added automatically generated auto-detection info to "tool describe"
+* NEW: Added "cid vcs checkout" and "cid vcs commit" commands
 
 === 0.5.5 ===
 * Cosmetic improvement to error/warning/info messages

@@ -181,6 +181,13 @@ Usage
 
 Please see details in the FTN16 spec: ::
 
+    cid init [<project_name>] [--vcsRepo=<vcs_repo>]
+        [--rmsRepo=<rms_repo>] [--permissive]
+        Initialize futoin.json with automatically detected data.
+        
+        If <project_name> is omitted and not known from
+        auto-detection then basename of containing folder is used.
+        
     cid tag <branch> [<next_version>] [--vcsRepo=<vcs_repo>] [--wcDir=<wc_dir>]
         Get the latest <branch>.
         Update source for release & commit.
@@ -226,13 +233,24 @@ Please see details in the FTN16 spec: ::
         [--rmsHash=<rms_hash>] [--redeploy] [--deployDir=<deploy_dir>]
         [--build]
         Deploy from RMS.
+        
+    cid migrate
+        Runs data migration tasks.
+
+        Provided for overriding default procedures in scope of
+        deployment procedure.
     
-    cid run [<command>]
-        Not implemented yet.
+    cid run
+        Run all configured .entryPoints.
     
-    cid ci_build <vcs_ref> <rms_pool> [--vcsRepo=<vcs_repo>]
+    cid run <command>
+        Checks if <command> is present in .entryPoints or in .actions
+        then runs it.
+    
+    cid ci_build <vcs_ref> [<rms_pool>] [--vcsRepo=<vcs_repo>]
         [--rmsRepo=<rms_repo>] [--permissive] [--debug]
         Run prepare, build and package in one run.
+        if <rms_pool> is set then also promote package to RMS.
     
     cid tool exec <tool_name> [-- <tool_arg>...]
         Execute <tool_name> binary with provided arguments.
@@ -266,18 +284,28 @@ Please see details in the FTN16 spec: ::
         Show list of auto-detected tools for current project
         with possible version numbers.
         
-    cid init [<project_name>] [--vcsRepo=<vcs_repo>]
-        [--rmsRepo=<rms_repo>] [--permissive]
-        Initialize futoin.json with automatically detected data.
+    cid vcs ...
+        Abstract helpers for CI environments & scripts.
+        They are quite limited for daily use.
         
-        If <project_name> is omitted and not known from
-        auto-detection then basename of containing folder is used.
+    cid vcs checkout <vcs_ref> [--vcsRepo=<vcs_repo>] [--wcDir=<wc_dir>]
+        Checkout specific VCS ref.
         
-    cid migrate
-        Runs data migration tasks.
+    cid vcs commit <commit_msg> [<commit_files>...]
+        Commit all changes or specific files with short commit message.
+    
+    cid vcs merge <vcs_ref>
+        Not implemented yet. Wait for issue #30
+        Merge another VCS ref into current one. Abort on conflict.
 
-        Provided for overriding default procedures in scope of
-        deployment procedure.
+    cid vcs branch <vcs_ref> <new_vcs_ref>
+        Not implemented yet. Wait for issue #30
+        Create a new branch from existing VCS ref.
+        
+    cid vcs delete <vcs_ref>
+        Not implemented yet. Wait for issue #30
+        Delete tag or branch.
+
 
 Excplicit futoin.json example
 -----------------------------

@@ -972,6 +972,28 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                 pass
         
         self._writeJSONConfig(self._FUTOIN_JSON, new_config)
+        
+    def vcs_checkout( self, vcs_ref ):
+        self._processWcDir()
+
+        config = self._config
+        vcstool = self._getVcsTool()
+
+        self._info('Getting source ref {0} from {1}'.format(vcs_ref, config['vcsRepo']))
+        vcstool.vcsCheckout( config, vcs_ref )
+
+    def vcs_commit( self, msg, files ):
+        config = self._config
+        vcstool = self._getVcsTool()
+
+        if files:
+            self._info('Committing: ' + ', '.join(files))
+        else:
+            self._info('Committing updated files')
+        vcstool.vcsCommit( config, msg, files )
+        
+        self._info('Pushing changes to {0}'.format(config['vcsRepo']))
+        vcstool.vcsPush( config, None )
 
     def _initConfig( self ):
         user_home = os.environ.get('HOME','/')
