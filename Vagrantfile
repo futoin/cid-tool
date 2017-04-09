@@ -43,17 +43,6 @@ which apt-get && apt-get update || true
             
             if box.split('/')[0] == 'centos'
                 dist_controller = 'IDE'
-                
-                node.vm.provision "shell", inline: <<-SHELL
-sudo cat > /etc/yum.repos.d/wandisco-svn.repo <<EOC
-[WANdiscoSVN]
-name=WANdisco SVN Repo 1.9
-enabled=1
-baseurl=http://opensource.wandisco.com/centos/#{box.split('/')[1]}/svn-1.9/RPMS/$basearch/
-gpgcheck=1
-gpgkey=http://opensource.wandisco.com/RPM-GPG-KEY-WANdisco
-EOC
-                SHELL
             elsif name == 'archlinux'
                 dist_controller = 'IDE Controller'
             elsif name == 'macos'

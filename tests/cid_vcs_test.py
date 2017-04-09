@@ -15,30 +15,27 @@ class cid_VCS_UTBase ( cid_UTBase ) :
     def setUpClass( cls ):
         super(cid_VCS_UTBase, cls).setUpClass()
         
-        test_tar = os.path.basename( cls.TEST_DIR )
-        cmd = [
-            '/bin/tar', 'xf',
-            os.path.join(os.path.dirname(__file__), test_tar + '.tar'),
-            '-C', cls.TEST_RUN_DIR
-        ]
-        subprocess.check_output( cmd, stdin=subprocess.PIPE )
+        os.mkdir(cls.TEST_DIR)
     
     def test_00_prepare( self ):
+        self._create_repo()
+        self._goToBase()
+        
         self._call_cid( [
                 'prepare', 'branch_A',
                 '--vcsRepo', self.VCS_REPO,
-                '--wcDir', 'build_ver' ] )
-        os.chdir('build_ver')
-        self._call_cid( [
-                'tool', 'exec', 'npm',
-                '--', 'install', 'grunt', '--save-dev'] )
-        self._writeFile('Gruntfile.js', '''
-module.exports = function(grunt) {
-    grunt.initConfig({ pkg: grunt.file.readJSON('package.json') });
-    grunt.registerTask('default', function(){});
-};
-''')
-        self._vcsCommit('Fixed missing grunt', ['package.json', 'Gruntfile.js'])
+                '--wcDir', 'repo_prep' ] )
+        os.chdir('repo_prep')
+        
+        self._writeFile('BRANCH_A', 'aaaa')
+        self._writeJSON('test.json', {})
+        self._writeJSON('futoin.json', {
+            'name' : 'wc',
+            'version' : '0.0.1',
+        })
+        
+        self._call_cid( [ 'vcs', 'commit', 'Added FutoIn support'] )
+        self._call_cid( [ 'tag', 'branch_A', '1.2.3'] )
         self._call_cid( [ 'tag', 'branch_A', '1.2.4'] )
 
     def test_10_tag( self ):
@@ -49,7 +46,7 @@ module.exports = function(grunt) {
         
     def test_20_tag_invalid_ver( self ):
         self._call_cid( [
-            'tag', 'branch_A', 'v1.2.4',
+            'tag', 'branch_A', 'v1.2.6',
             '--vcsRepo', self.VCS_REPO,
             '--wcDir', 'build_ver' ], returncode=1 )
         
@@ -116,30 +113,14 @@ module.exports = function(grunt) {
         req_content=[
             '',
             './',
-            './bower.json',
-            './bower.json.gz',
-            './BRANCH_A',
-            './composer.json',
-            './composer.json.gz',
-            './Gruntfile.js',
-            './Gruntfile.js.gz',
-            './node_modules/',
-            './node_modules/.bin/',
             './.package.checksums',
-            './package.json',
-            './package.json.gz',
-            './vendor/',
-            './vendor/autoload.php',
-            './vendor/composer/',
-            './vendor/composer/autoload_classmap.php',
-            './vendor/composer/autoload_namespaces.php',
-            './vendor/composer/autoload_psr4.php',
-            './vendor/composer/autoload_real.php',
-            './vendor/composer/autoload_static.php',
-            './vendor/composer/ClassLoader.php',
-            './vendor/composer/LICENSE',
-            './vendor/composer/installed.json',
-            './vendor/composer/installed.json.gz',
+            './BRANCH_A',            
+            './README.txt',
+            './README.txt.gz',
+            './futoin.json',
+            './futoin.json.gz',
+            './test.json',
+            './test.json.gz',
         ]
         self.maxDiff = 1024
         content = sorted(content.split("\n"))
@@ -247,28 +228,54 @@ module.exports = function(grunt) {
 #=============================================================================        
 class cid_git_Test ( cid_VCS_UTBase ) :
     __test__ = True
-    TEST_DIR = os.path.join(cid_VCS_UTBase.TEST_RUN_DIR, 'test_git')
-    VCS_REPO = 'git:' + os.path.join( TEST_DIR, 'repo' )
+    TEST_DIR = os.path.join(cid_VCS_UTBase.TEST_RUN_DIR, 'vcs_git')
+    REPO_DIR = os.path.join( TEST_DIR, 'repo' )
+    VCS_REPO = 'git:' + REPO_DIR
     
-    def _vcsCommit( self, msg, files ):
-        subprocess.check_call(['git', 'commit', '-m', msg] + files, stdout=self._dev_null, stderr=self._dev_null)
-        subprocess.check_call(['git', 'push', '-u', 'origin'], stdout=self._dev_null, stderr=self._dev_null)
+    def _create_repo( self ):
+        self._call_cid( [ 'tool', 'exec', 'git', '--', 'init', '--bare', self.REPO_DIR ] )
+        self._call_cid( [ 'tool', 'exec', 'git', '--', 'clone', self.REPO_DIR, 'repo_tmp' ] )
+        os.chdir('repo_tmp')
+        self._writeFile('README.txt', 'Some test')
+        self._call_cid( [ 'tool', 'exec', 'git', '--',
+                         'add', '-A' ] )
+        self._call_cid( [ 'tool', 'exec', 'git', '--',
+                         'commit', '-m', 'Initial commit' ] )
+        self._call_cid( [ 'tool', 'exec', 'git', '--',
+                         'checkout', '-b', 'branch_A' ] )
+        self._call_cid( [ 'tool', 'exec', 'git', '--',
+                         'push', 'origin', 'master', 'branch_A' ] )
+        
+        
         
 #=============================================================================
 class cid_hg_Test ( cid_VCS_UTBase ) :
     __test__ = True
-    TEST_DIR = os.path.join(cid_VCS_UTBase.TEST_RUN_DIR, 'test_hg')
-    VCS_REPO = 'hg:' + os.path.join( TEST_DIR, 'repo' )
+    TEST_DIR = os.path.join(cid_VCS_UTBase.TEST_RUN_DIR, 'vcs_hg')
+    REPO_DIR = os.path.join( TEST_DIR, 'repo' )
+    VCS_REPO = 'hg:' + REPO_DIR
 
-    def _vcsCommit( self, msg, files ):
-        subprocess.check_call(['hg', 'commit', '-u test@example.com', '-m', msg] + files, stdout=self._dev_null, stderr=self._dev_null)
-        subprocess.check_call(['hg', 'push'], stdout=self._dev_null, stderr=self._dev_null)
+    def _create_repo( self ):
+        self._call_cid( [ 'tool', 'exec', 'hg', '--', 'init', self.REPO_DIR ] )
+        os.chdir(self.REPO_DIR)
+        self._call_cid( [ 'tool', 'exec', 'hg', '--', 'branch', 'branch_A' ] )
+        self._writeFile('README.txt', 'Some test')
+        self._call_cid( [ 'tool', 'exec', 'hg', '--', 'commit', '-A', '-m', 'Initial commit' ] )
 
 #=============================================================================
 class cid_svn_Test ( cid_VCS_UTBase ) :
     __test__ = True
-    TEST_DIR = os.path.join(cid_VCS_UTBase.TEST_RUN_DIR, 'test_svn')
-    VCS_REPO = 'svn:file://' + os.path.join( TEST_DIR, 'repo' )
+    TEST_DIR = os.path.join(cid_VCS_UTBase.TEST_RUN_DIR, 'vcs_svn')
+    REPO_DIR = os.path.join( TEST_DIR, 'repo' )
+    VCS_REPO = 'svn:file://' + REPO_DIR
 
-    def _vcsCommit( self, msg, files ):
-        subprocess.check_call(['svn', 'commit', '-m', msg] + files, stdout=self._dev_null, stderr=self._dev_null)
+    def _create_repo( self ):
+        self._call_cid( [ 'tool', 'install', 'svn' ] )
+        subprocess.check_output(['svnadmin', 'create', self.REPO_DIR ])
+        
+        url = 'file://'+self.REPO_DIR + '/branches/branch_A'
+        
+        os.mkdir('repo_tmp')
+        self._writeFile('repo_tmp/README.txt', 'Some test')
+        self._call_cid( [ 'tool', 'exec', 'svn', '--', 'import', '-m', 'Initial commit', 'repo_tmp', url ] )
+        

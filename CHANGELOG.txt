@@ -16,6 +16,7 @@
     direct exceptions
 * CHANGED: to remove ci_build working directory, if unable to backup
 * CHANGED: vcs tools to allow commit & push without explicit arguments
+* CHANGED: vcs tests to run only vcs tests. Dropped pre-built tars.
 * NEW: Added better error checking of unknown tools
 * NEW: Added "cid tool detect"
 * NEW: Added tool version support as parameter to "cid tool *" commands
