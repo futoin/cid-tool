@@ -746,7 +746,10 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         wcDir = config['wcDir']
 
         if os.path.exists( wcDir ) and wcDir != os.getcwd():
-            os.rename( wcDir, '{0}.bak{1}'.format(wcDir, int(time.time())) )
+            try:
+                os.rename( wcDir, '{0}.bak{1}'.format(wcDir, int(time.time())) )
+            except OSError:
+                self._rmTree( wcDir )
         
         self._lastPackages = None
         self.prepare( vcs_ref )

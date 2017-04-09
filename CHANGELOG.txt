@@ -14,6 +14,7 @@
 * CHANGED: ci_build command to allow operation without RMS
 * CHANGED: Revised error messages & fixed to use proper API instead of
     direct exceptions
+* CHANGED: to remove ci_build working directory, if unable to backup
 * NEW: Added better error checking of unknown tools
 * NEW: Added "cid tool detect"
 * NEW: Added tool version support as parameter to "cid tool *" commands
