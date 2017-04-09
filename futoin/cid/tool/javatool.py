@@ -23,38 +23,28 @@ javaVer supports:
         return 1
     
     def _installTool( self, env ):
-        if 'javaVer' in env:
-            ver = env['javaVer'].split('.')[0]
+        ver = env['javaVer']
+        
+        if self._isMacOS():
+            if ver == '8':
+                self._requireDmg('https://cdn.azul.com/zulu/bin/zulu8.20.0.5-jdk8.0.121-macosx_x64.dmg')
+            elif ver == '7':
+                self._requireDmg('https://cdn.azul.com/zulu/bin/zulu7.17.0.5-jdk7.0.131-macosx_x64.dmg')
+            return
+        
+        self._addAptRepo('zulu', 'deb http://repos.azulsystems.com/debian stable main', self._ZULU_GPG_KEY)
+        self._addYumRepo('zulu', 'http://repos.azulsystems.com/rhel/zulu.repo', self._ZULU_GPG_KEY, releasevermax=7)
+        self._addZypperRepo('zulu', 'http://repos.azulsystems.com/sles/latest', self._ZULU_GPG_KEY)
+        
+        # leaving here for possible future use
+        #self._requireDeb(['openjdk-{0}-jre-headless'.format(ver)])
+        #self._requireYum(['java-1.{0}.0-openjdk'.format(ver)])
+        #self._requireZypper(['java-1_{0}_0-openjdk'.format(ver)])
+        self._requirePackages(['zulu-{0}'.format(ver)])
+        
+        self._requirePacman(['jre{0}-openjdk'.format(ver)])
+        self._requireEmerge(['=dev-java/oracle-jre-bin-1.{0}*'.format(ver)])
 
-            if self._isFedora():
-                self._requireYum(['java-1.{0}.0-openjdk'.format(ver)])
-                return
-            
-            if self._isMacOS():
-                if ver == '8':
-                    self._requireDmg('http://cdn.azul.com/zulu/bin/zulu8.20.0.5-jdk8.0.121-macosx_x64.dmg')
-                elif ver == '7':
-                    self._requireDmg('http://cdn.azul.com/zulu/bin/zulu7.17.0.5-jdk7.0.131-macosx_x64.dmg')
-                return
-            
-            self._addAptRepo('zulu', 'deb http://repos.azulsystems.com/debian stable main', self._ZULU_GPG_KEY)
-            self._addYumRepo('zulu', 'http://repos.azulsystems.com/rhel/zulu.repo', self._ZULU_GPG_KEY)
-            self._addZypperRepo('zulu', 'http://repos.azulsystems.com/sles/latest', self._ZULU_GPG_KEY)
-            
-            # leaving here for possible future use
-            #self._requireDeb(['openjdk-{0}-jre-headless'.format(ver)])
-            #self._requireYum(['java-1.{0}.0-openjdk'.format(ver)])
-            #self._requireZypper(['java-1_{0}_0-openjdk'.format(ver)])
-            self._requirePackages(['zulu-{0}'.format(ver)])
-            
-            self._requirePacman(['jre{0}-openjdk'.format(ver)])
-            self._requireEmerge(['=dev-java/oracle-jre-bin-1.{0}*'.format(ver)])
-        else :
-            self._requireDeb(['default-jre-headless'])
-            self._requireYum(['java-1.8.0-openjdk'])
-            self._requireZypper(['java-1_8_0-openjdk'])
-            self._requirePacman(['jre8-openjdk'])
-            self._requireEmerge(['virtual/jre'])
     
     def uninstallTool( self, env ):
         pass
@@ -72,7 +62,7 @@ javaVer supports:
             return
         
         env.setdefault('javaVer', self._LATEST_JAVA)
-        ver = env['javaVer'].split('.')[0]
+        ver = env['javaVer']
         
         candidates = [
             # Zulu
@@ -90,15 +80,6 @@ javaVer supports:
         if self._isGentoo() or self._isArchLinux():
             candidates += [
                 "/usr/lib/jvm/java-{0}-openjdk*/jre/bin/java".format(ver),
-            ]
-            
-        if self._isFedora():
-            if int(ver) < 8:
-                ver = '8'
-                env['javaVer'] = ver
-                
-            candidates += [
-                "/usr/lib/jvm/jre-1.{0}.0/bin/java".format(ver),
             ]
         
         for c in candidates:

@@ -3,6 +3,11 @@ from __future__ import print_function, absolute_import
 
 import os, tempfile, subprocess, platform, glob
 
+try:
+    import urllib.request as urllib
+except ImportError:
+    import urllib2 as urllib
+
 class PackageMixIn( object ):
     def _isCentOS( self ):
         return os.path.exists('/etc/centos-release')
@@ -173,7 +178,7 @@ class PackageMixIn( object ):
         os.remove(tf)
             
     
-    def _addYumRepo(self, name, url, gpg_key=None):
+    def _addYumRepo(self, name, url, gpg_key=None, releasevermax=None):
         self._addRpmKey(gpg_key)
 
         dnf = self._which('dnf')
@@ -181,10 +186,41 @@ class PackageMixIn( object ):
         
         if dnf:
             self._requireYum(['dnf-plugins-core'])
+            repo_file = None
+            
+            if releasevermax is not None:
+                dump = self._callExternal([dnf, 'config-manager', '--dump'], verbose=False)
+                for l in dump.split("\n"):
+                    l = l.split(' = ')
+                    
+                    if l[0] == 'releasever':
+                        if int(l[1]) > releasevermax:
+                            repo_info = urllib.urlopen(url).read()
+                            
+                            try: repo_info = str(repo_info, 'utf8')
+                            except: pass
+                        
+                            repo_info = repo_info.replace('$releasever', str(releasevermax))
+                        
+                            tmp_dir = tempfile.mkdtemp('cidrepo')
+                            repo_file = url.split('/')[-1]
+                            repo_file = os.path.join(tmp_dir, repo_file)
+                            
+                            with open(repo_file, 'w') as f:
+                                f.write(repo_info)
+                            
+                            url = repo_file
+                        break
+
             self._trySudoCall(
                 [dnf, 'config-manager', '--add-repo', url],
                 errmsg = 'you may need to add the repo manually!'
             )
+            
+            if repo_file:
+                os.remove(repo_file)
+            
+            
         elif yum:
             self._requireYum(['yum-utils'])
             yumcfgmgr = self._which('yum-config-manager')
