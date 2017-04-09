@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.6.0 ===
 * FIXED: to properly search for ${HOME}/.futoin.json as defined in
     specs. Left fallback to ${HOME}/futoin.json, if ${HOME} is not
     working directory.
