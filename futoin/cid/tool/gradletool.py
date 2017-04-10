@@ -1,4 +1,6 @@
 
+import os, re
+
 from ..buildtool import BuildTool
 from .sdkmantoolmixin import SdkmanToolMixIn
 
@@ -20,6 +22,16 @@ Requires Java >= 7.
     
     def autoDetectFiles( self ) :
         return 'build.gradle'
+    
+    def envDeps( self, env ):
+        super(gradleTool, self).envDeps( env )
+        
+        gradlew_prop = 'gradle/wrapper/gradle-wrapper.properties'
+        
+        if os.path.exists(gradlew_prop):
+            with open(gradlew_prop, 'r') as f:
+                props = f.read()
+                env['gradleVer'] = re.search('gradle-([0-9.]+)-bin.zip', props).group(1)
 
     def onPrepare( self, config ):
         target = self._getTune(config, 'prepare', 'clean')
