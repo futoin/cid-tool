@@ -1,5 +1,6 @@
 
 === (next) ===
+* FIXED: pip-based tools to look only in virtualenv bin folder
 * CHANGED: default ci_build folder to include vcsRef
 
 === 0.6.2 (2017-04-10) ===
