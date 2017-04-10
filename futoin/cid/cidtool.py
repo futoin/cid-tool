@@ -167,6 +167,18 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             os.makedirs(wcDir)
         
         if wcDir != os.getcwd():
+            # Make sure to keep VCS info when switch to another location
+            # for checkout.
+            #---
+            if 'vcs' in config:
+                self._getVcsTool()
+
+                for cv in ['vcs', 'vcsRepo']:
+                    self._overrides[cv] = config[cv]
+            #---
+
+            print( Coloring.infoLabel('Changing to: ') + Coloring.info(wcDir),
+                file=sys.stderr )
             os.chdir( wcDir )
             self._overrides['wcDir'] = config['wcDir'] = os.getcwd()
             self._initConfig()
