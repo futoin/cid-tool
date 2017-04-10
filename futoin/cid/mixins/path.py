@@ -89,6 +89,9 @@ class PathMixIn( object ):
     def _addPackageFiles( self, config, pattern ):
         files = glob.glob(pattern)
         
+        if not files:
+            self._errorExit('Failed to find created packages of "{0}" pattern'.format(pattern))
+        
         config.setdefault('packageFiles', [])
         config['packageFiles'] += files
         
