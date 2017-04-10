@@ -8,6 +8,8 @@
     "release": "futoin.cid.misc.releasetool"
   },
   "vcs": "git",
+  "rms": "rms",
+  "rmsRepo": "https://upload.pypi.org/legacy/",
   "tools": {
     "release": "embedded",
     "python": "*",

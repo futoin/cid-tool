@@ -33,14 +33,19 @@ class PathMixIn( object ):
         
     def _callInteractive( self, cmd, replace=True ):
         if replace:
+            print( Coloring.infoLabel('Exec: ') +
+                    Coloring.info(subprocess.list2cmdline( cmd )),
+                    file=sys.stderr )
+
             sys.stdout.flush()
             sys.stderr.flush()
             os.execv(cmd[0], cmd)
         else:
-            try:
-                return subprocess.call( cmd )
-            except KeyboardInterrupt:
-                pass
+            print( Coloring.infoLabel('Call: ') +
+                    Coloring.info(subprocess.list2cmdline( cmd )),
+                    file=sys.stderr )
+            
+            return subprocess.call( cmd )
         
     def _trySudoCall( self, cmd, errmsg=None ):
         try:

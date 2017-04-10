@@ -148,7 +148,7 @@ for t, ti in mixed_tools.items():
         'TOOL_MANAGED' : False,
     })
 
-# 40
+# 40 - unmanaged
 #-----
 for t in ['npm', 'gem', 'setuptools']:
     cls = 'cid_Tool_40_' + t
@@ -158,9 +158,9 @@ for t in ['npm', 'gem', 'setuptools']:
         'TOOL_MANAGED' : False,
     })
 
-# 50
+# 50 - managed
 #-----
-for t in ['composer', 'bundler', 'dockercompose']:
+for t in ['composer', 'bundler', 'dockercompose', 'twine']:
     cls = 'cid_Tool_50_' + t
     globals()[cls] = type(cls, (cid_Tool_UTCommon, ), {
         '__test__' : True,

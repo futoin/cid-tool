@@ -43,6 +43,7 @@ Supported technologies & tools (so far):
 * **python** - system 2 & 3
     - **virtualenv**, venv is ignored due to issues with *ensurepip* package
     - **pip**
+    - **twine** - as limited RMS tool
 * **ruby** - both system & any rvm supported
     - **gen**
     - **bundler**
