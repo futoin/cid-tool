@@ -51,6 +51,6 @@ Requires Java >= 7.
         target = self._getTune(config, 'package', 'dists')
         self._callExternal( [ config['env']['gradleBin'], '-q', '--no-daemon', target ] )
         
-        packageGlob = self._getTune(config, 'packageGlob', '*.jar')
+        packageGlob = self._getTune(config, 'packageGlob', 'build/libs/*.jar')
         self._addPackageFiles(config, packageGlob)
             
