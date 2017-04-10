@@ -23,12 +23,12 @@ Home: https://www.mercurial-scm.org/
 
     def vcsGetRepo( self, config, wc_dir=None ):
         return self._callExternal( [
-            config['env']['hgBin'], '--repository', wc_dir or config['wcDir'], 'paths', 'default'
+            config['env']['hgBin'], '--repository', wc_dir or os.getcwd(), 'paths', 'default'
         ] ).strip()
         
     def vcsCheckout( self, config, vcs_ref ):
         hgBin = config['env']['hgBin']
-        wc_dir = config['wcDir']
+        wc_dir = os.getcwd()
 
         if os.path.isdir( '.hg' ):
             if 'vcsRepo' in config:

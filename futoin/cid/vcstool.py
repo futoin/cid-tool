@@ -9,7 +9,7 @@ class VcsTool( SubTool ):
     def autoDetect(self, config):
         return self._autoDetectVCS( config, self.autoDetectFiles() )
 
-    def vcsGetRepo( self, config ):
+    def vcsGetRepo( self, config, wc_dir=None ):
         raise NotImplementedError( self._name )
     
     def vcsCheckout( self, config, branch ):

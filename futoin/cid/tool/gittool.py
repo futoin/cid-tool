@@ -58,7 +58,7 @@ if not set by user.
             ])
 
     def vcsGetRepo( self, config, wc_dir=None ):
-        git_dir = wc_dir or os.path.join(config['wcDir'], '.git')
+        git_dir = wc_dir or os.path.join(os.getcwd(), '.git')
         
         return self._callExternal( [
             config['env']['gitBin'],
@@ -73,7 +73,7 @@ if not set by user.
     
     def vcsCheckout( self, config, vcs_ref ):
         gitBin = config['env']['gitBin']
-        wc_dir = config['wcDir']
+        wc_dir = os.getcwd()
         vcsRepo = config['vcsRepo']
         
         if os.path.isdir( '.git' ):

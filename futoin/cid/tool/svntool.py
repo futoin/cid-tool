@@ -27,7 +27,7 @@ Home: https://subversion.apache.org/
     
     def vcsGetRepo( self, config, wc_dir=None ):
         svn_info = self._callExternal([
-            config['env']['svnBin'], 'info', '--xml', wc_dir or config['wcDir']
+            config['env']['svnBin'], 'info', '--xml', wc_dir or os.getcwd()
         ])
         svn_info = xml.dom.minidom.parseString( svn_info )
         svn_info = svn_info.getElementsByTagName('url')
@@ -38,7 +38,7 @@ Home: https://subversion.apache.org/
     def vcsCheckout( self, config, vcs_ref ):
         env = config['env']
         svnBin = env['svnBin']
-        wc_dir = config['wcDir']
+        wc_dir = os.getcwd()
             
         branch_path = '%s/branches/%s' % ( config['vcsRepo'], vcs_ref )
         tag_path = '%s/tags/%s' % ( config['vcsRepo'], vcs_ref )

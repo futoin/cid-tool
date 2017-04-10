@@ -130,9 +130,11 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         vcstool = self._tool_impl[vcs]
             
         if not config.get('vcsRepo', None): # also check it set
-            config['vcsRepo'] = vcstool.vcsGetRepo( config )
+            try:
+                config['vcsRepo'] = vcstool.vcsGetRepo( config )
+            except subprocess.CalledProcessError as e: pass
             
-            if not config['vcsRepo']:
+            if not config.get('vcsRepo', None):
                 self._errorExit( 'Unknown VCS repo. Please set through --vcsRepo or project manifest' )
 
         # Make sure these are present event after config is re-read

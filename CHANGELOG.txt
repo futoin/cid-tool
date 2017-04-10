@@ -2,6 +2,7 @@
 === (next) ===
 * FIXED: To use factual python major/minor version for default
     virtualenv dir. Issue introduced in 0.6.1
+* CHANGED: VCS tools to use CWD instead of wcDir state
 * NEW: Added missing --wcDir parameter to ci_build
 
 === 0.6.1 (2017-04-10) - CANCELED ===
