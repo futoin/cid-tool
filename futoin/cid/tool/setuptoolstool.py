@@ -52,7 +52,7 @@ Override targets with .config.toolTune.
     
     def onPackage(self, config):
         target = self._getTune(config, 'package', 'dist')
-        self._addPackageFiles(config, os.path.join('target', '*'))
+        self._addPackageFiles(config, os.path.join(target, '*'))
 
     def onCheck( self, config ):
         env = config['env']

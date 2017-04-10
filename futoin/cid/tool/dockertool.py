@@ -23,7 +23,7 @@ Docker EE or other installation methods are out of scope for now.
     def getOrder( self ):
         return 10
     
-    def envDeps(self, env):
+    def envNames(self):
         return ['dockerBin', 'dockerVer', 'dockerRepos']
     
     def _installTool( self, env ):

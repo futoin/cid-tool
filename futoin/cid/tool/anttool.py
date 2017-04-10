@@ -41,7 +41,7 @@ Override targets with .config.toolTune.
         target = self._getTune(config, 'package', 'jar')
         self._callExternal( [ config['env']['antBin'], target ] )
         
-        self._addPackageFiles(config, 'target/jar/*.jar')
+        self._addPackageFiles(config, 'build/jar/*.jar')
         
     def onRunDev( self, config ):
         self._callExternal( [ config['env']['antBin'], 'run' ] )

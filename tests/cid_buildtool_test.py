@@ -260,6 +260,13 @@ task test_file {
     }
 }
 ''')
+        cls._writeJSON('futoin.json', {
+            'toolTune': {
+                'gradle': {
+                    'packageGlob' : '*.txt',
+                },
+            },
+        })
         
     def _test_build( self ):
         with open('test_file.txt', 'r') as f:
