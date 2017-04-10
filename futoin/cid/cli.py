@@ -94,7 +94,11 @@ def runInner():
         overrides['rmsPool'] = args['<rms_pool>']
         #---
         if args['ci_build'] :
-            def_wc_dir = 'ci_build'
+            if 'vcs' in overrides:
+                def_wc_dir = 'ci_build'
+            else :
+                def_wc_dir = os.path.join('..', 'ci_builds',
+                                          os.path.basename(os.path.realpath('.')))
         else :
             def_wc_dir = '.'
         overrides['wcDir'] = os.path.realpath(args['--wcDir'] or def_wc_dir)

@@ -5,6 +5,8 @@
 * CHANGED: VCS tools to use CWD instead of wcDir state
 * CHANGED: to preserve VCS info on CWD change, if not provided
     as command line arguments
+* CHANGED: ci_build default --wcDir to "../ci_builds/{basename cwd}",
+    if --vcsRepo is not provided (taken from current project checkout)
 * NEW: Added missing --wcDir parameter to ci_build
 * NEW: Added more info messages to show rename and CWD change
     operation
