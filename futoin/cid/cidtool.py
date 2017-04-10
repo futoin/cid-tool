@@ -286,9 +286,9 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         #---
         config = self._config
-        package_files = config.get('packageFiles', [])
+        package_files = config.get('packageFiles', None)
 
-        if package_files:
+        if package_files is not None:
             self._info('Found binary artifacts from tools: {0}'.format(package_files))
             self._lastPackages = package_files
             return
@@ -907,9 +907,9 @@ class CIDTool( PathMixIn, UtilMixIn ) :
     def tool_package( self, tool ):
         self._tool_cmd( tool, BuildTool, 'onPackage' )
         
-        package_files = self._config.get('packageFiles', [])
+        package_files = self._config.get('packageFiles', None)
         
-        if package_files:
+        if package_files is not None:
             self._info('Package files: {0}'.format(package_files))
 
     def tool_migrate( self, tool ):
