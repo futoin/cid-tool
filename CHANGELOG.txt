@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.6.1 (2017-04-10) ===
 * FIXED: Fixed to setup Zulu JDK on Fedora
 * FIXED: To check for actual value instead of presence of var in env
 * FIXED: Fixed pythonTool not to overwrite pythonVer
