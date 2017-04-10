@@ -44,8 +44,10 @@ class PathMixIn( object ):
             print( Coloring.infoLabel('Call: ') +
                     Coloring.info(subprocess.list2cmdline( cmd )),
                     file=sys.stderr )
+            sys.stdout.flush()
+            sys.stderr.flush()
             
-            return subprocess.call( cmd )
+            return subprocess.check_call( cmd )
         
     def _trySudoCall( self, cmd, errmsg=None ):
         try:
