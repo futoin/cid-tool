@@ -76,7 +76,7 @@ Home: https://pypi.python.org/pypi/virtualenv
         pass
     
     def initEnv( self, env ) :
-        virtualenv_dir = '.virtualenv-{0}'.format(env['pythonVer'][:3])
+        virtualenv_dir = '.virtualenv-{0}'.format(env['pythonFactVer'])
         virtualenv_dir = env.setdefault('virtualenvDir', os.path.join(os.environ['HOME'], virtualenv_dir))
         
         env.setdefault('virtualenvVer', '15.1.0')

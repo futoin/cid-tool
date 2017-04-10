@@ -13,7 +13,7 @@ Home: https://www.python.org/
 Only the first part of pythonVer is used for installation of
 system packages OS-specific way.
 """    
-    VER_CMD = 'import sys; print( sys.version[:3] )'
+    VER_CMD = 'import sys; print( "%s.%s" % (sys.version_info.major, sys.version_info.minor) )'
     
     def getPostDeps( self ) :
         # hackish hack
@@ -73,3 +73,4 @@ system packages OS-specific way.
                     .format(python_ver, python_ver_fact)
                 )
 
+            env['pythonFactVer'] = python_ver_fact
