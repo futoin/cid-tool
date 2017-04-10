@@ -777,9 +777,13 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self.package()
         self.check()
         
-        if rms_pool:
-            for p in self._lastPackages:
-                self.promote( p, rms_pool )
+        if rms_pool and self._lastPackages:
+            if config.get('actions', {}).get('promote', None):
+                for p in self._lastPackages:
+                    self.promote( p, rms_pool )
+            else:
+                rmstool = self._getRmsTool()
+                rmstool.rmsPromoteMany( config, self._lastPackages, rms_pool )
 
     def tool_exec( self, tool, args ):
         t = self._tool_impl[tool]

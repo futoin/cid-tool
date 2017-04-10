@@ -99,6 +99,7 @@ def runInner():
             else :
                 def_wc_dir = os.path.join('..', 'ci_builds',
                                           os.path.basename(os.path.realpath('.')))
+            def_wc_dir += '_' + args['<vcs_ref>']
         else :
             def_wc_dir = '.'
         overrides['wcDir'] = os.path.realpath(args['--wcDir'] or def_wc_dir)

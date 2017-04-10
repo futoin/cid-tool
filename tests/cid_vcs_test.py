@@ -84,7 +84,7 @@ class cid_VCS_UTBase ( cid_UTBase ) :
                             '--rmsRepo', 'scp:' + rms_dir ] )
         
         self._goToBase()
-        os.chdir( 'ci_build' )
+        os.chdir( 'ci_build_branch_A' )
         package = subprocess.check_output( 'cd %s && ls Builds/*.txz | head -1' % rms_dir, shell=True )
         try:
             package = str(package, 'utf8').strip()
@@ -99,7 +99,7 @@ class cid_VCS_UTBase ( cid_UTBase ) :
                             '--rmsHash', pkg_hash ] )
         
         self._goToBase()
-        os.chdir( 'ci_build' )
+        os.chdir( 'ci_build_branch_A' )
         self._call_cid( [ 'promote', package, 'Prod',
                             '--rmsRepo', 'scp:' + rms_dir,
                             '--rmsHash', pkg_hash ] )

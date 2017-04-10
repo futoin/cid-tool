@@ -12,6 +12,10 @@ class RmsTool( SubTool ):
     def autoDetect( self, config ) :
         return self._autoDetectRMS( config )
     
+    def rmsPromoteMany( self, config, packages, rms_pool ):
+        for p in packages:
+            self.rmsPromote( config, p, rms_pool)
+    
     def rmsPromote( self, config, package, rms_pool ):
         raise NotImplementedError( self._name )
 
