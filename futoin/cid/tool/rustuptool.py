@@ -23,7 +23,7 @@ Home: https://www.rustup.rs/
         )
             
     def updateTool( self, env ):
-        self._callExternal(env, [
+        self._callExternal([
             env['rustupBin'], 'self', 'update'
         ])
     
