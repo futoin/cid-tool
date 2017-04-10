@@ -6,6 +6,8 @@
 * CHANGED: to preserve VCS info on CWD change, if not provided
     as command line arguments
 * NEW: Added missing --wcDir parameter to ci_build
+* NEW: Added more info messages to show rename and CWD change
+    operation
 
 === 0.6.1 (2017-04-10) - CANCELED ===
 * FIXED: Fixed to setup Zulu JDK on Fedora

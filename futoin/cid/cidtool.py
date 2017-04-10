@@ -445,7 +445,9 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                 "Deployment dir '{0}' is missing safety placeholder {1}."
                 .format(deploy_dir, os.path.basename(placeholder))
             )
-            
+
+        print( Coloring.infoLabel('Changing to: ') + Coloring.info(deploy_dir),
+            file=sys.stderr )
         os.chdir( deploy_dir )
 
         self._deployLock()
@@ -761,7 +763,11 @@ class CIDTool( PathMixIn, UtilMixIn ) :
 
         if os.path.exists( wcDir ) and wcDir != os.getcwd():
             try:
-                os.rename( wcDir, '{0}.bak{1}'.format(wcDir, int(time.time())) )
+                dst = '{0}.bak{1}'.format(wcDir, int(time.time()))
+                print( Coloring.infoLabel('Renaming: ') +
+                       Coloring.info(wcDir + ' to ' + dst ),
+                       file=sys.stderr )
+                os.rename( wcDir, dst )
             except OSError:
                 self._rmTree( wcDir )
         
