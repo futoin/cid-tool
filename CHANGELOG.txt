@@ -1,5 +1,6 @@
 
 === (next) ===
+* FIXED: to properly use global & user env configuration
 * FIXED: pip-based tools to look only in virtualenv bin folder
 * CHANGED: default ci_build folder to include vcsRef
 * NEW: added "twine" as RMS tool for Python open source (experimental)

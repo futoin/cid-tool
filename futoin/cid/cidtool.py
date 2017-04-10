@@ -1059,9 +1059,9 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         env = OrderedDict( dc['env'] )
         
-        for ( k, v ) in uc.items():
+        for ( k, v ) in uc['env'].items():
             env.setdefault( k, v )
-        for ( k, v ) in gc.items():
+        for ( k, v ) in gc['env'].items():
             env.setdefault( k, v )
 
         self._initEnv( env )
