@@ -4,6 +4,7 @@
     virtualenv dir. Issue introduced in 0.6.1
 * FIXED: not to run default packager, if custom packager fails
 * FIXED: to fail, if custom binary artifact is not found
+* FIXED: cargoTool to use proper pattern for package search
 * CHANGED: VCS tools to use CWD instead of wcDir state
 * CHANGED: to preserve VCS info on CWD change, if not provided
     as command line arguments

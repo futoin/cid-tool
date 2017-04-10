@@ -41,7 +41,7 @@ Override targets with .config.toolTune.
     
     def onPackage( self, config ):
         self._callExternal( [ config['env']['cargoBin'], 'package', '--allow-dirty' ])
-        self._addPackageFiles(config, 'tool/package/*.crate')
+        self._addPackageFiles(config, 'target/package/*.crate')
 
     def onCheck( self, config ):
         self._callExternal( [ config['env']['cargoBin'], 'test' ])
