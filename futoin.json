@@ -5,8 +5,8 @@
     "release": "futoin.cid.misc.releasetool"
   },
   "vcs": "git",
-  "rms": "rms",
-  "rmsRepo": "https://upload.pypi.org/legacy/",
+  "rms": "twine",
+  "rmsRepo": "ignored",
   "tools": {
     "release": "embedded",
     "python": "*",
