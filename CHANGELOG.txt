@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.6.3 (2017-04-10) ===
 * FIXED: to properly use global & user env configuration
 * FIXED: pip-based tools to look only in virtualenv bin folder
 * FIXED: rustup tool update
