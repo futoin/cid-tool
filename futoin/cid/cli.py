@@ -15,7 +15,7 @@ Usage:
     cid migrate
     cid run
     cid run <command> [<command_arg>...]
-    cid ci_build <vcs_ref> [<rms_pool>] [--vcsRepo=<vcs_repo>] [--rmsRepo=<rms_repo>] [--permissive] [--debug]
+    cid ci_build <vcs_ref> [<rms_pool>] [--vcsRepo=<vcs_repo>] [--rmsRepo=<rms_repo>] [--permissive] [--debug] [--wcDir=<wc_dir>]
     cid tool exec <tool_name> [<tool_version>] [-- <tool_arg>...]
     cid tool (install|uninstall|update|test|env) [<tool_name> [<tool_version>]]
     cid tool (prepare|build|check|package|migrate) <tool_name> [<tool_version>]

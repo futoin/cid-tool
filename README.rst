@@ -248,7 +248,7 @@ Please see details in the FTN16 spec: ::
         then runs it.
     
     cid ci_build <vcs_ref> [<rms_pool>] [--vcsRepo=<vcs_repo>]
-        [--rmsRepo=<rms_repo>] [--permissive] [--debug]
+        [--rmsRepo=<rms_repo>] [--permissive] [--debug] [--wcDir=<wc_dir>]
         Run prepare, build and package in one run.
         if <rms_pool> is set then also promote package to RMS.
     
