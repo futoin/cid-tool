@@ -65,6 +65,8 @@ Supported Version Control Systems(VCS):
 Supported Release Management Systems (RMS):
 
 * **scp** - SSH-based secure copy 
+* **twine** - Upload only to Python Package Index.
+    Promotion between repos is not supported.
 * Not implemented, but planned:
     * Archiva
     * Artifactory
@@ -319,7 +321,7 @@ futoin.json is not strictly required, but it allows to use full power of CID.
       "name": "example-package",
       "version": "0.4.2",
       "actions": {
-        "package": []
+        "custom_script": [ 'run some item' ]
       },
       "plugins": {
         "examplerelease": "some.project.specific.release",
