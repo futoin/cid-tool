@@ -185,6 +185,12 @@ class CIDTool( PathMixIn, UtilMixIn ) :
 
     @cid_action
     def tag( self, branch, next_version=None ):
+        mode = 'patch'
+        
+        if next_version in ['patch', 'minor', 'major']:
+            mode = next_version
+            next_version = None
+        
         if next_version and not re.match('^[0-9]+\.[0-9]+\.[0-9]+$', next_version):
             self._errorExit( 'Valid version format: x.y.z' )
             
@@ -211,8 +217,21 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                 self._errorExit( 'current project version is unknown' )
 
             next_version = next_version.split('.')
-            next_version[-1] = str(int(next_version[-1]) + 1)
+            next_version += ['0'] * 3
+            del next_version[3:]
+            
+            if mode == 'patch':
+                next_version[2] = str(int(next_version[2]) + 1)
+            elif mode == 'minor':
+                next_version[1] = str(int(next_version[1]) + 1)
+                next_version[2] = '0'
+            elif mode == 'major':
+                next_version[0] = str(int(next_version[0]) + 1)
+                next_version[1] = '0'
+                next_version[2] = '0'
+                
             next_version = '.'.join( next_version )
+
         config['version'] = next_version
         
         #---

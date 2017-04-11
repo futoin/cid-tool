@@ -195,7 +195,15 @@ Please see details in the FTN16 spec: ::
         Get the latest <branch>.
         Update source for release & commit.
         Create tag.
-        If <next_version> is omitted, the smallest version part is incremented.
+        
+        Version must be in SEMVER x.y.z. format: http://semver.org/
+        
+        If <next_version> is omitted, the PATCH version part is incremented.
+        
+        If <next_version> is one of 'patch', 'minor' or 'major then
+        the specified version part is incremented and all smaller parts are
+        set to zero.
+        
         Current version is determined by tools (e.g. from package.json)
     
     cid prepare [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--wcDir=<wc_dir>]
