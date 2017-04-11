@@ -311,17 +311,6 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             self._info('Found binary artifacts from tools: {0}'.format(package_files))
             self._lastPackages = package_files
             return
-
-        #---
-        package_content = config.get( 'package', [ '.' ] )
-
-        if type(package_content) != type([]):
-            package_content = [ package_content ] 
-
-        package_content.sort()
-        package_content_cmd = subprocess.list2cmdline( package_content )
-        
-        self._info('Generating package from {0}'.format(package_content))
         
         # Note: It is assumed that web root is in the package content
         #---
@@ -337,6 +326,20 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                             with gzip.open(f + '.gz', 'wb', 9) as f_out:
                                 shutil.copyfileobj(f_in, f_out)
         
+        #---
+        try:
+            package_content = config['package']
+        except KeyError:
+            package_content = os.listdir('.')
+
+        if type(package_content) != type([]):
+            package_content = [ package_content ] 
+
+        package_content.sort()
+        package_content_cmd = subprocess.list2cmdline( package_content )
+        
+        self._info('Generating package from {0}'.format(package_content))
+
         #---
         if config.get('packageChecksums', True):
             self._info('Generating checksums')

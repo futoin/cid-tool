@@ -1,5 +1,6 @@
 
 === (next) ===
+* CHANGED: to pack list of project root items, but '.' by default
 * CHANGED: "cid tag" without <next_version> now always increments PATCH.
 * NEW: added 'major', 'minor' and 'patch' modes for "cid tag"
 
