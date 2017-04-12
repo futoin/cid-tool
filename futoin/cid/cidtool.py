@@ -14,6 +14,7 @@ import stat
 import time
 import fnmatch
 import fcntl
+import hashlib
 from collections import OrderedDict
 
 from .mixins.path import PathMixIn
@@ -316,9 +317,10 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         #---
         if config.get('packageGzipStatic', True):
             self._info('Generating GZip files of static content')
-            walk_list = os.walk( config.get( 'webcfg', {}).get( 'root', '.' ) )
+            webroot = config.get( 'webcfg', {}).get( 'root', '.' )
             to_gzip_re = re.compile( self.TO_GZIP, re.I )
-            for ( path, dirs, files ) in walk_list :
+            
+            for ( path, dirs, files ) in os.walk( webroot ) :
                 for f in files :
                     if to_gzip_re.search( f ):
                         f = os.path.join( path, f )
@@ -344,13 +346,42 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         if config.get('packageChecksums', True):
             self._info('Generating checksums')
             checksums_file = '.package.checksums'
+                
+            checksums = []
+            cs_files = []
+            
+            for pkg_item in sorted(package_content):
+                if os.path.basename(pkg_item)[0] == '.':
+                    # skip all hidden files
+                    continue
+                
+                if os.path.isfile(pkg_item):
+                    cs_files.append(pkg_item)
+
+                if os.path.isdir(pkg_item):
+                    for ( path, dirs, files ) in os.walk(pkg_item) :
+                        for f in sorted(files) :
+                            f = os.path.join( path, f )
+                            cs_files.append(f)
+                        
+            for cf in cs_files:
+                hasher = hashlib.sha512()
+
+                with open(cf, 'rb') as f_in:
+                    for chunk in iter(lambda: f_in.read(65536), b""):
+                        hasher.update(chunk)
+
+                checksums.append("{0}  {1}".format(hasher.hexdigest(), cf))
+                
+            checksums.append('')
+
+            with open(checksums_file, 'w') as f_out:
+                f_out.write("\n".join(checksums))
+                
             try:
                 package_content.index( '.' )
             except ValueError:
                 package_content.append( checksums_file )
-            cmd = 'find {0} -type f | sort | xargs sha512sum >{1}'.format(
-                    package_content_cmd, checksums_file )
-            _call_cmd( ['sh', '-c', cmd] )
         
         #---
         buildTimestamp = datetime.datetime.utcnow().strftime( '%Y%m%d%H%M%S' )
