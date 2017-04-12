@@ -3,7 +3,7 @@
 * CHANGED: to pack list of project root items, but '.' by default
 * CHANGED: "cid tag" without <next_version> now always increments PATCH.
 * CHANGED: default packager to generate .package.checksums internally
-* CHANGED: default packager ignores hidden items (starting with dot)
+* CHANGED: default packager ignores only .git*, .hg* and .svn
 * NEW: added 'major', 'minor' and 'patch' modes for "cid tag"
 
 === 0.6.3 (2017-04-10) ===

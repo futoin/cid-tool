@@ -332,9 +332,16 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         try:
             package_content = config['package']
         except KeyError:
-            package_content = os.listdir('.')
+            package_content = set(os.listdir('.'))
+            # TODO: make it more extensible
+            package_content -= set(
+                fnmatch.filter(package_content, '.git*') +
+                fnmatch.filter(package_content, '.hg*') +
+                ['.svn']
+            )
+            package_content = list(package_content)
 
-        if type(package_content) != type([]):
+        if type(package_content) != list:
             package_content = [ package_content ] 
 
         package_content.sort()
@@ -351,10 +358,6 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             cs_files = []
             
             for pkg_item in sorted(package_content):
-                if os.path.basename(pkg_item)[0] == '.':
-                    # skip all hidden files
-                    continue
-                
                 if os.path.isfile(pkg_item):
                     cs_files.append(pkg_item)
 
@@ -414,7 +417,11 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         package_file += '.txz'
         self._info('Creating package {0}'.format(package_file))
         _call_cmd( ['tar', 'cJf', package_file,
-                    '--exclude=' + package_file, '--exclude-vcs' ] + package_content )
+                    '--exclude=' + package_file,
+                    '--exclude=.git*',
+                    '--exclude=.hg*',
+                    '--exclude=.svn'] + package_content )
+        # note, no --exclude-vcs
         self._lastPackages = [package_file]
     
     @cid_action
