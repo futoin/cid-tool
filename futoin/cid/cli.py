@@ -25,8 +25,10 @@ Usage:
     cid vcs checkout <vcs_ref> [--vcsRepo=<vcs_repo>] [--wcDir=<wc_dir>]
     cid vcs commit <commit_msg> [<commit_files>...]
     cid vcs merge <vcs_ref>
-    cid vcs branch <vcs_ref> <new_vcs_ref>
-    cid vcs delete <vcs_ref>
+    cid vcs branch <vcs_ref>
+    cid vcs delete <vcs_ref> [--vcsRepo=<vcs_repo>]
+    cid vcs export <vcs_ref> <dst_dir> [--vcsRepo=<vcs_repo>]
+    cid vcs taglist [<tag_pattern>] [--vcsRepo=<vcs_repo>]
     
 
 Options:
@@ -172,6 +174,16 @@ def runInner():
                 cit.vcs_checkout( args['<vcs_ref>'] )
             elif args['commit']:
                 cit.vcs_commit( args['<commit_msg>'], args['<commit_files>'] )
+            elif args['branch']:
+                cit.vcs_branch( args['<vcs_ref>'] )
+            elif args['merge']:
+                cit.vcs_merge( args['<vcs_ref>'] )
+            elif args['delete']:
+                cit.vcs_delete( args['<vcs_ref>'] )
+            elif args['export']:
+                cit.vcs_export( args['<vcs_ref>'], args['<dst_dir>'] )
+            elif args['taglist']:
+                cit.vcs_taglist( args['<tag_pattern>'] )
             else:
                 raise RuntimeError( "Not implemented yet." )
         elif args['init'] :

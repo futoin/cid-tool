@@ -85,6 +85,8 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         
         self._goToBase()
         os.chdir( 'ci_build_branch_A' )
+        subprocess.check_output( 'sha512sum -c .package.checksums', shell=True )
+        
         package = subprocess.check_output( 'cd %s && ls Builds/*.txz | head -1' % rms_dir, shell=True )
         try:
             package = str(package, 'utf8').strip()
@@ -112,15 +114,14 @@ class cid_VCS_UTBase ( cid_UTBase ) :
             content = str(content)
         req_content=[
             '',
-            './',
-            './.package.checksums',
-            './BRANCH_A',            
-            './README.txt',
-            './README.txt.gz',
-            './futoin.json',
-            './futoin.json.gz',
-            './test.json',
-            './test.json.gz',
+            '.package.checksums',
+            'BRANCH_A',            
+            'README.txt',
+            'README.txt.gz',
+            'futoin.json',
+            'futoin.json.gz',
+            'test.json',
+            'test.json.gz',
         ]
         self.maxDiff = 1024
         content = sorted(content.split("\n"))
@@ -141,6 +142,7 @@ class cid_VCS_UTBase ( cid_UTBase ) :
                             '--rmsRepo', 'scp:' + rms_dir ] )
         
         self.assertTrue(glob.glob(os.path.join(rms_dir, 'Builds', 'wc-1.2.4-*')))
+        
         
     def test_50_rms_deploy( self ):
         rms_dir = os.path.realpath( 'rms_repo' )
@@ -224,13 +226,122 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         self._call_cid( [ 'deploy', 'vcsref', 'branch_A', '--vcsRepo', self.VCS_REPO, '--redeploy' ] )
         self.assertTrue(glob.glob('branch_A_*'))
         
+    def test_80_vcsops( self ):
+        self._call_cid( [ 'vcs', 'checkout', 'branch_A', '--vcsRepo', self.VCS_REPO, '--wcDir', 'vcsops' ] )
+        
+        # Create new branch
+        os.chdir('vcsops')
+        self._call_cid( [ 'vcs', 'branch', 'branch_B' ] )
+        
+        self._writeFile('README.txt', 'Some other text')
+        self._writeFile('test2.txt', 'New text')
+
+        self._call_cid( [ 'vcs', 'commit', 'Some commit msg', 'README.txt', 'test2.txt' ] )
+
+        # Verify new branch created (fresh clone)
+        self._goToBase()
+        self._call_cid( [ 'vcs', 'checkout', 'branch_B', '--vcsRepo', self.VCS_REPO, '--wcDir', 'vcsops2' ] )
+        os.chdir('vcsops2')
+        
+        self.assertEqual(self._readFile('test2.txt').strip(), 'New text')
+        
+        # Create another branch
+        self._call_cid( [ 'vcs', 'branch', 'branch_C' ] )
+        
+        # Delete intermediate branch
+        self._goToBase()
+        self._call_cid( [ 'vcs', 'delete', 'branch_B', '--vcsRepo', self.VCS_REPO ] )
+        
+        # Make sure branch is removed
+        self._call_cid( [ 'vcs', 'checkout', 'branch_B', '--vcsRepo', self.VCS_REPO, '--wcDir', 'vcsops3' ], returncode=1 )
+    
+        # Export branch C
+        self._call_cid( [ 'vcs', 'export', 'branch_C', 'vcsexport', '--vcsRepo', self.VCS_REPO ] )
+        self.assertEqual(glob.glob('vcsexport/.*'), [])
+        self.assertEqual(self._readFile('vcsexport/test2.txt').strip(), 'New text')
+        
+        # Re-use original wc
+        self._call_cid( [ 'vcs', 'checkout', 'branch_A', '--wcDir', 'vcsops' ] )
+        
+        # Merge branch C
+        os.chdir('vcsops')
+        self._call_cid( [ 'vcs', 'merge', 'branch_C' ] )
+        
+        # Check merge is correct
+        self._call_cid( [ 'vcs', 'checkout', 'branch_A', '--vcsRepo', self.VCS_REPO, '--wcDir', 'vcsmerged' ] )
+        os.chdir('vcsmerged')
+        self.assertEqual(self._readFile('test2.txt').strip(), 'New text')
+        
+        # Delete from WC
+        self._goToBase()
+        self._call_cid( [ 'vcs', 'checkout', 'branch_C', '--vcsRepo', self.VCS_REPO, '--wcDir', 'vcsdelete' ] )
+        os.chdir('vcsdelete')
+        self._call_cid( [ 'vcs', 'delete', 'branch_C' ] )
+        
+    def test_81_vcstags( self ):
+        self._call_cid( [ 'vcs', 'checkout', 'branch_A', '--vcsRepo', self.VCS_REPO, '--wcDir', 'vcstags' ] )
+        os.chdir('vcstags')
+        
+        (r, w) = os.pipe()
+        
+        self._call_cid( [ 'tag', 'branch_A', 'patch' ] )
+        self._call_cid( [ 'vcs', 'taglist' ], stdout=w )
+        res = os.read(r, 4096)
+        try: res = str(res, 'utf8')
+        except: pass
+        res = res.strip().split("\n")
+        self.assertEqual(res, [
+            'v1.2.3',
+            'v1.2.4',
+            'v1.2.5',
+            'v1.3.0',
+            'v1.3.1',
+            'v1.3.2',
+        ])
+        
+        self._call_cid( [ 'tag', 'branch_A', 'minor' ] )
+        self._call_cid( [ 'vcs', 'taglist' ], stdout=w )
+        res = os.read(r, 4096)
+        try: res = str(res, 'utf8')
+        except: pass
+        res = res.strip().split("\n")
+        self.assertEqual(res, [
+            'v1.2.3',
+            'v1.2.4',
+            'v1.2.5',
+            'v1.3.0',
+            'v1.3.1',
+            'v1.3.2',
+            'v1.4.0',
+        ])
+
+        self._call_cid( [ 'tag', 'branch_A', 'major' ] )
+        self._call_cid( [ 'vcs', 'taglist' ], stdout=w )
+        res = os.read(r, 4096)
+        try: res = str(res, 'utf8')
+        except: pass
+        res = res.strip().split("\n")
+        self.assertEqual(res, [
+            'v1.2.3',
+            'v1.2.4',
+            'v1.2.5',
+            'v1.3.0',
+            'v1.3.1',
+            'v1.3.2',
+            'v1.4.0',
+            'v2.0.0',
+        ])
+        
+        os.close(w)
+        os.close(r)
+
 
 #=============================================================================        
 class cid_git_Test ( cid_VCS_UTBase ) :
     __test__ = True
     TEST_DIR = os.path.join(cid_VCS_UTBase.TEST_RUN_DIR, 'vcs_git')
     REPO_DIR = os.path.join( TEST_DIR, 'repo' )
-    VCS_REPO = 'git:' + REPO_DIR
+    VCS_REPO = 'git:file://' + REPO_DIR
     
     def _create_repo( self ):
         self._call_cid( [ 'tool', 'exec', 'git', '--', 'init', '--bare', self.REPO_DIR ] )

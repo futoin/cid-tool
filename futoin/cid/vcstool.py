@@ -35,6 +35,15 @@ class VcsTool( SubTool ):
 
     def vcsExport( self, config, vcs_cache_dir, vcs_ref, dst_path ) :
         raise NotImplementedError( self._name )
+    
+    def vcsBranch( self, config, vcs_ref ):
+        raise NotImplementedError( self._name )
+
+    def vcsMerge( self, config, vcs_ref ):
+        raise NotImplementedError( self._name )
+
+    def vcsDelete( self, config, vcs_ref ):
+        raise NotImplementedError( self._name )
 
     def _autoDetectVCS( self, config, vcsDir ) :
         if config.get( 'vcs', None ) == self._name :

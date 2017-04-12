@@ -306,16 +306,19 @@ Please see details in the FTN16 spec: ::
         Commit all changes or specific files with short commit message.
     
     cid vcs merge <vcs_ref>
-        Not implemented yet. Wait for issue #30
         Merge another VCS ref into current one. Abort on conflict.
 
-    cid vcs branch <vcs_ref> <new_vcs_ref>
-        Not implemented yet. Wait for issue #30
-        Create a new branch from existing VCS ref.
+    cid vcs branch <vcs_ref>
+        Create a new branch from current checkout VCS ref.
         
-    cid vcs delete <vcs_ref>
-        Not implemented yet. Wait for issue #30
-        Delete tag or branch.
+    cid vcs delete <vcs_ref> [--vcsRepo=<vcs_repo>]
+        Delete branch.
+        
+    cid vcs export <vcs_ref> <dst_dir> [--vcsRepo=<vcs_repo>]
+        Export VCS ref into folder.
+
+    cid vcs taglist [<tag_pattern>] [--vcsRepo=<vcs_repo>]
+        List tags with optional pattern.
 
 
 Excplicit futoin.json example

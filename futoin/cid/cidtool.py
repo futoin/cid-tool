@@ -591,7 +591,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
 
         # Find out package to deploy
         self._info('Getting the latest revision of {0}'.format(vcs_ref))
-        vcs_cache = self.VCS_CACHE_DIR
+        vcs_cache = os.path.realpath(self.VCS_CACHE_DIR)
         rev = vcstool.vcsGetRefRevision( config, vcs_cache, vcs_ref )
             
         if not rev:
@@ -614,6 +614,9 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         # Retrieve tag
         self._info('Retrieving the VCS ref')
         target_tmp = target_dir + '.tmp'
+        # Note: acceptable race condition is possible: vcs_ref
+        # may get updated after we get its revision and before
+        # we do actual export
         vcstool.vcsExport( config, vcs_cache, vcs_ref, target_tmp )
 
         # Common processing
@@ -625,7 +628,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
 
         # Find out package to deploy
         self._info('Finding tag in VCS')
-        vcs_cache = self.VCS_CACHE_DIR
+        vcs_cache = os.path.realpath(self.VCS_CACHE_DIR)
         tag_list = vcstool.vcsListTags( config, vcs_cache, vcs_ref )
 
         if vcs_ref:
@@ -657,7 +660,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         # Common processing
         self._deployCommon( vcs_ref_tmp, target_dir, [vcs_cache] )        
         
-    def _getLatest( self, verioned_list ):
+    def _versionSort( self, verioned_list ):
         def castver(v):
             res = re.split(r'[\W_]+', v)
             for (i, vc) in enumerate(res):
@@ -666,6 +669,9 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             return res
             
         verioned_list.sort(key=castver)
+
+    def _getLatest( self, verioned_list ):
+        self._versionSort(verioned_list)
         return verioned_list[-1]
 
     def _deployCommon( self, tmp, dst, cleanup_whitelist ):
@@ -842,6 +848,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                 for p in self._lastPackages:
                     self.promote( p, rms_pool )
             else:
+                self._info('Promoting package(s) to {0} pool'.format(rms_pool))
                 rmstool = self._getRmsTool()
                 rmstool.rmsPromoteMany( config, self._lastPackages, rms_pool )
 
@@ -1084,6 +1091,53 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         self._info('Pushing changes to {0}'.format(config['vcsRepo']))
         vcstool.vcsPush( config, None )
+
+    def vcs_branch( self, vcs_ref ):
+        config = self._config
+        vcstool = self._getVcsTool()
+
+        self._info('Creating new branch {0} in {1}'.format(vcs_ref, config['vcsRepo']))
+        vcstool.vcsBranch( config, vcs_ref )
+        
+    def vcs_merge( self, vcs_ref ):
+        config = self._config
+        vcstool = self._getVcsTool()
+
+        self._info('Merging branch {0} from {1}'.format(vcs_ref, config['vcsRepo']))
+        vcstool.vcsMerge( config, vcs_ref )
+
+    def vcs_delete( self, vcs_ref ):
+        config = self._config
+        vcstool = self._getVcsTool()
+
+        self._info('Deleting branch {0} from {1}'.format(vcs_ref, config['vcsRepo']))
+        vcstool.vcsDelete( config, vcs_ref )
+        
+    def vcs_export( self, vcs_ref, dst_path ):
+        if os.path.exists(dst_path):
+            if os.listdir(dst_path):
+                self._errorExit('Destination directory {0} exists and is not empty'.format(dst_path))
+        else:
+            os.makedirs(dst_path)
+
+        config = self._config
+        vcstool = self._getVcsTool()
+
+        self._info('Export ref {0} from {1}'.format(vcs_ref, config['vcsRepo']))
+        vcstool.vcsExport( config, None, vcs_ref, dst_path )
+
+    def vcs_taglist( self, tag_hint ):
+        config = self._config
+        vcstool = self._getVcsTool()
+
+        tag_list = vcstool.vcsListTags( config, None, tag_hint )
+        
+        if tag_hint:
+            tag_list = fnmatch.filter(tag_list, tag_hint)
+            
+        self._versionSort(tag_list)
+        
+        print("\n".join(tag_list))
 
     def _initConfig( self ):
         user_home = os.environ.get('HOME','/')

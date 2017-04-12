@@ -1,5 +1,7 @@
 
 import os
+import subprocess
+import tempfile
 
 from ..vcstool import VcsTool
 from .bashtoolmixin import BashToolMixIn
@@ -12,8 +14,6 @@ Home: https://git-scm.com/
 Git tool forcibly sets user.email and user.name, 
 if not set by user.
 """    
-    _rev = None
-    
     def getDeps(self):
         return ['bash', 'tar']
 
@@ -56,6 +56,11 @@ if not set by user.
                 gitBin, 'config', 'user.name',
                 env.get('gitUserName', 'FutoIn CITool')
             ])
+            
+    def _getCurrentBranch( self, config ):
+        return self._callExternal( [
+            config['env']['gitBin'], 'rev-parse', '--abbrev-ref', 'HEAD'
+        ] ).strip()
 
     def vcsGetRepo( self, config, wc_dir=None ):
         git_dir = wc_dir or os.path.join(os.getcwd(), '.git')
@@ -120,7 +125,7 @@ if not set by user.
     def vcsPush( self, config, refs ):
         refs = refs or []
         gitBin = config['env']['gitBin']
-        self._callExternal( [ gitBin, '-c', 'push.default=current', 'push', '-q', 'origin' ] + refs )
+        self._callExternal( [ gitBin, '-c', 'push.default=current', 'push', '-q', config['vcsRepo'] ] + refs )
         
     def vcsGetRevision( self, config ) :
         gitBin = config['env']['gitBin']
@@ -135,8 +140,7 @@ if not set by user.
         ] ).strip()
         
         if res:
-            self._rev = res.split()[0]
-            return self._rev
+            return res.split()[0]
         
         self._errorExit( "Uknown Git ref: '{0}'".format( branch ) )
     
@@ -160,36 +164,112 @@ if not set by user.
         gitBin = env['gitBin']
         vcsRepo = config['vcsRepo']
 
-        if os.path.exists(vcs_cache_dir):
-            remote_url = self.vcsGetRepo( config, vcs_cache_dir )
-            
-            if self._gitCompareRepo(vcsRepo,  remote_url):
-                self._warn('removing git cache on remote URL mismatch: {0} != {1}'
-                      .format(remote_url, vcsRepo))
-                self._rmTree(vcs_cache_dir)
-        
-        if not os.path.exists(vcs_cache_dir):
-             self._callExternal( [
-                env['gitBin'],
-                'clone', '--mirror',
-                vcsRepo,
-                vcs_cache_dir
-            ] )
+        if vcs_cache_dir is None:
+            cache_repo = vcsRepo
         else:
-            self._callExternal( [
-                env['gitBin'],
-                '--git-dir={0}'.format(vcs_cache_dir),
-                'fetch'
-            ] )
+            if os.path.exists(vcs_cache_dir):
+                remote_url = self.vcsGetRepo( config, vcs_cache_dir )
+                
+                if not self._gitCompareRepo(vcsRepo,  remote_url):
+                    self._warn('removing git cache on remote URL mismatch: {0} != {1}'
+                        .format(remote_url, vcsRepo))
+                    self._rmTree(vcs_cache_dir)
+            
+            if not os.path.exists(vcs_cache_dir):
+                self._callExternal( [
+                    env['gitBin'],
+                    'clone',
+                    '--mirror',
+                    '--depth=1',
+                    '--no-single-branch',
+                    vcsRepo,
+                    vcs_cache_dir
+                ] )
+            else:
+                self._callExternal( [
+                    env['gitBin'],
+                    '--git-dir={0}'.format(vcs_cache_dir),
+                    'fetch'
+                ] )
+                
+            cache_repo = 'file://' + vcs_cache_dir
             
         if os.path.exists(dst_path):
             self._rmTree(dst_path)
 
         os.mkdir(dst_path)
         
-        if self._rev:
-            vcs_ref = self._rev
+        self._callBash(env, '{0} archive --remote={1} --format=tar {2} | {3} x -C {4}'
+                .format(config['env']['gitBin'], cache_repo, vcs_ref, env['tarBin'], dst_path))
+
+    def vcsBranch( self, config, vcs_ref ):
+        env = config['env']
+        gitBin = env['gitBin']
         
-        self._callBash(env, '{0} --git-dir={1} archive --format=tar {2} | {3} x -C {4}'
-                .format(config['env']['gitBin'], vcs_cache_dir, vcs_ref, env['tarBin'], dst_path))
+        self._callExternal( [
+            config['env']['gitBin'],
+            'checkout', '-b', vcs_ref,
+        ] )
+        
+        self.vcsPush(config, [vcs_ref])
+
+    def vcsMerge( self, config, vcs_ref ):
+        curr_ref = self._getCurrentBranch( config )
+        
+        env = config['env']
+        gitBin = env['gitBin']
+        
+        try:
+            self._callExternal( [
+                config['env']['gitBin'],
+                'merge', '--no-ff', '--rerere-autoupdate', 'origin/'+vcs_ref,
+            ] )
+        except subprocess.CalledProcessError:
+            self._callExternal( [
+                config['env']['gitBin'],
+                'merge', '--abort',
+            ] )
+            self._errorExit('Merged failed, aborted.')
+        
+        self.vcsPush(config, [curr_ref])
+
+    def vcsDelete( self, config, vcs_ref ):
+        env = config['env']
+        gitBin = env['gitBin']
+        
+        have_local = (os.path.exists('.git') and
+                      self._gitCompareRepo(config['vcsRepo'],  self.vcsGetRepo(config)))
+        
+        if have_local:
+            try:
+                self._callExternal( [
+                    config['env']['gitBin'],
+                    'branch', '-D', vcs_ref,
+                ] )
+            except subprocess.CalledProcessError as e:
+                self._warn(str(e))
+                
+            self.vcsPush(config, ['--force', '--delete', vcs_ref])
+                
+            self._callExternal( [
+                config['env']['gitBin'],
+                'fetch', '--all', '--prune',
+            ] )
+        else:
+            # a dirty hack to avoid error message of not found
+            # local git repo
+            repo = tempfile.mkdtemp('fakegit', dir='.')
+            
+            self._callExternal( [
+                config['env']['gitBin'],
+                'init', repo,
+            ] )
+
+            oldcwd = os.getcwd()
+            os.chdir(repo)
+            self.vcsPush(config, ['--force', '--delete', vcs_ref])
+            os.chdir(oldcwd)
+
+            self._rmTree(repo)
+
 

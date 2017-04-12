@@ -10,8 +10,6 @@ class svnTool( VcsTool, RmsTool ):
     
 Home: https://subversion.apache.org/
 """    
-    _rev = None
-    
     def _installTool( self, env ):
         self._requirePackages(['subversion'])
         self._requireEmerge(['dev-vcs/subversion'])
@@ -35,20 +33,30 @@ Home: https://subversion.apache.org/
         url = re.sub( '/(trunk|branches|tags).+$', '', url )
         return url
     
-    def vcsCheckout( self, config, vcs_ref ):
+    def _detectSVNPath( self, config, vcs_ref ):
         env = config['env']
         svnBin = env['svnBin']
-        wc_dir = os.getcwd()
-            
-        branch_path = '%s/branches/%s' % ( config['vcsRepo'], vcs_ref )
-        tag_path = '%s/tags/%s' % ( config['vcsRepo'], vcs_ref )
+        vcsRepo = config['vcsRepo']        
+        branch_path = '{0}/branches/{1}'.format( vcsRepo, vcs_ref )
+        tag_path = '{0}/tags/{1}'.format( vcsRepo, vcs_ref )
         
-        if self._callExternal( [ svnBin, 'ls', branch_path ], suppress_fail=True ) :
+        if vcs_ref == 'trunk':
+            svn_repo_path = '{0}/trunk'.format( vcsRepo )
+        elif self._callExternal( [ svnBin, 'ls', branch_path ], suppress_fail=True ) :
             svn_repo_path = branch_path
         elif self._callExternal( [ svnBin, 'ls', tag_path ], suppress_fail=True ) :
             svn_repo_path = tag_path
         else:
             self._errorExit( "VCS ref was not found: " + vcs_ref )
+            
+        return svn_repo_path
+    
+    def vcsCheckout( self, config, vcs_ref ):
+        env = config['env']
+        svnBin = env['svnBin']
+        wc_dir = os.getcwd()
+        
+        svn_repo_path = self._detectSVNPath(config, vcs_ref)
 
         if os.path.isdir( '.svn' ):
             self._callExternal( [ svnBin, 'switch', svn_repo_path ] )
@@ -109,16 +117,12 @@ Home: https://subversion.apache.org/
     def vcsGetRefRevision( self, config, vcs_cache_dir, branch ) :
         svnBin = config['env']['svnBin']
         
-        if branch == 'trunk':
-            svn_repo_path = '{0}/{1}'.format( config['vcsRepo'], branch )
-        else :
-            svn_repo_path = '{0}/branches/{1}'.format( config['vcsRepo'], branch )
+        svn_repo_path = self._detectSVNPath(config, branch)
             
         res = self._callExternal( [ svnBin, 'info', svn_repo_path, '--xml' ] )
         
         res = xml.dom.minidom.parseString( res )
-        self._rev = res.getElementsByTagName('commit')[0].getAttribute('revision')
-        return self._rev
+        return res.getElementsByTagName('commit')[0].getAttribute('revision')
 
     def vcsListTags( self, config, vcs_cache_dir, tag_hint ) :
         svnBin = config['env']['svnBin']
@@ -130,14 +134,15 @@ Home: https://subversion.apache.org/
     def vcsExport( self, config, vcs_cache_dir, vcs_ref, dst_path ) :
         svnBin = config['env']['svnBin']
         
-        if self._rev :
-            if vcs_ref == 'trunk':
-                svn_repo_path = '{0}/{1}@{2}'.format( config['vcsRepo'], vcs_ref, self._rev )
-            else :
-                svn_repo_path = '{0}/branches/{1}@{2}'.format( config['vcsRepo'], vcs_ref, self._rev )
-        else :
-            svn_repo_path = '{0}/tags/{1}'.format( config['vcsRepo'], vcs_ref )
+        svn_repo_path = self._detectSVNPath(config, vcs_ref)
         
+        if os.path.exists(dst_path):
+            os.rmdir(dst_path)
+        
+        if vcs_cache_dir is None:
+            self._callExternal( [ svnBin, 'export', svn_repo_path, dst_path ] )
+            return
+            
         if os.path.isdir( vcs_cache_dir ):
             cnd = 'switch'
         else:
@@ -145,5 +150,25 @@ Home: https://subversion.apache.org/
             
         self._callExternal( [ svnBin, cnd, svn_repo_path, vcs_cache_dir ] )
         self._callExternal( [ svnBin, 'export', vcs_cache_dir, dst_path ] )
+    
+    def vcsBranch( self, config, vcs_ref ):
+        svnBin = config['env']['svnBin']
+        vcsRepo = config['vcsRepo']
+        svn_repo_path = '{0}/branches/{1}'.format( vcsRepo, vcs_ref )
+        self._callExternal( [ svnBin, 'copy', '-m', 'CID branch ' + vcs_ref, '.', svn_repo_path ] )
+        self.vcsCheckout(config, vcs_ref)
 
+    def vcsMerge( self, config, vcs_ref ):
+        svnBin = config['env']['svnBin']
+        
+        svn_repo_path = self._detectSVNPath(config, vcs_ref)
+
+        self._callExternal( [ svnBin, 'merge', svn_repo_path ] )
+        self._callExternal( [ svnBin, 'commit', '-m', 'CID merged ' + vcs_ref ] )
+
+    def vcsDelete( self, config, vcs_ref ):
+        svnBin = config['env']['svnBin']
+        vcsRepo = config['vcsRepo']
+        svn_repo_path = '{0}/branches/{1}'.format( vcsRepo, vcs_ref )
+        self._callExternal( [ svnBin, 'remove', '-m', 'CID delete ' + vcs_ref, svn_repo_path ] )
 
