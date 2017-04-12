@@ -48,7 +48,11 @@ Docker EE or other installation methods are out of scope for now.
             self._addAptRepo(
                 'docker',
                 'deb [arch=amd64] {0}/linux/ubuntu $codename$ stable'.format(repo),
-                gpg
+                gpg,
+                codename_map = {
+                    'zesty': 'yakkety',
+                },
+                repo_base = repo,
             )
             
         else:

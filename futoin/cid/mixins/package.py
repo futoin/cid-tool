@@ -114,7 +114,7 @@ class PackageMixIn( object ):
                 errmsg='you may need to install the build deps manually !'
             )
         
-    def _addAptRepo(self, name, entry, gpg_key):
+    def _addAptRepo(self, name, entry, gpg_key, codename_map=None, repo_base=None):
         self._requireDeb([
             'software-properties-common',
             'apt-transport-https',
@@ -139,12 +139,18 @@ class PackageMixIn( object ):
             os.remove(tf)
             
         codename = subprocess.check_output( ['lsb_release', '-cs'] )
+        try: codename = str(codename, 'utf8')
+        except: pass
+        codename = codename.strip()
         
-        try:
-            codename = str(codename, 'utf8')
-        except:
-            pass
-        
+        if codename_map:
+            try:
+                repo_info = urllib.urlopen('{0}/{1}'.format(repo_base, codename)).read()
+            except:
+                fallback_codename = codename_map.get(codename, codename)
+                self._warn('Fallback to codename: {0}'.format(fallback_codename))
+                codename = fallback_codename
+
         entry = entry.replace('$codename$', codename)
             
         self._trySudoCall(

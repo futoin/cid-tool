@@ -9,6 +9,7 @@ fi
 if ! which python >/dev/null; then
     which pacman && sudo pacman -S --noconfirm --needed python
     which dnf && sudo dnf install -y python
+    which apt-get && sudo apt-get install -y python
 fi
 
 # Run test out of sync folder

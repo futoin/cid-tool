@@ -101,6 +101,7 @@ Tested on the following OSes:
     - **14.04 LTS - Trusty**
     - **16.04 LTS - Xenial**
     - **16.10 - Yakkety**
+    - **17.04 - Zesty**
 * **Other Linux**
     - it should work without issues, if system packages are installed manually
 

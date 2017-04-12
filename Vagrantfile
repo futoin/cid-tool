@@ -33,7 +33,7 @@ which apt-get && apt-get update || true
         'debian_stretch' => 'fujimakishouten/debian-stretch64',
         'ubuntu_trusty' => 'bento/ubuntu-14.04',
         'ubuntu_yakkety' => 'bento/ubuntu-16.10', # non-LTS
-        #'ubuntu_zesty' => 'bento/ubuntu-17.04', # non-LTS
+        'ubuntu_zesty' => 'wholebits/ubuntu17.04-64', # non-LTS
         #'centos_6' => 'centos/6', # too old
     }.each do |name, box|
         config.vm.define('cid_' + name) do |node|

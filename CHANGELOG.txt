@@ -7,6 +7,8 @@
 * CHANGED: default packager ignores only .git*, .hg* and .svn
 * NEW: added 'major', 'minor' and 'patch' modes for "cid tag"
 * NEW: implemented "cid vcs merge/branch/delete/export/taglist"
+* NEW: added APT repository "codename fallback" feature
+* NEW: added Ubuntu 17.04 Zesty support
 
 === 0.6.3 (2017-04-10) ===
 * FIXED: to properly use global & user env configuration
