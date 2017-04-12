@@ -54,6 +54,9 @@ Docker EE or other installation methods are out of scope for now.
                 },
                 repo_base = repo,
             )
+                
+        elif self._isOracleLinux() or self._isRHEL():
+            self._addYumRepo('docker', repo + '/linux/centos/docker-ce.repo')
             
         else:
             self._requireYumEPEL()

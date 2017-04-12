@@ -93,10 +93,9 @@ Tested on the following OSes:
 * **OpenSUSE**
     - **42.1 Leap**
 * **Oracle Linux**
-    - **7** - supported as CentOS, but some packages (e.g. Docker) must be
-        installed manually. Not included in standard test cycle.
+    - **7** - supported as CentOS. Not included in standard test cycle.
 * **RedHat Enterprise Linux**
-    - **7** - see notes for Oracle Linux
+    - **7** - supported as CentOS. Not included in standard test cycle.
 * **Ubuntu**
     - **14.04 LTS - Trusty**
     - **16.04 LTS - Xenial**

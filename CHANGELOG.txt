@@ -5,6 +5,7 @@
 * CHANGED: "cid tag" without <next_version> now always increments PATCH.
 * CHANGED: default packager to generate .package.checksums internally
 * CHANGED: default packager ignores only .git*, .hg* and .svn
+* CHANGED: to install Docker CE on RHEL & OL7 using CentOS packages
 * NEW: added 'major', 'minor' and 'patch' modes for "cid tag"
 * NEW: implemented "cid vcs merge/branch/delete/export/taglist"
 * NEW: added APT repository "codename fallback" feature
