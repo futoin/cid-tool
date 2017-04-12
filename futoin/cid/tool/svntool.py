@@ -1,9 +1,15 @@
 
-import os, re
-import xml.dom.minidom
+from __future__ import print_function
+
+import os, re, sys
 
 from ..vcstool import VcsTool
 from ..rmstool import RmsTool
+
+try:
+    import xml.dom.minidom as minidom
+except ImportError:
+    print('WARNING: missing xml.dom.minidom - SVN will not work', file=sys.stderr)
 
 class svnTool( VcsTool, RmsTool ):
     """Apache Subversion: Enterprise-class centralized version control for the masses.
@@ -27,7 +33,7 @@ Home: https://subversion.apache.org/
         svn_info = self._callExternal([
             config['env']['svnBin'], 'info', '--xml', wc_dir or os.getcwd()
         ])
-        svn_info = xml.dom.minidom.parseString( svn_info )
+        svn_info = minidom.parseString( svn_info )
         svn_info = svn_info.getElementsByTagName('url')
         url = svn_info[0].firstChild.nodeValue
         url = re.sub( '/(trunk|branches|tags).+$', '', url )
@@ -87,7 +93,7 @@ Home: https://subversion.apache.org/
         svn_info = self._callExternal([
             config['env']['svnBin'], 'info', '--xml'
         ])
-        svn_info = xml.dom.minidom.parseString( svn_info )
+        svn_info = minidom.parseString( svn_info )
         svn_info = svn_info.getElementsByTagName('url')
         svn_url = svn_info[0].firstChild.nodeValue
 
@@ -106,7 +112,7 @@ Home: https://subversion.apache.org/
         svnBin = config['env']['svnBin']
         svn_info = self._callExternal( [ svnBin, 'info',  '--xml' ] )
         
-        svn_info = xml.dom.minidom.parseString( svn_info )
+        svn_info = minidom.parseString( svn_info )
         svn_info = svn_info.getElementsByTagName('commit')
 
         if len(svn_info):
@@ -121,7 +127,7 @@ Home: https://subversion.apache.org/
             
         res = self._callExternal( [ svnBin, 'info', svn_repo_path, '--xml' ] )
         
-        res = xml.dom.minidom.parseString( res )
+        res = minidom.parseString( res )
         return res.getElementsByTagName('commit')[0].getAttribute('revision')
 
     def vcsListTags( self, config, vcs_cache_dir, tag_hint ) :

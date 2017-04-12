@@ -25,7 +25,9 @@ which apt-get && apt-get update || true
         #'gentoo' => 'cmiles/gentoo-amd64-minimal',
         'archlinux' => 'ogarcia/archlinux-x64',
         # behaves similar to CentOS, but limited
-        #'ol_7' => 'boxcutter/ol73',
+        'ol_7' => 'boxcutter/ol73',
+        'rhel_7' => 'iamseth/rhel-7.3',
+        #'sles_12' => 'suse/sles12sp1',
         # not part of standard test cycle
         #'macos' => 'jhcook/macos-sierra',
         #'macos' => 'http://files.dryga.com/boxes/osx-sierra-0.3.1.box',
@@ -48,6 +50,8 @@ which apt-get && apt-get update || true
             elsif name == 'macos'
                 dist_controller = 'SATA'
                 group = 'staff'
+            elsif name == 'sles_12'
+                dist_controller = 'SCSI'
             else
                 dist_controller = 'SATA Controller'
             end

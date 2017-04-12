@@ -25,14 +25,19 @@ class PackageMixIn( object ):
         return platform.linux_distribution()[0] == 'debian'
 
     def _isUbuntu( self ):
-        return platform.linux_distribution()[0] == 'Ubuntu'
+        return platform.linux_distribution()[0].startswith('Ubuntu')
     
     def _isOracleLinux( self ):
-        return os.path.exists('/etc/oracle-release')
+        return platform.linux_distribution()[0].startswith('Oracle Linux')
 
     def _isRHEL( self ):
-        return (os.path.exists('/etc/redhat-release') and
-                platform.linux_distribution()[0].startswith('Red Hat Enterprise Linux'))
+        return platform.linux_distribution()[0].startswith('Red Hat Enterprise Linux')
+    
+    def isOpenSUSE( self ):
+        return platform.linux_distribution()[0].startswith('openSUSE')
+
+    def isSLES( self ):
+        return platform.linux_distribution()[0].startswith('SUSE Linux Enterprise')
     
     def _isMacOS( self ):
         return platform.system() == 'Darwin'
@@ -235,14 +240,19 @@ class PackageMixIn( object ):
                 errmsg = 'you may need to add the repo manually!'
             )
 
-    def _addZypperRepo(self, name, url, gpg_key=None):
+    def _addZypperRepo(self, name, url, gpg_key=None, yum=False):
         self._addRpmKey(gpg_key)
         
         zypper = self._which('zypper')
         
         if zypper:
+            if yum:
+                cmd = [zypper, 'addrepo', '-t', 'YUM', url, name]
+            else:
+                cmd = [zypper, 'addrepo', url, name]
+            
             self._trySudoCall(
-                [zypper, 'addrepo', url, name],
+                cmd,
                 errmsg = 'you may need to add the repo manually!'
             )
             

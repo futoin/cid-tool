@@ -52,7 +52,7 @@ class PathMixIn( object ):
     def _trySudoCall( self, cmd, errmsg=None ):
         try:
             self._callExternal(['sudo', '-n'] + cmd)
-        except:
+        except subprocess.CalledProcessError:
             if not errmsg:
                 errmsg = 'you may need to call the the failed command manually !'
 

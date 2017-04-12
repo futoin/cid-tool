@@ -1,4 +1,6 @@
 
+import re
+
 from ..buildtool import BuildTool
 from ..runenvtool import RunEnvTool
 
@@ -57,6 +59,24 @@ Docker EE or other installation methods are out of scope for now.
                 
         elif self._isOracleLinux() or self._isRHEL():
             self._addYumRepo('docker', repo + '/linux/centos/docker-ce.repo')
+            
+        #elif self.isOpenSUSE() or self.isSLES():
+        #    virt_repo = 'https://download.opensuse.org/repositories/Virtualization'
+        #    
+        #    with open('/etc/os-release', 'r') as rf:
+        #        releasever = re.search('VERSION="([0-9.]+)"', rf.read()).group(1)
+        #
+        #    
+        #    if self.isOpenSUSE():
+        #        virt_repo += '/openSUSE_Leap_'+releasever
+        #    else:
+        #        virt_repo += '/SLE_'+releasever
+        #    
+        #    virt_gpg = self._callExternal([ env['curlBin'], '-fsSL', virt_repo+'/repodata/repomd.xml.key'])
+        #    self._addZypperRepo('Virtualization', virt_repo+'/Virtualization.repo', virt_gpg)
+        #    
+        #    gpg = self._callExternal([ env['curlBin'], '-fsSL', repo+'/linux/centos/gpg'])
+        #    self._addZypperRepo('docker', repo + '/linux/centos/7/x86_64/stable/', gpg, yum=True)
             
         else:
             self._requireYumEPEL()
