@@ -31,8 +31,8 @@ class PackageMixIn( object ):
         return os.path.exists('/etc/oracle-release')
 
     def _isRHEL( self ):
-        "Note: make sure to check after CentOS/Fedora/Oracle"
-        return os.path.exists('/etc/redhat-release')
+        return (os.path.exists('/etc/redhat-release') and
+                platform.linux_distribution()[0].startswith('Red Hat Enterprise Linux'))
     
     def _isMacOS( self ):
         return platform.system() == 'Darwin'
