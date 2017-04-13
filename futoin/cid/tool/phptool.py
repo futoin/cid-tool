@@ -110,8 +110,6 @@ resources due to lack of trusted binary builds.
         return ['phpDir', 'phpBin', 'phpVer', 'phpfpmBin', 'phpBinOnly']
     
     def initEnv( self, env ) :
-        phpBinOnly = env.setdefault('phpBinOnly', False)
-        
         #---
         if self._isDebian() or self._isUbuntu():
             php_latest = '7.1'
@@ -138,7 +136,10 @@ resources due to lack of trusted binary builds.
                 
             env['phpVer'] = php_ver
         else:
+            phpBinOnly = False
             php_ver = env.setdefault('phpVer', self.SYSTEM_VER)
+            
+        phpBinOnly = env.setdefault('phpBinOnly', phpBinOnly)
         
         #---
         if php_ver == self.SYSTEM_VER:
