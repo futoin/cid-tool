@@ -275,6 +275,27 @@ class PackageMixIn( object ):
             [yumcfgmgr, '--enable', repo],
             errmsg='You may need to enable the repo manually'
         )
+        
+    def _isSCLSupported(self):
+        "Check if Software Collections are supported"
+        return (
+            self._isCentOS() or
+            self._isRHEL() or
+            self._isOracleLinux()
+        )
+        
+    def _requireSCL(self):
+        if self._isRHEL():
+            self._yumEnable('rhel-server-rhscl-7-rpms')
+        elif self._isCentOS():
+            self._requireYum('centos-release-scl-rh')
+        elif self._isOracleLinux():
+            self._addYumRepo('public-yum-o17', 'http://yum.oracle.com/public-yum-ol7.repo')
+            self._yumEnable('ol7_software_collections')
+            self._yumEnable('ol7_latest')
+            self._yumEnable('ol7_optional_latest')
+
+        self._requireYum('scl-utils')
 
     def _requireHomebrew(self, packages):
         if not self._isMacOS():

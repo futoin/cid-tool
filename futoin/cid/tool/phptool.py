@@ -63,22 +63,12 @@ resources due to lack of trusted binary builds.
             self._addAptRepo('sury', 'ppa:ondrej/php', None)
             self._requireDeb('php' + ver)
             
-        elif self._isCentOS() or self._isRHEL() or self._isOracleLinux():
-            if self._isSCL(env):
+        elif self._isSCLSupported():
+            if self._isPHPSCL(env):
                 ver = ver.replace('.', '')
                 
-                if self._isRHEL():
-                    self._yumEnable('rhel-server-rhscl-7-rpms')
-                elif self._isCentOS():
-                    self._requireYum('centos-release-scl-rh')
-                elif self._isOracleLinux():
-                    self._addYumRepo('public-yum-o17', 'http://yum.oracle.com/public-yum-ol7.repo')
-                    self._yumEnable('ol7_software_collections')
-                    self._yumEnable('ol7_latest')
-                    self._yumEnable('ol7_optional_latest')
-
-                self._requireYum('scl-utils')
-
+                self._requireSCL()
+                
                 self._requireYum([
                     'rh-php{0}'.format(ver),
                     'rh-php{0}-php-devel'.format(ver),
@@ -89,7 +79,7 @@ resources due to lack of trusted binary builds.
         else:
             self._systemDeps()
         
-    def _isSCL(self, env):
+    def _isPHPSCL(self, env):
         return env['phpVer'] in ('5.6', '7.0')
     
     def updateTool( self, env ):
@@ -113,7 +103,7 @@ resources due to lack of trusted binary builds.
         #---
         if self._isDebian() or self._isUbuntu():
             php_latest = '7.1'
-        elif self._isCentOS() or self._isRHEL() or self._isOracleLinux():
+        elif self._isSCLSupported():
             php_latest = '7.0'
         else :
             php_latest = None
@@ -157,8 +147,8 @@ resources due to lack of trusted binary builds.
                 bin_name = 'php'+php_ver
                 super(phpTool, self).initEnv( env, bin_name )
                 
-            elif self._isCentOS() or self._isRHEL() or self._isOracleLinux():
-                if self._isSCL(env):
+            elif self._isSCLSupported():
+                if self._isPHPSCL(env):
                     ver = env['phpVer'].replace('.', '')
                     try:
                         env_to_set = self._callBash(env, 'scl enable rh-php{0} env'.format(ver), verbose=False)
