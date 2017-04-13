@@ -1,6 +1,7 @@
 
 === (next) ===
 * FIXED: to detect RHEL more precisely
+* FIXED: to properly display non-string values in "cid tool env"
 * CHANGED: to pack list of project root items, but '.' by default
 * CHANGED: "cid tag" without <next_version> now always increments PATCH.
 * CHANGED: default packager to generate .package.checksums internally

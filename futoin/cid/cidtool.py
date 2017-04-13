@@ -952,7 +952,11 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             self._tool_impl[tool].exportEnv(env, res)
             
         for k, v in sorted(res.items()):
-            print("{0}='{1}'".format(k, v.replace("'", "\\'").replace('\\', '\\\\')))
+            if type(v) == type(''):
+                v = v.replace("'", "\\'").replace('\\', '\\\\')
+            elif not v:
+                v = ''
+            print("{0}='{1}'".format(k, v))
 
     def _tool_cmd( self, tool, base, method ):
         config = self._config
