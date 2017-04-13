@@ -113,6 +113,7 @@ mixed_tools = {
         'managed': False,
     },
     'php' : {
+        'ver': '5.6',
         'managed': False,
     },
     'ruby' : {
@@ -125,7 +126,6 @@ mixed_tools = {
         
 if os.environ.get('CIDTEST_NO_COMPILE', '0') != '1':
     mixed_tools.update({
-        'php' : { 'ver': '7' },
         'ruby' : { 'ver': 'ruby-2' },
     })
     

@@ -133,7 +133,10 @@ class PackageMixIn( object ):
         
         if gpg_key:
             (fd, tf) = tempfile.mkstemp('cidgpg', text=True)
-            os.write(fd, gpg_key.encode(encoding='UTF-8'))
+            try:
+                os.write(fd, gpg_key.encode(encoding='UTF-8'))
+            except:
+                os.write(fd, gpg_key)
             os.close(fd)
 
             self._trySudoCall(
@@ -262,6 +265,16 @@ class PackageMixIn( object ):
             self._requireYum(['https://dl.fedoraproject.org/pub/epel/epel-release-latest-{0}.noarch.rpm'.format(ver)])
         else:
             self._requireYum(['epel-release'])
+            
+    def _yumEnable(self, repo):
+        self._requireYum(['yum-utils'])
+
+        yumcfgmgr = self._which('yum-config-manager')
+
+        self._trySudoCall(
+            [yumcfgmgr, '--enable', repo],
+            errmsg='You may need to enable the repo manually'
+        )
 
     def _requireHomebrew(self, packages):
         if not self._isMacOS():

@@ -1,7 +1,7 @@
 
 from __future__ import print_function, absolute_import
 
-import os, fnmatch, glob
+import os, fnmatch, glob, subprocess
 
 from ..runtimetool import RuntimeTool
 from .bashtoolmixin import BashToolMixIn
@@ -11,7 +11,12 @@ class phpTool( BashToolMixIn, RuntimeTool ):
     
 Home: http://php.net/
 
-By default system PHP is used.
+
+By default the latest available PHP binary is used for the following OSes:
+* Debian & Ubuntu - uses Sury (https://deb.sury.org/) builds 5.6, 7.0 & 7.1.
+* CentOS, RHEL & Oracle Linux - uses SCL 5.6 & 7.0
+
+You can forbid source builds by setting phpBinOnly to non-empty string.
 
 However, if phpVer is set then we use php-build which make consume a lot of time and
 resources due to lack of trusted binary builds.
@@ -19,13 +24,17 @@ resources due to lack of trusted binary builds.
     PHP_DIR = os.path.join(os.environ['HOME'], '.php')
     
     def getDeps( self ) :
-        return [ 'bash', 'phpbuild' ]
+        return [ 'bash', 'phpbuild', 'curl' ]
     
     def _installTool( self, env ):
         php_ver = env['phpVer']
         
         if php_ver == self.SYSTEM_VER:
             self._systemDeps()
+            return
+        
+        if env['phpBinOnly']:
+            self._installBinaries( env )
             return
 
         php_dir = env['phpDir']
@@ -39,6 +48,49 @@ resources due to lack of trusted binary builds.
         os.environ['TMPDIR'] = os.path.join(php_dir, '..')
         self._callExternal( [ env['phpbuildBin'], php_ver, env['phpDir'] ] )
         os.environ['TMPDIR'] = old_tmpdir
+        
+    def _installBinaries( self, env ):
+        ver = env['phpVer']
+        
+        if self._isDebian():
+            repo = env.get('phpSuryRepo', 'https://packages.sury.org/php')
+            gpg = self._callExternal([ env['curlBin'], '-fsSL', repo+'/apt.gpg'])
+            
+            self._addAptRepo('sury', "deb {0} $codename$ main".format(repo), gpg)
+            self._requireDeb('php' + ver)
+            
+        elif self._isUbuntu():
+            self._addAptRepo('sury', 'ppa:ondrej/php', None)
+            self._requireDeb('php' + ver)
+            
+        elif self._isCentOS() or self._isRHEL() or self._isOracleLinux():
+            if self._isSCL(env):
+                ver = ver.replace('.', '')
+                
+                if self._isRHEL():
+                    self._yumEnable('rhel-server-rhscl-7-rpms')
+                elif self._isCentOS():
+                    self._requireYum('centos-release-scl-rh')
+                elif self._isOracleLinux():
+                    self._addYumRepo('public-yum-o17', 'http://yum.oracle.com/public-yum-ol7.repo')
+                    self._yumEnable('ol7_software_collections')
+                    self._yumEnable('ol7_latest')
+                    self._yumEnable('ol7_optional_latest')
+
+                self._requireYum('scl-utils')
+
+                self._requireYum([
+                    'rh-php{0}'.format(ver),
+                    'rh-php{0}-php-devel'.format(ver),
+                ])
+            else:
+                self._errorExit('Only SCL packages are supported so far')
+            
+        else:
+            self._systemDeps()
+        
+    def _isSCL(self, env):
+        return env['phpVer'] in ('5.6', '7.0')
     
     def updateTool( self, env ):
         pass
@@ -55,11 +107,40 @@ resources due to lack of trusted binary builds.
         self._have_tool = False
     
     def envNames( self ) :
-        return ['phpDir', 'phpBin', 'phpVer', 'phpfpmBin']
+        return ['phpDir', 'phpBin', 'phpVer', 'phpfpmBin', 'phpBinOnly']
     
     def initEnv( self, env ) :
-        php_ver = env.setdefault('phpVer', self.SYSTEM_VER)
+        phpBinOnly = env.setdefault('phpBinOnly', False)
         
+        #---
+        if self._isDebian() or self._isUbuntu():
+            php_latest = '7.1'
+        elif self._isCentOS() or self._isRHEL() or self._isOracleLinux():
+            php_latest = '7.0'
+        else :
+            php_latest = None
+            
+        
+        
+        #---
+        if php_latest:
+            php_ver = env.setdefault('phpVer', php_latest)
+            phpBinOnly = True
+            
+            if php_ver[0] == '5' and php_ver != '5.6':
+                php_ver = '5.6'
+                self._warn('Forcing PHP 5.6 for PHP 5.x requirement')
+            elif php_ver == '7':
+                php_ver = php_latest
+            elif php_ver > php_latest:
+                phpBinOnly = False
+                self._warn('Binary builds are supported only for 5.6 - {0}'.format(php_latest))
+                
+            env['phpVer'] = php_ver
+        else:
+            php_ver = env.setdefault('phpVer', self.SYSTEM_VER)
+        
+        #---
         if php_ver == self.SYSTEM_VER:
             super(phpTool, self).initEnv( env )
             if not self._have_tool: return
@@ -69,6 +150,25 @@ resources due to lack of trusted binary builds.
             php_fpm = glob.glob(os.path.join(env['phpDir'], 'sbin', 'php*-fpm*'))
             if php_fpm:
                 env.setdefault('phpfpmBin', php_fpm[0])
+            return
+        elif phpBinOnly:
+            if self._isDebian() or self._isUbuntu():
+                bin_name = 'php'+php_ver
+                super(phpTool, self).initEnv( env, bin_name )
+                
+            elif self._isCentOS() or self._isRHEL() or self._isOracleLinux():
+                if self._isSCL(env):
+                    ver = env['phpVer'].replace('.', '')
+                    try:
+                        env_to_set = self._callBash(env, 'scl enable rh-php{0} env'.format(ver), verbose=False)
+                    except subprocess.CalledProcessError:
+                        return
+                    
+                    self._updateEnvFromOutput( env_to_set )
+                    super(phpTool, self).initEnv( env )
+                else:
+                    pass
+            
             return
         else:
             def_dir = os.path.join(env['phpbuildDir'], 'share', 'php-build', 'definitions')
