@@ -1,7 +1,7 @@
 
 from __future__ import print_function
 
-import os, re, sys
+import os, re, sys, subprocess
 
 from ..vcstool import VcsTool
 from ..rmstool import RmsTool
@@ -161,6 +161,7 @@ Home: https://subversion.apache.org/
         svnBin = config['env']['svnBin']
         vcsRepo = config['vcsRepo']
         svn_repo_path = '{0}/branches/{1}'.format( vcsRepo, vcs_ref )
+        self._callExternal( [ svnBin, 'update' ] )
         self._callExternal( [ svnBin, 'copy', '-m', 'CID branch ' + vcs_ref, '.', svn_repo_path ] )
         self.vcsCheckout(config, vcs_ref)
 
@@ -169,8 +170,14 @@ Home: https://subversion.apache.org/
         
         svn_repo_path = self._detectSVNPath(config, vcs_ref)
 
+        self._callExternal( [ svnBin, 'update' ] )
         self._callExternal( [ svnBin, 'merge', svn_repo_path ] )
-        self._callExternal( [ svnBin, 'commit', '-m', 'CID merged ' + vcs_ref ] )
+        
+        try:
+            self._callExternal( [ svnBin, 'commit', '-m', 'CID merged ' + vcs_ref ] )
+        except subprocess.CalledProcessError:
+            self._callExternal( [ svnBin, 'revert', '-R', '.' ] )
+            self._errorExit('Merged failed, aborted.')
 
     def vcsDelete( self, config, vcs_ref ):
         svnBin = config['env']['svnBin']

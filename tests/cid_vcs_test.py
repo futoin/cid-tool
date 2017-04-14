@@ -334,6 +334,46 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         
         os.close(w)
         os.close(r)
+        
+    def test_82_vcsconflict( self ):
+        self._call_cid( [ 'vcs', 'checkout', 'branch_A', '--vcsRepo', self.VCS_REPO, '--wcDir', 'vcscflct' ] )
+        os.chdir('vcscflct')
+        
+        # Create new branches
+        self._call_cid( [ 'vcs', 'branch', 'branch_C1' ] )
+        self._call_cid( [ 'vcs', 'branch', 'branch_C2' ] )
+        
+        # Make conflicts
+        self._call_cid( [ 'vcs', 'checkout', 'branch_C1' ] )
+        self._writeFile('README.txt', 'Conflict 1')
+        self._call_cid( [ 'vcs', 'commit', 'Msg' ] )
+        
+        self._call_cid( [ 'vcs', 'checkout', 'branch_C2' ] )
+        self._writeFile('README.txt', 'Conflict 2')
+        self._call_cid( [ 'vcs', 'commit', 'Msg' ] )
+        
+        # Try to merge
+        self._call_cid( [ 'vcs', 'checkout', 'branch_A' ] )
+        self._call_cid( [ 'vcs', 'merge', 'branch_C1' ] )
+        self._call_cid( [ 'vcs', 'merge', 'branch_C2' ], returncode=1 )
+        self.assertEqual(self._readFile('README.txt').strip(), 'Conflict 1')
+        
+        # Check working copy is clean
+        self._writeFile('README.txt', 'Conflict 3')
+        self._call_cid( [ 'vcs', 'commit', 'Msg 2', 'README.txt' ] )
+        
+        # Finalize
+        self._call_cid( [ 'tag', 'branch_A', 'major' ] )
+        
+    def test_83_vcsmisc( self ):
+        self._call_cid( [ 'vcs', 'checkout', 'branch_A', '--vcsRepo', self.VCS_REPO, '--wcDir', 'vcsmisc' ] )
+        os.chdir('vcsmisc')
+        
+        # Create new branches
+        self._call_cid( [ 'vcs', 'branch', 'branch_Dup' ] )
+        self._call_cid( [ 'vcs', 'branch', 'branch_Dup' ], returncode=1 )
+        
+
 
 
 #=============================================================================        

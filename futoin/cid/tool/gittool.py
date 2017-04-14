@@ -122,10 +122,11 @@ if not set by user.
         gitBin = config['env']['gitBin']
         self._callExternal( [ gitBin, 'tag', '-a', '-m', message, tag ] )
     
-    def vcsPush( self, config, refs ):
+    def vcsPush( self, config, refs, repo=None ):
         refs = refs or []
         gitBin = config['env']['gitBin']
-        self._callExternal( [ gitBin, '-c', 'push.default=current', 'push', '-q', config['vcsRepo'] ] + refs )
+        repo = repo or 'origin'
+        self._callExternal( [ gitBin, '-c', 'push.default=current', 'push', '-q', repo ] + refs )
         
     def vcsGetRevision( self, config ) :
         gitBin = config['env']['gitBin']
@@ -222,7 +223,7 @@ if not set by user.
         try:
             self._callExternal( [
                 config['env']['gitBin'],
-                'merge', '--no-ff', '--rerere-autoupdate', 'origin/'+vcs_ref,
+                'merge', '--no-ff', 'origin/'+vcs_ref,
             ] )
         except subprocess.CalledProcessError:
             self._callExternal( [
@@ -267,7 +268,7 @@ if not set by user.
 
             oldcwd = os.getcwd()
             os.chdir(repo)
-            self.vcsPush(config, ['--force', '--delete', vcs_ref])
+            self.vcsPush(config, ['--force', '--delete', vcs_ref], config['vcsRepo'])
             os.chdir(oldcwd)
 
             self._rmTree(repo)

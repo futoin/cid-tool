@@ -1,5 +1,5 @@
 
-import glob
+import glob, subprocess
 
 from ..runtimetool import RuntimeTool
 from .bashtoolmixin import BashToolMixIn
@@ -149,8 +149,12 @@ if binary versions are not found for specific system.
                 # required for LD_LIBRARY_PATH
                 if self._isSCLSupported():
                     sclname = self._rubySCLName(ruby_ver)
-                    env_to_set = self._callExternal(['scl', 'enable', sclname, 'env'], verbose=False)
-                    self._updateEnvFromOutput(env_to_set)
+                    
+                    try:
+                        env_to_set = self._callExternal(['scl', 'enable', sclname, 'env'], verbose=False)
+                        self._updateEnvFromOutput(env_to_set)
+                    except subprocess.CalledProcessError:
+                        pass
         else:
             rubyBinOnly = False
             ruby_ver = env.setdefault('rubyVer', self.SYSTEM_VER)

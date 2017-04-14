@@ -173,10 +173,7 @@ Home: https://www.mercurial-scm.org/
         try:
             self._callExternal( [ hgBin, 'merge', vcs_ref ] )
         except subprocess.CalledProcessError:
-            self._callExternal( [
-                config['env']['gitBin'],
-                'update', '-C'
-            ] )
+            self._callExternal( [ hgBin, 'update', '-C' ] )
             self._errorExit('Merged failed, aborted.')
         
         self.vcsCommit(config, "CID merged " + vcs_ref, [])
