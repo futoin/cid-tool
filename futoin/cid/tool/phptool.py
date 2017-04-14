@@ -86,7 +86,7 @@ resources due to lack of trusted binary builds.
         pass
     
     def uninstallTool( self, env ):
-        if env['phpVer'] == self.SYSTEM_VER:
+        if env['phpVer'] == self.SYSTEM_VER or env['phpBinOnly']:
             return super(phpTool, self).uninstallTool( env )
 
         php_dir = env['phpDir']
@@ -97,7 +97,7 @@ resources due to lack of trusted binary builds.
         self._have_tool = False
     
     def envNames( self ) :
-        return ['phpDir', 'phpBin', 'phpVer', 'phpfpmBin', 'phpBinOnly']
+        return ['phpDir', 'phpBin', 'phpVer', 'phpfpmBin', 'phpBinOnly', 'phpSuryRepo']
     
     def initEnv( self, env ) :
         #---
@@ -135,10 +135,8 @@ resources due to lack of trusted binary builds.
         if php_ver == self.SYSTEM_VER:
             super(phpTool, self).initEnv( env )
             if not self._have_tool: return
-
-            env.setdefault('phpDir', '/usr')
             
-            php_fpm = glob.glob(os.path.join(env['phpDir'], 'sbin', 'php*-fpm*'))
+            php_fpm = glob.glob('/usr/sbin/php*-fpm*')
             if php_fpm:
                 env.setdefault('phpfpmBin', php_fpm[0])
             return
