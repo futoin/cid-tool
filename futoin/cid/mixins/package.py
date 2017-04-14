@@ -10,7 +10,7 @@ except ImportError:
 
 class PackageMixIn( object ):
     def _isCentOS( self ):
-        return os.path.exists('/etc/centos-release')
+        return platform.linux_distribution()[0].startswith('CentOS')
     
     def _isFedora( self ):
         return os.path.exists('/etc/fedora-release')
@@ -19,10 +19,10 @@ class PackageMixIn( object ):
         return os.path.exists('/etc/gentoo-release')
 
     def _isArchLinux( self ):
-        return os.path.exists('/etc/arch-release')
+        return platform.linux_distribution()[0].startswith('arch')
     
     def _isDebian( self ):
-        return platform.linux_distribution()[0] == 'debian'
+        return platform.linux_distribution()[0].startswith('debian')
 
     def _isUbuntu( self ):
         return platform.linux_distribution()[0].startswith('Ubuntu')
@@ -119,7 +119,7 @@ class PackageMixIn( object ):
                 errmsg='you may need to install the build deps manually !'
             )
         
-    def _addAptRepo(self, name, entry, gpg_key, codename_map=None, repo_base=None):
+    def _addAptRepo(self, name, entry, gpg_key=None, codename_map=None, repo_base=None):
         self._requireDeb([
             'software-properties-common',
             'apt-transport-https',

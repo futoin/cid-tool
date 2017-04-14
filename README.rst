@@ -37,14 +37,14 @@ Supported technologies & tools (so far):
     - **grunt**
     - **gulp**
     - **nvm** (implicit)
-* **php** - both system & any php-build supported
+* **php** - system, php-build supported and binary builds (Sury, SCL)
     - **composer**
     - **php-build** (implicit)
 * **python** - system 2 & 3
     - **virtualenv**, venv is ignored due to issues with *ensurepip* package
     - **pip**
     - **twine** - as limited RMS tool
-* **ruby** - both system & any rvm supported
+* **ruby** - system, rvm supported and binary builds (Brightbox, SCL)
     - **gen**
     - **bundler**
     - **rvm** (implicit)

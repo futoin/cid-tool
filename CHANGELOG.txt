@@ -10,6 +10,9 @@
 * CHANGED: to install concurrent binary PHP:
     * Debian & Ubuntu: 5.6, 7.0 & 7.1 from https://deb.sury.org/
     * CentOS, RHEL, OracleLinux: 5.6, 7.0 from SCL
+* CHANGED: to install concurrent binary Ruby:
+    * Debian & Ubuntu: 1.9, 2.0, 2.1, 2.2, 2.3 from Brightbox
+    * CentOS, RHEL, OracleLinux: 1.9, 2.0, 2.2, 2.3 from SCL
 * NEW: added 'major', 'minor' and 'patch' modes for "cid tag"
 * NEW: implemented "cid vcs merge/branch/delete/export/taglist"
 * NEW: added APT repository "codename fallback" feature
