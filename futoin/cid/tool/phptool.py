@@ -46,7 +46,7 @@ resources due to lack of trusted binary builds.
 
         old_tmpdir = os.environ.get('TMPDIR', '/tmp')
         os.environ['TMPDIR'] = os.path.join(php_dir, '..')
-        self._callExternal( [ env['phpbuildBin'], php_ver, env['phpDir'] ] )
+        self._callExternal( [ env['phpbuildBin'], env['phpSrcVer'], env['phpDir'] ] )
         os.environ['TMPDIR'] = old_tmpdir
         
     def _installBinaries( self, env ):
@@ -180,7 +180,7 @@ resources due to lack of trusted binary builds.
             defs.sort(key=lambda v: [castver(u) for u in v.split('.')])
             php_ver = defs[-1]
             
-            env['phpVer'] = php_ver
+            env['phpSrcVer'] = php_ver
         
         php_dir = env.setdefault('phpDir', os.path.join(self.PHP_DIR, php_ver))
         php_bin_dir = os.path.join(php_dir, 'bin')
