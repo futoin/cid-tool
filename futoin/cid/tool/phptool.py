@@ -284,10 +284,12 @@ resources due to lack of trusted binary builds.
             'pcre-devel',
         ])
         
-        self._requireYum([
-            'bzip2-devel',
-            'mysql-devel',
-        ])
+        self._requireYum('bzip2-devel')
+        
+        if self._isOracleLinux():
+            self._requireYum(['mariadb-devel', 'mariadb-libs'])
+        else:
+            self._requireYum('mysql-devel')
 
         self._requireZypper([
             'libbz2-devel',

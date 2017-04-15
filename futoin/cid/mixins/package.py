@@ -19,7 +19,9 @@ class PackageMixIn( object ):
         return os.path.exists('/etc/gentoo-release')
 
     def _isArchLinux( self ):
-        return platform.linux_distribution()[0].startswith('arch')
+        # There are cases when platform.linux_distribution() is empty on Arch
+        return (os.path.exists('/etc/arch-release') or
+                platform.linux_distribution()[0].startswith('arch'))
     
     def _isDebian( self ):
         return platform.linux_distribution()[0].startswith('debian')

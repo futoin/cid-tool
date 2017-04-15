@@ -171,7 +171,7 @@ Home: https://www.mercurial-scm.org/
         hgBin = config['env']['hgBin']
         
         try:
-            self._callExternal( [ hgBin, 'merge', vcs_ref ] )
+            self._callExternal( [ hgBin, 'merge', '--tool', ':merge', vcs_ref ] )
         except subprocess.CalledProcessError:
             self._callExternal( [ hgBin, 'update', '-C' ] )
             self._errorExit('Merged failed, aborted.')
