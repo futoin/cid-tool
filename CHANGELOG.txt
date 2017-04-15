@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.7.0 (2017-04-15) ===
 * FIXED: to detect RHEL more precisely
 * FIXED: to properly display non-string values in "cid tool env"
 * CHANGED: to pack list of project root items, but '.' by default
