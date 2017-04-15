@@ -321,6 +321,9 @@ Please see details in the FTN16 spec: ::
     cid vcs taglist [<tag_pattern>] [--vcsRepo=<vcs_repo>]
         List tags with optional pattern.
 
+    cid vcs revert
+        Revert all local changes, including merge conflicts.
+
 
 Excplicit futoin.json example
 -----------------------------
