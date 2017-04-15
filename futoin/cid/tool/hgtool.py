@@ -165,7 +165,7 @@ Home: https://www.mercurial-scm.org/
         self.vcsCommit(config, "CID new branch " + vcs_ref, [])
         self.vcsPush(config, ['--new-branch', vcs_ref])
 
-    def vcsMerge( self, config, vcs_ref ):
+    def vcsMerge( self, config, vcs_ref, cleanup ):
         curr_ref = self._getCurrentBranch(config)
         
         hgBin = config['env']['hgBin']
@@ -173,7 +173,13 @@ Home: https://www.mercurial-scm.org/
         try:
             self._callExternal( [ hgBin, 'merge', '--tool', ':merge', vcs_ref ] )
         except subprocess.CalledProcessError:
-            self._callExternal( [ hgBin, 'update', '-C' ] )
+            if cleanup:
+                self._callExternal( [ hgBin, 'update', '-C' ] )
+                self._callExternal( [
+                    hgBin,
+                    '--config', 'extensions.purge=',
+                    'purge', '-I', '*.orig', '-I', '**/*.orig', '--all'
+                ])
             self._errorExit('Merged failed, aborted.')
         
         self.vcsCommit(config, "CID merged " + vcs_ref, [])

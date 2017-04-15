@@ -354,9 +354,11 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         
         # Try to merge
         self._call_cid( [ 'vcs', 'checkout', 'branch_A' ] )
+        orig_list = sorted(os.listdir('.'))
         self._call_cid( [ 'vcs', 'merge', 'branch_C1' ] )
         self._call_cid( [ 'vcs', 'merge', 'branch_C2' ], returncode=1 )
         self.assertEqual(self._readFile('README.txt').strip(), 'Conflict 1')
+        self.assertEqual(sorted(os.listdir('.')), orig_list)
         
         # Check working copy is clean
         self._writeFile('README.txt', 'Conflict 3')

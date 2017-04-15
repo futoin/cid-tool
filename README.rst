@@ -305,8 +305,9 @@ Please see details in the FTN16 spec: ::
     cid vcs commit <commit_msg> [<commit_files>...]
         Commit all changes or specific files with short commit message.
     
-    cid vcs merge <vcs_ref>
+    cid vcs merge <vcs_ref> [--no-cleanup]
         Merge another VCS ref into current one. Abort on conflict.
+        Automatic cleanup is done on abort, unless --no-cleanup.
 
     cid vcs branch <vcs_ref>
         Create a new branch from current checkout VCS ref.

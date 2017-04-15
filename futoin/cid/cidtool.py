@@ -1103,12 +1103,12 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self._info('Creating new branch {0} in {1}'.format(vcs_ref, config['vcsRepo']))
         vcstool.vcsBranch( config, vcs_ref )
         
-    def vcs_merge( self, vcs_ref ):
+    def vcs_merge( self, vcs_ref, cleanup=True ):
         config = self._config
         vcstool = self._getVcsTool()
 
         self._info('Merging branch {0} from {1}'.format(vcs_ref, config['vcsRepo']))
-        vcstool.vcsMerge( config, vcs_ref )
+        vcstool.vcsMerge( config, vcs_ref, cleanup )
 
     def vcs_delete( self, vcs_ref ):
         config = self._config

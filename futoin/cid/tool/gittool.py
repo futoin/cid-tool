@@ -214,7 +214,7 @@ if not set by user.
         
         self.vcsPush(config, [vcs_ref])
 
-    def vcsMerge( self, config, vcs_ref ):
+    def vcsMerge( self, config, vcs_ref, cleanup ):
         curr_ref = self._getCurrentBranch( config )
         
         env = config['env']
@@ -226,10 +226,11 @@ if not set by user.
                 'merge', '--no-ff', 'origin/'+vcs_ref,
             ] )
         except subprocess.CalledProcessError:
-            self._callExternal( [
-                config['env']['gitBin'],
-                'merge', '--abort',
-            ] )
+            if cleanup:
+                self._callExternal( [
+                    config['env']['gitBin'],
+                    'merge', '--abort',
+                ] )
             self._errorExit('Merged failed, aborted.')
         
         self.vcsPush(config, [curr_ref])

@@ -24,7 +24,7 @@ Usage:
     cid tool detect
     cid vcs checkout <vcs_ref> [--vcsRepo=<vcs_repo>] [--wcDir=<wc_dir>]
     cid vcs commit <commit_msg> [<commit_files>...]
-    cid vcs merge <vcs_ref>
+    cid vcs merge <vcs_ref> [--no-cleanup]
     cid vcs branch <vcs_ref>
     cid vcs delete <vcs_ref> [--vcsRepo=<vcs_repo>]
     cid vcs export <vcs_ref> <dst_dir> [--vcsRepo=<vcs_repo>]
@@ -177,7 +177,7 @@ def runInner():
             elif args['branch']:
                 cit.vcs_branch( args['<vcs_ref>'] )
             elif args['merge']:
-                cit.vcs_merge( args['<vcs_ref>'] )
+                cit.vcs_merge( args['<vcs_ref>'], not args['--no-cleanup'] )
             elif args['delete']:
                 cit.vcs_delete( args['<vcs_ref>'] )
             elif args['export']:

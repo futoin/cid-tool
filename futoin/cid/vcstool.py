@@ -39,7 +39,7 @@ class VcsTool( SubTool ):
     def vcsBranch( self, config, vcs_ref ):
         raise NotImplementedError( self._name )
 
-    def vcsMerge( self, config, vcs_ref ):
+    def vcsMerge( self, config, vcs_ref, cleanup ):
         raise NotImplementedError( self._name )
 
     def vcsDelete( self, config, vcs_ref ):
