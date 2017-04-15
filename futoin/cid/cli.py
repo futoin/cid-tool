@@ -29,6 +29,7 @@ Usage:
     cid vcs delete <vcs_ref> [--vcsRepo=<vcs_repo>]
     cid vcs export <vcs_ref> <dst_dir> [--vcsRepo=<vcs_repo>]
     cid vcs taglist [<tag_pattern>] [--vcsRepo=<vcs_repo>]
+    cid vcs revert
     
 
 Options:
@@ -184,6 +185,8 @@ def runInner():
                 cit.vcs_export( args['<vcs_ref>'], args['<dst_dir>'] )
             elif args['taglist']:
                 cit.vcs_taglist( args['<tag_pattern>'] )
+            elif args['revert']:
+                cit.vcs_revert()
             else:
                 raise RuntimeError( "Not implemented yet." )
         elif args['init'] :

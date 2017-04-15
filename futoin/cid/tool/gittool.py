@@ -227,10 +227,7 @@ if not set by user.
             ] )
         except subprocess.CalledProcessError:
             if cleanup:
-                self._callExternal( [
-                    config['env']['gitBin'],
-                    'merge', '--abort',
-                ] )
+                self.vcsRevert(config)
             self._errorExit('Merged failed, aborted.')
         
         self.vcsPush(config, [curr_ref])
@@ -274,4 +271,17 @@ if not set by user.
 
             self._rmTree(repo)
 
+    def vcsRevert( self, config):
+        try:
+            self._callExternal( [
+                config['env']['gitBin'],
+                'merge', '--abort',
+            ] )
+        except subprocess.CalledProcessError:
+            pass
+
+        self._callExternal( [
+            config['env']['gitBin'],
+            'reset', '--hard',
+        ] )
 

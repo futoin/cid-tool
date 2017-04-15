@@ -171,13 +171,13 @@ Home: https://subversion.apache.org/
         svn_repo_path = self._detectSVNPath(config, vcs_ref)
 
         self._callExternal( [ svnBin, 'update' ] )
-        self._callExternal( [ svnBin, 'merge', svn_repo_path ] )
+        self._callExternal( [ svnBin, 'merge', '--accept', 'postpone', svn_repo_path ] )
         
         try:
             self._callExternal( [ svnBin, 'commit', '-m', 'CID merged ' + vcs_ref ] )
         except subprocess.CalledProcessError:
             if cleanup:
-                self._callExternal( [ svnBin, 'revert', '-R', '.' ] )
+                self.vcsRevert(config)
             self._errorExit('Merged failed, aborted.')
 
     def vcsDelete( self, config, vcs_ref ):
@@ -185,4 +185,8 @@ Home: https://subversion.apache.org/
         vcsRepo = config['vcsRepo']
         svn_repo_path = '{0}/branches/{1}'.format( vcsRepo, vcs_ref )
         self._callExternal( [ svnBin, 'remove', '-m', 'CID delete ' + vcs_ref, svn_repo_path ] )
+
+    def vcsRevert( self, config):
+        svnBin = config['env']['svnBin']
+        self._callExternal( [ svnBin, 'revert', '-R', '.' ] )
 

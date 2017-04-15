@@ -1142,6 +1142,13 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self._versionSort(tag_list)
         
         print("\n".join(tag_list))
+        
+    def vcs_revert( self ):
+        config = self._config
+        vcstool = self._getVcsTool()
+
+        self._info('Reverting all local changes')
+        vcstool.vcsRevert( config )
 
     def _initConfig( self ):
         user_home = os.environ.get('HOME','/')

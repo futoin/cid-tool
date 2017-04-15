@@ -33,6 +33,16 @@ Home: https://www.mercurial-scm.org/
         return self._callExternal( [
             config['env']['hgBin'], '--repository', wc_dir or os.getcwd(), 'paths', 'default'
         ] ).strip()
+    
+    def _hgCheckoutTool( self, config ):
+        hgBin = config['env']['hgBin']
+        help_res = self._callExternal( [ hgBin, 'checkout', '--help' ], verbose=False )
+        tool_args = []
+        
+        if help_res.find('--tool') > 0:
+            tool_args += ['--tool', 'internal:merge']
+            
+        return tool_args
         
     def vcsCheckout( self, config, vcs_ref ):
         hgBin = config['env']['hgBin']
@@ -57,8 +67,8 @@ Home: https://www.mercurial-scm.org/
                     break
             else:
                 self._errorExit('Unknown VCS ref {0}. Hint: closed branches are ignored!'.format(vcs_ref))
-
-        self._callExternal( [ hgBin, 'checkout', '--check', vcs_ref ] )
+            
+        self._callExternal( [ hgBin, 'checkout', '--check', vcs_ref ] + self._hgCheckoutTool(config) )
     
     def vcsCommit( self, config, message, files ):
         hgBin = config['env']['hgBin']
@@ -171,15 +181,10 @@ Home: https://www.mercurial-scm.org/
         hgBin = config['env']['hgBin']
         
         try:
-            self._callExternal( [ hgBin, 'merge', '--tool', ':merge', vcs_ref ] )
+            self._callExternal( [ hgBin, 'merge', '--tool', 'internal:merge', vcs_ref ] )
         except subprocess.CalledProcessError:
             if cleanup:
-                self._callExternal( [ hgBin, 'update', '-C' ] )
-                self._callExternal( [
-                    hgBin,
-                    '--config', 'extensions.purge=',
-                    'purge', '-I', '*.orig', '-I', '**/*.orig', '--all'
-                ])
+                self.vcsRevert(config)
             self._errorExit('Merged failed, aborted.')
         
         self.vcsCommit(config, "CID merged " + vcs_ref, [])
@@ -204,3 +209,16 @@ Home: https://www.mercurial-scm.org/
         if not have_local:
             os.chdir(oldcwd)
             self._rmTree(repo)
+
+    def vcsRevert( self, config):
+        hgBin = config['env']['hgBin']
+        self._callExternal( [
+            hgBin,
+            'update', '--clean',
+        ] + self._hgCheckoutTool(config) )
+        self._callExternal( [
+            hgBin,
+            '--config', 'extensions.purge=',
+            'purge', '-I', '*.orig', '-I', '**/*.orig', '--all'
+        ])
+

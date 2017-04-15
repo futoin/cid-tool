@@ -44,6 +44,9 @@ class VcsTool( SubTool ):
 
     def vcsDelete( self, config, vcs_ref ):
         raise NotImplementedError( self._name )
+    
+    def vcsRevert( self, config):
+        raise NotImplementedError( self._name )
 
     def _autoDetectVCS( self, config, vcsDir ) :
         if config.get( 'vcs', None ) == self._name :
