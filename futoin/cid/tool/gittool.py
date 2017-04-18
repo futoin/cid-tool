@@ -159,6 +159,20 @@ if not set by user.
         ] + tag_hint ).strip().split("\n")
 
         return [ v.split()[1].replace('refs/tags/', '') for v in res ]
+    
+    def vcsListBranches( self, config, vcs_cache_dir, branch_hint ) :
+        if branch_hint:
+            branch_hint = ['refs/heads/{0}'.format(branch_hint)]
+        else:
+            branch_hint = []
+        
+        res = self._callExternal( [
+            config['env']['gitBin'],
+            'ls-remote','--heads', '--refs',
+            config['vcsRepo']
+        ] + branch_hint ).strip().split("\n")
+
+        return [ v.split()[1].replace('refs/heads/', '') for v in res ]
 
     def vcsExport( self, config, vcs_cache_dir, vcs_ref, dst_path ) :
         env = config['env']
@@ -232,7 +246,7 @@ if not set by user.
         
         self.vcsPush(config, [curr_ref])
 
-    def vcsDelete( self, config, vcs_ref ):
+    def vcsDelete( self, config, vcs_cache_dir, vcs_ref ):
         env = config['env']
         gitBin = env['gitBin']
         

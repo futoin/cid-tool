@@ -136,6 +136,13 @@ Home: https://subversion.apache.org/
         svn_repo_path = '{0}/tags/'.format( vcsRepo )
         res = self._callExternal( [ svnBin, 'ls', svn_repo_path ] ).strip().split("\n")
         return [v.replace(svn_repo_path, '').replace('/', '') for v in res ]
+    
+    def vcsListBranches( self, config, vcs_cache_dir, branch_hint ) :
+        svnBin = config['env']['svnBin']
+        vcsRepo = config['vcsRepo']
+        svn_repo_path = '{0}/branches/'.format( vcsRepo )
+        res = self._callExternal( [ svnBin, 'ls', svn_repo_path ] ).strip().split("\n")
+        return [v.replace(svn_repo_path, '').replace('/', '') for v in res ]
 
     def vcsExport( self, config, vcs_cache_dir, vcs_ref, dst_path ) :
         svnBin = config['env']['svnBin']
@@ -180,7 +187,7 @@ Home: https://subversion.apache.org/
                 self.vcsRevert(config)
             self._errorExit('Merged failed, aborted.')
 
-    def vcsDelete( self, config, vcs_ref ):
+    def vcsDelete( self, config, vcs_cache_dir, vcs_ref ):
         svnBin = config['env']['svnBin']
         vcsRepo = config['vcsRepo']
         svn_repo_path = '{0}/branches/{1}'.format( vcsRepo, vcs_ref )

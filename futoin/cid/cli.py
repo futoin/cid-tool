@@ -26,10 +26,11 @@ Usage:
     cid vcs commit <commit_msg> [<commit_files>...]
     cid vcs merge <vcs_ref> [--no-cleanup]
     cid vcs branch <vcs_ref>
-    cid vcs delete <vcs_ref> [--vcsRepo=<vcs_repo>]
-    cid vcs export <vcs_ref> <dst_dir> [--vcsRepo=<vcs_repo>]
-    cid vcs taglist [<tag_pattern>] [--vcsRepo=<vcs_repo>]
-    cid vcs revert
+    cid vcs delete <vcs_ref> [--vcsRepo=<vcs_repo>] [--cacheDir=<cache_dir>]
+    cid vcs export <vcs_ref> <dst_dir> [--vcsRepo=<vcs_repo>] [--cacheDir=<cache_dir>]
+    cid vcs tags [<tag_pattern>] [--vcsRepo=<vcs_repo>] [--cacheDir=<cache_dir>]
+    cid vcs branches [<branch_pattern>] [--vcsRepo=<vcs_repo>] [--cacheDir=<cache_dir>]
+    cid vcs reset
     
 
 Options:
@@ -43,6 +44,7 @@ Options:
     --build                         Build during deploy.
     --permissive                    Ignore test failures.
     --debug                         Build in debug mode, if applicable.
+    --cacheDir=<cache_dir>          Directory to hold VCS cache.
 """
 
 from __future__ import print_function, absolute_import
@@ -180,13 +182,15 @@ def runInner():
             elif args['merge']:
                 cit.vcs_merge( args['<vcs_ref>'], not args['--no-cleanup'] )
             elif args['delete']:
-                cit.vcs_delete( args['<vcs_ref>'] )
+                cit.vcs_delete( args['<vcs_ref>'], args['--cacheDir'] )
             elif args['export']:
-                cit.vcs_export( args['<vcs_ref>'], args['<dst_dir>'] )
-            elif args['taglist']:
-                cit.vcs_taglist( args['<tag_pattern>'] )
-            elif args['revert']:
-                cit.vcs_revert()
+                cit.vcs_export( args['<vcs_ref>'], args['<dst_dir>'], args['--cacheDir'] )
+            elif args['tags']:
+                cit.vcs_tags( args['<tag_pattern>'], args['--cacheDir'] )
+            elif args['branches']:
+                cit.vcs_branches( args['<branch_pattern>'], args['--cacheDir'] )
+            elif args['reset']:
+                cit.vcs_reset()
             else:
                 raise RuntimeError( "Not implemented yet." )
         elif args['init'] :

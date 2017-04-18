@@ -25,8 +25,8 @@ which apt-get && apt-get update || true
         #'gentoo' => 'cmiles/gentoo-amd64-minimal',
         'archlinux' => 'ogarcia/archlinux-x64',
         # behaves similar to CentOS, but limited
-        'ol_7' => 'boxcutter/ol73',
-        'rhel_7' => 'iamseth/rhel-7.3',
+        #'ol_7' => 'boxcutter/ol73',
+        #'rhel_7' => 'iamseth/rhel-7.3',
         #'sles_12' => 'suse/sles12sp1',
         # not part of standard test cycle
         #'macos' => 'jhcook/macos-sierra',
@@ -34,7 +34,7 @@ which apt-get && apt-get update || true
         
         'debian_stretch' => 'fujimakishouten/debian-stretch64',
         'ubuntu_trusty' => 'bento/ubuntu-14.04',
-        'ubuntu_yakkety' => 'bento/ubuntu-16.10', # non-LTS
+        #'ubuntu_yakkety' => 'bento/ubuntu-16.10', # non-LTS
         'ubuntu_zesty' => 'wholebits/ubuntu17.04-64', # non-LTS
         #'centos_6' => 'centos/6', # too old
     }.each do |name, box|

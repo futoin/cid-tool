@@ -1,4 +1,10 @@
 
+=== (next) ===
+* FIXED: Hg to create local cache for "cid vcs" commands (is not local error)
+* CHANGED: "cid vcs" sub-commands tagslist->tags, revert->reset
+* NEW: "cid vcs branches"
+* NEW: added --cacheDir option
+
 === 0.7.0 (2017-04-15) ===
 * FIXED: to detect RHEL more precisely
 * FIXED: to properly display non-string values in "cid tool env"

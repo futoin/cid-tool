@@ -106,7 +106,12 @@ Home: https://www.mercurial-scm.org/
         vcsrepo = config['vcsRepo']
         
         if vcs_cache_dir is None:
-            return vcsrepo
+            # Hg does not allow remote repository listing
+            if os.path.exists('.hg') and self.vcsGetRepo( config, vcs_cache_dir ) == vcsrepo:
+                vcs_cache_dir = '.'
+            else:
+                vcs_cache_dir = vcsrepo.replace('/', '_').replace(':', '_')
+            vcs_cache_dir = os.path.realpath(vcs_cache_dir)
 
         if os.path.isdir( vcs_cache_dir ):
             remote_info = self.vcsGetRepo( config, vcs_cache_dir )
@@ -146,7 +151,13 @@ Home: https://www.mercurial-scm.org/
         del res[res.index('tip')]
         return res
     
-
+    def vcsListBranches( self, config, vcs_cache_dir, branch_hint ) :
+        vcs_cache_dir = self._hgCache( config, vcs_cache_dir )
+        
+        hgBin = config['env']['hgBin']
+        res = self._callExternal( [ hgBin, '--repository', vcs_cache_dir, 'branches' ] ).strip().split("\n")
+        res = [ v.split()[0] for v in res ]
+        return res
 
     def vcsExport( self, config, vcs_cache_dir, vcs_ref, dst_path ) :
         vcs_cache_dir = self._hgCache( config, vcs_cache_dir )
@@ -190,25 +201,17 @@ Home: https://www.mercurial-scm.org/
         self.vcsCommit(config, "CID merged " + vcs_ref, [])
         self.vcsPush(config, [curr_ref])
 
-    def vcsDelete( self, config, vcs_ref ):
+    def vcsDelete( self, config, vcs_cache_dir, vcs_ref ):
+        vcs_cache_dir = self._hgCache( config, vcs_cache_dir )
         hgBin = config['env']['hgBin']
+
+        old_cwd = os.getcwd()
+        os.chdir(vcs_cache_dir)
         
-        have_local = (os.path.exists('.hg') and
-                      self.vcsGetRepo(config) == config['vcsRepo'])
-        
-        if not have_local:
-            # a dirty hack
-            repo = tempfile.mkdtemp('fakehg', dir='.')
-            oldcwd = os.getcwd()
-            os.chdir(repo)
-            
-        self.vcsCheckout(config, vcs_ref)
+        self._callExternal( [ hgBin, 'checkout', '--check', vcs_ref ] + self._hgCheckoutTool(config) )
         self.vcsCommit(config, "CID branch delete", ['--close-branch'])
         self.vcsPush(config, [vcs_ref])
-        
-        if not have_local:
-            os.chdir(oldcwd)
-            self._rmTree(repo)
+        os.chdir(old_cwd)
 
     def vcsRevert( self, config):
         hgBin = config['env']['hgBin']

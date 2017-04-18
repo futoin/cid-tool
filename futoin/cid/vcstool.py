@@ -33,6 +33,9 @@ class VcsTool( SubTool ):
     def vcsListTags( self, config, vcs_cache_dir, tag_hint ) :
         raise NotImplementedError( self._name )
 
+    def vcsListBranches( self, config, vcs_cache_dir, branch_hint ) :
+        raise NotImplementedError( self._name )
+
     def vcsExport( self, config, vcs_cache_dir, vcs_ref, dst_path ) :
         raise NotImplementedError( self._name )
     
@@ -42,7 +45,7 @@ class VcsTool( SubTool ):
     def vcsMerge( self, config, vcs_ref, cleanup ):
         raise NotImplementedError( self._name )
 
-    def vcsDelete( self, config, vcs_ref ):
+    def vcsDelete( self, config, vcs_cache_dir, vcs_ref ):
         raise NotImplementedError( self._name )
     
     def vcsRevert( self, config):

@@ -285,7 +285,7 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         (r, w) = os.pipe()
         
         self._call_cid( [ 'tag', 'branch_A', 'patch' ] )
-        self._call_cid( [ 'vcs', 'taglist' ], stdout=w )
+        self._call_cid( [ 'vcs', 'tags' ], stdout=w )
         res = os.read(r, 4096)
         try: res = str(res, 'utf8')
         except: pass
@@ -300,7 +300,7 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         ])
         
         self._call_cid( [ 'tag', 'branch_A', 'minor' ] )
-        self._call_cid( [ 'vcs', 'taglist' ], stdout=w )
+        self._call_cid( [ 'vcs', 'tags' ], stdout=w )
         res = os.read(r, 4096)
         try: res = str(res, 'utf8')
         except: pass
@@ -314,9 +314,21 @@ class cid_VCS_UTBase ( cid_UTBase ) :
             'v1.3.2',
             'v1.4.0',
         ])
+        
+        self._call_cid( [ 'vcs', 'tags', 'v1.3*' ], stdout=w )
+        res = os.read(r, 4096)
+        try: res = str(res, 'utf8')
+        except: pass
+        res = res.strip().split("\n")
+        self.assertEqual(res, [
+            'v1.3.0',
+            'v1.3.1',
+            'v1.3.2',
+        ])
+        
 
         self._call_cid( [ 'tag', 'branch_A', 'major' ] )
-        self._call_cid( [ 'vcs', 'taglist' ], stdout=w )
+        self._call_cid( [ 'vcs', 'tags' ], stdout=w )
         res = os.read(r, 4096)
         try: res = str(res, 'utf8')
         except: pass
@@ -335,7 +347,61 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         os.close(w)
         os.close(r)
         
-    def test_82_vcsconflict( self ):
+    def test_82_vcsbranches( self ):
+        self._call_cid( [ 'vcs', 'checkout', 'branch_A', '--vcsRepo', self.VCS_REPO, '--wcDir', 'vcsbrch' ] )
+        os.chdir('vcsbrch')
+        
+        (r, w) = os.pipe()
+        
+        self._call_cid( [ 'vcs', 'branch', 'branch_B1' ] )
+        self._call_cid( [ 'vcs', 'branches' ], stdout=w )
+        res = os.read(r, 4096)
+        try: res = str(res, 'utf8')
+        except: pass
+        res = res.strip().split("\n")
+        self.assertEqual(res, [
+            'branch_A',
+            'branch_B1',
+        ])
+        
+        self._call_cid( [ 'vcs', 'branch', 'branch_B2' ] )
+        self._call_cid( [ 'vcs', 'branches' ], stdout=w )
+        res = os.read(r, 4096)
+        try: res = str(res, 'utf8')
+        except: pass
+        res = res.strip().split("\n")
+        self.assertEqual(res, [
+            'branch_A',
+            'branch_B1',
+            'branch_B2'
+        ])
+        
+        self._call_cid( [ 'vcs', 'branches', '*_B*' ], stdout=w )
+        res = os.read(r, 4096)
+        try: res = str(res, 'utf8')
+        except: pass
+        res = res.strip().split("\n")
+        self.assertEqual(res, [
+            'branch_B1',
+            'branch_B2'
+        ])
+        
+
+        self._call_cid( [ 'vcs', 'delete', 'branch_B2' ] )
+        self._call_cid( [ 'vcs', 'branches' ], stdout=w )
+        res = os.read(r, 4096)
+        try: res = str(res, 'utf8')
+        except: pass
+        res = res.strip().split("\n")
+        self.assertEqual(res, [
+            'branch_A',
+            'branch_B1',
+        ])
+        
+        os.close(w)
+        os.close(r)
+        
+    def test_83_vcsconflict( self ):
         self._call_cid( [ 'vcs', 'checkout', 'branch_A', '--vcsRepo', self.VCS_REPO, '--wcDir', 'vcscflct' ] )
         os.chdir('vcscflct')
         
@@ -360,7 +426,7 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         assert ((self._readFile('README.txt').strip() != 'Conflict 1') or
                 (sorted(os.listdir('.')) != orig_list))
         
-        self._call_cid( [ 'vcs', 'revert' ] )
+        self._call_cid( [ 'vcs', 'reset' ] )
         self.assertEqual(self._readFile('README.txt').strip(), 'Conflict 1')
         self.assertEqual(sorted(os.listdir('.')), orig_list)
         
@@ -410,6 +476,11 @@ class cid_git_Test ( cid_VCS_UTBase ) :
                          'checkout', '-b', 'branch_A' ] )
         self._call_cid( [ 'tool', 'exec', 'git', '--',
                          'push', 'origin', 'master', 'branch_A' ] )
+        self._call_cid( [ 'tool', 'exec', 'git', '--',
+                         '--git-dir',  self.REPO_DIR,
+                         'symbolic-ref', 'HEAD', 'refs/heads/branch_A' ] )
+        self._call_cid( [ 'tool', 'exec', 'git', '--',
+                         'push', 'origin', '-f', '--delete', 'master' ] )
         
         
         

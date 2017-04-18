@@ -312,16 +312,22 @@ Please see details in the FTN16 spec: ::
     cid vcs branch <vcs_ref>
         Create a new branch from current checkout VCS ref.
         
-    cid vcs delete <vcs_ref> [--vcsRepo=<vcs_repo>]
+    cid vcs delete <vcs_ref> [--vcsRepo=<vcs_repo>] [--cacheDir=<cache_dir>]
         Delete branch.
         
     cid vcs export <vcs_ref> <dst_dir> [--vcsRepo=<vcs_repo>]
+        [--cacheDir=<cache_dir>]
         Export VCS ref into folder.
 
-    cid vcs taglist [<tag_pattern>] [--vcsRepo=<vcs_repo>]
-        List tags with optional pattern.
+    cid vcs tags [<tag_pattern>] [--vcsRepo=<vcs_repo>]
+        [--cacheDir=<cache_dir>]
+        List tags with optional pattern for filtering.
 
-    cid vcs revert
+    cid vcs branches [<branch_pattern>] [--vcsRepo=<vcs_repo>]
+        [--cacheDir=<cache_dir>]
+        List branches with optional pattern for filtering.
+
+    cid vcs reset
         Revert all local changes, including merge conflicts.
 
 

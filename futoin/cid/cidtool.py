@@ -1110,14 +1110,14 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self._info('Merging branch {0} from {1}'.format(vcs_ref, config['vcsRepo']))
         vcstool.vcsMerge( config, vcs_ref, cleanup )
 
-    def vcs_delete( self, vcs_ref ):
+    def vcs_delete( self, vcs_ref, vcs_cache_dir ):
         config = self._config
         vcstool = self._getVcsTool()
 
         self._info('Deleting branch {0} from {1}'.format(vcs_ref, config['vcsRepo']))
-        vcstool.vcsDelete( config, vcs_ref )
+        vcstool.vcsDelete( config, vcs_cache_dir, vcs_ref )
         
-    def vcs_export( self, vcs_ref, dst_path ):
+    def vcs_export( self, vcs_ref, dst_path, vcs_cache_dir ):
         if os.path.exists(dst_path):
             if os.listdir(dst_path):
                 self._errorExit('Destination directory {0} exists and is not empty'.format(dst_path))
@@ -1128,13 +1128,13 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         vcstool = self._getVcsTool()
 
         self._info('Export ref {0} from {1}'.format(vcs_ref, config['vcsRepo']))
-        vcstool.vcsExport( config, None, vcs_ref, dst_path )
+        vcstool.vcsExport( config, vcs_cache_dir, vcs_ref, dst_path )
 
-    def vcs_taglist( self, tag_hint ):
+    def vcs_tags( self, tag_hint, vcs_cache_dir ):
         config = self._config
         vcstool = self._getVcsTool()
 
-        tag_list = vcstool.vcsListTags( config, None, tag_hint )
+        tag_list = vcstool.vcsListTags( config, vcs_cache_dir, tag_hint )
         
         if tag_hint:
             tag_list = fnmatch.filter(tag_list, tag_hint)
@@ -1143,7 +1143,20 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         print("\n".join(tag_list))
         
-    def vcs_revert( self ):
+    def vcs_branches( self, branch_hint, vcs_cache_dir ):
+        config = self._config
+        vcstool = self._getVcsTool()
+
+        branch_list = vcstool.vcsListBranches( config, vcs_cache_dir, branch_hint )
+        
+        if branch_hint:
+            branch_list = fnmatch.filter(branch_list, branch_hint)
+            
+        self._versionSort(branch_list)
+        
+        print("\n".join(branch_list))
+
+    def vcs_reset( self ):
         config = self._config
         vcstool = self._getVcsTool()
 
