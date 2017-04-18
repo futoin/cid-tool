@@ -58,12 +58,16 @@ Home: https://www.mercurial-scm.org/
         else :
             self._callExternal( [ hgBin, 'clone', config['vcsRepo'], wc_dir ] )
             
+        if not vcs_ref:
+            # skip default branch
+            return
+            
         for v in self._callExternal( [ hgBin, 'branches' ] ).strip().split("\n"):
-            if v.split()[0] == vcs_ref:
+            if v and v.split()[0] == vcs_ref:
                 break
         else:
             for v in self._callExternal( [ hgBin, 'tags' ] ).strip().split("\n"):
-                if v.split()[0] == vcs_ref:
+                if v and v.split()[0] == vcs_ref:
                     break
             else:
                 self._errorExit('Unknown VCS ref {0}. Hint: closed branches are ignored!'.format(vcs_ref))
@@ -137,7 +141,7 @@ Home: https://www.mercurial-scm.org/
         for r in res:
             r = r.split()
             
-            if r[0] == branch:
+            if r and r[0] == branch:
                 return r[1]
             
         self._errorExit( "Uknown Hg ref: {0}".format( branch ) )
@@ -147,7 +151,8 @@ Home: https://www.mercurial-scm.org/
         
         hgBin = config['env']['hgBin']
         res = self._callExternal( [ hgBin, '--repository', vcs_cache_dir, 'tags' ] ).strip().split("\n")
-        res = [ v.split()[0] for v in res ]
+        res = [ v and v.split()[0] or '' for v in res ]
+        res = list(filter(None, res))
         del res[res.index('tip')]
         return res
     
@@ -156,7 +161,8 @@ Home: https://www.mercurial-scm.org/
         
         hgBin = config['env']['hgBin']
         res = self._callExternal( [ hgBin, '--repository', vcs_cache_dir, 'branches' ] ).strip().split("\n")
-        res = [ v.split()[0] for v in res ]
+        res = [ v and v.split()[0] or '' for v in res ]
+        res = list(filter(None, res))
         return res
 
     def vcsExport( self, config, vcs_cache_dir, vcs_ref, dst_path ) :

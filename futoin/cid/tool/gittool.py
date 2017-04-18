@@ -92,7 +92,13 @@ if not set by user.
         else :
             self._callExternal( [ gitBin, 'clone', '-q', vcsRepo, wc_dir ] )
             
-        remote_branch = self._callExternal( [ gitBin, 'branch', '-q', '--list', 'origin/'+vcs_ref ] ).strip()
+            try:
+                self._callExternal( [ gitBin, 'rev-parse', 'HEAD' ], verbose=False )
+            except subprocess.CalledProcessError:
+                # exit on empty repository
+                return
+            
+        remote_branch = self._callExternal( [ gitBin, 'branch', '-q', '--all', '--list', 'origin/'+vcs_ref ] ).strip()
             
         if self._callExternal( [ gitBin, 'branch', '-q', '--list', vcs_ref ] ).strip():
             self._callExternal( [ gitBin, 'checkout', '-q', vcs_ref ] )

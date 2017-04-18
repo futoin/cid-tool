@@ -1,4 +1,7 @@
 
+=== (next) ===
+* FIXED: git & hg can clone empty repos now
+
 === 0.7.1 (2017-04-18) ===
 * FIXED: Hg to create local cache for "cid vcs" commands (is not local error)
 * CHANGED: "cid vcs" sub-commands tagslist->tags, revert->reset
