@@ -19,6 +19,14 @@ class cid_VCS_UTBase ( cid_UTBase ) :
     
     def test_00_prepare( self ):
         self._create_repo()
+        
+        self._call_cid( [ 'vcs', 'checkout', '--vcsRepo', self.VCS_REPO, '--wcDir', 'repo_tmp' ] )
+        os.chdir('repo_tmp')
+        
+        self._call_cid( [ 'vcs', 'branch', 'branch_A' ] )
+        self._writeFile('README.txt', 'Some test')
+        self._call_cid( [ 'vcs', 'commit', 'Initial commit' ] )
+        
         self._goToBase()
         
         self._call_cid( [
@@ -461,28 +469,9 @@ class cid_git_Test ( cid_VCS_UTBase ) :
     
     def _create_repo( self ):
         self._call_cid( [ 'tool', 'exec', 'git', '--', 'init', '--bare', self.REPO_DIR ] )
-        self._call_cid( [ 'tool', 'exec', 'git', '--', 'clone', self.REPO_DIR, 'repo_tmp' ] )
-        os.chdir('repo_tmp')
-        self._writeFile('README.txt', 'Some test')
-        self._call_cid( [ 'tool', 'exec', 'git', '--',
-                         'add', '-A' ] )
-        self._call_cid( [ 'tool', 'exec', 'git', '--',
-                         'config', 'user.email', 'test@example.com' ] )
-        self._call_cid( [ 'tool', 'exec', 'git', '--',
-                         'config', 'user.name', 'unit test' ] )
-        self._call_cid( [ 'tool', 'exec', 'git', '--',
-                         'commit', '-m', 'Initial commit' ] )
-        self._call_cid( [ 'tool', 'exec', 'git', '--',
-                         'checkout', '-b', 'branch_A' ] )
-        self._call_cid( [ 'tool', 'exec', 'git', '--',
-                         'push', 'origin', 'master', 'branch_A' ] )
         self._call_cid( [ 'tool', 'exec', 'git', '--',
                          '--git-dir',  self.REPO_DIR,
                          'symbolic-ref', 'HEAD', 'refs/heads/branch_A' ] )
-        self._call_cid( [ 'tool', 'exec', 'git', '--',
-                         'push', 'origin', '-f', '--delete', 'master' ] )
-        
-        
         
 #=============================================================================
 class cid_hg_Test ( cid_VCS_UTBase ) :
@@ -493,10 +482,6 @@ class cid_hg_Test ( cid_VCS_UTBase ) :
 
     def _create_repo( self ):
         self._call_cid( [ 'tool', 'exec', 'hg', '--', 'init', self.REPO_DIR ] )
-        os.chdir(self.REPO_DIR)
-        self._call_cid( [ 'tool', 'exec', 'hg', '--', 'branch', 'branch_A' ] )
-        self._writeFile('README.txt', 'Some test')
-        self._call_cid( [ 'tool', 'exec', 'hg', '--', 'commit', '-A', '-m', 'Initial commit' ] )
 
 #=============================================================================
 class cid_svn_Test ( cid_VCS_UTBase ) :
@@ -509,9 +494,5 @@ class cid_svn_Test ( cid_VCS_UTBase ) :
         self._call_cid( [ 'tool', 'install', 'svn' ] )
         subprocess.check_output(['svnadmin', 'create', self.REPO_DIR ])
         
-        url = 'file://'+self.REPO_DIR + '/branches/branch_A'
-        
-        os.mkdir('repo_tmp')
-        self._writeFile('repo_tmp/README.txt', 'Some test')
-        self._call_cid( [ 'tool', 'exec', 'svn', '--', 'import', '-m', 'Initial commit', 'repo_tmp', url ] )
+        self._call_cid( [ 'tool', 'exec', 'svn', '--', 'mkdir', '-m', 'Creating trunk', 'file://' + self.REPO_DIR + '/trunk' ] )
         
