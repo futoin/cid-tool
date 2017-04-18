@@ -456,7 +456,40 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         # Create new branches
         self._call_cid( [ 'vcs', 'branch', 'branch_Dup' ] )
         self._call_cid( [ 'vcs', 'branch', 'branch_Dup' ], returncode=1 )
+    
+    def test_84_vcs_ismerged( self ):
+        # Prepare
+        self._call_cid( [ 'vcs', 'checkout', 'branch_A', '--vcsRepo', self.VCS_REPO, '--wcDir', 'vcs_ismerged' ] )
+        os.chdir('vcs_ismerged')
         
+        self._call_cid( [ 'vcs', 'branch', 'branch_M1' ] )
+        self._writeFile('Merge1', 'Merge1')
+        self._call_cid( [ 'vcs', 'commit', 'M1' ] )
+        
+        self._call_cid( [ 'vcs', 'checkout', 'branch_A' ] )
+        self._call_cid( [ 'vcs', 'branch', 'branch_M2' ] )
+        self._writeFile('Merge2', 'Merge2')
+        self._call_cid( [ 'vcs', 'commit', 'M2' ] )
+        
+        # Not merged
+        self._call_cid( [ 'vcs', 'checkout', 'branch_A' ] )
+        self._call_cid( [ 'vcs', 'ismerged', 'branch_M1' ], returncode=1 )
+        self._call_cid( [ 'vcs', 'ismerged', 'branch_M2' ], returncode=1 )
+    
+        # Merge one
+        self._call_cid( [ 'vcs', 'merge', 'branch_M1' ] )
+        self._call_cid( [ 'vcs', 'ismerged', 'branch_M1' ] )
+        self._call_cid( [ 'vcs', 'ismerged', 'branch_M2' ], returncode=1 )
+    
+        # Modify merged
+        self._call_cid( [ 'vcs', 'checkout', 'branch_M1' ] )
+        self._writeFile('Merge1', 'Merge1-2')
+        self._call_cid( [ 'vcs', 'commit', 'M1-2' ] )
+        
+        self._call_cid( [ 'vcs', 'checkout', 'branch_A' ] )
+        self._call_cid( [ 'vcs', 'ismerged', 'branch_M1' ], returncode=1 )
+        self._call_cid( [ 'vcs', 'ismerged', 'branch_M2' ], returncode=1 )
+
 
 
 

@@ -322,3 +322,10 @@ if not set by user.
             'reset', '--hard',
         ] )
 
+    def vcsIsMerged( self, config, vcs_ref ):
+        res = self._callExternal( [
+            config['env']['gitBin'],
+            'branch', '-r', '--merged', 'HEAD', 'origin/{0}'.format(vcs_ref)
+        ], verbose=False ).strip()
+        return res != ''
+    

@@ -10,6 +10,7 @@
 * CHANGED: "cid vcs reset" to abort git merge only if one is detected
 * CHANGED: added standard --wcDir to vcs subcommands
 * CHANGED: reduce verbosity of read-only VCS helper commands
+* NEW: added "vcs ismerged" sub-command
 
 === 0.7.1 (2017-04-18) ===
 * FIXED: Hg to create local cache for "cid vcs" commands (is not local error)

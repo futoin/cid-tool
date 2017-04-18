@@ -48,7 +48,10 @@ class VcsTool( SubTool ):
     def vcsDelete( self, config, vcs_cache_dir, vcs_ref ):
         raise NotImplementedError( self._name )
     
-    def vcsRevert( self, config):
+    def vcsRevert( self, config ):
+        raise NotImplementedError( self._name )
+    
+    def vcsIsMerged( self, config, vcs_ref ):
         raise NotImplementedError( self._name )
 
     def _autoDetectVCS( self, config, vcsDir ) :

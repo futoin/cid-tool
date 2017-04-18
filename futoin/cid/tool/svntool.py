@@ -221,3 +221,15 @@ Home: https://subversion.apache.org/
         svnBin = config['env']['svnBin']
         self._callExternal( [ svnBin, 'revert', '-R', '.' ] )
 
+    def vcsIsMerged( self, config, vcs_ref ):
+        vcsRepo = config['vcsRepo']
+        svn_repo_path = '{0}/branches/{1}'.format( vcsRepo, vcs_ref )
+        
+        res = self._callExternal( [
+            config['env']['svnBin'],
+            'mergeinfo', '--show-revs',
+            'eligible',
+            svn_repo_path
+        ], verbose=False ).strip()
+
+        return res == ''

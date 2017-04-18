@@ -330,6 +330,9 @@ Please see details in the FTN16 spec: ::
 
     cid vcs reset [--wcDir=<wc_dir>]
         Revert all local changes, including merge conflicts.
+        
+    cid vcs ismerged <vcs_ref> [--wcDir=<wc_dir>]
+        Check if branch is merged into current branch.
 
 
 Excplicit futoin.json example

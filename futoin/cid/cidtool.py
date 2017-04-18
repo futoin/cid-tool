@@ -1178,6 +1178,18 @@ class CIDTool( PathMixIn, UtilMixIn ) :
 
         self._info('Reverting all local changes')
         vcstool.vcsRevert( config )
+        
+    def vcs_ismerged( self, vcs_ref ):
+        self._processWcDir()
+        
+        config = self._config
+        vcstool = self._getVcsTool()
+
+        if vcstool.vcsIsMerged( config, vcs_ref ):
+            self._info('Branch {0} is merged'.format(vcs_ref))
+        else :
+            self._info('Branch {0} is NOT merged'.format(vcs_ref))
+            sys.exit(1)
 
     def _initConfig( self ):
         user_home = os.environ.get('HOME','/')

@@ -31,6 +31,7 @@ Usage:
     cid vcs tags [<tag_pattern>] [--vcsRepo=<vcs_repo>] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]
     cid vcs branches [<branch_pattern>] [--vcsRepo=<vcs_repo>] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]
     cid vcs reset [--wcDir=<wc_dir>]
+    cid vcs ismerged <vcs_ref> [--wcDir=<wc_dir>]
     
 
 Options:
@@ -198,6 +199,8 @@ def runInner():
                 cit.vcs_branches( args['<branch_pattern>'], cache_dir )
             elif args['reset']:
                 cit.vcs_reset()
+            elif args['ismerged']:
+                cit.vcs_ismerged( args['<vcs_ref>'] )
             else:
                 raise RuntimeError( "Not implemented yet." )
         elif args['init'] :

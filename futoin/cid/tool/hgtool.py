@@ -243,3 +243,12 @@ Home: https://www.mercurial-scm.org/
             'purge', '-I', '*.orig', '-I', '**/*.orig', '--all'
         ])
 
+    def vcsIsMerged( self, config, vcs_ref ):
+        res = self._callExternal( [
+            config['env']['hgBin'],
+            'merge', '--preview',
+            '--tool=internal:merge',
+            vcs_ref
+        ], verbose=False ).strip()
+        return res == ''
+    
