@@ -301,13 +301,11 @@ if not set by user.
             self._rmTree(repo)
 
     def vcsRevert( self, config):
-        try:
+        if os.path.exists(os.path.join('.git', 'MERGE_HEAD')):
             self._callExternal( [
                 config['env']['gitBin'],
                 'merge', '--abort',
             ] )
-        except subprocess.CalledProcessError:
-            pass
 
         self._callExternal( [
             config['env']['gitBin'],
