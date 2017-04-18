@@ -168,9 +168,23 @@ Home: https://subversion.apache.org/
     def vcsBranch( self, config, vcs_ref ):
         svnBin = config['env']['svnBin']
         vcsRepo = config['vcsRepo']
-        svn_repo_path = '{0}/branches/{1}'.format( vcsRepo, vcs_ref )
-        self._callExternal( [ svnBin, 'update' ] )
-        self._callExternal( [ svnBin, 'copy', '-m', 'CID branch ' + vcs_ref, '.', svn_repo_path ] )
+        svn_dst_path = '{0}/branches/{1}'.format( vcsRepo, vcs_ref )
+        
+        svn_info = self._callExternal([
+            config['env']['svnBin'], 'info', '--xml'
+        ])
+        svn_info = minidom.parseString( svn_info )
+        svn_info = svn_info.getElementsByTagName('url')
+        svn_src_path = svn_info[0].firstChild.nodeValue
+        
+        if self._callExternal([ config['env']['svnBin'], 'info', svn_dst_path ], suppress_fail=True):
+            self._errorExit('VCS branch {0} already exists!'.format(vcs_ref))
+
+        self._callExternal( [
+                svnBin, 'copy', '--parents',
+                '-m', 'CID branch ' + vcs_ref,
+                svn_src_path, svn_dst_path,
+        ] )
         self.vcsCheckout(config, vcs_ref)
 
     def vcsMerge( self, config, vcs_ref, cleanup ):

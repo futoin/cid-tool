@@ -4,6 +4,8 @@
 * FIXED: git branching on empty repository
 * FIXED: svn repo path auto-detection for trunk
 * FIXED: svn to properly handle empty tags and branches
+* FIXED: svn branch to create parents and use repo to repo copy
+* FIXED: svn branch to check if branch already exists
 * CHANGED: "cid vcs checkout" supports checkout of default ref
 * CHANGED: "cid vcs reset" to abort git merge only if one is detected
 
