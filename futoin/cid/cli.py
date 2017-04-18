@@ -23,14 +23,14 @@ Usage:
     cid tool describe <tool_name>
     cid tool detect
     cid vcs checkout [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--wcDir=<wc_dir>]
-    cid vcs commit <commit_msg> [<commit_files>...]
-    cid vcs merge <vcs_ref> [--no-cleanup]
-    cid vcs branch <vcs_ref>
-    cid vcs delete <vcs_ref> [--vcsRepo=<vcs_repo>] [--cacheDir=<cache_dir>]
-    cid vcs export <vcs_ref> <dst_dir> [--vcsRepo=<vcs_repo>] [--cacheDir=<cache_dir>]
-    cid vcs tags [<tag_pattern>] [--vcsRepo=<vcs_repo>] [--cacheDir=<cache_dir>]
-    cid vcs branches [<branch_pattern>] [--vcsRepo=<vcs_repo>] [--cacheDir=<cache_dir>]
-    cid vcs reset
+    cid vcs commit <commit_msg> [<commit_files>...] [--wcDir=<wc_dir>]
+    cid vcs merge <vcs_ref> [--no-cleanup] [--wcDir=<wc_dir>]
+    cid vcs branch <vcs_ref> [--wcDir=<wc_dir>]
+    cid vcs delete <vcs_ref> [--vcsRepo=<vcs_repo>] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]
+    cid vcs export <vcs_ref> <dst_dir> [--vcsRepo=<vcs_repo>] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]
+    cid vcs tags [<tag_pattern>] [--vcsRepo=<vcs_repo>] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]
+    cid vcs branches [<branch_pattern>] [--vcsRepo=<vcs_repo>] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]
+    cid vcs reset [--wcDir=<wc_dir>]
     
 
 Options:
@@ -141,6 +141,12 @@ def runInner():
         #---
         if args['--permissive']:
             overrides['permissiveChecks'] = True
+         
+        #---
+        cache_dir = args['--cacheDir']
+        
+        if cache_dir:
+            cache_dir = os.path.realpath(cache_dir)
         
         #---
         cit = CIDTool( overrides = overrides )
@@ -182,13 +188,14 @@ def runInner():
             elif args['merge']:
                 cit.vcs_merge( args['<vcs_ref>'], not args['--no-cleanup'] )
             elif args['delete']:
-                cit.vcs_delete( args['<vcs_ref>'], args['--cacheDir'] )
+                cit.vcs_delete( args['<vcs_ref>'], cache_dir )
             elif args['export']:
-                cit.vcs_export( args['<vcs_ref>'], args['<dst_dir>'], args['--cacheDir'] )
+                dst_dir = os.path.realpath(args['<dst_dir>'])
+                cit.vcs_export( args['<vcs_ref>'], dst_dir, cache_dir )
             elif args['tags']:
-                cit.vcs_tags( args['<tag_pattern>'], args['--cacheDir'] )
+                cit.vcs_tags( args['<tag_pattern>'], cache_dir )
             elif args['branches']:
-                cit.vcs_branches( args['<branch_pattern>'], args['--cacheDir'] )
+                cit.vcs_branches( args['<branch_pattern>'], cache_dir )
             elif args['reset']:
                 cit.vcs_reset()
             else:

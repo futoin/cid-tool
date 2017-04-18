@@ -8,6 +8,7 @@
 * FIXED: svn branch to check if branch already exists
 * CHANGED: "cid vcs checkout" supports checkout of default ref
 * CHANGED: "cid vcs reset" to abort git merge only if one is detected
+* CHANGED: added standard --wcDir to vcs subcommands
 
 === 0.7.1 (2017-04-18) ===
 * FIXED: Hg to create local cache for "cid vcs" commands (is not local error)

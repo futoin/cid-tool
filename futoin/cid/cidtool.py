@@ -1084,6 +1084,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         vcstool.vcsCheckout( config, vcs_ref )
 
     def vcs_commit( self, msg, files ):
+        self._processWcDir()
+        
         config = self._config
         vcstool = self._getVcsTool()
 
@@ -1097,6 +1099,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         vcstool.vcsPush( config, None )
 
     def vcs_branch( self, vcs_ref ):
+        self._processWcDir()
+        
         config = self._config
         vcstool = self._getVcsTool()
 
@@ -1104,6 +1108,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         vcstool.vcsBranch( config, vcs_ref )
         
     def vcs_merge( self, vcs_ref, cleanup=True ):
+        self._processWcDir()
+        
         config = self._config
         vcstool = self._getVcsTool()
 
@@ -1111,6 +1117,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         vcstool.vcsMerge( config, vcs_ref, cleanup )
 
     def vcs_delete( self, vcs_ref, vcs_cache_dir ):
+        self._processWcDir()
+        
         config = self._config
         vcstool = self._getVcsTool()
 
@@ -1123,6 +1131,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
                 self._errorExit('Destination directory {0} exists and is not empty'.format(dst_path))
         else:
             os.makedirs(dst_path)
+            
+        self._processWcDir()
 
         config = self._config
         vcstool = self._getVcsTool()
@@ -1131,6 +1141,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         vcstool.vcsExport( config, vcs_cache_dir, vcs_ref, dst_path )
 
     def vcs_tags( self, tag_hint, vcs_cache_dir ):
+        self._processWcDir()
+
         config = self._config
         vcstool = self._getVcsTool()
 
@@ -1144,6 +1156,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         print("\n".join(tag_list))
         
     def vcs_branches( self, branch_hint, vcs_cache_dir ):
+        self._processWcDir()
+
         config = self._config
         vcstool = self._getVcsTool()
 
@@ -1157,6 +1171,8 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         print("\n".join(branch_list))
 
     def vcs_reset( self ):
+        self._processWcDir()
+
         config = self._config
         vcstool = self._getVcsTool()
 

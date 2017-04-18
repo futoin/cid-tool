@@ -302,32 +302,33 @@ Please see details in the FTN16 spec: ::
     cid vcs checkout [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--wcDir=<wc_dir>]
         Checkout specific VCS ref.
         
-    cid vcs commit <commit_msg> [<commit_files>...]
+    cid vcs commit <commit_msg> [<commit_files>...] [--wcDir=<wc_dir>]
         Commit all changes or specific files with short commit message.
     
-    cid vcs merge <vcs_ref> [--no-cleanup]
+    cid vcs merge <vcs_ref> [--no-cleanup] [--wcDir=<wc_dir>]
         Merge another VCS ref into current one. Abort on conflict.
         Automatic cleanup is done on abort, unless --no-cleanup.
 
-    cid vcs branch <vcs_ref>
+    cid vcs branch <vcs_ref> [--wcDir=<wc_dir>]
         Create a new branch from current checkout VCS ref.
         
     cid vcs delete <vcs_ref> [--vcsRepo=<vcs_repo>] [--cacheDir=<cache_dir>]
+        [--wcDir=<wc_dir>]
         Delete branch.
         
     cid vcs export <vcs_ref> <dst_dir> [--vcsRepo=<vcs_repo>]
-        [--cacheDir=<cache_dir>]
+        [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]
         Export VCS ref into folder.
 
     cid vcs tags [<tag_pattern>] [--vcsRepo=<vcs_repo>]
-        [--cacheDir=<cache_dir>]
+        [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]
         List tags with optional pattern for filtering.
 
     cid vcs branches [<branch_pattern>] [--vcsRepo=<vcs_repo>]
-        [--cacheDir=<cache_dir>]
+        [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]
         List branches with optional pattern for filtering.
 
-    cid vcs reset
+    cid vcs reset [--wcDir=<wc_dir>]
         Revert all local changes, including merge conflicts.
 
 
