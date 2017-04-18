@@ -48,9 +48,9 @@ Home: https://subversion.apache.org/
         
         if vcs_ref == 'trunk':
             svn_repo_path = '{0}/trunk'.format( vcsRepo )
-        elif self._callExternal( [ svnBin, 'ls', branch_path ], suppress_fail=True ) :
+        elif self._callExternal( [ svnBin, 'info', branch_path ], suppress_fail=True ) :
             svn_repo_path = branch_path
-        elif self._callExternal( [ svnBin, 'ls', tag_path ], suppress_fail=True ) :
+        elif self._callExternal( [ svnBin, 'info', tag_path ], suppress_fail=True ) :
             svn_repo_path = tag_path
         else:
             self._errorExit( "VCS ref was not found: " + vcs_ref )
