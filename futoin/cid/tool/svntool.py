@@ -61,6 +61,7 @@ Home: https://subversion.apache.org/
         env = config['env']
         svnBin = env['svnBin']
         wc_dir = os.getcwd()
+        vcs_ref = vcs_ref or 'trunk'
         
         svn_repo_path = self._detectSVNPath(config, vcs_ref)
 

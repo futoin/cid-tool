@@ -22,7 +22,7 @@ Usage:
     cid tool list
     cid tool describe <tool_name>
     cid tool detect
-    cid vcs checkout <vcs_ref> [--vcsRepo=<vcs_repo>] [--wcDir=<wc_dir>]
+    cid vcs checkout [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--wcDir=<wc_dir>]
     cid vcs commit <commit_msg> [<commit_files>...]
     cid vcs merge <vcs_ref> [--no-cleanup]
     cid vcs branch <vcs_ref>

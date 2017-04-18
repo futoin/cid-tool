@@ -1,6 +1,7 @@
 
 === (next) ===
 * FIXED: git & hg can clone empty repos now
+* CHANGED: "cid vcs checkout" supports checkout of default ref
 
 === 0.7.1 (2017-04-18) ===
 * FIXED: Hg to create local cache for "cid vcs" commands (is not local error)

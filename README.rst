@@ -299,7 +299,7 @@ Please see details in the FTN16 spec: ::
         Abstract helpers for CI environments & scripts.
         They are quite limited for daily use.
         
-    cid vcs checkout <vcs_ref> [--vcsRepo=<vcs_repo>] [--wcDir=<wc_dir>]
+    cid vcs checkout [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--wcDir=<wc_dir>]
         Checkout specific VCS ref.
         
     cid vcs commit <commit_msg> [<commit_files>...]

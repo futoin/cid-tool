@@ -80,6 +80,7 @@ if not set by user.
         gitBin = config['env']['gitBin']
         wc_dir = os.getcwd()
         vcsRepo = config['vcsRepo']
+        vcs_ref = vcs_ref or 'master'
         
         if os.path.isdir( '.git' ):
             remote_url = self.vcsGetRepo( config, '.git')
