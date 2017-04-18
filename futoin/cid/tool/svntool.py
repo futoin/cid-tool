@@ -36,7 +36,7 @@ Home: https://subversion.apache.org/
         svn_info = minidom.parseString( svn_info )
         svn_info = svn_info.getElementsByTagName('url')
         url = svn_info[0].firstChild.nodeValue
-        url = re.sub( '/(trunk|branches|tags).+$', '', url )
+        url = re.sub( '/(trunk|branches|tags).*$', '', url )
         return url
     
     def _detectSVNPath( self, config, vcs_ref ):
