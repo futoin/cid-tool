@@ -30,12 +30,16 @@ Home: https://subversion.apache.org/
                  RmsTool.autoDetect( self, config ) )
     
     def vcsGetRepo( self, config, wc_dir=None ):
+        wc_dir = wc_dir or os.getcwd()
+        
         svn_info = self._callExternal([
-            config['env']['svnBin'], 'info', '--xml', wc_dir or os.getcwd()
-        ])
+            config['env']['svnBin'], 'info', '--xml', wc_dir
+        ], verbose=False)
+
         svn_info = minidom.parseString( svn_info )
         svn_info = svn_info.getElementsByTagName('url')
         url = svn_info[0].firstChild.nodeValue
+
         url = re.sub( '/(trunk|branches|tags).*$', '', url )
         return url
     
@@ -93,7 +97,7 @@ Home: https://subversion.apache.org/
 
         svn_info = self._callExternal([
             config['env']['svnBin'], 'info', '--xml'
-        ])
+        ], verbose=False)
         svn_info = minidom.parseString( svn_info )
         svn_info = svn_info.getElementsByTagName('url')
         svn_url = svn_info[0].firstChild.nodeValue
@@ -111,7 +115,7 @@ Home: https://subversion.apache.org/
         
     def vcsGetRevision( self, config ) :
         svnBin = config['env']['svnBin']
-        svn_info = self._callExternal( [ svnBin, 'info',  '--xml' ] )
+        svn_info = self._callExternal( [ svnBin, 'info',  '--xml' ], verbose=False )
         
         svn_info = minidom.parseString( svn_info )
         svn_info = svn_info.getElementsByTagName('commit')
@@ -126,24 +130,29 @@ Home: https://subversion.apache.org/
         
         svn_repo_path = self._detectSVNPath(config, branch)
             
-        res = self._callExternal( [ svnBin, 'info', svn_repo_path, '--xml' ] )
+        res = self._callExternal( [ svnBin, 'info', svn_repo_path, '--xml' ], verbose=False )
         
         res = minidom.parseString( res )
         return res.getElementsByTagName('commit')[0].getAttribute('revision')
 
     def vcsListTags( self, config, vcs_cache_dir, tag_hint ) :
-        svnBin = config['env']['svnBin']
-        vcsRepo = config['vcsRepo']
-        svn_repo_path = '{0}/tags/'.format( vcsRepo )
-        res = self._callExternal( [ svnBin, 'ls', svn_repo_path ] ).strip().split("\n")
-        return [v.replace(svn_repo_path, '').replace('/', '') for v in res ]
+        return self._vcsListCommon(config, vcs_cache_dir, 'tags')
     
     def vcsListBranches( self, config, vcs_cache_dir, branch_hint ) :
+        return self._vcsListCommon(config, vcs_cache_dir, 'branches')
+    
+    def _vcsListCommon( self, config, vcs_cache_dir, sub_path ):
         svnBin = config['env']['svnBin']
         vcsRepo = config['vcsRepo']
-        svn_repo_path = '{0}/branches/'.format( vcsRepo )
-        res = self._callExternal( [ svnBin, 'ls', svn_repo_path ] ).strip().split("\n")
-        return [v.replace(svn_repo_path, '').replace('/', '') for v in res ]
+        svn_repo_path = '{0}/{1}/'.format( vcsRepo, sub_path )
+        
+        res = self._callExternal( [
+            svnBin, 'ls', svn_repo_path
+        ], verbose=False ).strip().split("\n")
+        
+        res = [v and v.replace(svn_repo_path, '').replace('/', '') or '' for v in res ]
+        res = list(filter(None, res))
+        return res
 
     def vcsExport( self, config, vcs_cache_dir, vcs_ref, dst_path ) :
         svnBin = config['env']['svnBin']
@@ -172,7 +181,7 @@ Home: https://subversion.apache.org/
         
         svn_info = self._callExternal([
             config['env']['svnBin'], 'info', '--xml'
-        ])
+        ], verbose=False)
         svn_info = minidom.parseString( svn_info )
         svn_info = svn_info.getElementsByTagName('url')
         svn_src_path = svn_info[0].firstChild.nodeValue

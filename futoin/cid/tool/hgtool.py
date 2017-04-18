@@ -32,7 +32,7 @@ Home: https://www.mercurial-scm.org/
     def vcsGetRepo( self, config, wc_dir=None ):
         return self._callExternal( [
             config['env']['hgBin'], '--repository', wc_dir or os.getcwd(), 'paths', 'default'
-        ] ).strip()
+        ], verbose=False ).strip()
     
     def _hgCheckoutTool( self, config ):
         hgBin = config['env']['hgBin']
@@ -62,11 +62,11 @@ Home: https://www.mercurial-scm.org/
             # skip default branch
             return
             
-        for v in self._callExternal( [ hgBin, 'branches' ] ).strip().split("\n"):
+        for v in self._callExternal( [ hgBin, 'branches' ], verbose=False ).strip().split("\n"):
             if v and v.split()[0] == vcs_ref:
                 break
         else:
-            for v in self._callExternal( [ hgBin, 'tags' ] ).strip().split("\n"):
+            for v in self._callExternal( [ hgBin, 'tags' ], verbose=False ).strip().split("\n"):
                 if v and v.split()[0] == vcs_ref:
                     break
             else:
@@ -103,7 +103,7 @@ Home: https://www.mercurial-scm.org/
         
     def vcsGetRevision( self, config ) :
         hgBin = config['env']['hgBin']
-        return self._callExternal( [ hgBin, 'identify', '--id' ] ).strip()
+        return self._callExternal( [ hgBin, 'identify', '--id' ], verbose=False ).strip()
     
     def _hgCache( self, config, vcs_cache_dir ):
         hgBin = config['env']['hgBin']
@@ -137,7 +137,11 @@ Home: https://www.mercurial-scm.org/
         vcs_cache_dir = self._hgCache( config, vcs_cache_dir )
         
         hgBin = config['env']['hgBin']
-        res = self._callExternal( [ hgBin, '--repository', vcs_cache_dir, 'branches' ] ).strip().split("\n")
+        
+        res = self._callExternal( [
+            hgBin, '--repository', vcs_cache_dir, 'branches'
+        ], verbose=False ).strip().split("\n")
+        
         for r in res:
             r = r.split()
             
@@ -150,7 +154,11 @@ Home: https://www.mercurial-scm.org/
         vcs_cache_dir = self._hgCache( config, vcs_cache_dir )
         
         hgBin = config['env']['hgBin']
-        res = self._callExternal( [ hgBin, '--repository', vcs_cache_dir, 'tags' ] ).strip().split("\n")
+        
+        res = self._callExternal( [
+            hgBin, '--repository', vcs_cache_dir, 'tags'
+        ], verbose=False ).strip().split("\n")
+        
         res = [ v and v.split()[0] or '' for v in res ]
         res = list(filter(None, res))
         del res[res.index('tip')]
@@ -160,7 +168,11 @@ Home: https://www.mercurial-scm.org/
         vcs_cache_dir = self._hgCache( config, vcs_cache_dir )
         
         hgBin = config['env']['hgBin']
-        res = self._callExternal( [ hgBin, '--repository', vcs_cache_dir, 'branches' ] ).strip().split("\n")
+        
+        res = self._callExternal( [
+            hgBin, '--repository', vcs_cache_dir, 'branches'
+        ], verbose=False ).strip().split("\n")
+        
         res = [ v and v.split()[0] or '' for v in res ]
         res = list(filter(None, res))
         return res

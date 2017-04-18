@@ -46,12 +46,14 @@ if not set by user.
             pass
         
         if not user_email:
+            self._info('Setting fallback user.email for repo')
             self._callExternal([
                 gitBin, 'config', 'user.email',
                 env.get('gitUserEmail', 'noreply@futoin.org')
             ])
 
         if not user_name:
+            self._info('Setting fallback user.name for repo')
             self._callExternal([
                 gitBin, 'config', 'user.name',
                 env.get('gitUserName', 'FutoIn CITool')
@@ -60,7 +62,7 @@ if not set by user.
     def _getCurrentBranch( self, config ):
         return self._callExternal( [
             config['env']['gitBin'], 'rev-parse', '--abbrev-ref', 'HEAD'
-        ] ).strip()
+        ], verbose=False ).strip()
 
     def vcsGetRepo( self, config, wc_dir=None ):
         git_dir = wc_dir or os.path.join(os.getcwd(), '.git')
@@ -71,7 +73,7 @@ if not set by user.
             'config',
             '--get',
             'remote.origin.url'
-        ] ).strip()
+        ], verbose=False ).strip()
     
     def _gitCompareRepo( self, cfg, act ):
         return cfg == act or ('ssh://'+cfg) == act
@@ -99,9 +101,11 @@ if not set by user.
                 # exit on empty repository
                 return
             
-        remote_branch = self._callExternal( [ gitBin, 'branch', '-q', '--all', '--list', 'origin/'+vcs_ref ] ).strip()
+        remote_branch = self._callExternal( [
+            gitBin, 'branch', '-q', '--all', '--list', 'origin/'+vcs_ref
+        ], verbose=False ).strip()
             
-        if self._callExternal( [ gitBin, 'branch', '-q', '--list', vcs_ref ] ).strip():
+        if self._callExternal( [ gitBin, 'branch', '-q', '--list', vcs_ref ], verbose=False ).strip():
             self._callExternal( [ gitBin, 'checkout', '-q', vcs_ref ] )
 
             if remote_branch:
@@ -145,7 +149,9 @@ if not set by user.
         
     def vcsGetRevision( self, config ) :
         gitBin = config['env']['gitBin']
-        return self._callExternal( [ gitBin, 'rev-parse', 'HEAD' ] ).strip()
+        return self._callExternal( [
+            gitBin, 'rev-parse', 'HEAD'
+        ], verbose=False ).strip()
     
     def vcsGetRefRevision( self, config, vcs_cache_dir, branch ) :
         res = self._callExternal( [
@@ -153,7 +159,7 @@ if not set by user.
             'ls-remote', '--refs',
             config['vcsRepo'],
             'refs/heads/{0}'.format(branch)
-        ] ).strip()
+        ], verbose=False ).strip()
         
         if res:
             return res.split()[0]
@@ -171,9 +177,11 @@ if not set by user.
             config['env']['gitBin'],
             'ls-remote','--tags', '--refs',
             config['vcsRepo']
-        ] + tag_hint ).strip().split("\n")
+        ] + tag_hint, verbose=False ).strip().split("\n")
 
-        return [ v.split()[1].replace('refs/tags/', '') for v in res ]
+        res = [ v and v.split()[1].replace('refs/tags/', '') or '' for v in res ]
+        res = list(filter(None, res))
+        return res
     
     def vcsListBranches( self, config, vcs_cache_dir, branch_hint ) :
         if branch_hint:
@@ -185,9 +193,11 @@ if not set by user.
             config['env']['gitBin'],
             'ls-remote','--heads', '--refs',
             config['vcsRepo']
-        ] + branch_hint ).strip().split("\n")
+        ] + branch_hint, verbose=False ).strip().split("\n")
 
-        return [ v.split()[1].replace('refs/heads/', '') for v in res ]
+        res = [ v and v.split()[1].replace('refs/heads/', '') or '' for v in res ]
+        res = list(filter(None, res))
+        return res
 
     def vcsExport( self, config, vcs_cache_dir, vcs_ref, dst_path ) :
         env = config['env']
@@ -291,7 +301,7 @@ if not set by user.
             self._callExternal( [
                 config['env']['gitBin'],
                 'init', repo,
-            ] )
+            ], verbose=False )
 
             oldcwd = os.getcwd()
             os.chdir(repo)
