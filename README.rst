@@ -346,7 +346,7 @@ futoin.json is not strictly required, but it allows to use full power of CID.
       "name": "example-package",
       "version": "0.4.2",
       "actions": {
-        "custom_script": [ 'run some item' ]
+        "custom_script": [ "run some item" ]
       },
       "plugins": {
         "examplerelease": "some.project.specific.release",

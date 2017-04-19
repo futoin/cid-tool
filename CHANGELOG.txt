@@ -1,4 +1,7 @@
 
+=== (next) ===
+* FIXED: merge failed message to distinguish aborted/left as-is cases
+
 === 0.7.2 (2017-04-19) ===
 * FIXED: git & hg can clone empty repos now
 * FIXED: git branching on empty repository

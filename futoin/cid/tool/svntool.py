@@ -209,7 +209,8 @@ Home: https://subversion.apache.org/
         except subprocess.CalledProcessError:
             if cleanup:
                 self.vcsRevert(config)
-            self._errorExit('Merged failed, aborted.')
+                self._errorExit('Merge failed, aborted.')
+            self._errorExit('Merge failed, left as-is.')
 
     def vcsDelete( self, config, vcs_cache_dir, vcs_ref ):
         svnBin = config['env']['svnBin']

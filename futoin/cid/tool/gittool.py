@@ -267,7 +267,8 @@ if not set by user.
         except subprocess.CalledProcessError:
             if cleanup:
                 self.vcsRevert(config)
-            self._errorExit('Merged failed, aborted.')
+                self._errorExit('Merge failed, aborted.')
+            self._errorExit('Merge failed, left as-is.')
         
         self.vcsPush(config, [curr_ref])
 

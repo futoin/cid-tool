@@ -214,7 +214,8 @@ Home: https://www.mercurial-scm.org/
         except subprocess.CalledProcessError:
             if cleanup:
                 self.vcsRevert(config)
-            self._errorExit('Merged failed, aborted.')
+                self._errorExit('Merge failed, aborted.')
+            self._errorExit('Merge failed, left as-is.')
         
         self.vcsCommit(config, "CID merged " + vcs_ref, [])
         self.vcsPush(config, [curr_ref])
