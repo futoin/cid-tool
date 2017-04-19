@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.7.2 (2017-04-19) ===
 * FIXED: git & hg can clone empty repos now
 * FIXED: git branching on empty repository
 * FIXED: svn repo path auto-detection for trunk
