@@ -227,8 +227,7 @@ Please see details in the FTN16 spec: ::
         Action depends on detected tools.
         Runs tool-specific test/validation.
     
-    cid promote <package> <rms_pool> [--rmsRepo=<rms_repo>]
-        [--rmsHash=<rms_hash>]
+    cid promote <rms_pool> <packages>... [--rmsRepo=<rms_repo>]
         Promote package to Release Management System (RMS) or manage
         package across RMS pools.
        
@@ -241,8 +240,7 @@ Please see details in the FTN16 spec: ::
         Deploy from VCS branch.
        
     cid deploy [rms] <rms_pool> [<package>] [--rmsRepo=<rms_repo>]
-        [--rmsHash=<rms_hash>] [--redeploy] [--deployDir=<deploy_dir>]
-        [--build]
+        [--redeploy] [--deployDir=<deploy_dir>] [--build]
         Deploy from RMS.
         
     cid migrate
@@ -262,6 +260,10 @@ Please see details in the FTN16 spec: ::
         [--rmsRepo=<rms_repo>] [--permissive] [--debug] [--wcDir=<wc_dir>]
         Run prepare, build and package in one run.
         if <rms_pool> is set then also promote package to RMS.
+    
+    
+    cid tool ...
+        Family tool-centric commands.
     
     cid tool exec <tool_name> [-- <tool_arg>...]
         Execute <tool_name> binary with provided arguments.
@@ -294,6 +296,7 @@ Please see details in the FTN16 spec: ::
     cid tool detect
         Show list of auto-detected tools for current project
         with possible version numbers.
+
         
     cid vcs ...
         Abstract helpers for CI environments & scripts.

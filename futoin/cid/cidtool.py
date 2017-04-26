@@ -436,12 +436,20 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         )
 
     @cid_action
-    def promote( self, package, rms_pool ):
+    def promote( self, rms_pool, packages ):
+        self._processWcDir()
+        
         config = self._config
         rmstool = self._getRmsTool()
         
-        self._info('Promoting {0} package to {1} pool'.format(package, rms_pool))
-        rmstool.rmsPromote( config, package, rms_pool )
+        pools = rms_pool.split(':', 2)
+        
+        if len(pools) == 2:
+            self._info('Promoting from {0} to {1} pool: {2}'.format(pools[0], pools[1], ', '.join(packages)))
+            rmstool.rmsPromote( config, pools[0], pools[1], packages )
+        else :
+            self._info('Promoting to {0} pool: {1}'.format(rms_pool, ', '.join(packages)))
+            rmstool.rmsUpload( config, rms_pool, packages )
         
     @cid_action
     def migrate( self, location ):
@@ -562,7 +570,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         # Retrieve package, if not available
         if not os.path.exists( package_basename ) :
             self._info('Retrieving the package')
-            rmstool.rmsRetrieve( config, rms_pool, package )
+            rmstool.rmsRetrieve( config, rms_pool, [package] )
             
         package_noext_tmp = package_noext + '.tmp'
         
@@ -844,13 +852,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self.check()
         
         if rms_pool and self._lastPackages:
-            if config.get('actions', {}).get('promote', None):
-                for p in self._lastPackages:
-                    self.promote( p, rms_pool )
-            else:
-                self._info('Promoting package(s) to {0} pool'.format(rms_pool))
-                rmstool = self._getRmsTool()
-                rmstool.rmsPromoteMany( config, self._lastPackages, rms_pool )
+            self.promote( rms_pool, self._lastPackages )
 
     def tool_exec( self, tool, args ):
         t = self._tool_impl[tool]
@@ -1190,6 +1192,29 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         else :
             self._info('Branch {0} is NOT merged'.format(vcs_ref))
             sys.exit(1)
+            
+    def rms_list( self, rms_pool, package_pattern ):
+        self._processWcDir()
+        
+        config = self._config
+        rmstool = self._getRmsTool()
+        
+        package_list = rmstool.rmsGetList( config, rms_pool, package_pattern )
+        
+        if package_pattern:
+            package_list = fnmatch.filter(package_list, package_pattern)
+            
+        self._versionSort(package_list)
+        
+        print("\n".join(package_list))
+
+    def rms_retrieve( self, rms_pool, package_list ):
+        self._processWcDir()
+        
+        config = self._config
+        rmstool = self._getRmsTool()
+        
+        rmstool.rmsRetrieve( config, rms_pool, package_list )
 
     def _initConfig( self ):
         user_home = os.environ.get('HOME','/')

@@ -8,10 +8,10 @@ Usage:
     cid build [--debug]
     cid package
     cid check [--permissive]
-    cid promote <package> <rms_pool> [--rmsRepo=<rms_repo>] [--rmsHash=<rms_hash>]
+    cid promote <rms_pool> <packages>... [--rmsRepo=<rms_repo>]
     cid deploy vcstag [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>]
     cid deploy vcsref <vcs_ref> [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>]
-    cid deploy [rms] <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--rmsHash=<rms_hash>] [--redeploy] [--deployDir=<deploy_dir>] [--build]
+    cid deploy [rms] <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--build]
     cid migrate
     cid run
     cid run <command> [<command_arg>...]
@@ -32,6 +32,8 @@ Usage:
     cid vcs branches [<branch_pattern>] [--vcsRepo=<vcs_repo>] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]
     cid vcs reset [--wcDir=<wc_dir>]
     cid vcs ismerged <vcs_ref> [--wcDir=<wc_dir>]
+    cid rms list <rms_pool> [<package_pattern>] [--rmsRepo=<rms_repo>]
+    cid rms retrieve <rms_pool> <packages>... [--rmsRepo=<rms_repo>]
     
 
 Options:
@@ -46,6 +48,8 @@ Options:
     --permissive                    Ignore test failures.
     --debug                         Build in debug mode, if applicable.
     --cacheDir=<cache_dir>          Directory to hold VCS cache.
+    <rms_pool>                      Either "dst_pool" or  "src_pool:dst_pool" for promotion.
+    <packages>                      Either "local/file" or "remote_file" or "<package>@<hash>".
 """
 
 from __future__ import print_function, absolute_import
@@ -96,8 +100,8 @@ def runInner():
                 overrides['rmsRepo']) = rmsArg.split(':', 1)
             except ValueError:
                 raise RuntimeError('Invalid argument to --rmsRepo')
-        overrides['rmsHash'] = args['--rmsHash']
         overrides['rmsPool'] = args['<rms_pool>']
+
         #---
         if args['ci_build'] :
             if 'vcs' in overrides:
@@ -203,6 +207,13 @@ def runInner():
                 cit.vcs_ismerged( args['<vcs_ref>'] )
             else:
                 raise RuntimeError( "Not implemented yet." )
+        elif args['rms'] and not args['deploy'] :
+            if args['list']:
+                cit.rms_list( args['<rms_pool>'], args['<package_pattern>'] )
+            elif args['retrieve']:
+                cit.rms_retrieve( args['<rms_pool>'], args['<packages>'] )
+            else:
+                raise RuntimeError( "Not implemented yet." )
         elif args['init'] :
             cit.init_project( args['<project_name>'] )
         elif args['tag'] :
@@ -216,7 +227,7 @@ def runInner():
         elif args['check'] :
             cit.check()
         elif args['promote'] :
-            cit.promote( args['<package>'], args['<rms_pool>'] )
+            cit.promote( args['<rms_pool>'], args['<packages>'] )
         elif args['deploy'] :
             if args['vcsref']:
                 cit.deploy( 'vcsref', args['<vcs_ref>'] )

@@ -21,7 +21,7 @@ Note: rmsRepo is ignored and rmsPool is actual repo URL or uses ~/.pypirc entry
             'twinePassword',
         ]
         
-    def rmsPromoteMany( self, config, packages, rms_pool ):
+    def rmsUpload( self, config, rms_pool, package_list ):
         env = config['env']
         
         identity = env.get('twineIdentity', None)
@@ -44,9 +44,6 @@ Note: rmsRepo is ignored and rmsPool is actual repo URL or uses ~/.pypirc entry
 
         cmd.append('--skip-existing')
         
-        cmd += packages
+        cmd += package_list
         
         self._callInteractive(cmd, replace=False)
-    
-    def rmsPromote( self, config, package, rms_pool ):
-        self.rmsPromoteMany( config, [package], rms_pool )

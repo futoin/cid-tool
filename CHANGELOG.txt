@@ -1,4 +1,11 @@
 
+=== (next) ===
+* BREAKING CHANGE: dropped --rmsHash in favor of "{package}@{hash-type}:{hash}"
+* BREAKING CHANGE: "cid promote" format to support multiple packages
+* CHANGED: "cid promote" rms_pool to support "src_pool:dst_pool" format
+* CHANGED: internally cid promote is split into rmsUpload & rmsPromote
+* NEW: added family of "cid rms" commands
+
 === 0.7.3 (2017-04-20) ===
 * FIXED: merge failed message to distinguish aborted/left as-is cases
 

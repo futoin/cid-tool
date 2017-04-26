@@ -11,26 +11,30 @@ class scpTool( RmsTool ):
     REMOTE_GRP_USER_HOST = 1
     REMOTE_GRP_PATH = 3
     
+    
     def getDeps( self ) :
         return [ 'ssh' ]
     
-    def rmsPromote( self, config, package, rms_pool ) :
+    def rmsUpload( self, config, rms_pool, package_list ):
         scpBin = config['env']['scpBin']
         rms_repo = config['rmsRepo']
-
-        package_basename = os.path.basename( package )
-        dst = os.path.join( rms_repo, rms_pool, package_basename )
         
-        if os.path.exists( package ) :
+        for package in package_list:
+            package_basename = os.path.basename( package )
+            dst = os.path.join( rms_repo, rms_pool, package_basename )
             self._callExternal( [ scpBin, '-Bq', package, dst ] )
-        else :
-            src = os.path.join( rms_repo, package )
+    
+    def rmsPromote( self, config, src_pool, dst_pool, package_list ):
+        scpBin = config['env']['scpBin']
+        rms_repo = config['rmsRepo']
+        
+        package_list = self.rmsProcessChecksums(config, src_pool, package_list)
 
-            self._callExternal( [ scpBin, '-Bq', src, package_basename ] )
-            self.rmsVerifyHash( config, package_basename )
-
-            # Note: promotion must no re-upload an artifact to avoid
-            # risk of modifications
+        for package in package_list:
+            package_basename = os.path.basename( package )
+            
+            src = os.path.join( rms_repo, src_pool, package_basename )
+            dst = os.path.join( rms_repo, dst_pool, package_basename )
             self._callExternal( [ scpBin, '-Bq', src, dst ] )
 
     def rmsGetList( self, config, rms_pool, package_hint ):
@@ -49,9 +53,29 @@ class scpTool( RmsTool ):
     
         return ret
     
-    def rmsRetrieve( self, config, rms_pool, package ):
+    def rmsRetrieve( self, config, rms_pool, package_list ):
         scpBin = config['env']['scpBin']
-        package_basename = os.path.basename( package )
-        src = os.path.join( config['rmsRepo'], rms_pool, package_basename )
-        self._callExternal( [ scpBin, '-Bq', src, package_basename ] )
+        
+        for package in package_list:
+            package_basename = os.path.basename( package )
+            src = os.path.join( config['rmsRepo'], rms_pool, package_basename )
+            self._callExternal( [ scpBin, '-Bq', src, package_basename ] )
+            
+    def rmsGetHash(self, config, rms_pool, package, hash_type ):
+        env = config['env']
+        rms_repo = config['rmsRepo']
+        result = re.match( self.REMOTE_PATTERN, rms_repo )
+        
+        if result:
+            user_host = result.group( self.REMOTE_GRP_USER_HOST )
+            path = os.path.join( result.group( self.REMOTE_GRP_PATH ), rms_pool )
+            cmd = 'ls {0}'.format( path )
+            cmd = "{0}sum {1}".format(hash_type, path)
+            ret = self._callExternal( [ env['sshBin'], '-t', user_host, '--', cmd ], verbose=False )
+        else:
+            path = os.path.join( rms_repo, rms_pool, package )  
+            ret = self._callExternal( [ hash_type + 'sum', path], verbose=False )
+            
+        return ret.strip().split()[0]
+            
     

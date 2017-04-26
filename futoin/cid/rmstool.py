@@ -1,7 +1,7 @@
 
 from __future__ import print_function, absolute_import
 
-import hashlib
+import hashlib, os
 
 from .subtool import SubTool
 from .coloring import Coloring
@@ -9,20 +9,26 @@ from .coloring import Coloring
 __all__ = ['RmsTool']
 
 class RmsTool( SubTool ):
+    ALLOWED_HASH_TYPES = [
+        'md5',
+        'sha1',
+        'sha256',
+        'sha512',
+    ]
+    
     def autoDetect( self, config ) :
         return self._autoDetectRMS( config )
     
-    def rmsPromoteMany( self, config, packages, rms_pool ):
-        for p in packages:
-            self.rmsPromote( config, p, rms_pool)
-    
-    def rmsPromote( self, config, package, rms_pool ):
+    def rmsUpload( self, config, rms_pool, package_list ):
+        raise NotImplementedError( self._name )
+
+    def rmsPromote( self, config, src_pool, dst_pool, package_list ):
         raise NotImplementedError( self._name )
 
     def rmsGetList( self, config, rms_pool, package_hint ):
         raise NotImplementedError( self._name )
     
-    def rmsRetrieve( self, config, rms_pool, package ):
+    def rmsRetrieve( self, config, rms_pool, package_list ):
         raise NotImplementedError( self._name )
     
     def _autoDetectRMS( self, config ) :
@@ -30,34 +36,38 @@ class RmsTool( SubTool ):
             return True
         
         return False
+    
+    def rmsProcessChecksums(self, config, rms_pool, package_list) :
+        ret = []
+        
+        for package in package_list:
+            package = package.split('@', 2)
+            filename = package[0]
+            
+            if len(package) == 2:
+                hash_type, hash = package[1].split(':', 2)
+                
+                if hash_type not in self.ALLOWED_HASH_TYPES:
+                    self._errorExit('Unsupported hash type "{0}"'.format(hash_type))
+                
+                self._info('Verifying {2} hash of {0} in {1}'.format(filename, rms_pool, hash_type))
+                rms_hash = self.rmsGetHash( config, rms_pool, filename, hash_type)
+                
+                if rms_hash != hash:
+                    self._errorExit('RMS hash mismatch "{0}" != "{1}"'.format(rms_hash, hash))
+            
+            ret.append(filename)
+            
+        return ret
+    
+    def rmsGetHash(self, config, rms_pool, package, hash_type ):
+        raise NotImplementedError( self._name )
 
     @classmethod
     def rmsCalcHash( cls, file_name, hash_type ) :
         hf = hashlib.new( hash_type )
         with open( file_name, 'rb' ) as f:
-            for chunk in iter(lambda: f.read(4096), ''):
+            for chunk in iter(lambda: f.read(65536), ''):
                 if not chunk: break
                 hf.update( chunk )
         return "{0}:{1}".format( hash_type, hf.hexdigest() )
-
-    @classmethod
-    def rmsVerifyHash( cls, config, file_name ) :
-        if config.get('rmsHash', None) is not None:
-            ( hash_type, hash_value ) = config['rmsHash'].split(':',1)
-            file_hash = cls.rmsCalcHash( file_name, hash_type )
-            
-            if file_hash != config['rmsHash'] :
-                raise RuntimeError(
-                        "RMS hash mismatch {0} != {1}".format(
-                            file_hash, hash_value ) )
-        else :
-            file_hash = cls.rmsCalcHash( file_name, 'sha256' )
-            
-            print( Coloring.label("File: ") + file_name )
-            print( Coloring.label("Hash: ") + file_hash )
-            yn = raw_input( "Is it correct? (Y/N) " )
-            
-            if yn not in ( 'Y', 'y' ):
-                raise RuntimeError( 'User abort on RMS hash validation' )
-
-

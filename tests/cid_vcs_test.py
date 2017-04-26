@@ -95,24 +95,18 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         os.chdir( 'ci_build_branch_A' )
         subprocess.check_output( 'sha512sum -c .package.checksums', shell=True )
         
-        package = subprocess.check_output( 'cd %s && ls Builds/*.txz | head -1' % rms_dir, shell=True )
-        try:
-            package = str(package, 'utf8').strip()
-        except TypeError:
-            package = str(package).strip()
+        package = sorted(os.listdir(os.path.join(rms_dir, 'Builds')))[0]
             
         package_base = os.path.basename( package )
         pkg_hash = RmsTool.rmsCalcHash( package_base, 'sha512' )
         os.unlink( package_base )
-        self._call_cid( [ 'promote', package, 'Verified',
-                            '--rmsRepo', 'scp:' + rms_dir,
-                            '--rmsHash', pkg_hash ] )
+        self._call_cid( [ 'promote', 'Builds:Verified', package + '@' + pkg_hash,
+                            '--rmsRepo', 'scp:' + rms_dir ] )
         
         self._goToBase()
         os.chdir( 'ci_build_branch_A' )
-        self._call_cid( [ 'promote', package, 'Prod',
-                            '--rmsRepo', 'scp:' + rms_dir,
-                            '--rmsHash', pkg_hash ] )
+        self._call_cid( [ 'promote', 'Verified:Prod', package + '@' + pkg_hash,
+                            '--rmsRepo', 'scp:' + rms_dir ] )
         
         self._goToBase()
         content = subprocess.check_output( 'tar tJf rms_repo/Prod/wc-CI-1.3.1-*.txz | /usr/bin/sort -f', shell=True )
