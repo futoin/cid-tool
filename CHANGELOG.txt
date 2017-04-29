@@ -8,6 +8,7 @@
 * CHANGED: update scpTool to fully support RMS requirements & misc. optimizations
 * NEW: added family of "cid rms" commands
 * NEW: added scpTool port support
+* NEW: added dockerTag env support for build process, improved 'tool exec'
 
 === 0.7.3 (2017-04-20) ===
 * FIXED: merge failed message to distinguish aborted/left as-is cases

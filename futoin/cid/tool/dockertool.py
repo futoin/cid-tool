@@ -1,5 +1,5 @@
 
-import re
+import re, os
 
 from ..buildtool import BuildTool
 from ..runenvtool import RunEnvTool
@@ -26,7 +26,7 @@ Docker EE or other installation methods are out of scope for now.
         return 10
     
     def envNames(self):
-        return ['dockerBin', 'dockerVer', 'dockerRepos']
+        return ['dockerBin', 'dockerVer', 'dockerRepos', 'dockerTag']
     
     def _installTool( self, env ):
         repo = env.get('dockerRepos', 'https://download.docker.com')
@@ -105,10 +105,23 @@ Docker EE or other installation methods are out of scope for now.
         )
 
     def onBuild( self, config ):
-        cmd = [ config['env']['dockerBin'], 'build', '.' ]
+        env = config['env']
+        tag = env.get('dockerTag', os.path.basename(os.path.realpath('.')))
+        cmd = [ env['dockerBin'], 'build', '-t', tag, '.' ]
 
         if self._haveGroup('docker'):
             self._callExternal( cmd )
         else:
-            self._callExternal( ['sudo'] + cmd )
+            sudo = self._which('sudo')
+            self._callExternal( [sudo] + cmd )
+            
+    def onExec( self, env, args ):
+        bin = env['dockerBin']
+
+        if self._haveGroup('docker'):
+            self._callInteractive([bin] + args)
+        else:
+            sudo = self._which('sudo')
+            self._callInteractive([sudo, bin] + args)
+
 
