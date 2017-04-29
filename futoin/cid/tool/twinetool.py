@@ -47,3 +47,9 @@ Note: rmsRepo is ignored and rmsPool is actual repo URL or uses ~/.pypirc entry
         cmd += package_list
         
         self._callInteractive(cmd, replace=False)
+        
+    def rmsPoolList( self, config ):
+        return [
+            'pypi',
+            'pypitest',
+        ]
