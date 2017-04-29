@@ -299,7 +299,7 @@ Please see details in the FTN16 spec: ::
 
         
     cid vcs ...
-        Abstract helpers for CI environments & scripts.
+        Abstract VCS helpers for CI environments & scripts.
         They are quite limited for daily use.
         
     cid vcs checkout [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--wcDir=<wc_dir>]
@@ -336,6 +336,24 @@ Please see details in the FTN16 spec: ::
         
     cid vcs ismerged <vcs_ref> [--wcDir=<wc_dir>]
         Check if branch is merged into current branch.
+
+        
+    cid rms ...
+        Abstract RMS helpers for CI environments & scripts.
+        They are quite limited for daily use.
+        
+    cid rms list <rms_pool> [<package_pattern>] [--rmsRepo=<rms_repo>]
+        List package in specified RMS pool with optional pattern.
+        
+    cid rms retrieve <rms_pool> <packages>... [--rmsRepo=<rms_repo>]
+        Retrieve package(s) from the specified RMS pool.
+        
+    cid rms pool create <rms_pool> [--rmsRepo=<rms_repo>]
+        Ensure RMS pool exists. Creates, if missing.
+        It may require admin privileges!
+
+    cid rms pool list [--rmsRepo=<rms_repo>]
+        List currently available RMS pools.
 
 
 Excplicit futoin.json example

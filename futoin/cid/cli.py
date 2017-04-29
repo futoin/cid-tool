@@ -34,6 +34,8 @@ Usage:
     cid vcs ismerged <vcs_ref> [--wcDir=<wc_dir>]
     cid rms list <rms_pool> [<package_pattern>] [--rmsRepo=<rms_repo>]
     cid rms retrieve <rms_pool> <packages>... [--rmsRepo=<rms_repo>]
+    cid rms pool create <rms_pool> [--rmsRepo=<rms_repo>]
+    cid rms pool list [--rmsRepo=<rms_repo>]
     
 
 Options:
@@ -208,7 +210,14 @@ def runInner():
             else:
                 raise RuntimeError( "Not implemented yet." )
         elif args['rms'] and not args['deploy'] :
-            if args['list']:
+            if args['pool']:
+                if args['create']:
+                    cit.rms_pool_create( args['<rms_pool>'] )
+                elif args['list']:
+                    cit.rms_pool_list()
+                else:
+                    raise RuntimeError( "Not implemented yet." )
+            elif args['list']:
                 cit.rms_list( args['<rms_pool>'], args['<package_pattern>'] )
             elif args['retrieve']:
                 cit.rms_retrieve( args['<rms_pool>'], args['<packages>'] )

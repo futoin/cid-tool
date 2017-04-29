@@ -1214,7 +1214,31 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         config = self._config
         rmstool = self._getRmsTool()
         
+        self._info('Retrieving packages from RMS...')
+        
         rmstool.rmsRetrieve( config, rms_pool, package_list )
+        
+    def rms_pool_create( self, rms_pool ):
+        self._processWcDir()
+        
+        config = self._config
+        rmstool = self._getRmsTool()
+        
+        self._info('Creating RMS pool...')
+        
+        rmstool.rmsPoolCreate( config, rms_pool )
+
+    def rms_pool_list( self ):
+        self._processWcDir()
+
+        config = self._config
+        rmstool = self._getRmsTool()
+        
+        pool_list = rmstool.rmsPoolList( config )
+        
+        pool_list = sorted(pool_list)
+        
+        print("\n".join(pool_list))
 
     def _initConfig( self ):
         user_home = os.environ.get('HOME','/')

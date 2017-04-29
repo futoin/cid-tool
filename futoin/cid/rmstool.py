@@ -31,6 +31,12 @@ class RmsTool( SubTool ):
     def rmsRetrieve( self, config, rms_pool, package_list ):
         raise NotImplementedError( self._name )
     
+    def rmsPoolCreate( self, config, rms_pool ):
+        raise NotImplementedError( self._name )
+    
+    def rmsPoolList( self, config ):
+        raise NotImplementedError( self._name )
+    
     def _autoDetectRMS( self, config ) :
         if config.get( 'rms', None ) == self._name :
             return True
