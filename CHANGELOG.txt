@@ -2,9 +2,12 @@
 === (next) ===
 * BREAKING CHANGE: dropped --rmsHash in favor of "{package}@{hash-type}:{hash}"
 * BREAKING CHANGE: "cid promote" format to support multiple packages
+* FIXED: scpTool working with remote locations with extra configuration
 * CHANGED: "cid promote" rms_pool to support "src_pool:dst_pool" format
 * CHANGED: internally cid promote is split into rmsUpload & rmsPromote
+* CHANGED: update scpTool to fully support RMS requirements & misc. optimizations
 * NEW: added family of "cid rms" commands
+* NEW: added scpTool port support
 
 === 0.7.3 (2017-04-20) ===
 * FIXED: merge failed message to distinguish aborted/left as-is cases

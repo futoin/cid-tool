@@ -5,11 +5,27 @@ import re
 from ..rmstool import RmsTool
 
 class scpTool( RmsTool ):
-    """secure copy."""
+    """secure copy.
+
+RMS repo formats:
+
+ssh://user@host/port:root/path - full remote, note the port
+user@host:root/path - short remote
+user@host - shortest remote
+/some/path - local path
+../some/other/path - another local path
+
+More details:
+* Packages are set read-only
+* SSH shell access is required to remote as well (restricted shell is not suitable)
+* SCP itself is used only for upload & retrieval. The rest is done through SSH.
+* {hash_type}sum utilities must be present on remote for hash calculation support.
+"""
     
-    REMOTE_PATTERN = '^([a-zA-Z][a-zA-Z0-9_]+@[a-zA-Z][a-zA-Z0-9_]+)(:(.+))?$'
-    REMOTE_GRP_USER_HOST = 1
-    REMOTE_GRP_PATH = 3
+    REMOTE_PATTERN = '^(ssh://)?([a-zA-Z][a-zA-Z0-9_]+@[a-zA-Z][a-zA-Z0-9_]+)(/([0-9]{1,5}))(:(.+))?$'
+    REMOTE_GRP_USER_HOST = 2
+    REMOTE_GRP_PORT = 4
+    REMOTE_GRP_PATH = 6
     
     
     def getDeps( self ) :
@@ -19,63 +35,167 @@ class scpTool( RmsTool ):
         scpBin = config['env']['scpBin']
         rms_repo = config['rmsRepo']
         
+        remote = re.match( self.REMOTE_PATTERN, rms_repo )
+        if remote:
+            user_host = remote.group( self.REMOTE_GRP_USER_HOST )
+            port = remote.group( self.REMOTE_GRP_PORT )
+            path = remote.group( self.REMOTE_GRP_PATH )
+        
         for package in package_list:
             package_basename = os.path.basename( package )
-            dst = os.path.join( rms_repo, rms_pool, package_basename )
-            self._callExternal( [ scpBin, '-Bq', package, dst ] )
+            
+            if remote:
+                dst = "{0}:{1}".format(
+                    user_host,
+                    os.path.join(path, rms_pool, package_basename)
+                )
+                self._callRemoteSCP( config, port, package, dst )
+                
+                cmd = "chmod ugo-wx {0}".format(os.path.join(path, rms_pool, package_basename))
+                self._callSSH( config, user_host, port, cmd )
+            else:
+                dst = os.path.join( rms_repo, rms_pool, package_basename )
+                self._callExternal( [ scpBin, '-Bq', package, dst ] )
+                self._callExternal( [ 'chmod', 'ugo-wx', dst ] )
     
     def rmsPromote( self, config, src_pool, dst_pool, package_list ):
         scpBin = config['env']['scpBin']
         rms_repo = config['rmsRepo']
         
         package_list = self.rmsProcessChecksums(config, src_pool, package_list)
+        
+        remote = re.match( self.REMOTE_PATTERN, rms_repo )
+        if remote:
+            user_host = remote.group( self.REMOTE_GRP_USER_HOST )
+            port = remote.group( self.REMOTE_GRP_PORT )
+            path = remote.group( self.REMOTE_GRP_PATH )
 
         for package in package_list:
             package_basename = os.path.basename( package )
             
-            src = os.path.join( rms_repo, src_pool, package_basename )
-            dst = os.path.join( rms_repo, dst_pool, package_basename )
-            self._callExternal( [ scpBin, '-Bq', src, dst ] )
+            if remote:
+                cmd = 'cp -a {0} {1} && chmod ugo-wx {1}'.format(
+                    os.path.join(path, src_pool, package_basename),
+                    os.path.join(path, dst_pool, package_basename)
+                )
+                self._callSSH( config, user_host, port, cmd )
+            else:
+                src = os.path.join( rms_repo, src_pool, package_basename )
+                dst = os.path.join( rms_repo, dst_pool, package_basename )
+                self._callExternal( [ scpBin, '-Bq', src, dst ] )
+                self._callExternal( [ 'chmod', 'ugo-wx', dst ] )
 
     def rmsGetList( self, config, rms_pool, package_hint ):
         env = config['env']
         rms_repo = config['rmsRepo']
-        result = re.match( self.REMOTE_PATTERN, rms_repo )
+        remote = re.match( self.REMOTE_PATTERN, rms_repo )
         
-        if result:
-            user_host = result.group( self.REMOTE_GRP_USER_HOST )
-            path = os.path.join( result.group( self.REMOTE_GRP_PATH ), rms_pool )
+        if remote:
+            user_host = remote.group( self.REMOTE_GRP_USER_HOST )
+            port = remote.group( self.REMOTE_GRP_PORT )
+            path = os.path.join( remote.group( self.REMOTE_GRP_PATH ), rms_pool )
             cmd = 'ls {0}'.format( path )
-            ret = self._callExternal( [ env['sshBin'], '-t', user_host, '--', cmd ] ).split("\n")
+            ret = self._callSSH( config, user_host, port, cmd ).split("\n")
         else:
-            path = os.path.join( rms_repo, rms_pool )  
+            path = os.path.join( rms_repo, rms_pool )
             ret = os.listdir(path)
     
         return ret
     
     def rmsRetrieve( self, config, rms_pool, package_list ):
         scpBin = config['env']['scpBin']
+        rms_repo = config['rmsRepo']
+        
+        package_list = self.rmsProcessChecksums(config, rms_pool, package_list)
+        
+        remote = re.match( self.REMOTE_PATTERN, rms_repo )
+        if remote:
+            user_host = remote.group( self.REMOTE_GRP_USER_HOST )
+            port = remote.group( self.REMOTE_GRP_PORT )
+            path = remote.group( self.REMOTE_GRP_PATH )
         
         for package in package_list:
             package_basename = os.path.basename( package )
-            src = os.path.join( config['rmsRepo'], rms_pool, package_basename )
-            self._callExternal( [ scpBin, '-Bq', src, package_basename ] )
+            
+            if remote:
+                src = "{0}:{1}".format(
+                    user_host,
+                    os.path.join(path, rms_pool, package_basename)
+                )
+                self._callRemoteSCP( config, port, src, package_basename )
+            else:
+                src = os.path.join( rms_repo, rms_pool, package_basename )
+                self._callExternal( [ scpBin, '-Bq', src, package_basename ] )
             
     def rmsGetHash(self, config, rms_pool, package, hash_type ):
         env = config['env']
         rms_repo = config['rmsRepo']
-        result = re.match( self.REMOTE_PATTERN, rms_repo )
+        remote = re.match( self.REMOTE_PATTERN, rms_repo )
         
-        if result:
-            user_host = result.group( self.REMOTE_GRP_USER_HOST )
-            path = os.path.join( result.group( self.REMOTE_GRP_PATH ), rms_pool )
-            cmd = 'ls {0}'.format( path )
+        if remote:
+            user_host = remote.group( self.REMOTE_GRP_USER_HOST )
+            port = remote.group( self.REMOTE_GRP_PORT )
+            path = os.path.join( remote.group( self.REMOTE_GRP_PATH ), rms_pool, package )
             cmd = "{0}sum {1}".format(hash_type, path)
-            ret = self._callExternal( [ env['sshBin'], '-t', user_host, '--', cmd ], verbose=False )
+            ret = self._callSSH( config, user_host, port, cmd, verbose=False ).strip().split()[0]
         else:
-            path = os.path.join( rms_repo, rms_pool, package )  
-            ret = self._callExternal( [ hash_type + 'sum', path], verbose=False )
+            path = os.path.join( rms_repo, rms_pool, package )
+            ret = self.rmsCalcHash(path, hash_type).split(':')[1]
             
-        return ret.strip().split()[0]
+        return ret
+
+    def rmsPoolCreate( self, config, rms_pool ):
+        env = config['env']
+        rms_repo = config['rmsRepo']
+        remote = re.match( self.REMOTE_PATTERN, rms_repo )
+
+        if remote:
+            user_host = remote.group( self.REMOTE_GRP_USER_HOST )
+            port = remote.group( self.REMOTE_GRP_PORT )
+            path = os.path.join( remote.group( self.REMOTE_GRP_PATH ), rms_pool )
+            cmd = 'mkdir -p {0}'.format( path )
+            self._callSSH( config, user_host, port, cmd )
+        else:
+            path = os.path.join( rms_repo, rms_pool )
             
+            if not os.path.exists(path):
+                os.makedirs(path)
+    
+    def rmsPoolList( self, config ):
+        env = config['env']
+        rms_repo = config['rmsRepo']
+        remote = re.match( self.REMOTE_PATTERN, rms_repo )
+
+        if remote:
+            user_host = remote.group( self.REMOTE_GRP_USER_HOST )
+            port = remote.group( self.REMOTE_GRP_PORT )
+            path = remote.group( self.REMOTE_GRP_PATH )
+            cmd = 'ls {0}'.format( path )
+            ret = self._callSSH( config, user_host, port, cmd ).split("\n")
+        else:
+            ret = os.listdir(rms_repo)
+    
+        return ret
+    
+    def _callRemoteSCP( self, config, port, src, dst ):
+        port = port or '22'
+        self._callExternal( [
+                config['env']['scpBin'],
+                '-Bq', '-P', port,
+                '-o', 'StrictHostKeyChecking=no',
+                src, dst
+        ] )
+
+    def _callSSH( self, config, user_host, port, cmd, **kwargs ):
+        port = port or '22'
+        return self._callExternal( [
+                config['env']['sshBin'],
+                '-Tqn',
+                '-o', 'BatchMode=yes',
+                '-o', 'StrictHostKeyChecking=no',
+                '-p', port,
+                user_host, '--', cmd
+            ], **kwargs )
+    
+
     
