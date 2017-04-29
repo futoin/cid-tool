@@ -4,7 +4,7 @@ Vagrant.configure("2") do |config|
   
     config.vm.provider "virtualbox" do |v|
         v.linked_clone = true
-        v.memory = 512
+        v.memory = 1024
         v.cpus = 2
         if ENV['VAGRANT_GUI']
             v.gui = 1

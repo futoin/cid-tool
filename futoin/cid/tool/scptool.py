@@ -138,9 +138,10 @@ More details:
             path = os.path.join( remote.group( self.REMOTE_GRP_PATH ), rms_pool, package )
             cmd = "{0}sum {1}".format(hash_type, path)
             ret = self._callSSH( config, user_host, port, cmd, verbose=False ).strip().split()[0]
+            ret = hash_type + ':' + ret
         else:
             path = os.path.join( rms_repo, rms_pool, package )
-            ret = self.rmsCalcHash(path, hash_type).split(':')[1]
+            ret = self.rmsCalcHash(path, hash_type)
             
         return ret
 
@@ -179,20 +180,22 @@ More details:
     
     def _callRemoteSCP( self, config, port, src, dst ):
         port = port or '22'
+        env = config['env']
         self._callExternal( [
-                config['env']['scpBin'],
+                env['scpBin'],
                 '-Bq', '-P', port,
-                '-o', 'StrictHostKeyChecking=no',
+                '-o', 'StrictHostKeyChecking={0}'.format(env['sshStrictHostKeyChecking']),
                 src, dst
         ] )
 
     def _callSSH( self, config, user_host, port, cmd, **kwargs ):
         port = port or '22'
+        env = config['env']
         return self._callExternal( [
-                config['env']['sshBin'],
+                env['sshBin'],
                 '-Tqn',
                 '-o', 'BatchMode=yes',
-                '-o', 'StrictHostKeyChecking=no',
+                '-o', 'StrictHostKeyChecking={0}'.format(env['sshStrictHostKeyChecking']),
                 '-p', port,
                 user_host, '--', cmd
             ], **kwargs )

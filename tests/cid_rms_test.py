@@ -40,18 +40,34 @@ class cid_RMS_UTBase ( cid_UTBase ) :
         
         if not os.path.exists(ssh_dir):
             os.makedirs(ssh_dir)
-        else:
-            subprocess.check_output( [ 'ssh-keygen', '-R', 'localhost' ] )
         
         if not os.path.exists( os.path.join(ssh_dir, 'id_rsa.pub') ):
             subprocess.check_output( [ 'ssh-keygen', '-q',
                                       '-t', 'rsa',
                                       '-b', '2048',
                                       '-N', '',
-                                      '-f', os.path.join(ssh_dir, 'id_rsa') ] )
+                                      '-f', os.path.join(ssh_dir, 'id_rsa') ],
+                                       stderr=cls._dev_null )
 
         shutil.copy(os.path.join(ssh_dir, 'id_rsa.pub'), 'authorized_keys')
         
+    @classmethod
+    def _addSshHost( cls, port, user ):
+        pwdres = pwd.getpwuid(os.geteuid())
+        ssh_dir = os.path.join(pwdres[5], '.ssh')
+        
+        if os.path.exists(os.path.join(ssh_dir, 'known_hosts')):
+            subprocess.check_output(
+                    [ 'ssh-keygen', '-R', '[localhost]:{0}'.format(port) ],
+                    stderr=cls._dev_null )
+        
+        cls._call_cid(['tool', 'exec', 'ssh', '--',
+                       '-n',
+                       '-o', 'BatchMode=yes',
+                       '-o', 'StrictHostKeyChecking=no',
+                       '-p', str(port), user+'@localhost',
+                       'false',
+                      ], ignore=True)
         
     def test_00_create_pool( self ):
         self._call_cid(['rms', 'pool', 'create', 'CIBuilds', '--rmsRepo', self.RMS_REPO])
@@ -138,16 +154,17 @@ class cid_artifactory_Test ( cid_RMS_UTBase ) :
         cls._call_cid(['tool', 'exec', 'docker', '--',
                        'pull', 'docker.bintray.io/jfrog/artifactory-oss:latest'])
         cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'run', '--name', 'artifactory', '-d',
+                       'run', '--name', 'rmstest', '-d',
                        '-p', '8081:8081',
+                       '-m', '512m',
                        'docker.bintray.io/jfrog/artifactory-oss:latest'])
     
     @classmethod
     def _removeRepo( cls ):
         cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'stop', 'artifactory'])
+                       'stop', 'rmstest'])
         cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'rm', 'artifactory'])
+                       'rm', 'rmstest'])
 
 #=============================================================================        
 class cid_nexus_Test ( cid_RMS_UTBase ) :
@@ -167,52 +184,81 @@ class cid_nexus_Test ( cid_RMS_UTBase ) :
 class cid_scp_Test ( cid_RMS_UTBase ) :
     __test__ = True
     TEST_DIR = os.path.join(cid_RMS_UTBase.TEST_RUN_DIR, 'rms_scp')
-    RMS_REPO = 'scp:ssh://scp@localhost/8022:rmsroot'
+    RMS_REPO = 'scp:ssh://rms@localhost/8022:rmsroot'
 
     @classmethod
     def _createRepo( cls ):
         cls._genSSH()
         cls._writeFile('Dockerfile', '''
 FROM debian:stable-slim
-RUN apt-get update && apt-get install -y openssh-server
-RUN useradd -m -d /scp -U scp && mkdir /scp/.ssh
-COPY authorized_keys /scp/.ssh/
-RUN chmod 700 /scp/.ssh/ && chmod 600 /scp/.ssh/*
-RUN mkdir /scp/rmsroot/
-RUN mkdir /var/run/sshd
-RUN chown -R scp:scp /scp
+RUN useradd -m -d /rms -U rms && mkdir /rms/.ssh
+COPY authorized_keys /rms/.ssh/
+RUN apt-get update && apt-get install -y openssh-server && \
+    chmod 700 /rms/.ssh/ && chmod 600 /rms/.ssh/* && \
+    mkdir /var/run/sshd  && \
+    chown -R rms:rms /rms
 EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]
 ''')
-        cls._removeRepoA(True)
+        cls._removeRepo(True)
         
         cls._call_cid(['build'])
         
         cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'run', '--name', 'scp', '-d',
-                       '-p', '8022:22', 'rms_scp'])
+                       'run', '--name', 'rmstest', '-d',
+                       '-m', '512m',
+                       '-p', '8022:22',
+                       'rms_scp'])
+        
+        cls._addSshHost(8022, 'scp')
     
     @classmethod
-    def _removeRepoA( cls, ignore=False ):
+    def _removeRepo( cls, ignore=False ):
         cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'stop', 'scp'], ignore=ignore)
+                       'stop', 'rmstest'], ignore=ignore)
         cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'rm', 'scp'], ignore=ignore)
-        cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'rmi', 'rms_scp'], ignore=ignore)
+                       'rm', 'rmstest'], ignore=ignore)
 
 
 #=============================================================================        
 class cid_svn_Test ( cid_RMS_UTBase ) :
-    #__test__ = True
+    __test__ = True
     TEST_DIR = os.path.join(cid_RMS_UTBase.TEST_RUN_DIR, 'rms_svn')
-    RMS_REPO = 'svn:http://localhost:80'
+    RMS_REPO = 'svn:svn+ssh://rms@localhost:8022/rms'
 
     @classmethod
     def _createRepo( cls ):
-        pass
+        cls._genSSH()
+        cls._writeFile('Dockerfile', '''
+FROM debian:stable-slim
+RUN useradd -m -d /rms -U rms && mkdir /rms/.ssh
+COPY authorized_keys /rms/.ssh/
+RUN apt-get update && apt-get install -y openssh-server && \
+    chmod 700 /rms/.ssh/ && chmod 600 /rms/.ssh/* && \
+    mkdir /var/run/sshd  && \
+    chown -R rms:rms /rms
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]
+
+RUN apt-get install -y subversion
+RUN svnadmin create /rms/rmsroot && chown -R rms:rms /rms/rmsroot
+RUN sed -i -e 's@ssh-rsa@command="/usr/bin/svnserve -r /rms/rmsroot -t --tunnel-user=svnuser",no-pty ssh-rsa@' /rms/.ssh/authorized_keys
+''')
+        cls._removeRepo(True)
+        
+        cls._call_cid(['build'])
+        
+        cls._call_cid(['tool', 'exec', 'docker', '--',
+                       'run', '--name', 'rmstest', '-d',
+                       '-m', '512m',
+                       '-p', '8022:22',
+                       'rms_svn'])
+        cls._addSshHost(8022, 'svn')
     
     @classmethod
-    def _removeRepo( cls ):
-        pass
+    def _removeRepo( cls, ignore=False ):
+        cls._call_cid(['tool', 'exec', 'docker', '--',
+                       'stop', 'rmstest'], ignore=ignore)
+        cls._call_cid(['tool', 'exec', 'docker', '--',
+                       'rm', 'rmstest'], ignore=ignore)
 

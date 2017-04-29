@@ -37,6 +37,9 @@ class RmsTool( SubTool ):
     def rmsPoolList( self, config ):
         raise NotImplementedError( self._name )
     
+    def rmsGetHash(self, config, rms_pool, package, hash_type ):
+        raise NotImplementedError( self._name )
+    
     def _autoDetectRMS( self, config ) :
         if config.get( 'rms', None ) == self._name :
             return True
@@ -51,7 +54,8 @@ class RmsTool( SubTool ):
             filename = package[0]
             
             if len(package) == 2:
-                hash_type, hash = package[1].split(':', 2)
+                hash_str = package[1]
+                hash_type, hash = hash_str.split(':', 2)
                 
                 if hash_type not in self.ALLOWED_HASH_TYPES:
                     self._errorExit('Unsupported hash type "{0}"'.format(hash_type))
@@ -59,15 +63,12 @@ class RmsTool( SubTool ):
                 self._info('Verifying {2} hash of {0} in {1}'.format(filename, rms_pool, hash_type))
                 rms_hash = self.rmsGetHash( config, rms_pool, filename, hash_type)
                 
-                if rms_hash != hash:
+                if rms_hash != hash_str:
                     self._errorExit('RMS hash mismatch "{0}" != "{1}"'.format(rms_hash, hash))
             
             ret.append(filename)
             
         return ret
-    
-    def rmsGetHash(self, config, rms_pool, package, hash_type ):
-        raise NotImplementedError( self._name )
 
     @classmethod
     def rmsCalcHash( cls, file_name, hash_type ) :

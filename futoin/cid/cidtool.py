@@ -1216,6 +1216,12 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         self._info('Retrieving packages from RMS...')
         
+        for p in package_list:
+            p = os.path.basename(p).split('@', 1)[0]
+            
+            if os.path.exists(p):
+                self._errorExit('File already exists: {0}'.format(p))
+        
         rmstool.rmsRetrieve( config, rms_pool, package_list )
         
     def rms_pool_create( self, rms_pool ):

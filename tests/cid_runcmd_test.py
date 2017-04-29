@@ -129,7 +129,7 @@ object Hi {
         cls._call_cid(['tool', 'package', 'gradle'])
             
     def _test_run(self, cmd, expect):
-        res = self._call_cid(['run', cmd], retout=True)
+        res = self._call_cid(['run', cmd], retout=True).strip()
         self.assertEqual(res, expect)
             
     def test10_run_custom_str( self ):

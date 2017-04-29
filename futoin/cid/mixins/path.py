@@ -7,25 +7,47 @@ from ..coloring import Coloring
 class PathMixIn( object ):
     _dev_null = None
     
-    def _callExternal( self, cmd, suppress_fail=False, verbose=True ) :
+    def _callExternal( self, cmd, suppress_fail=False, verbose=True, output_handler=None ) :
         try:
+            if not PathMixIn._dev_null:
+                PathMixIn._dev_null = open(os.devnull, 'w')
+                
+            stdin = PathMixIn._dev_null
+            
             if verbose and not suppress_fail:
                 print( Coloring.infoLabel('Call: ') +
                       Coloring.info(subprocess.list2cmdline( cmd )),
                       file=sys.stderr )
                 stderr = sys.stderr
             else:
-                if not PathMixIn._dev_null:
-                    PathMixIn._dev_null = open(os.devnull, 'w')
                 stderr = PathMixIn._dev_null
-            res = subprocess.check_output( cmd, stdin=subprocess.PIPE, stderr=stderr )
-            
-            try:
-                res = str(res, 'utf8')
-            except:
-                pass
-            
-            return res
+                
+            if output_handler:
+                chunk_size = 65536
+                p = subprocess.Popen(cmd, stdin=stdin, stderr=stderr,
+                                     bufsize=chunk_size*2, close_fds=True,
+                                     stdout=subprocess.PIPE)
+                
+                try:
+                    while True:
+                        chunk = p.stdout.read(chunk_size)
+                        
+                        if chunk:
+                            output_handler(chunk)
+                        else:
+                            break;
+                finally:
+                    p.wait()
+                    
+            else:
+                res = subprocess.check_output( cmd, stdin=stdin, stderr=stderr )
+                
+                try:
+                    res = str(res, 'utf8')
+                except:
+                    pass
+                
+                return res
         except subprocess.CalledProcessError as e:
             if suppress_fail :
                 return None
