@@ -27,14 +27,7 @@ class cid_Tool_UTCommon ( cid_Tool_UTBase ) :
         self._call_cid( [ 'tool', 'update', self.TOOL_NAME ] )
         
     def test_60_tool_env( self ):
-        (r, w) = os.pipe()
-        self._call_cid( [ 'tool', 'env', self.TOOL_NAME ], stdout=w )
-        res = os.read(r, 4096)
-        os.close(r)
-        os.close(w)
-        
-        try: res = str(res, 'utf8')
-        except: pass
+        res = self._call_cid( [ 'tool', 'env', self.TOOL_NAME ], retout=True )
         
         vars = {}
         for l in res.split("\n"):
@@ -50,16 +43,9 @@ class cid_Tool_UTCommon ( cid_Tool_UTBase ) :
             
             del os.environ[ver_var]
             
-            (r, w) = os.pipe()
-            self._call_cid( [ 'tool', 'env', self.TOOL_NAME, tool_ver ], stdout=w )
-            res2 = os.read(r, 4096)
-            os.close(r)
-            os.close(w)
+            res2 = self._call_cid( [ 'tool', 'env', self.TOOL_NAME, tool_ver ], retout=True )
             
             os.environ[ver_var] = tool_ver
-            
-            try: res2 = str(res2, 'utf8')
-            except: pass
             
             self.assertEqual(res, res2)
 

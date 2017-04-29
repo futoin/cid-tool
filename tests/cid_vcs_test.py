@@ -78,14 +78,10 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         self._call_cid( [ 'prepare', 'branch_A' ] )
     
     def test_40_ci_build( self ):
-        try:
-            os.makedirs( 'rms_repo/Builds')
-            os.makedirs( 'rms_repo/Verified')
-            os.makedirs( 'rms_repo/Prod')
-        except :
-            pass
-        
         rms_dir = os.path.realpath( 'rms_repo' )
+        
+        for p in ['Builds', 'Verified', 'Prod']:
+            self._call_cid( [ 'rms', 'pool', 'create', p, '--rmsRepo', 'scp:' + rms_dir ] )
 
         self._call_cid( [ 'ci_build', 'branch_A', 'Builds',
                             '--vcsRepo', self.VCS_REPO,
@@ -284,13 +280,8 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         self._call_cid( [ 'vcs', 'checkout', 'branch_A', '--vcsRepo', self.VCS_REPO, '--wcDir', 'vcstags' ] )
         os.chdir('vcstags')
         
-        (r, w) = os.pipe()
-        
         self._call_cid( [ 'tag', 'branch_A', 'patch' ] )
-        self._call_cid( [ 'vcs', 'tags' ], stdout=w )
-        res = os.read(r, 4096)
-        try: res = str(res, 'utf8')
-        except: pass
+        res = self._call_cid( [ 'vcs', 'tags' ], retout=True )
         res = res.strip().split("\n")
         self.assertEqual(res, [
             'v1.2.3',
@@ -302,10 +293,7 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         ])
         
         self._call_cid( [ 'tag', 'branch_A', 'minor' ] )
-        self._call_cid( [ 'vcs', 'tags' ], stdout=w )
-        res = os.read(r, 4096)
-        try: res = str(res, 'utf8')
-        except: pass
+        res = self._call_cid( [ 'vcs', 'tags' ], retout=True )
         res = res.strip().split("\n")
         self.assertEqual(res, [
             'v1.2.3',
@@ -317,10 +305,7 @@ class cid_VCS_UTBase ( cid_UTBase ) :
             'v1.4.0',
         ])
         
-        self._call_cid( [ 'vcs', 'tags', 'v1.3*' ], stdout=w )
-        res = os.read(r, 4096)
-        try: res = str(res, 'utf8')
-        except: pass
+        res = self._call_cid( [ 'vcs', 'tags', 'v1.3*' ], retout=True )
         res = res.strip().split("\n")
         self.assertEqual(res, [
             'v1.3.0',
@@ -330,10 +315,7 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         
 
         self._call_cid( [ 'tag', 'branch_A', 'major' ] )
-        self._call_cid( [ 'vcs', 'tags' ], stdout=w )
-        res = os.read(r, 4096)
-        try: res = str(res, 'utf8')
-        except: pass
+        res = self._call_cid( [ 'vcs', 'tags' ], retout=True )
         res = res.strip().split("\n")
         self.assertEqual(res, [
             'v1.2.3',
@@ -346,20 +328,13 @@ class cid_VCS_UTBase ( cid_UTBase ) :
             'v2.0.0',
         ])
         
-        os.close(w)
-        os.close(r)
-        
     def test_82_vcsbranches( self ):
         self._call_cid( [ 'vcs', 'checkout', 'branch_A', '--vcsRepo', self.VCS_REPO, '--wcDir', 'vcsbrch' ] )
         os.chdir('vcsbrch')
         
-        (r, w) = os.pipe()
-        
         self._call_cid( [ 'vcs', 'branch', 'branch_B1' ] )
-        self._call_cid( [ 'vcs', 'branches' ], stdout=w )
-        res = os.read(r, 4096)
-        try: res = str(res, 'utf8')
-        except: pass
+        res = self._call_cid( [ 'vcs', 'branches' ], retout=True )
+
         res = res.strip().split("\n")
         self.assertEqual(res, [
             'branch_A',
@@ -367,10 +342,7 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         ])
         
         self._call_cid( [ 'vcs', 'branch', 'branch_B2' ] )
-        self._call_cid( [ 'vcs', 'branches' ], stdout=w )
-        res = os.read(r, 4096)
-        try: res = str(res, 'utf8')
-        except: pass
+        res = self._call_cid( [ 'vcs', 'branches' ], retout=True )
         res = res.strip().split("\n")
         self.assertEqual(res, [
             'branch_A',
@@ -378,10 +350,7 @@ class cid_VCS_UTBase ( cid_UTBase ) :
             'branch_B2'
         ])
         
-        self._call_cid( [ 'vcs', 'branches', '*_B*' ], stdout=w )
-        res = os.read(r, 4096)
-        try: res = str(res, 'utf8')
-        except: pass
+        res = self._call_cid( [ 'vcs', 'branches', '*_B*' ], retout=True )
         res = res.strip().split("\n")
         self.assertEqual(res, [
             'branch_B1',
@@ -390,18 +359,12 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         
 
         self._call_cid( [ 'vcs', 'delete', 'branch_B2' ] )
-        self._call_cid( [ 'vcs', 'branches' ], stdout=w )
-        res = os.read(r, 4096)
-        try: res = str(res, 'utf8')
-        except: pass
+        res = self._call_cid( [ 'vcs', 'branches' ], retout=True )
         res = res.strip().split("\n")
         self.assertEqual(res, [
             'branch_A',
             'branch_B1',
         ])
-        
-        os.close(w)
-        os.close(r)
         
     def test_83_vcsconflict( self ):
         self._call_cid( [ 'vcs', 'checkout', 'branch_A', '--vcsRepo', self.VCS_REPO, '--wcDir', 'vcscflct' ] )

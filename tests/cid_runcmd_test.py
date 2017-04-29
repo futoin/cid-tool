@@ -129,17 +129,7 @@ object Hi {
         cls._call_cid(['tool', 'package', 'gradle'])
             
     def _test_run(self, cmd, expect):
-        (r, w) = os.pipe()
-        self._call_cid(['run', cmd], stdout=w)
-        res = os.read(r, 4096).strip()
-        os.close(r)
-        os.close(w)
-        
-        try:
-            res = str(res, 'utf8')
-        except:
-            pass
-        
+        res = self._call_cid(['run', cmd], retout=True)
         self.assertEqual(res, expect)
             
     def test10_run_custom_str( self ):
@@ -173,19 +163,7 @@ object Hi {
         self._test_run('scala_ep', 'SCALA')
         
     def test50_run_all( self ):
-        (r, w) = os.pipe()
-        self._call_cid(['run'], stdout=w)
-        
-        res = os.read(r, 4096)
-        
-        os.close(r)
-        os.close(w)
-        
-        try:
-            res = str(res, 'utf8')
-        except:
-            pass
-
+        res= self._call_cid(['run'], retout=True)
         res = sorted(res.strip().split("\n"))
 
         expect = sorted([

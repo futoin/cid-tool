@@ -49,11 +49,15 @@ class cid_UTBase ( unittest.TestCase ) :
         self._goToBase()
 
     @classmethod
-    def _call_cid( cls, args, stdin=None, stdout=None, returncode=0 ) :
+    def _call_cid( cls, args, stdin=None, stdout=None, returncode=0, ignore=False, retout=False ) :
         cmd = []
         
         if CIDTEST_BIN_EXT:
             cmd.append(sys.executable)
+            
+        if retout:
+            (r, w) = os.pipe()
+            stdout = w
             
         cmd.append( CIDTEST_BIN )
         cmd += args
@@ -75,9 +79,24 @@ class cid_UTBase ( unittest.TestCase ) :
         err = p.stderr.read()
 
         p.wait()
+        
+        if retout:
+            res = os.read(r, 4096)
+            os.close(r)
+            os.close(w)
+        
+        if ignore:
+            return
+        
         if p.returncode != returncode:
             getattr( sys.stderr, 'buffer', sys.stderr ).write( err )
             raise RuntimeError( "Failed" )
+        
+        if retout:
+            try: res = str(res, 'utf8')
+            except: pass
+        
+            return res
         
     @classmethod
     def _writeFile( cls, file_name, content ):
