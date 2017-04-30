@@ -64,6 +64,9 @@ fi
 # CentOS 6
 [ -e /opt/rh/python27/enable ] && source /opt/rh/python27/enable 
 
+# Workaround, if docker is not enabled by default
+which docker >/dev/null 2>&1 && sudo systemctl start docker
+
 function run_common() {
     (
         export pythonVer=$1
