@@ -56,12 +56,12 @@ if binary versions are not found for specific system.
                 self._GPG_BIRGHTBOX_REPO,
                 codename_map = {
                     # Ubuntu
-                    'zesty': 'yakkety',
+                    #'zesty': 'yakkety',
                     # Debian
                     'jessie': 'trusty',
-                    'stretch': 'xenial',
-                    'testing': 'yakkety',
-                    'sid': 'yakkety',
+                    'stretch': 'zesty',
+                    'testing': 'zesty',
+                    'sid': 'zesty',
                 },
                 repo_base = '{0}/dists'.format(repo)
             )
