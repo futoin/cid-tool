@@ -2,7 +2,6 @@
 from __future__ import print_function
 
 import os, re, sys, subprocess
-import hashlib
 
 from ..vcstool import VcsTool
 from ..rmstool import RmsTool
@@ -302,6 +301,8 @@ Home: https://subversion.apache.org/
         rms_repo = config['rmsRepo']
             
         src = '{0}/{1}/{2}'.format(rms_repo, rms_pool, package)
+        
+        import hashlib
         
         hf = hashlib.new( hash_type )
     

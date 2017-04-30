@@ -1,8 +1,6 @@
 
 from __future__ import print_function, absolute_import
 
-import hashlib, os
-
 from .subtool import SubTool
 from .coloring import Coloring
 
@@ -72,6 +70,8 @@ class RmsTool( SubTool ):
 
     @classmethod
     def rmsCalcHash( cls, file_name, hash_type ) :
+        import hashlib
+        
         hf = hashlib.new( hash_type )
         with open( file_name, 'rb' ) as f:
             for chunk in iter(lambda: f.read(65536), ''):
