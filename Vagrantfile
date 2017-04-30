@@ -47,6 +47,9 @@ which apt-get && apt-get update || true
                 dist_controller = 'IDE'
             elsif name == 'archlinux'
                 dist_controller = 'IDE Controller'
+                node.vm.provision 'shell', inline: 'sudo pacman -Syu --noconfirm'
+                # requires vagrant-reload plugin
+                node.vm.provision :reload
             elsif name == 'macos'
                 dist_controller = 'SATA'
                 group = 'staff'

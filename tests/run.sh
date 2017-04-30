@@ -31,16 +31,13 @@ if [ "$1" = 'fast' ]; then
 fi
 
 if [ "$1" = 'frompip' ]; then
+    frompip=frompip
+    shift 1
     # make it fresh after editable mode
     sudo rm -rf ~/.virtualenv-*
-    pythonVer='2' $CID_BOOT tool exec pip -- install --upgrade --no-cache-dir futoin-cid
-    pythonVer='3' $CID_BOOT tool exec pip -- install --upgrade --no-cache-dir futoin-cid
-    shift 1
-    
-    fast=fast
+    pip_install_opts="--upgrade --no-cache-dir futoin-cid"
 else
-    pythonVer='2' $CID_BOOT tool exec pip -- install -e $(pwd)
-    pythonVer='3' $CID_BOOT tool exec pip -- install -e $(pwd)
+    pip_install_opts="-e $(pwd)"
 fi
 
 if [ "$1" = 'nocompile' ]; then
@@ -67,21 +64,23 @@ fi
 # CentOS 6
 [ -e /opt/rh/python27/enable ] && source /opt/rh/python27/enable 
 
-if [ "$fast" != 'fast' ]; then
-    echo "Python 3"
+function run_common() {
     (
-        eval $(pythonVer='3' $CID_BOOT tool env virtualenv)
+        export pythonVer=$1
+        echo "Python $pythonVer"
+        
+        $CID_BOOT tool exec pip -- install $pip_install_opts
+        eval $($CID_BOOT tool env virtualenv)
         export CIDTEST_BIN=$(which cid)
+        
+        $CIDTEST_BIN tool exec pip -- install nose
+        $CIDTEST_BIN tool exec python -- -m nose $tests
+    )   
+}
 
-        pythonVer='3' $CIDTEST_BIN tool exec pip -- install nose
-        pythonVer='3' $CIDTEST_BIN tool exec python -- -m nose $tests
-    )
+if [ "$fast" != 'fast' ]; then
+    run_common 3
+    run_common 2
+else
+    run_common $(python -c 'import sys; sys.stdout.write(str(sys.version_info.major))')
 fi
-
-echo "Python 2"
-(
-    eval $(pythonVer='2' $CID_BOOT tool env virtualenv)
-    export CIDTEST_BIN=$(which cid)
-    pythonVer='2' $CIDTEST_BIN tool exec pip -- install nose
-    pythonVer='2' $CIDTEST_BIN tool exec python -- -m nose $tests
-)
