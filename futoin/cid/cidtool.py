@@ -442,10 +442,11 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         config = self._config
         rmstool = self._getRmsTool()
         
-        pools = rms_pool.split(':', 2)
+        pools = rms_pool.split(':', 1)
         
         if len(pools) == 2:
             self._info('Promoting from {0} to {1} pool: {2}'.format(pools[0], pools[1], ', '.join(packages)))
+            packages = rmstool.rmsProcessChecksums(config, pools[0], packages)
             rmstool.rmsPromote( config, pools[0], pools[1], packages )
         else :
             self._info('Promoting to {0} pool: {1}'.format(rms_pool, ', '.join(packages)))
@@ -570,7 +571,9 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         # Retrieve package, if not available
         if not os.path.exists( package_basename ) :
             self._info('Retrieving the package')
-            rmstool.rmsRetrieve( config, rms_pool, [package] )
+            package_list = [package]
+            package_list = rmstool.rmsProcessChecksums(config, rms_pool, package_list)
+            rmstool.rmsRetrieve( config, rms_pool, package_list )
             
         package_noext_tmp = package_noext + '.tmp'
         
@@ -1222,6 +1225,7 @@ class CIDTool( PathMixIn, UtilMixIn ) :
             if os.path.exists(p):
                 self._errorExit('File already exists: {0}'.format(p))
         
+        package_list = rmstool.rmsProcessChecksums(config, rms_pool, package_list)
         rmstool.rmsRetrieve( config, rms_pool, package_list )
         
     def rms_pool_create( self, rms_pool ):

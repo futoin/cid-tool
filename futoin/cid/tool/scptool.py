@@ -49,20 +49,27 @@ More details:
                     user_host,
                     os.path.join(path, rms_pool, package_basename)
                 )
+                
+                if '/' in rms_pool:
+                    cmd = "mkdir -p {0}".format(os.path.join(path, rms_pool))
+                    self._callSSH( config, user_host, port, cmd )
+                
                 self._callRemoteSCP( config, port, package, dst )
                 
                 cmd = "chmod ugo-wx {0}".format(os.path.join(path, rms_pool, package_basename))
                 self._callSSH( config, user_host, port, cmd )
             else:
                 dst = os.path.join( rms_repo, rms_pool, package_basename )
+                
+                if '/' in rms_pool:
+                    self._callExternal( [ 'mkdir', '-p', os.path.join(rms_repo, rms_pool) ] )
+                    
                 self._callExternal( [ scpBin, '-Bq', package, dst ] )
                 self._callExternal( [ 'chmod', 'ugo-wx', dst ] )
     
     def rmsPromote( self, config, src_pool, dst_pool, package_list ):
         scpBin = config['env']['scpBin']
         rms_repo = config['rmsRepo']
-        
-        package_list = self.rmsProcessChecksums(config, src_pool, package_list)
         
         remote = re.match( self.REMOTE_PATTERN, rms_repo )
         if remote:
@@ -74,6 +81,10 @@ More details:
             package_basename = os.path.basename( package )
             
             if remote:
+                if '/' in dst_pool:
+                    cmd = "mkdir -p {0}".format(os.path.join(path, dst_pool))
+                    self._callSSH( config, user_host, port, cmd )
+                
                 cmd = 'cp -a {0} {1} && chmod ugo-wx {1}'.format(
                     os.path.join(path, src_pool, package_basename),
                     os.path.join(path, dst_pool, package_basename)
@@ -82,6 +93,10 @@ More details:
             else:
                 src = os.path.join( rms_repo, src_pool, package_basename )
                 dst = os.path.join( rms_repo, dst_pool, package_basename )
+                
+                if '/' in dst_pool:
+                    self._callExternal( [ 'mkdir', '-p', os.path.join(rms_repo, dst_pool) ] )
+                    
                 self._callExternal( [ scpBin, '-Bq', src, dst ] )
                 self._callExternal( [ 'chmod', 'ugo-wx', dst ] )
 
@@ -105,8 +120,6 @@ More details:
     def rmsRetrieve( self, config, rms_pool, package_list ):
         scpBin = config['env']['scpBin']
         rms_repo = config['rmsRepo']
-        
-        package_list = self.rmsProcessChecksums(config, rms_pool, package_list)
         
         remote = re.match( self.REMOTE_PATTERN, rms_repo )
         if remote:
@@ -138,10 +151,9 @@ More details:
             path = os.path.join( remote.group( self.REMOTE_GRP_PATH ), rms_pool, package )
             cmd = "{0}sum {1}".format(hash_type, path)
             ret = self._callSSH( config, user_host, port, cmd, verbose=False ).strip().split()[0]
-            ret = hash_type + ':' + ret
         else:
             path = os.path.join( rms_repo, rms_pool, package )
-            ret = self.rmsCalcHash(path, hash_type)
+            ret = self.rmsCalcHash(path, hash_type).split(':', 1)[1]
             
         return ret
 

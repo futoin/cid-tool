@@ -48,12 +48,12 @@ class RmsTool( SubTool ):
         ret = []
         
         for package in package_list:
-            package = package.split('@', 2)
+            package = package.split('@', 1)
             filename = package[0]
             
             if len(package) == 2:
                 hash_str = package[1]
-                hash_type, hash = hash_str.split(':', 2)
+                hash_type, hash = hash_str.split(':', 1)
                 
                 if hash_type not in self.ALLOWED_HASH_TYPES:
                     self._errorExit('Unsupported hash type "{0}"'.format(hash_type))
@@ -61,7 +61,7 @@ class RmsTool( SubTool ):
                 self._info('Verifying {2} hash of {0} in {1}'.format(filename, rms_pool, hash_type))
                 rms_hash = self.rmsGetHash( config, rms_pool, filename, hash_type)
                 
-                if rms_hash != hash_str:
+                if rms_hash != hash:
                     self._errorExit('RMS hash mismatch "{0}" != "{1}"'.format(rms_hash, hash))
             
             ret.append(filename)

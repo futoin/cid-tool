@@ -12,6 +12,8 @@ import pwd
 
 class cid_RMS_UTBase ( cid_UTBase ) :
     __test__ = False
+    TEST_REPOS = ('CIBuilds', 'ReleaseBuilds', 'Verified', 'Prod')
+    HASH_LIST = ('md5', 'sha1', 'sha256', 'sha512')
     
     @classmethod
     def setUpClass( cls ):
@@ -70,10 +72,8 @@ class cid_RMS_UTBase ( cid_UTBase ) :
                       ], ignore=True)
         
     def test_00_create_pool( self ):
-        self._call_cid(['rms', 'pool', 'create', 'CIBuilds', '--rmsRepo', self.RMS_REPO])
-        self._call_cid(['rms', 'pool', 'create', 'ReleaseBuilds', '--rmsRepo', self.RMS_REPO])
-        self._call_cid(['rms', 'pool', 'create', 'Verified', '--rmsRepo', self.RMS_REPO])
-        self._call_cid(['rms', 'pool', 'create', 'Prod', '--rmsRepo', self.RMS_REPO])
+        for r in self.TEST_REPOS:
+            self._call_cid(['rms', 'pool', 'create', r, '--rmsRepo', self.RMS_REPO])
         
     def test_01_create_pool_existing( self ):
         self._call_cid(['rms', 'pool', 'create', 'Prod', '--rmsRepo', self.RMS_REPO])
@@ -82,8 +82,12 @@ class cid_RMS_UTBase ( cid_UTBase ) :
         res = self._call_cid( ['rms', 'pool', 'list', '--rmsRepo', self.RMS_REPO], retout=True )
     
         res = res.strip().split("\n")
+        test = list(self.TEST_REPOS)
 
-        self.assertEquals(res, ['CIBuilds', 'Prod', 'ReleaseBuilds', 'Verified'])
+        if 'ignore' in res:
+            test += ['ignore']
+
+        self.assertEquals(res, sorted(test))
         
     def test_10_rms_upload( self ):
         os.makedirs('packages')
@@ -117,15 +121,46 @@ class cid_RMS_UTBase ( cid_UTBase ) :
         package_file = os.path.join('packages', package)
         self._writeFile(package_file, 'Package Hash')
         
-        hash = '@sha256:f8c5cbac4201b75babbf8ddc6abbcd1618e5a3f8bc6c1afa2a2344269701e07e'
-        invhash = '@sha256:c5f9a4f423aa38961bd5d7f0815d56587bd08067621e02c5706244c75ea0fc9f'
+        hash_vals = {
+            'md5' : '@md5:0e422e37ef47223b51391cb375294d5b',
+            'sha1' : '@sha1:ce934892855dcfd27df743116abfe00fb70360cd',
+            'sha256' : '@sha256:f8c5cbac4201b75babbf8ddc6abbcd1618e5a3f8bc6c1afa2a2344269701e07e',
+            'sha512' : '@sha512:fa12de9d7e1bb827ee78779ea4586da2465a43e51f1089ca40e01d3495905cee4aefe33589fcf3407235d5a9dda1f0d3fd1b2eb7ab65b2495fa7113ffa7b486a',
+        }
+        
+        if 'sha256' not in self.HASH_LIST:
+            hash = hash_vals[self.HASH_LIST[0]]
+        else :
+            hash = hash_vals['sha256']
+                
+        invhash = hash.split(':')
+        invhash[1] = invhash[1][::-1]
+        invhash = ':'.join(invhash)
         
         self._call_cid(['promote', 'CIBuilds', package_file, '--rmsRepo', self.RMS_REPO]) 
         self._call_cid(['promote', 'CIBuilds:Prod', package + invhash, '--rmsRepo', self.RMS_REPO], returncode=1) 
         self._call_cid(['promote', 'CIBuilds:Verified', package + hash, '--rmsRepo', self.RMS_REPO]) 
         self._call_cid(['rms', 'retrieve', 'Prod', package + invhash, '--rmsRepo', self.RMS_REPO], returncode=1) 
-        self._call_cid(['rms', 'retrieve', 'Verified', package + hash, '--rmsRepo', self.RMS_REPO]) 
+    
+        for ht in self.HASH_LIST:
+            self._call_cid(['rms', 'retrieve', 'Verified', package + hash, '--rmsRepo', self.RMS_REPO])
+            os.remove(package)
+            
+    def test_30_rms_subpath( self ):
+        self._writeFile(os.path.join('packages', 'package-subpath-2.1.3.txt'), 'Package subpath 2.1.3')
+        self._writeFile(os.path.join('packages', 'package-subpath-2.3.txt'), 'Package subpath 2.3')
+        self._call_cid(['promote', 'CIBuilds/sub/path'] + glob.glob(os.path.join('packages', 'package-subpath*')) + ['--rmsRepo', self.RMS_REPO]) 
+        self._call_cid(['promote', 'CIBuilds/sub/path'] + glob.glob(os.path.join('packages', 'package-subpath*')) + ['--rmsRepo', self.RMS_REPO], returncode=1) 
+        self._call_cid(['promote', 'CIBuilds/sub/path:ReleaseBuilds/sub/path', 'package-subpath-2.1.3.txt', 'package-subpath-2.3.txt', '--rmsRepo', self.RMS_REPO])
+        self._call_cid(['promote', 'CIBuilds/sub/path:ReleaseBuilds/sub/path', 'package-subpath-2.1.3.txt', 'package-subpath-2.3.txt', '--rmsRepo', self.RMS_REPO], returncode=1)
         
+        res = self._call_cid(['rms', 'list', 'ReleaseBuilds/sub/path', '--rmsRepo', self.RMS_REPO], retout=True).strip()
+        res = res.split("\n")
+        self.assertEqual(res, ['package-subpath-2.1.3.txt', 'package-subpath-2.3.txt'])
+        
+        self._call_cid(['rms', 'retrieve', 'ReleaseBuilds/sub/path', 'package-subpath-2.1.3.txt', '--rmsRepo', self.RMS_REPO])
+        assert os.path.exists('package-subpath-2.1.3.txt')
+
         
 
 

@@ -81,9 +81,9 @@ class cid_UTBase ( unittest.TestCase ) :
         p.wait()
         
         if retout:
+            os.close(w)
             res = os.read(r, 4096)
             os.close(r)
-            os.close(w)
         
         if ignore:
             return

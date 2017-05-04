@@ -239,7 +239,10 @@ Home: https://subversion.apache.org/
     def rmsPromote( self, config, src_pool, dst_pool, package_list ):
         rms_repo = config['rmsRepo']
         
-        package_list = self.rmsProcessChecksums(config, src_pool, package_list)
+        args= []
+        
+        if '/' in dst_pool:
+            args += ['--parents']
         
         for package in package_list:
             package_basename = os.path.basename( package )
@@ -251,7 +254,7 @@ Home: https://subversion.apache.org/
                     'copy',
                     '-m', 'FutoIn CID promotion',
                     src, dst,
-            ] )
+            ] + args )
 
     def rmsGetList( self, config, rms_pool, package_hint ):
         return self._svnListCommon(config, 'rmsRepo', None, rms_pool)
@@ -261,8 +264,6 @@ Home: https://subversion.apache.org/
         
     def _rmsRetrieve( self, config, rms_pool, package_list, dst_dir=None ):
         rms_repo = config['rmsRepo']
-        
-        package_list = self.rmsProcessChecksums(config, rms_pool, package_list)
         
         for package in package_list:
             package_basename = os.path.basename( package )
@@ -309,7 +310,7 @@ Home: https://subversion.apache.org/
         self._callRMSSVN( config, ['cat', src ],
                          output_handler = lambda chunk: hf.update(chunk))
         
-        return "{0}:{1}".format( hash_type, hf.hexdigest() )
+        return hf.hexdigest()
     
     def _callVCSSVN( self, config, args, **kwargs ):
         return self._callSVN(config, 'vcsRepo', args, **kwargs )
