@@ -180,26 +180,60 @@ class cid_archiva_Test ( cid_RMS_UTBase ) :
 
 #=============================================================================        
 class cid_artifactory_Test ( cid_RMS_UTBase ) :
-    #__test__ = True
+    # Disabled as Pro version is required, use manual testing run "tests/cid_rms_test.py:cid_artifactory_Test"
+    __test__ = False
     TEST_DIR = os.path.join(cid_RMS_UTBase.TEST_RUN_DIR, 'rms_artifactory')
-    RMS_REPO = 'artifactory:http://localhost:8081'
+    RT_URL = 'http://localhost:8081/artifactory'
+    RMS_REPO = 'artifactory:' + RT_URL
+    HASH_LIST = ('md5', 'sha1', 'sha256')
 
     @classmethod
     def _createRepo( cls ):
+        # Workaround JFrog CLI #52 - https://github.com/JFrogDev/jfrog-cli-go/issues/52
+        try: os.remove(os.path.join(os.environ['HOME'], '.jfrog', 'jfrog-cli.conf'))
+        except: pass
+    
+        cls._call_cid(['tool', 'exec', 'jfrog', '--',
+                       'rt', 'config',
+                       '--interactive=false',
+                       '--enc-password=false',
+                       '--url='+cls.RT_URL,
+                       '--user=admin',
+                       '--password=password',
+                       'test-server',
+                       ])
+        
+        #cls._removeRepo(True)
         cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'pull', 'docker.bintray.io/jfrog/artifactory-oss:latest'])
-        cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'run', '--name', 'rmstest', '-d',
-                       '-p', '8081:8081',
-                       '-m', '512m',
-                       'docker.bintray.io/jfrog/artifactory-oss:latest'])
+                       'pull', 'docker.bintray.io/jfrog/artifactory-pro:latest'])
+        try:
+            cls._call_cid(['tool', 'exec', 'docker', '--',
+                        'run', '--name', 'rms_artifactory', '-d',
+                        '-p', '8081:8081',
+                        '-m', '512m',
+                        'docker.bintray.io/jfrog/artifactory-pro:latest'])
+            
+            import time
+            time.sleep(5)
+        except:
+            # Assume already running
+            pass
+        
+        for r in cls.TEST_REPOS:
+            cls._call_cid(['tool', 'exec', 'curl', '--',
+                        '-u', 'admin:password',
+                        '-X', 'DELETE',
+                        '{0}/{1}'.format(cls.RT_URL, r)
+                        ], ignore=True)
     
     @classmethod
-    def _removeRepo( cls ):
-        cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'stop', 'rmstest'])
-        cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'rm', 'rmstest'])
+    def _removeRepo( cls, ignore=False ):
+        #cls._call_cid(['tool', 'exec', 'docker', '--',
+        #               'stop', 'rms_artifactory'], ignore=ignore)
+        #cls._call_cid(['tool', 'exec', 'docker', '--',
+        #               'rm', 'rms_artifactory'], ignore=ignore)
+        pass
+
 
 #=============================================================================        
 class cid_nexus_Test ( cid_RMS_UTBase ) :

@@ -64,15 +64,15 @@ Supported Version Control Systems(VCS):
 
 Supported Release Management Systems (RMS):
 
+* **artifactory** - only Pro version as OSS is very limited for automation
 * **scp** - SSH-based secure copy 
+* **svn** - Subversion is quite suitable for Production release builds,
+    but please avoid using it for snapshots.
 * **twine** - Upload only to Python Package Index.
     Promotion between repos is not supported.
 * Not implemented, but planned:
     * Archiva
-    * Artifactory
     * Nexus
-    * Subversion as RMS
-
 
 Tested on the following OSes:
 

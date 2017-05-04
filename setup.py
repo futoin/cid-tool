@@ -23,7 +23,7 @@ config = {
     'url': 'https://github.com/futoin/cid-tool',
     'download_url': 'https://github.com/futoin/cid-tool/archive/master.zip',
 
-    'install_requires': ['docopt'],
+    'install_requires': ['docopt', 'requests'],
     'extras_require': {
         'test': ['nose'],
     },

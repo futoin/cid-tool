@@ -64,7 +64,8 @@ for t in ['bash', 'curl', 'git', 'hg', 'svn', 'gpg', 'scp', 'ssh',
 # 20
 #-----
 for t in ['nvm', 'rvm', 'phpbuild', 'sdkman', 'ant',
-          'gradle', 'maven', 'sbt', 'scala', 'gvm', 'rustup']:
+          'gradle', 'maven', 'sbt', 'scala', 'gvm', 'rustup',
+          'jfrog']:
     cls = 'cid_Tool_20_' + t
     globals()[cls] = type(cls, (cid_Tool_UTCommon, ), {
         '__test__' : True,

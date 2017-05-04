@@ -43,6 +43,9 @@ class PackageMixIn( object ):
     
     def _isMacOS( self ):
         return platform.system() == 'Darwin'
+    
+    def _isAMD64( self ):
+        return platform.machine() == 'x86_64'
 
     def _requireDeb(self, packages):
         apt_get = self._which('apt-get')
