@@ -13,6 +13,7 @@
 * NEW: added sshStrictHostKeyChecking=yes variable to sshTool (and its deps)
 * NEW: implemented RMS-mode support for Subversion
 * NEW: implemented Artifactory Pro RMS support
+* NEW: added JFrog CLI tool support
 
 === 0.7.3 (2017-04-20) ===
 * FIXED: merge failed message to distinguish aborted/left as-is cases

@@ -18,91 +18,143 @@ Full theoretical details are defined as FutoIn Spec FTN16 available at:
 https://github.com/futoin/specs/blob/master/draft/ftn16_cid_tool.md
 
 Supported technologies & tools (so far):
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* **cmake** (uses make in proper order)
-* **docker** (experimental)
-    - **docker-compose**
+*Note: please use* **cid tool list** *and* **cid tool describe $tool** *for details.*
+
+* **cmake**
+* **docker**
+
+  - **docker-compose**
+    
 * **go**
-    - **gvm**
-* **java** for runtime (uses Zulu JDK unless overridden by javaBin)
-    - **ant**
-    - **gradle**
-    - **jdk** for development (uses Zulu JDK unless overridden by jdkDir)
-    - **maven**
-    - **sdkman** for SDK management (besides JRE & JDK)
+
+  - **gvm**
+    
+* **java** for runtime (uses Zulu JDK unless overridden)
+
+  - **ant**
+  - **gradle**
+  - **jdk** for development (uses Zulu JDK unless overridden)
+  - **maven**
+  - **sdkman** for SDK management (besides JRE & JDK)
+
+* **jfrog** - JFrog CLI
+    
 * **make**
 * **node**
-    - **npm**
-    - **bower**
-    - **grunt**
-    - **gulp**
-    - **nvm** (implicit)
+
+  - **npm**
+  - **bower**
+  - **grunt**
+  - **gulp**
+  - **nvm** (implicit)
+    
 * **php** - system, php-build supported and binary builds (Sury, SCL)
-    - **composer**
-    - **php-build** (implicit)
+
+  - **composer**
+  - **php-build** (implicit)
+    
 * **python** - system 2 & 3
-    - **virtualenv**, venv is ignored due to issues with *ensurepip* package
-    - **pip**
-    - **twine** - as limited RMS tool
+
+  - **virtualenv**, venv is ignored due to issues with *ensurepip* package
+  - **pip**
+  - **twine** - as limited RMS tool
+    
 * **ruby** - system, rvm supported and binary builds (Brightbox, SCL)
-    - **gen**
-    - **bundler**
-    - **rvm** (implicit)
+
+  - **gen**
+  - **bundler**
+  - **rvm** (implicit)
+    
 * **rust**
-    - **rustup**
-    - **cargo**
+
+  - **rustup**
+  - **cargo**
+    
 * **scala**
-    **sbt** - Simple Build Tools for Scala
-* **scp** - for RMS
+
+  - **sbt** - Simple Build Tools for Scala
 
 
 Supported Version Control Systems(VCS):
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Git**
 * **Mercurial**
 * **Subversion**
 
-Supported Release Management Systems (RMS):
 
-* **artifactory** - only Pro version as OSS is very limited for automation
-* **scp** - SSH-based secure copy 
-* **svn** - Subversion is quite suitable for Production release builds,
-    but please avoid using it for snapshots.
-* **twine** - Upload only to Python Package Index.
-    Promotion between repos is not supported.
-* Not implemented, but planned:
-    * Archiva
-    * Nexus
+Supported Release Management Systems (RMS):
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **artifactory** - only Pro version as OSS is very limited for automation.
+
+- **scp** - SSH-based secure copy.
+
+- **svn** - Subversion is quite suitable for Production release builds,
+  but please **avoid using it for snapshots**.
+
+- **twine** - Upload only to Python Package Index.
+
+  - Promotion between repos is not supported.
+
+- Not implemented, but planned:
+
+  - Archiva
+  - Nexus
 
 Tested on the following OSes:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **ArchLinux**
-    - latest
+
+  - latest
+    
 * **CentOS**
-    - **7** with EPEL repository enabled
+
+  - **7**
+    
 * **Debian**
-    - **8 - Jessie**
-    - **9 - Stretch**
+
+  - **8 - Jessie**
+  - **9 - Stretch**
+    
 * **Fedora**
-    - **25**
+
+  - **25**
+  
 * **Gentoo**
-    - Well... CID does support emerge, but you are on your own here ;)
-        Not included in standard test cycle.
+
+  - Well... CID does support emerge, but you are on your own here ;)
+    Not included in standard test cycle.
+    
 * **macOS**
-    - Very preliminary support. Help wanted for testing.
+
+  - Very preliminary support. Help wanted for testing.
+    
 * **OpenSUSE**
-    - **42.1 Leap**
+
+  - **42.1 Leap**
+    
 * **Oracle Linux**
-    - **7** - supported as CentOS. Not included in standard test cycle.
+
+  - **7** - supported as CentOS. Not included in standard test cycle.
+    
 * **RedHat Enterprise Linux**
-    - **7** - supported as CentOS. Not included in standard test cycle.
+
+  - **7** - supported as CentOS. Not included in standard test cycle.
+    
 * **Ubuntu**
-    - **14.04 LTS - Trusty**
-    - **16.04 LTS - Xenial**
-    - **16.10 - Yakkety**
-    - **17.04 - Zesty**
+
+  - **14.04 LTS - Trusty**
+  - **16.04 LTS - Xenial**
+  - **16.10 - Yakkety**
+  - **17.04 - Zesty**
+    
 * **Other Linux**
-    - it should work without issues, if system packages are installed manually
+
+  - it should work without issues, if system packages are installed manually
 
 Setup
 -----
