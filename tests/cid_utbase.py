@@ -86,7 +86,7 @@ class cid_UTBase ( unittest.TestCase ) :
             os.close(r)
         
         if ignore:
-            return
+            return p.returncode == returncode
         
         if p.returncode != returncode:
             getattr( sys.stderr, 'buffer', sys.stderr ).write( err )
@@ -97,6 +97,8 @@ class cid_UTBase ( unittest.TestCase ) :
             except: pass
         
             return res
+        
+        return True
         
     @classmethod
     def _writeFile( cls, file_name, content ):

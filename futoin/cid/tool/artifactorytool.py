@@ -15,6 +15,9 @@ ro
 > cid tool exec jfrog -- rt config --apiKey=
 The first found matching URL will be used.
 
+Alternatively, you can set env in ~/.futoin.json. Please avoid
+setting env variables for security reasons.
+
 Note 2: Artifactory OSS API is limited and may not support all commands
     (e.g. pool create). So, Artifactory Pro is assumed.
     
@@ -24,6 +27,9 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
     def getDeps( self ):
         return ['jfrog']
     
+    def envNames( self ):
+        return ['artifactoryUser', 'artifactoryPassword', 'artifactoryApiKey']
+    
     def initEnv( self, env ):
         os.environ['JFROG_CLI_LOG_LEVEL'] = 'ERROR'
         self._have_tool = True
@@ -31,7 +37,7 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
     def rmsUpload( self, config, rms_pool, package_list ):
         self._checkFileUpload(config, rms_pool, package_list)
         
-        server_cfg = self._getServerConfig(config['rmsRepo'])
+        server_cfg = self._getServerConfig(config)
         
         for package in package_list:
             self._callExternal([
@@ -49,7 +55,7 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
     def rmsPromote( self, config, src_pool, dst_pool, package_list ):
         self._checkFileUpload(config, dst_pool, package_list)
         
-        server_cfg = self._getServerConfig(config['rmsRepo'])
+        server_cfg = self._getServerConfig(config)
        
         for package in package_list:
             self._callExternal([
@@ -81,7 +87,7 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
         return result
     
     def rmsRetrieve( self, config, rms_pool, package_list ):
-        server_cfg = self._getServerConfig(config['rmsRepo'])
+        server_cfg = self._getServerConfig(config)
         
         for package in package_list:
             self._callExternal([
@@ -172,7 +178,9 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
         if rms_repo[-1] == '/':
             path = path[1:]
             
-        server_cfg = self._getServerConfig(rms_repo)
+        url = rms_repo + path
+            
+        server_cfg = self._getServerConfig(config)
 
         if 'apiKey' in server_cfg:
             headers = kwargs.setdefault('headers', {})
@@ -180,10 +188,12 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
         elif 'password' in server_cfg:
             kwargs['auth'] = (server_cfg['user'], server_cfg['password'])
             
-        self._info('HTTP call {0} {1}'.format(method, rms_repo + path))
-        return requests.request(method, rms_repo + path, **kwargs)
+        self._info('HTTP call {0} {1}'.format(method, url))
+        return requests.request(method, url, **kwargs)
             
-    def _getServerConfig( self, url ):
+    def _getServerConfig( self, config, repeat=False ):
+        url = config['rmsRepo']
+        
         if url[-1] != '/':
             url += '/'
         
@@ -194,8 +204,45 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
             for server_cfg in jfrog_cfg.get('artifactory', []):
                 if 'serverId' in server_cfg and server_cfg.get('url', None) == url:
                     return server_cfg
+                
+        env = config['env']
+        
+        if repeat:
+            pass
+        elif 'artifactoryUser' in env and 'artifactoryPassword' in env:
+            self._callExternal([
+                    env['jfrogBin'],
+                    'rt', 'config',
+                    '--interactive=false',
+                    '--enc-password=false',
+                    '--url={0}'.format(url),
+                    '--user={0}'.format(env['artifactoryUser']),
+                    '--password={0}'.format(env['artifactoryPassword']),
+                    self._genServerId(),
+                    ])
+            return self._getServerConfig(config, True)
+        elif 'artifactoryApiKey' in env:
+            self._callExternal([
+                    env['jfrogBin'],
+                    'rt', 'config',
+                    '--interactive=false',
+                    '--url={0}'.format(url),
+                    '--apikey={0}'.format(env['artifactoryApiKey']),
+                    self._genServerId(),
+                    ])
+            return self._getServerConfig(config, True)
 
         self._errorExit('Please make sure Artifactory server is configured in JFrog CLI. See tool desc.')
+        
+    def _genServerId( self ):
+        import binascii
+        
+        rndm = binascii.hexlify(os.urandom(8))
+        
+        try: rndm = str(rndm, 'utf8')
+        except: pass
+        
+        return 'cid-' + rndm
         
     def _checkFileUpload( self, config, rms_pool, package_list ):
         for package in package_list:

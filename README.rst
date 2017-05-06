@@ -90,6 +90,8 @@ Supported Release Management Systems (RMS):
 
 - **artifactory** - only Pro version as OSS is very limited for automation.
 
+  Not tested in standard test cycle as JFrog did not provide license for development.
+
 - **nexus** - only v2 as v3 lacks complete REST API yet.
 
 - **scp** - SSH-based secure copy.

@@ -9,6 +9,7 @@ import subprocess
 import glob
 import shutil
 import pwd
+import time
 
 class cid_RMS_UTBase ( cid_UTBase ) :
     __test__ = False
@@ -183,7 +184,7 @@ class cid_artifactory_Test ( cid_RMS_UTBase ) :
     # Disabled as Pro version is required, use manual testing run "tests/cid_rms_test.py:cid_artifactory_Test"
     __test__ = False
     TEST_DIR = os.path.join(cid_RMS_UTBase.TEST_RUN_DIR, 'rms_artifactory')
-    RT_URL = 'http://localhost:8081/artifactory'
+    RT_URL = 'http://localhost:8083/artifactory'
     RMS_REPO = 'artifactory:' + RT_URL
     HASH_LIST = ('md5', 'sha1', 'sha256')
 
@@ -193,46 +194,51 @@ class cid_artifactory_Test ( cid_RMS_UTBase ) :
         try: os.remove(os.path.join(os.environ['HOME'], '.jfrog', 'jfrog-cli.conf'))
         except: pass
     
-        cls._call_cid(['tool', 'exec', 'jfrog', '--',
-                       'rt', 'config',
-                       '--interactive=false',
-                       '--enc-password=false',
-                       '--url='+cls.RT_URL,
-                       '--user=admin',
-                       '--password=password',
-                       'test-server',
-                       ])
+        cls._writeJSON(os.path.join(os.environ['HOME'], '.futoin.json'), {
+            'env': {
+                'artifactoryUser' : 'admin',
+                'artifactoryPassword' : 'password',
+            }
+        })
         
-        #cls._removeRepo(True)
         cls._call_cid(['tool', 'exec', 'docker', '--',
                        'pull', 'docker.bintray.io/jfrog/artifactory-pro:latest'])
         try:
             cls._call_cid(['tool', 'exec', 'docker', '--',
                         'run', '--name', 'rms_artifactory', '-d',
-                        '-p', '8081:8081',
+                        '-p', '8083:8081',
                         '-m', '512m',
                         'docker.bintray.io/jfrog/artifactory-pro:latest'])
-            
-            import time
-            time.sleep(5)
         except:
-            # Assume already running
+            cls._call_cid(['tool', 'exec', 'docker', '--',
+                       'start', 'rms_artifactory'])
+            
+        for i in range(1, 180):
+            if cls._call_cid(['rms', 'pool', 'list', '--rmsRepo={0}'.format(cls.RMS_REPO)], ignore=True):
+                break
+            else:
+                time.sleep(1)
+                
+        #
+        cls._call_cid(['rms', 'pool', 'create', 'ignore', '--rmsRepo={0}'.format(cls.RMS_REPO)], ignore=True)
+        repos = cls._call_cid(['rms', 'pool', 'list', '--rmsRepo={0}'.format(cls.RMS_REPO)], retout=True)
+        repos = repos.strip().split("\n")
+        try:
+            del repos[repos.index('ignore')]
+        except ValueError:
             pass
-        
-        for r in cls.TEST_REPOS:
+
+        for r in repos:
             cls._call_cid(['tool', 'exec', 'curl', '--',
-                        '-u', 'admin:password',
+                        '-fsSL', '-u', 'admin:password',
                         '-X', 'DELETE',
                         '{0}/{1}'.format(cls.RT_URL, r)
-                        ], ignore=True)
+                        ])
     
     @classmethod
     def _removeRepo( cls, ignore=False ):
-        #cls._call_cid(['tool', 'exec', 'docker', '--',
-        #               'stop', 'rms_artifactory'], ignore=ignore)
-        #cls._call_cid(['tool', 'exec', 'docker', '--',
-        #               'rm', 'rms_artifactory'], ignore=ignore)
-        pass
+        cls._call_cid(['tool', 'exec', 'docker', '--',
+                       'stop', 'rms_artifactory'], ignore=ignore)
 
 
 #=============================================================================        
@@ -259,19 +265,16 @@ class cid_nexus_Test ( cid_RMS_UTBase ) :
                         '-p', '8081:8081',
                         '-m', '512m',
                         'sonatype/nexus:oss'])
-            
-            for i in range(1, 180):
-                try:
-                    cls._call_cid(['tool', 'exec', 'curl', '--',
-                                   '-fsSL', '-u', 'admin:admin123',
-                                   'http://localhost:8081/nexus/service/local/status'])
-                except subprocess.CalledProcessError:
-                    import time
-                    time.sleep(1)
         except:
-            # Assume already running
-            pass
-        
+            cls._call_cid(['tool', 'exec', 'docker', '--',
+                       'start', 'rms_nexus'])
+            
+        for i in range(1, 180):
+            if cls._call_cid(['rms', 'pool', 'list', '--rmsRepo={0}'.format(cls.RMS_REPO)], ignore=True):
+                break
+            else:
+                time.sleep(1)
+                
         # Repos may depend on other repos - ignore error on first run
         for ignore in (True, False):
             repos = cls._call_cid(['rms', 'pool', 'list', '--rmsRepo={0}'.format(cls.RMS_REPO)], retout=True)
@@ -291,7 +294,8 @@ class cid_nexus_Test ( cid_RMS_UTBase ) :
     
     @classmethod
     def _removeRepo( cls ):
-        pass
+        cls._call_cid(['tool', 'exec', 'docker', '--',
+                       'stop', 'rms_nexus'])
     
 #=============================================================================        
 class cid_nexus3_Test ( cid_RMS_UTBase ) :
@@ -299,7 +303,7 @@ class cid_nexus3_Test ( cid_RMS_UTBase ) :
     # Not fully supported.
     __test__ = False
     TEST_DIR = os.path.join(cid_RMS_UTBase.TEST_RUN_DIR, 'rms_nexus3')
-    NXS_URL = 'http://localhost:8081'
+    NXS_URL = 'http://localhost:8082'
     RMS_REPO = 'nexus3:' + NXS_URL
 
     @classmethod
@@ -314,26 +318,33 @@ class cid_nexus3_Test ( cid_RMS_UTBase ) :
                        'pull', 'sonatype/nexus3'])
         try:
             cls._call_cid(['tool', 'exec', 'docker', '--',
-                        'run', '--name', 'rms_nexus', '-d',
-                        '-p', '8081:8081',
+                        'run', '--name', 'rms_nexus3', '-d',
+                        '-p', '8082:8081',
                         '-m', '512m',
                         'sonatype/nexus3'])
         except:
             cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'start', 'rms_nexus'])
+                       'start', 'rms_nexus3'])
         
             
         for i in range(1, 180):
-            try:
-                cls._call_cid(['tool', 'exec', 'curl', '--',
-                                '-fsSL', '-u', 'admin:admin123',
-                                '{0}/service/metrics/ping'.format(cls.NXS_URL)])
-            except subprocess.CalledProcessError:
-                import time
+            if cls._call_cid(['rms', 'pool', 'list', '--rmsRepo={0}'.format(cls.RMS_REPO)], ignore=True):
+                break
+            else:
                 time.sleep(1)
-        
-        for r in cls.TEST_REPOS:
-            cls._call_cid(['tool', 'exec', 'curl', '--',
+                
+        # Repos may depend on other repos - ignore error on first run
+        for ignore in (True, False):
+            repos = cls._call_cid(['rms', 'pool', 'list', '--rmsRepo={0}'.format(cls.RMS_REPO)], retout=True)
+            repos = repos.strip()
+            
+            if not repos:
+                 break
+            
+            repos = repos.split("\n")
+            
+            for r in repos:
+                cls._call_cid(['tool', 'exec', 'curl', '--',
                         '-fsSL', '-u', 'admin:admin123',
                         '-X', 'DELETE',
                         '{0}/repositories/{1}'.format(cls.NXS_URL, r)
@@ -342,7 +353,7 @@ class cid_nexus3_Test ( cid_RMS_UTBase ) :
     @classmethod
     def _removeRepo( cls ):
         cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'stop', 'rms_nexus'])
+                       'stop', 'rms_nexus3'])
 
 #=============================================================================        
 class cid_scp_Test ( cid_RMS_UTBase ) :
