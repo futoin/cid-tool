@@ -90,6 +90,8 @@ Supported Release Management Systems (RMS):
 
 - **artifactory** - only Pro version as OSS is very limited for automation.
 
+- **nexus** - only v2 as v3 lacks complete REST API yet.
+
 - **scp** - SSH-based secure copy.
 
 - **svn** - Subversion is quite suitable for Production release builds,
@@ -102,7 +104,7 @@ Supported Release Management Systems (RMS):
 - Not implemented, but planned:
 
   - Archiva
-  - Nexus
+  - Nexus v3 - after sane REST API is implemented.
 
 Tested on the following OSes:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

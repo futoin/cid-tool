@@ -14,6 +14,7 @@
 * NEW: implemented RMS-mode support for Subversion
 * NEW: implemented Artifactory Pro RMS support
 * NEW: added JFrog CLI tool support
+* NEW: implemented Sonatype Nexus v2 RMS support (raw/site)
 
 === 0.7.3 (2017-04-20) ===
 * FIXED: merge failed message to distinguish aborted/left as-is cases

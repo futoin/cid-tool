@@ -237,17 +237,112 @@ class cid_artifactory_Test ( cid_RMS_UTBase ) :
 
 #=============================================================================        
 class cid_nexus_Test ( cid_RMS_UTBase ) :
-    #__test__ = True
+    __test__ = False
     TEST_DIR = os.path.join(cid_RMS_UTBase.TEST_RUN_DIR, 'rms_nexus')
-    RMS_REPO = 'nexus:http://localhost:80'
+    NXS_URL = 'http://localhost:8081/nexus'
+    RMS_REPO = 'nexus:' + NXS_URL
+    HASH_LIST = ('md5', 'sha1')
 
     @classmethod
     def _createRepo( cls ):
-        pass
+        cls._writeJSON(os.path.join(os.environ['HOME'], '.futoin.json'), {
+            'env': {
+                'nexusUser' : 'admin',
+                'nexusPassword' : 'admin123',
+            }
+        })
+        cls._call_cid(['tool', 'exec', 'docker', '--',
+                       'pull', 'sonatype/nexus:oss'])
+        try:
+            cls._call_cid(['tool', 'exec', 'docker', '--',
+                        'run', '--name', 'rms_nexus', '-d',
+                        '-p', '8081:8081',
+                        '-m', '512m',
+                        'sonatype/nexus:oss'])
+            
+            for i in range(1, 180):
+                try:
+                    cls._call_cid(['tool', 'exec', 'curl', '--',
+                                   '-fsSL', '-u', 'admin:admin123',
+                                   'http://localhost:8081/nexus/service/local/status'])
+                except subprocess.CalledProcessError:
+                    import time
+                    time.sleep(1)
+        except:
+            # Assume already running
+            pass
+        
+        # Repos may depend on other repos - ignore error on first run
+        for ignore in (True, False):
+            repos = cls._call_cid(['rms', 'pool', 'list', '--rmsRepo={0}'.format(cls.RMS_REPO)], retout=True)
+            repos = repos.strip()
+            
+            if not repos:
+                 break
+            
+            repos = repos.split("\n")
+            
+            for r in repos:
+                cls._call_cid(['tool', 'exec', 'curl', '--',
+                            '-fsSL', '-u', 'admin:admin123',
+                            '-X', 'DELETE',
+                            '{0}/service/local/repositories/{1}'.format(cls.NXS_URL, r)
+                            ], ignore=ignore)
     
     @classmethod
     def _removeRepo( cls ):
         pass
+    
+#=============================================================================        
+class cid_nexus3_Test ( cid_RMS_UTBase ) :
+    # Nexus 3.x does have REST API, only provisioning scripts
+    # Not fully supported.
+    __test__ = False
+    TEST_DIR = os.path.join(cid_RMS_UTBase.TEST_RUN_DIR, 'rms_nexus3')
+    NXS_URL = 'http://localhost:8081'
+    RMS_REPO = 'nexus3:' + NXS_URL
+
+    @classmethod
+    def _createRepo( cls ):
+        cls._writeJSON(os.path.join(os.environ['HOME'], '.futoin.json'), {
+            'env': {
+                'nexus3User' : 'admin',
+                'nexus3Password' : 'admin123',
+            }
+        })
+        cls._call_cid(['tool', 'exec', 'docker', '--',
+                       'pull', 'sonatype/nexus3'])
+        try:
+            cls._call_cid(['tool', 'exec', 'docker', '--',
+                        'run', '--name', 'rms_nexus', '-d',
+                        '-p', '8081:8081',
+                        '-m', '512m',
+                        'sonatype/nexus3'])
+        except:
+            cls._call_cid(['tool', 'exec', 'docker', '--',
+                       'start', 'rms_nexus'])
+        
+            
+        for i in range(1, 180):
+            try:
+                cls._call_cid(['tool', 'exec', 'curl', '--',
+                                '-fsSL', '-u', 'admin:admin123',
+                                '{0}/service/metrics/ping'.format(cls.NXS_URL)])
+            except subprocess.CalledProcessError:
+                import time
+                time.sleep(1)
+        
+        for r in cls.TEST_REPOS:
+            cls._call_cid(['tool', 'exec', 'curl', '--',
+                        '-fsSL', '-u', 'admin:admin123',
+                        '-X', 'DELETE',
+                        '{0}/repositories/{1}'.format(cls.NXS_URL, r)
+                        ], ignore=True)
+    
+    @classmethod
+    def _removeRepo( cls ):
+        cls._call_cid(['tool', 'exec', 'docker', '--',
+                       'stop', 'rms_nexus'])
 
 #=============================================================================        
 class cid_scp_Test ( cid_RMS_UTBase ) :
