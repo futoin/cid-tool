@@ -88,16 +88,26 @@ Supported Version Control Systems(VCS):
 Supported Release Management Systems (RMS):
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+- **archiva** - supporting non-Maven layout through WebDAV.
+
+  - Always tested in standard cycle.
+
 - **artifactory** - only Pro version as OSS is very limited for automation.
 
-  Not tested in standard test cycle as JFrog did not provide license for development.
+  - NOT tested in standard test cycle as JFrog did not provide license for development.
 
 - **nexus** - only v2 as v3 lacks complete REST API yet.
 
+  - Always tested in standard cycle.
+
 - **scp** - SSH-based secure copy.
+
+  - Always tested in standard cycle.
 
 - **svn** - Subversion is quite suitable for Production release builds,
   but please **avoid using it for snapshots**.
+  
+  - Always tested in standard cycle.
 
 - **twine** - Upload only to Python Package Index.
 
@@ -105,7 +115,6 @@ Supported Release Management Systems (RMS):
 
 - Not implemented, but planned:
 
-  - Archiva
   - Nexus v3 - after sane REST API is implemented.
 
 Tested on the following OSes:

@@ -78,3 +78,26 @@ class RmsTool( SubTool ):
                 if not chunk: break
                 hf.update( chunk )
         return "{0}:{1}".format( hash_type, hf.hexdigest() )
+    
+    @classmethod
+    def rmsCalcHashes( cls, file_name ) :
+        import hashlib
+        
+        hashes = {}
+        
+        for hash_type in cls.ALLOWED_HASH_TYPES:
+            hashes[hash_type] = hashlib.new( hash_type )
+            
+        with open( file_name, 'rb' ) as f:
+            for chunk in iter(lambda: f.read(65536), ''):
+                if not chunk: break
+            
+                for hash_type in cls.ALLOWED_HASH_TYPES:
+                    hashes[hash_type].update( chunk )
+                    
+        for hash_type in cls.ALLOWED_HASH_TYPES:
+            hashes[hash_type] = hashes[hash_type].hexdigest()
+        
+        return hashes
+
+

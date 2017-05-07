@@ -10,6 +10,7 @@ import glob
 import shutil
 import pwd
 import time
+import json
 
 class cid_RMS_UTBase ( cid_UTBase ) :
     __test__ = False
@@ -169,15 +170,114 @@ class cid_RMS_UTBase ( cid_UTBase ) :
 class cid_archiva_Test ( cid_RMS_UTBase ) :
     #__test__ = True
     TEST_DIR = os.path.join(cid_RMS_UTBase.TEST_RUN_DIR, 'rms_archiva')
-    RMS_REPO = 'archiva:http://localhost:80'
+    ARC_URL = 'http://localhost:8084/'
+    RMS_REPO = 'archiva:' + ARC_URL
 
     @classmethod
     def _createRepo( cls ):
-        pass
-    
+        cls._writeJSON(os.path.join(os.environ['HOME'], '.futoin.json'), {
+            'env': {
+                'archivaUser' : 'admin',
+                'archivaPassword' : 'Password1',
+            }
+        })
+        
+        try:
+            cls._call_cid(['tool', 'exec', 'docker', '--',
+                       'start', 'rms_archiva'])
+        except:
+            # Original from: https://github.com/KamikazeLux/apacheArchiva/blob/master/Dockerfile
+            cls._writeFile('Dockerfile', '''
+FROM openjdk:jre
+
+ENV ARCHIVA_VERSION 2.2.1
+ENV ARCHIVA_BASE /var/archiva
+
+RUN curl -sSLo /tmp/apache-archiva-$ARCHIVA_VERSION-bin.tar.gz http://apache.mirrors.tds.net/archiva/$ARCHIVA_VERSION/binaries/apache-archiva-$ARCHIVA_VERSION-bin.tar.gz \
+  && tar -xf /tmp/apache-archiva-$ARCHIVA_VERSION-bin.tar.gz --directory /opt \
+  && rm /tmp/apache-archiva-$ARCHIVA_VERSION-bin.tar.gz
+
+RUN adduser archiva
+
+WORKDIR /opt/apache-archiva-$ARCHIVA_VERSION
+
+RUN sed -i "/set.default.ARCHIVA_BASE/c\set.default.ARCHIVA_BASE=$ARCHIVA_BASE" conf/wrapper.conf
+RUN mkdir -p $ARCHIVA_BASE/logs $ARCHIVA_BASE/data $ARCHIVA_BASE/temp $ARCHIVA_BASE/conf
+RUN mv conf/* $ARCHIVA_BASE/conf
+RUN chown -R archiva:archiva $ARCHIVA_BASE
+
+# temp fix because ARCHIVA_BASE is not use by archiva :(
+RUN rmdir logs conf temp
+RUN ln -s $ARCHIVA_BASE/logs logs
+RUN ln -s $ARCHIVA_BASE/conf conf
+RUN ln -s $ARCHIVA_BASE/data data
+RUN ln -s $ARCHIVA_BASE/temp temp
+
+#VOLUME /var/archiva
+USER archiva
+
+EXPOSE 8080
+CMD bin/archiva console
+''')
+            cls._call_cid(['build'])
+            cls._call_cid(['tool', 'exec', 'docker', '--',
+                        'run', '--name', 'rms_archiva', '-d',
+                        '-p', '8084:8080',
+                        '-m', '512m',
+                        'rms_archiva'])
+            
+        for i in range(1, 180):
+            if cls._call_cid(['tool', 'exec', 'curl', '--',
+                        '-fsSL',
+                        '-X', 'GET',
+                        '{0}restServices/archivaServices/pingService/ping'.format(cls.ARC_URL)
+                        ], ignore=True) :
+                break
+            else:
+                time.sleep(1)
+                
+        # create admin user
+        if cls._call_cid(['tool', 'exec', 'curl', '--',
+                        '-fsSL',
+                        '-X', 'GET',
+                        '{0}restServices/redbackServices/userService/isAdminUserExists'.format(cls.ARC_URL)
+                        ], ignore=True, retout=True) != 'true' :
+            cls._call_cid(['tool', 'exec', 'curl', '--',
+                    '-fsSL',
+                    '-H', 'Content-Type: application/json',
+                    '-X', 'POST',
+                    '{0}restServices/redbackServices/userService/createAdminUser'.format(cls.ARC_URL),
+                    '-d', json.dumps({
+                        "assignedRoles": [],
+                        "email" : "admin@example.com",
+                        "fullName" : "Admin",
+                        "locked" : False,
+                        "password" : "Password1",
+                        "confirmPassword" : "Password1",
+                        "passwordChangeRequired" : False,
+                        "permanent" : True,
+                        "readOnly" : False,
+                        "username" : "admin",
+                        "validated" : True,
+                    })
+                ])
+                
+        #
+        repos = cls._call_cid(['rms', 'pool', 'list', '--rmsRepo={0}'.format(cls.RMS_REPO)], retout=True)
+        repos = repos.strip().split("\n")
+        repos = list(filter(None, repos))
+
+        for r in repos:
+            cls._call_cid(['tool', 'exec', 'curl', '--',
+                        '-fsSL', '-u', 'admin:Password1',
+                        '-X', 'GET',
+                        '{0}restServices/archivaServices/managedRepositoriesService/deleteManagedRepository?deleteContent=true&repositoryId={1}'.format(cls.ARC_URL, r)
+                        ])
+
     @classmethod
-    def _removeRepo( cls ):
-        pass
+    def _removeRepo( cls, ignore=False ):
+        cls._call_cid(['tool', 'exec', 'docker', '--',
+                       'stop', 'rms_archiva'], ignore=ignore)
 
 #=============================================================================        
 class cid_artifactory_Test ( cid_RMS_UTBase ) :
@@ -243,7 +343,7 @@ class cid_artifactory_Test ( cid_RMS_UTBase ) :
 
 #=============================================================================        
 class cid_nexus_Test ( cid_RMS_UTBase ) :
-    __test__ = False
+    __test__ = True
     TEST_DIR = os.path.join(cid_RMS_UTBase.TEST_RUN_DIR, 'rms_nexus')
     NXS_URL = 'http://localhost:8081/nexus'
     RMS_REPO = 'nexus:' + NXS_URL
