@@ -5,28 +5,29 @@ import os
 
 from ..runtimetool import RuntimeTool
 
-class pythonTool( RuntimeTool ):
+
+class pythonTool(RuntimeTool):
     """Python is a programming language.
-    
+
 Home: https://www.python.org/
 
 Only the first part of pythonVer is used for installation of
 system packages OS-specific way.
-"""    
+"""
     VER_CMD = 'import sys; print( "%s.%s" % (sys.version_info.major, sys.version_info.minor) )'
-    
-    def getPostDeps( self ) :
+
+    def getPostDeps(self):
         # hackish hack
         return ['virtualenv']
-    
-    def envNames( self ) :
+
+    def envNames(self):
         return ['pythonBin', 'pythonVer']
-    
-    def _installTool( self, env ):
+
+    def _installTool(self, env):
         if int(env['pythonVer'].split('.')[0]) == 3:
             self._requireDeb(['python3'])
             self._requireZypper(['python3'])
-                
+
             self._requireYumEPEL()
             self._requireYum(['python34'])
             self._requirePacman(['python'])
@@ -37,14 +38,14 @@ system packages OS-specific way.
             self._requireHomebrew('python')
 
         self._requireEmerge(['=dev-lang/python-{0}*'.format(env['pythonVer'])])
-    
-    def uninstallTool( self, env ):
+
+    def uninstallTool(self, env):
         pass
 
-    def initEnv( self, env ) :
+    def initEnv(self, env):
         python_ver = env.setdefault('pythonVer', '3')
         bin_name = None
-        
+
         if self._isGentoo():
             if len(python_ver) == 3:
                 os.environ['EPYTHON'] = 'python{0}'.format(python_ver)
@@ -58,15 +59,15 @@ system packages OS-specific way.
         elif int(python_ver.split('.')[0]) == 3:
             bin_name = 'python3'
 
-        super(pythonTool, self).initEnv( env, bin_name )
-        
+        super(pythonTool, self).initEnv(env, bin_name)
+
         if self._have_tool and 'pythonRawBin' not in env:
             env['pythonRawBin'] = env['pythonBin']
             python_ver_fact = self._callExternal(
-                [ env['pythonRawBin'], '-c', self.VER_CMD ],
-                verbose = False
+                [env['pythonRawBin'], '-c', self.VER_CMD],
+                verbose=False
             ).strip()
-            
+
             if python_ver.split('.') > python_ver_fact.split('.'):
                 self._errorExit(
                     'Too old python version "{0}" when "{1}" is required'

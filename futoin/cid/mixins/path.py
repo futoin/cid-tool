@@ -1,77 +1,81 @@
 
 from __future__ import print_function, absolute_import
 
-import os, sys, subprocess, glob
+import os
+import sys
+import subprocess
+import glob
 from ..coloring import Coloring
 
-class PathMixIn( object ):
+
+class PathMixIn(object):
     _dev_null = None
-    
-    def _callExternal( self, cmd, suppress_fail=False, verbose=True, output_handler=None ) :
+
+    def _callExternal(self, cmd, suppress_fail=False, verbose=True, output_handler=None):
         try:
             if not PathMixIn._dev_null:
                 PathMixIn._dev_null = open(os.devnull, 'w')
-                
+
             stdin = PathMixIn._dev_null
-            
+
             if verbose and not suppress_fail:
-                print( Coloring.infoLabel('Call: ') +
-                      Coloring.info(subprocess.list2cmdline( cmd )),
-                      file=sys.stderr )
+                print(Coloring.infoLabel('Call: ') +
+                      Coloring.info(subprocess.list2cmdline(cmd)),
+                      file=sys.stderr)
                 stderr = sys.stderr
             else:
                 stderr = PathMixIn._dev_null
-                
+
             if output_handler:
                 chunk_size = 65536
                 p = subprocess.Popen(cmd, stdin=stdin, stderr=stderr,
-                                     bufsize=chunk_size*2, close_fds=True,
+                                     bufsize=chunk_size * 2, close_fds=True,
                                      stdout=subprocess.PIPE)
-                
+
                 try:
                     while True:
                         chunk = p.stdout.read(chunk_size)
-                        
+
                         if chunk:
                             output_handler(chunk)
                         else:
-                            break;
+                            break
                 finally:
                     p.wait()
-                    
+
             else:
-                res = subprocess.check_output( cmd, stdin=stdin, stderr=stderr )
-                
+                res = subprocess.check_output(cmd, stdin=stdin, stderr=stderr)
+
                 try:
                     res = str(res, 'utf8')
                 except:
                     pass
-                
+
                 return res
         except subprocess.CalledProcessError as e:
-            if suppress_fail :
+            if suppress_fail:
                 return None
             raise e
-        
-    def _callInteractive( self, cmd, replace=True ):
+
+    def _callInteractive(self, cmd, replace=True):
         if replace:
-            print( Coloring.infoLabel('Exec: ') +
-                    Coloring.info(subprocess.list2cmdline( cmd )),
-                    file=sys.stderr )
+            print(Coloring.infoLabel('Exec: ') +
+                  Coloring.info(subprocess.list2cmdline(cmd)),
+                  file=sys.stderr)
 
             sys.stdout.flush()
             sys.stderr.flush()
             os.execv(cmd[0], cmd)
         else:
-            print( Coloring.infoLabel('Call: ') +
-                    Coloring.info(subprocess.list2cmdline( cmd )),
-                    file=sys.stderr )
+            print(Coloring.infoLabel('Call: ') +
+                  Coloring.info(subprocess.list2cmdline(cmd)),
+                  file=sys.stderr)
             sys.stdout.flush()
             sys.stderr.flush()
-            
-            return subprocess.check_call( cmd )
-        
-    def _trySudoCall( self, cmd, errmsg=None ):
+
+            return subprocess.check_call(cmd)
+
+    def _trySudoCall(self, cmd, errmsg=None):
         try:
             self._callExternal(['sudo', '-n'] + cmd)
         except subprocess.CalledProcessError:
@@ -79,8 +83,8 @@ class PathMixIn( object ):
                 errmsg = 'you may need to call the the failed command manually !'
 
             self._warn(errmsg)
-    
-    def _which( self, program ):
+
+    def _which(self, program):
         "Copied from stackoverflow"
         def is_exe(fpath):
             return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
@@ -98,29 +102,29 @@ class PathMixIn( object ):
 
         return None
 
-    def _addEnvPath( self, env_name, add_dir, first=False ) :
+    def _addEnvPath(self, env_name, add_dir, first=False):
         if env_name in os.environ:
             dir_list = os.environ[env_name].split(os.pathsep)
-        else :
+        else:
             dir_list = []
 
         if add_dir not in dir_list:
-            if first :
+            if first:
                 dir_list[0:0] = [add_dir]
-            else :
+            else:
                 dir_list.append(add_dir)
 
             os.environ[env_name] = os.pathsep.join(dir_list)
 
-    def _addBinPath( self, bin_dir, first=False ) :
-        self._addEnvPath( 'PATH', bin_dir, first=first)
+    def _addBinPath(self, bin_dir, first=False):
+        self._addEnvPath('PATH', bin_dir, first=first)
 
-    def _addPackageFiles( self, config, pattern ):
+    def _addPackageFiles(self, config, pattern):
         files = glob.glob(pattern)
-        
+
         if not files:
-            self._errorExit('Failed to find created packages of "{0}" pattern'.format(pattern))
-        
+            self._errorExit(
+                'Failed to find created packages of "{0}" pattern'.format(pattern))
+
         config.setdefault('packageFiles', [])
         config['packageFiles'] += files
-        

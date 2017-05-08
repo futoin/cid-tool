@@ -65,24 +65,27 @@ except ImportError:
     # fallback to "hardcoded"
     from futoin.cid.contrib.docopt import docopt
 
-import os, sys, traceback
+import os
+import sys
+import traceback
 
-if sys.version_info < (2,7):
-    print( 'Sorry, but only Python version >= 2.7 is supported!', file=sys.stderr )
-    sys.exit( 1 )
+if sys.version_info < (2, 7):
+    print('Sorry, but only Python version >= 2.7 is supported!', file=sys.stderr)
+    sys.exit(1)
 
 from . import __version__ as version
 __all__ = ['run']
 
+
 def runInner():
-    args = docopt( __doc__, version='FutoIn CID v{0}'.format(version) )
+    args = docopt(__doc__, version='FutoIn CID v{0}'.format(version))
 
     if type(args) == str:
         print(args)
     else:
         if 'CID_COLOR' in os.environ:
             Coloring.enable(os.environ['CID_COLOR'] == 'yes')
-        
+
         overrides = {}
         #---
         vcsArg = args.get('--vcsRepo', None)
@@ -90,7 +93,7 @@ def runInner():
         if vcsArg:
             try:
                 (overrides['vcs'],
-                overrides['vcsRepo']) = vcsArg.split(':', 1)
+                 overrides['vcsRepo']) = vcsArg.split(':', 1)
             except ValueError:
                 raise RuntimeError('Invalid argument to --vcsRepo')
         #---
@@ -99,25 +102,26 @@ def runInner():
         if rmsArg:
             try:
                 (overrides['rms'],
-                overrides['rmsRepo']) = rmsArg.split(':', 1)
+                 overrides['rmsRepo']) = rmsArg.split(':', 1)
             except ValueError:
                 raise RuntimeError('Invalid argument to --rmsRepo')
         overrides['rmsPool'] = args['<rms_pool>']
 
         #---
-        if args['ci_build'] :
+        if args['ci_build']:
             if 'vcs' in overrides:
                 def_wc_dir = 'ci_build'
-            else :
+            else:
                 def_wc_dir = os.path.join('..', 'ci_builds',
                                           os.path.basename(os.path.realpath('.')))
             def_wc_dir += '_' + args['<vcs_ref>']
-        else :
+        else:
             def_wc_dir = '.'
         overrides['wcDir'] = os.path.realpath(args['--wcDir'] or def_wc_dir)
         #--
         deploy_dir = args['--deployDir']
-        overrides['deployDir'] = deploy_dir and os.path.realpath(deploy_dir) or None
+        overrides['deployDir'] = deploy_dir and os.path.realpath(
+            deploy_dir) or None
         overrides['reDeploy'] = args['--redeploy'] and True or False
 
         if args['--build']:
@@ -125,7 +129,7 @@ def runInner():
 
         if args['--debug']:
             overrides['debugBuild'] = True
-        
+
         # enable vcsref & vcstag build by default
         if args['deploy'] and (args['vcsref'] or args['vcstag']):
             overrides['deployBuild'] = True
@@ -144,23 +148,23 @@ def runInner():
             args['describe'] or
             args['detect']
         )
-        
+
         #---
         if args['--permissive']:
             overrides['permissiveChecks'] = True
-         
+
         #---
         cache_dir = args['--cacheDir']
-        
+
         if cache_dir:
             cache_dir = os.path.realpath(cache_dir)
-        
+
         #---
-        cit = CIDTool( overrides = overrides )
-        
-        if args['tool'] :
+        cit = CIDTool(overrides=overrides)
+
+        if args['tool']:
             if args['exec']:
-                cit.tool_exec( tool, args['<tool_arg>'] )
+                cit.tool_exec(tool, args['<tool_arg>'])
             elif args['list']:
                 cit.tool_list()
             elif args['detect']:
@@ -181,77 +185,78 @@ def runInner():
                 ]
                 for cmd in subcmds:
                     if args[cmd]:
-                        getattr( cit, 'tool_'+cmd )( tool )
+                        getattr(cit, 'tool_' + cmd)(tool)
                         break
                 else:
-                    raise RuntimeError( "Unknown Command" )
-        elif args['vcs'] :
+                    raise RuntimeError("Unknown Command")
+        elif args['vcs']:
             if args['checkout']:
-                cit.vcs_checkout( args['<vcs_ref>'] )
+                cit.vcs_checkout(args['<vcs_ref>'])
             elif args['commit']:
-                cit.vcs_commit( args['<commit_msg>'], args['<commit_files>'] )
+                cit.vcs_commit(args['<commit_msg>'], args['<commit_files>'])
             elif args['branch']:
-                cit.vcs_branch( args['<vcs_ref>'] )
+                cit.vcs_branch(args['<vcs_ref>'])
             elif args['merge']:
-                cit.vcs_merge( args['<vcs_ref>'], not args['--no-cleanup'] )
+                cit.vcs_merge(args['<vcs_ref>'], not args['--no-cleanup'])
             elif args['delete']:
-                cit.vcs_delete( args['<vcs_ref>'], cache_dir )
+                cit.vcs_delete(args['<vcs_ref>'], cache_dir)
             elif args['export']:
                 dst_dir = os.path.realpath(args['<dst_dir>'])
-                cit.vcs_export( args['<vcs_ref>'], dst_dir, cache_dir )
+                cit.vcs_export(args['<vcs_ref>'], dst_dir, cache_dir)
             elif args['tags']:
-                cit.vcs_tags( args['<tag_pattern>'], cache_dir )
+                cit.vcs_tags(args['<tag_pattern>'], cache_dir)
             elif args['branches']:
-                cit.vcs_branches( args['<branch_pattern>'], cache_dir )
+                cit.vcs_branches(args['<branch_pattern>'], cache_dir)
             elif args['reset']:
                 cit.vcs_reset()
             elif args['ismerged']:
-                cit.vcs_ismerged( args['<vcs_ref>'] )
+                cit.vcs_ismerged(args['<vcs_ref>'])
             else:
-                raise RuntimeError( "Not implemented yet." )
-        elif args['rms'] and not args['deploy'] :
+                raise RuntimeError("Not implemented yet.")
+        elif args['rms'] and not args['deploy']:
             if args['pool']:
                 if args['create']:
-                    cit.rms_pool_create( args['<rms_pool>'] )
+                    cit.rms_pool_create(args['<rms_pool>'])
                 elif args['list']:
                     cit.rms_pool_list()
                 else:
-                    raise RuntimeError( "Not implemented yet." )
+                    raise RuntimeError("Not implemented yet.")
             elif args['list']:
-                cit.rms_list( args['<rms_pool>'], args['<package_pattern>'] )
+                cit.rms_list(args['<rms_pool>'], args['<package_pattern>'])
             elif args['retrieve']:
-                cit.rms_retrieve( args['<rms_pool>'], args['<packages>'] )
+                cit.rms_retrieve(args['<rms_pool>'], args['<packages>'])
             else:
-                raise RuntimeError( "Not implemented yet." )
-        elif args['init'] :
-            cit.init_project( args['<project_name>'] )
-        elif args['tag'] :
-            cit.tag( args['<branch>'], args['<next_version>'] )
-        elif args['prepare'] :
-            cit.prepare( args['<vcs_ref>'] )
-        elif args['build'] :
+                raise RuntimeError("Not implemented yet.")
+        elif args['init']:
+            cit.init_project(args['<project_name>'])
+        elif args['tag']:
+            cit.tag(args['<branch>'], args['<next_version>'])
+        elif args['prepare']:
+            cit.prepare(args['<vcs_ref>'])
+        elif args['build']:
             cit.build()
         elif args['package']:
             cit.package()
-        elif args['check'] :
+        elif args['check']:
             cit.check()
-        elif args['promote'] :
-            cit.promote( args['<rms_pool>'], args['<packages>'] )
-        elif args['deploy'] :
+        elif args['promote']:
+            cit.promote(args['<rms_pool>'], args['<packages>'])
+        elif args['deploy']:
             if args['vcsref']:
-                cit.deploy( 'vcsref', args['<vcs_ref>'] )
+                cit.deploy('vcsref', args['<vcs_ref>'])
             elif args['vcstag']:
-                cit.deploy( 'vcstag', args['<vcs_ref>'] )
-            else :
-                cit.deploy( 'rms', args['<rms_pool>'], args['<package>'] )
-        elif args['migrate'] :
+                cit.deploy('vcstag', args['<vcs_ref>'])
+            else:
+                cit.deploy('rms', args['<rms_pool>'], args['<package>'])
+        elif args['migrate']:
             cit.migrate()
-        elif args['run'] :
-            cit.run( args['<command>'], args['<command_arg>'] )
-        elif args['ci_build'] :
-            cit.ci_build( args['<vcs_ref>'], args['<rms_pool>'] )
+        elif args['run']:
+            cit.run(args['<command>'], args['<command_arg>'])
+        elif args['ci_build']:
+            cit.ci_build(args['<vcs_ref>'], args['<rms_pool>'])
         else:
-            raise RuntimeError( "Unknown Command" )
+            raise RuntimeError("Unknown Command")
+
 
 def run():
     try:
@@ -267,4 +272,3 @@ def run():
         print(Coloring.error('Exit on user abort'), file=sys.stderr)
         print(file=sys.stderr)
         sys.exit(1)
-        

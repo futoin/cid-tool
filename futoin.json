@@ -17,5 +17,8 @@
       "tool": "exe",
       "file": "bin/cid"
     }
+  },
+  "actions" : {
+    "autopep8" : "autopep8 -i -r futoin"
   }
 }

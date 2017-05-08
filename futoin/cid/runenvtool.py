@@ -3,5 +3,6 @@ from .subtool import SubTool
 
 __all__ = ['RunEnvTool']
 
-class RunEnvTool( SubTool ):
+
+class RunEnvTool(SubTool):
     pass

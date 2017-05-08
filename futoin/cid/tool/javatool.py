@@ -1,12 +1,14 @@
 
-import os, glob
+import os
+import glob
 
 from ..runtimetool import RuntimeTool
 from .javatoolmixin import JavaToolMixIn
 
-class javaTool( RuntimeTool, JavaToolMixIn ):
+
+class javaTool(RuntimeTool, JavaToolMixIn):
     """Java Runtime Environment.
-    
+
 Home: http://openjdk.java.net/
 
 Due to issues with Oracle's licensing, cid
@@ -16,57 +18,62 @@ javaVer supports:
 - only one digit like 6, 7, 8, 9 (Zulu JDK (http://zulu.org)
 - use javaBin for custom JRE
 """
-    def envNames( self ) :
+
+    def envNames(self):
         return ['javaBin', 'javaVer']
-    
-    def getVersionParts( self ):
+
+    def getVersionParts(self):
         return 1
-    
-    def _installTool( self, env ):
+
+    def _installTool(self, env):
         if env.get('javaBin', None):
             return
 
         ver = env['javaVer']
-        
+
         if self._isMacOS():
             if ver == '8':
-                self._requireDmg('https://cdn.azul.com/zulu/bin/zulu8.20.0.5-jdk8.0.121-macosx_x64.dmg')
+                self._requireDmg(
+                    'https://cdn.azul.com/zulu/bin/zulu8.20.0.5-jdk8.0.121-macosx_x64.dmg')
             elif ver == '7':
-                self._requireDmg('https://cdn.azul.com/zulu/bin/zulu7.17.0.5-jdk7.0.131-macosx_x64.dmg')
+                self._requireDmg(
+                    'https://cdn.azul.com/zulu/bin/zulu7.17.0.5-jdk7.0.131-macosx_x64.dmg')
             return
-        
-        self._addAptRepo('zulu', 'deb http://repos.azulsystems.com/debian stable main', self._ZULU_GPG_KEY)
-        self._addYumRepo('zulu', 'http://repos.azulsystems.com/rhel/zulu.repo', self._ZULU_GPG_KEY, releasevermax=7)
-        self._addZypperRepo('zulu', 'http://repos.azulsystems.com/sles/latest', self._ZULU_GPG_KEY)
-        
+
+        self._addAptRepo(
+            'zulu', 'deb http://repos.azulsystems.com/debian stable main', self._ZULU_GPG_KEY)
+        self._addYumRepo('zulu', 'http://repos.azulsystems.com/rhel/zulu.repo',
+                         self._ZULU_GPG_KEY, releasevermax=7)
+        self._addZypperRepo(
+            'zulu', 'http://repos.azulsystems.com/sles/latest', self._ZULU_GPG_KEY)
+
         # leaving here for possible future use
-        #self._requireDeb(['openjdk-{0}-jre-headless'.format(ver)])
-        #self._requireYum(['java-1.{0}.0-openjdk'.format(ver)])
-        #self._requireZypper(['java-1_{0}_0-openjdk'.format(ver)])
+        # self._requireDeb(['openjdk-{0}-jre-headless'.format(ver)])
+        # self._requireYum(['java-1.{0}.0-openjdk'.format(ver)])
+        # self._requireZypper(['java-1_{0}_0-openjdk'.format(ver)])
         self._requirePackages(['zulu-{0}'.format(ver)])
-        
+
         self._requirePacman(['jre{0}-openjdk'.format(ver)])
         self._requireEmerge(['=dev-java/oracle-jre-bin-1.{0}*'.format(ver)])
 
-    
-    def uninstallTool( self, env ):
+    def uninstallTool(self, env):
         pass
 
-    def initEnv( self, env ) :
+    def initEnv(self, env):
         if env.get('javaBin', None):
             bin_dir = os.path.dirname(env['javaBin'])
             java_home = os.path.dirname(env['javaBin'])
-            
+
             os.environ['JAVA_HOME'] = java_home
             os.environ['JRE_HOME'] = java_home
             self._addBinPath(bin_dir, True)
-            
-            super(javaTool, self).initEnv( env, 'java' )
+
+            super(javaTool, self).initEnv(env, 'java')
             return
-        
+
         env.setdefault('javaVer', self._LATEST_JAVA)
         ver = env['javaVer']
-        
+
         candidates = [
             # Zulu
             '/usr/lib/jvm/zulu-{0}*/jre/bin/java'.format(ver),
@@ -84,28 +91,28 @@ javaVer supports:
             candidates += [
                 "/usr/lib/jvm/java-{0}-openjdk*/jre/bin/java".format(ver),
             ]
-        
+
         for c in candidates:
             bin_name = glob.glob(c)
-            
+
             if bin_name:
                 bin_name = bin_name[0]
                 bin_dir = os.path.dirname(bin_name)
                 java_home = os.path.dirname(bin_dir)
-                
+
                 env['javaBin'] = bin_name
                 os.environ['JAVA_HOME'] = java_home
                 os.environ['JRE_HOME'] = java_home
                 self._addBinPath(bin_dir, True)
                 self._have_tool = True
                 break
-                
-    def onRun( self, config, file, args, tune ):
+
+    def onRun(self, config, file, args, tune):
         env = config['env']
         self._callInteractive([
             env[self._name + 'Bin'], '-jar', file
         ] + args)
-            
+
     _ZULU_GPG_KEY = '''
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v1
@@ -138,4 +145,3 @@ Mpkkl/Zpp0BirhGWNyTg8K4JrsQ=
 =d320
 -----END PGP PUBLIC KEY BLOCK-----
 '''
-            

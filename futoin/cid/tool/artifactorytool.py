@@ -3,7 +3,8 @@ import os
 
 from ..rmstool import RmsTool
 
-class artifactoryTool( RmsTool ):
+
+class artifactoryTool(RmsTool):
     """JFrog Artifactory: Artifact Repository Manager.
 
 Home: https://www.jfrog.com/artifactory/
@@ -20,25 +21,25 @@ setting env variables for security reasons.
 
 Note 2: Artifactory OSS API is limited and may not support all commands
     (e.g. pool create). So, Artifactory Pro is assumed.
-    
+
 Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
 """
 
-    def getDeps( self ):
+    def getDeps(self):
         return ['jfrog']
-    
-    def envNames( self ):
+
+    def envNames(self):
         return ['artifactoryUser', 'artifactoryPassword', 'artifactoryApiKey']
-    
-    def initEnv( self, env ):
+
+    def initEnv(self, env):
         os.environ['JFROG_CLI_LOG_LEVEL'] = 'ERROR'
         self._have_tool = True
 
-    def rmsUpload( self, config, rms_pool, package_list ):
+    def rmsUpload(self, config, rms_pool, package_list):
         self._checkFileUpload(config, rms_pool, package_list)
-        
+
         server_cfg = self._getServerConfig(config)
-        
+
         for package in package_list:
             self._callExternal([
                 config['env']['jfrogBin'],
@@ -52,11 +53,11 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
                 '{0}/{1}'.format(rms_pool, os.path.basename(package))
             ])
 
-    def rmsPromote( self, config, src_pool, dst_pool, package_list ):
+    def rmsPromote(self, config, src_pool, dst_pool, package_list):
         self._checkFileUpload(config, dst_pool, package_list)
-        
+
         server_cfg = self._getServerConfig(config)
-       
+
         for package in package_list:
             self._callExternal([
                 config['env']['jfrogBin'],
@@ -69,26 +70,26 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
                 '{0}/{1}'.format(dst_pool, package)
             ])
 
-    def rmsGetList( self, config, rms_pool, package_hint ):
+    def rmsGetList(self, config, rms_pool, package_hint):
         (pool, path) = self._prepParts(rms_pool, package_hint or '*')
-        
+
         result = self._callArtifactory(
             config,
             'GET', '/api/search/pattern',
-            params = {
-                'pattern' : '{0}:{1}'.format(pool, path),
+            params={
+                'pattern': '{0}:{1}'.format(pool, path),
             }
         )
-        
+
         result.raise_for_status()
-        
+
         result = result.json()
         result = [os.path.basename(r) for r in result['files']]
         return result
-    
-    def rmsRetrieve( self, config, rms_pool, package_list ):
+
+    def rmsRetrieve(self, config, rms_pool, package_list):
         server_cfg = self._getServerConfig(config)
-        
+
         for package in package_list:
             self._callExternal([
                 config['env']['jfrogBin'],
@@ -100,86 +101,86 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
                 '{0}/{1}'.format(rms_pool, package),
                 package])
 
-    
-    def rmsPoolCreate( self, config, rms_pool ):
+    def rmsPoolCreate(self, config, rms_pool):
         rms_pool = rms_pool.split('/')[0]
         check = self._callArtifactory(
             config,
             'GET', '/api/repositories/{0}'.format(rms_pool),
         )
-        
+
         if check.ok:
             check = check.json()
-            
+
             if check['packageType'] != 'generic':
-                self._errorExit('Artifactory pool {0} already exists with different type {1}'.format(rms_pool, check['packageType']))
-            
+                self._errorExit('Artifactory pool {0} already exists with different type {1}'.format(
+                    rms_pool, check['packageType']))
+
             return
-        
+
         result = self._callArtifactory(
             config,
             'PUT', '/api/repositories/{0}'.format(rms_pool),
-            json = {
-                'rclass' : 'local',
-                'packageType' : 'generic',
-                'repoLayoutRef' : 'simple-default',
+            json={
+                'rclass': 'local',
+                'packageType': 'generic',
+                'repoLayoutRef': 'simple-default',
             }
         )
         result.raise_for_status()
-    
-    def rmsPoolList( self, config ):
+
+    def rmsPoolList(self, config):
         result = self._callArtifactory(
             config,
             'GET', '/api/repositories'
         )
-        
+
         result.raise_for_status()
-        
+
         result = result.json()
         result = [r['key'] for r in result]
         return result
-   
-    def rmsGetHash(self, config, rms_pool, package, hash_type ):
+
+    def rmsGetHash(self, config, rms_pool, package, hash_type):
         result = self._callArtifactory(
             config,
             'GET', '/api/storage/{0}/{1}'.format(rms_pool, package)
         )
-        
+
         result.raise_for_status()
         result = result.json()
-        
+
         if hash_type == 'sha256' and 'sha256' not in result['checksums']:
             (pool, path) = self._prepParts(rms_pool, package)
-                
+
             result = self._callArtifactory(
                 config,
                 'POST', '/api/checksum/sha256',
-                json = {
+                json={
                     'repoKey': pool,
-                    'path' : path,
+                    'path': path,
                 }
             )
             result.raise_for_status()
-                
+
             result = self._callArtifactory(
                 config,
                 'GET', '/api/storage/{0}/{1}'.format(rms_pool, package)
             )
-            
+
             result.raise_for_status()
             result = result.json()
 
         return result['checksums'][hash_type]
 
-    def _callArtifactory( self, config, method, path, **kwargs ):
+    def _callArtifactory(self, config, method, path, **kwargs):
         import requests
-        
+
         rms_repo = config['rmsRepo']
         if rms_repo[-1] == '/':
             path = path[1:]
-            
+
         url = rms_repo + path
-            
+
         server_cfg = self._getServerConfig(config)
 
         if 'apiKey' in server_cfg:
@@ -187,79 +188,84 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
             headers['X-JFrog-Art-Api'] = server_cfg['apiKey']
         elif 'password' in server_cfg:
             kwargs['auth'] = (server_cfg['user'], server_cfg['password'])
-            
+
         self._info('HTTP call {0} {1}'.format(method, url))
         return requests.request(method, url, **kwargs)
-            
-    def _getServerConfig( self, config, repeat=False ):
+
+    def _getServerConfig(self, config, repeat=False):
         url = config['rmsRepo']
-        
+
         if url[-1] != '/':
             url += '/'
-        
-        jfrog_cfg = os.path.join(os.environ['HOME'], '.jfrog', 'jfrog-cli.conf')
+
+        jfrog_cfg = os.path.join(
+            os.environ['HOME'], '.jfrog', 'jfrog-cli.conf')
         jfrog_cfg = self._loadJSONConfig(jfrog_cfg)
-        
+
         if jfrog_cfg:
             for server_cfg in jfrog_cfg.get('artifactory', []):
                 if 'serverId' in server_cfg and server_cfg.get('url', None) == url:
                     return server_cfg
-                
+
         env = config['env']
-        
+
         if repeat:
             pass
         elif 'artifactoryUser' in env and 'artifactoryPassword' in env:
             self._callExternal([
-                    env['jfrogBin'],
-                    'rt', 'config',
-                    '--interactive=false',
-                    '--enc-password=false',
-                    '--url={0}'.format(url),
-                    '--user={0}'.format(env['artifactoryUser']),
-                    '--password={0}'.format(env['artifactoryPassword']),
-                    self._genServerId(),
-                    ])
+                env['jfrogBin'],
+                'rt', 'config',
+                '--interactive=false',
+                '--enc-password=false',
+                '--url={0}'.format(url),
+                '--user={0}'.format(env['artifactoryUser']),
+                '--password={0}'.format(env['artifactoryPassword']),
+                self._genServerId(),
+            ])
             return self._getServerConfig(config, True)
         elif 'artifactoryApiKey' in env:
             self._callExternal([
-                    env['jfrogBin'],
-                    'rt', 'config',
-                    '--interactive=false',
-                    '--url={0}'.format(url),
-                    '--apikey={0}'.format(env['artifactoryApiKey']),
-                    self._genServerId(),
-                    ])
+                env['jfrogBin'],
+                'rt', 'config',
+                '--interactive=false',
+                '--url={0}'.format(url),
+                '--apikey={0}'.format(env['artifactoryApiKey']),
+                self._genServerId(),
+            ])
             return self._getServerConfig(config, True)
 
-        self._errorExit('Please make sure Artifactory server is configured in JFrog CLI. See tool desc.')
-        
-    def _genServerId( self ):
+        self._errorExit(
+            'Please make sure Artifactory server is configured in JFrog CLI. See tool desc.')
+
+    def _genServerId(self):
         import binascii
-        
+
         rndm = binascii.hexlify(os.urandom(8))
-        
-        try: rndm = str(rndm, 'utf8')
-        except: pass
-        
+
+        try:
+            rndm = str(rndm, 'utf8')
+        except:
+            pass
+
         return 'cid-' + rndm
-        
-    def _checkFileUpload( self, config, rms_pool, package_list ):
+
+    def _checkFileUpload(self, config, rms_pool, package_list):
         for package in package_list:
             package = os.path.basename(package)
-            res = self.rmsGetList( config, rms_pool, package)
-            
+            res = self.rmsGetList(config, rms_pool, package)
+
             if res:
-                self._errorExit('Package {0} already exists in RMS pool {1}'.format(package, rms_pool))
-                
+                self._errorExit(
+                    'Package {0} already exists in RMS pool {1}'.format(package, rms_pool))
+
     def _prepParts(self, rms_pool, package):
         rms_pool = rms_pool.split('/', 1)
-        
+
         path = ''
-        
+
         if len(rms_pool) == 2:
             path += rms_pool[1] + '/'
-            
+
         path += package
-        
+
         return (rms_pool[0], path)
