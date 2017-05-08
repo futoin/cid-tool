@@ -77,8 +77,6 @@ NOT IMPLEMENTED YET!
                     data = res.text
                 )
                 res.raise_for_status()
-                
-        return
 
     def rmsGetList( self, config, rms_pool, package_hint ):
         apires = self._callArchiva(

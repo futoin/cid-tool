@@ -27,13 +27,15 @@ avoid setting these variables in process environment.
                 self._errorExit('Package {0} already exists on RMS'.format(package_basename))
             
             with open(package, 'rb') as pf:
-                self._callNexus(
+                res = self._callNexus(
                     config,
                     'PUT', path,
                     data = pf
                 )
+                res.raise_for_status()
 
     def rmsPromote( self, config, src_pool, dst_pool, package_list ):
+        # TODO: find out how to copy on server
         tmpdir = self._tmpCacheDir(prefix='nexus')
         
         try:
