@@ -46,6 +46,14 @@ class PackageMixIn( object ):
     
     def _isAMD64( self ):
         return platform.machine() == 'x86_64'
+    
+    def _osCodeName( self ):
+        codename = subprocess.check_output( ['lsb_release', '-cs'] )
+
+        try: codename = str(codename, 'utf8')
+        except: pass
+
+        return codename.strip()
 
     def _requireDeb(self, packages):
         apt_get = self._which('apt-get')
@@ -153,10 +161,7 @@ class PackageMixIn( object ):
             
             os.remove(tf)
             
-        codename = subprocess.check_output( ['lsb_release', '-cs'] )
-        try: codename = str(codename, 'utf8')
-        except: pass
-        codename = codename.strip()
+        codename = self._osCodeName()
         
         if codename_map:
             try:

@@ -130,7 +130,17 @@ if binary versions are not found for specific system.
         #---
         if self._isDebian() or self._isUbuntu():
             env.setdefault('rubyBrightboxRepo', 'http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu')
-            ruby_binaries = ['1.9', '2.0', '2.1', '2.2', '2.3']
+            
+            code_name = self._osCodeName()
+            
+            if code_name == 'zesty':
+                # 1.9 build is broken on LaunchPad
+                ruby_binaries = ['2.0', '2.1', '2.2', '2.3']
+            elif code_name in ['stretch', 'sid', 'testing']:
+                ruby_binaries = None
+            else:
+                ruby_binaries = ['1.9', '2.0', '2.1', '2.2', '2.3']
+            
         elif self._isSCLSupported():
             ruby_binaries = ['1.9', '2.0', '2.2', '2.3']
         else :

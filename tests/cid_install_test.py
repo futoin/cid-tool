@@ -32,7 +32,7 @@ class cid_Tool_UTCommon ( cid_Tool_UTBase ) :
         vars = {}
         for l in res.split("\n"):
             if l:
-                n, v = l.split('=')
+                n, v = l.split('=', 1)
                 vars[n] = v
         
         ver_var = self.TOOL_NAME + 'Ver'
