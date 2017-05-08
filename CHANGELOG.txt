@@ -9,6 +9,8 @@
 * CHANGED: update scpTool to fully support RMS requirements & misc. optimizations
 * CHANGED: Brightbox rubies support Zesty now
 * CHANGED: to use ${HOME}/.cache/futoin-cid for implicit file operations
+* CHANGED: to always reload plugins and make sure precedence is CID->Config->Env
+* NEW: added FTN16 .pluginPacks support
 * NEW: added family of "cid rms" commands
 * NEW: added scpTool port support
 * NEW: added dockerTag env support for build process, improved 'tool exec'

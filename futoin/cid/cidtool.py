@@ -91,6 +91,16 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         ('webcfg', dict),
         ('actions', dict),
         ('plugins', dict),
+        ('pluginPacks', list),
+    ])
+    
+    FUTOIN_ENV_VARS = OrderedDict([
+        ('type', _str_type),
+        ('persistentDir', _str_type),
+        ('vars', dict),
+        ('plugins', dict),
+        ('pluginPacks', list),
+        ('externalSetup', bool),
     ])
     
     DEPLOY_LOCK_FILE = '.futoin-deploy.lock'
@@ -1268,6 +1278,11 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         self._deploy_config = dc
         
         config = OrderedDict( pc )
+
+        # Deployment config can override project config
+        for (k, v) in dc.items():
+            config[k] = v
+        
         self._sanitizeConfig( config )
         
         if 'env' in pc:
@@ -1284,16 +1299,20 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
         env = OrderedDict( dc['env'] )
         
-        for ( k, v ) in uc['env'].items():
-            env.setdefault( k, v )
-        for ( k, v ) in gc['env'].items():
-            env.setdefault( k, v )
+        for ct in (uc, gc):
+            for ( k, v ) in ct['env'].items():
+                if k == 'plugins':
+                    plugins = env.setdefault('plugins', {})
+                    
+                    for pk, pv in env['plugins'].items():
+                        plugins.setdefault(pk, pv)
+                elif k == 'pluginPacks':
+                    pluginPacks = env.setdefault('pluginPacks', [])
+                    pluginPacks += v
+                else:
+                    env.setdefault( k, v )
 
         self._initEnv( env )
-
-        # Deployment config can override project config
-        for (k, v) in dc.items():
-            config[k] = v
 
         config['env'] = env
         config.update( self._overrides )
@@ -1358,21 +1377,32 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         
     def _initEnv( self, env ) :
         env.setdefault( 'type', 'dev' )
-        env.setdefault( 'startup', 'cron' )
-        env.setdefault( 'webServer', 'nginx' )
         env.setdefault( 'vars', {} )
-        env.setdefault( 'mainConfig', {} )
         env.setdefault( 'plugins', {} )
-
-        env.setdefault( 'externalSetup', {} )
-        externalSetup = env['externalSetup']
-        externalSetup.setdefault( 'runCmd', None )
-        externalSetup.setdefault( 'webServer', False )
-        externalSetup.setdefault( 'startup', False )
-        externalSetup.setdefault( 'installTools', False )
+        env.setdefault( 'pluginPacks', [] )
+        env.setdefault( 'externalSetup', False )
 
         env.setdefault( 'binDir', os.path.join(os.environ['HOME'], 'bin') )
         self._addBinPath( env['binDir'] )
+        
+        #---
+        env_vars = self.FUTOIN_ENV_VARS
+        
+        for (k, v) in env.items():
+            if k not in env_vars:
+                continue
+            elif not isinstance(v, env_vars[k]):
+                req_t = env_vars[k]
+                if isinstance(req_t, tuple):
+                    req_t = req_t[0]
+                    
+                self._errorExit(
+                    'Config variable "{0}" type "{1}" is not instance of "{2}"'
+                    .format(k, v.__class__.__name__, req_t[0].__name__)
+                )
+                
+        if env['type'] not in ('prod', 'test', 'dev'):
+            self._errorExit('Not valid environment type "{0}'.format(env['type']))
         
     def _checkKnownTool(self, tool, tool_impl=None):
         if tool_impl is None:
@@ -1389,33 +1419,33 @@ class CIDTool( PathMixIn, UtilMixIn ) :
         config['projectRootSet'] = set(os.listdir('.'))
 
         #---
-        tool_impl = self._tool_impl
+        plugins = {}
+        plugins.update(env['plugins'])
+        plugins.update(config.get('plugins', {}))
         
-        if tool_impl is None:
-            tool_impl = {}
-            default_tool_dir = os.path.join(
-                os.path.dirname(os.path.abspath(__file__)),
-                'tool'
-            )
-            
-            tool_files = os.listdir(default_tool_dir)
+        plugin_packs = []
+        plugin_packs += env['pluginPacks']
+        plugin_packs += config.get('pluginPacks', {})
+        plugin_packs.append('futoin.cid.tool')
+        
+        for pack_mod_name in plugin_packs:
+            m = importlib.import_module( pack_mod_name )
+            pack_dir = os.path.dirname(m.__file__)
+            tool_files = os.listdir(pack_dir)
             tool_files = fnmatch.filter(tool_files, '*tool.py')
-
-            for f in tool_files:
-                k = f.replace('tool.py', '')
-                pkg = 'futoin.cid.tool.' + k + 'tool'
-                m = importlib.import_module( pkg )
-                tool_impl[ k ] = getattr( m, k + 'Tool' )( k )
-
-            self._tool_impl = tool_impl
             
-        plugins = env['plugins'].copy()
-        plugins.update( config.get( 'plugins', {} ) )
+            for f in tool_files:
+                tool = f.replace('tool.py', '')
+                tool_mod_name = '{0}.{1}tool'.format(pack_mod_name, tool)
+                plugins[ tool ] = tool_mod_name
         
-        for ( k, v ) in plugins.items() :
-            if k not in tool_impl:
-                m = importlib.import_module( v )
-                tool_impl[ k ] = getattr( m, k + 'Tool' )( k )
+        tool_impl = {}
+        self._tool_impl = tool_impl
+
+        for ( tool, tool_mod_name ) in plugins.items() :
+            if tool not in tool_impl:
+                tool_module = importlib.import_module( tool_mod_name )
+                tool_impl[ tool ] = getattr( tool_module, tool + 'Tool' )( tool )
 
         #---
         curr_tool = config.get('tool', None)

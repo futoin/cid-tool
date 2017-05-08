@@ -89,7 +89,7 @@ class UtilMixIn( object ):
     
     #---
     def _isExternalToolsSetup( self, env ):
-        return env['externalSetup']['installTools']
+        return env['externalSetup'] != False
     
     def _rmTree( self, dir ):
         print( Coloring.infoLabel('Removing: ') + Coloring.info(dir),
