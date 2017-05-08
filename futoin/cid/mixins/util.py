@@ -34,6 +34,7 @@ class UtilMixIn( object ):
         
         return False
     
+    #---
     def _loadJSONConfig( self, file_name ):
         if os.path.exists(file_name):
             with open(file_name, 'r') as content_file:
@@ -63,6 +64,7 @@ class UtilMixIn( object ):
             content_file.write( content )
             content_file.write( "\n" )
     
+    #---
     def _readTextFile( self, file_name ) :
         with open(file_name, 'r') as content_file:
             return content_file.read()
@@ -72,12 +74,20 @@ class UtilMixIn( object ):
         content = updater( content )
         self._writeTextFile( file_name, content )
         
+        return [ file_name ]
+        
     def _writeTextFile( self, file_name, content ):
         with open(file_name, 'w') as content_file:
             content_file.write( content )
-            
-        return [ file_name ]
     
+    def _writeBinaryFile( self, file_name, content ):
+        try: content = content.encode(encoding='UTF-8')
+        except: pass
+    
+        with open(file_name, 'wb') as content_file:
+            content_file.write( content )
+    
+    #---
     def _isExternalToolsSetup( self, env ):
         return env['externalSetup']['installTools']
     

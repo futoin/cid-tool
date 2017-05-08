@@ -144,7 +144,7 @@ class PackageMixIn( object ):
             
             tmp_dir = self._tmpCacheDir(prefix='cidgpg')
             tf = os.path.join(tmp_dir, 'key.gpg')
-            self._writeTextFile(tf, gpg_key)
+            self._writeBinaryFile(tf, gpg_key)
 
             self._trySudoCall(
                 ['apt-key', 'add', tf],
@@ -189,7 +189,7 @@ class PackageMixIn( object ):
         
         tmp_dir = self._tmpCacheDir(prefix='cidgpg')
         tf = os.path.join(tmp_dir, 'key.gpg')
-        self._writeTextFile(tf, gpg_key)
+        self._writeBinaryFile(tf, gpg_key)
             
         self._trySudoCall(
             [rpm, '--import', tf],
