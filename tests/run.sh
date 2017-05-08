@@ -24,6 +24,16 @@ if ! grep -q "$(hostname)" /etc/hosts; then
 fi
 
 CID_BOOT=$(pwd)/bin/cid
+fast=
+rmshost=
+tests=
+
+if [ "$1" = 'rmshost' ]; then
+    rmshost=rmshost
+    fast=fast
+    tests='tests/cid_rmshost_test.py'
+    shift 1
+fi
 
 if [ "$1" = 'fast' ]; then
     fast=fast
@@ -48,7 +58,9 @@ else
 fi
 
 
-if [ -z "$1" ]; then
+if [ -n "$tests" ]; then
+    :
+elif [ -z "$1" ]; then
     tests=
     tests+=" tests/cid_vcs_test.py"
     tests+=" tests/cid_rms_test.py"    

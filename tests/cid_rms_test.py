@@ -14,6 +14,7 @@ import json
 
 class cid_RMS_UTBase ( cid_UTBase ) :
     __test__ = False
+    RMS_HOST = '10.11.1.11'
     TEST_REPOS = ('CIBuilds', 'ReleaseBuilds', 'Verified', 'Prod')
     HASH_LIST = ('md5', 'sha1', 'sha256', 'sha512')
     
@@ -168,9 +169,9 @@ class cid_RMS_UTBase ( cid_UTBase ) :
 
 #=============================================================================        
 class cid_archiva_Test ( cid_RMS_UTBase ) :
-    #__test__ = True
+    __test__ = True
     TEST_DIR = os.path.join(cid_RMS_UTBase.TEST_RUN_DIR, 'rms_archiva')
-    ARC_URL = 'http://localhost:8084/'
+    ARC_URL = 'http://{0}:8084/'.format(cid_RMS_UTBase.RMS_HOST)
     RMS_REPO = 'archiva:' + ARC_URL
 
     @classmethod
@@ -181,50 +182,6 @@ class cid_archiva_Test ( cid_RMS_UTBase ) :
                 'archivaPassword' : 'Password1',
             }
         })
-        
-        try:
-            cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'start', 'rms_archiva'])
-        except:
-            # Original from: https://github.com/KamikazeLux/apacheArchiva/blob/master/Dockerfile
-            cls._writeFile('Dockerfile', '''
-FROM openjdk:jre
-
-ENV ARCHIVA_VERSION 2.2.1
-ENV ARCHIVA_BASE /var/archiva
-
-RUN curl -sSLo /tmp/apache-archiva-$ARCHIVA_VERSION-bin.tar.gz http://apache.mirrors.tds.net/archiva/$ARCHIVA_VERSION/binaries/apache-archiva-$ARCHIVA_VERSION-bin.tar.gz \
-  && tar -xf /tmp/apache-archiva-$ARCHIVA_VERSION-bin.tar.gz --directory /opt \
-  && rm /tmp/apache-archiva-$ARCHIVA_VERSION-bin.tar.gz
-
-RUN adduser archiva
-
-WORKDIR /opt/apache-archiva-$ARCHIVA_VERSION
-
-RUN sed -i "/set.default.ARCHIVA_BASE/c\set.default.ARCHIVA_BASE=$ARCHIVA_BASE" conf/wrapper.conf
-RUN mkdir -p $ARCHIVA_BASE/logs $ARCHIVA_BASE/data $ARCHIVA_BASE/temp $ARCHIVA_BASE/conf
-RUN mv conf/* $ARCHIVA_BASE/conf
-RUN chown -R archiva:archiva $ARCHIVA_BASE
-
-# temp fix because ARCHIVA_BASE is not use by archiva :(
-RUN rmdir logs conf temp
-RUN ln -s $ARCHIVA_BASE/logs logs
-RUN ln -s $ARCHIVA_BASE/conf conf
-RUN ln -s $ARCHIVA_BASE/data data
-RUN ln -s $ARCHIVA_BASE/temp temp
-
-#VOLUME /var/archiva
-USER archiva
-
-EXPOSE 8080
-CMD bin/archiva console
-''')
-            cls._call_cid(['build'])
-            cls._call_cid(['tool', 'exec', 'docker', '--',
-                        'run', '--name', 'rms_archiva', '-d',
-                        '-p', '8084:8080',
-                        '-m', '512m',
-                        'rms_archiva'])
             
         for i in range(1, 180):
             if cls._call_cid(['tool', 'exec', 'curl', '--',
@@ -274,17 +231,12 @@ CMD bin/archiva console
                         '{0}restServices/archivaServices/managedRepositoriesService/deleteManagedRepository?deleteContent=true&repositoryId={1}'.format(cls.ARC_URL, r)
                         ])
 
-    @classmethod
-    def _removeRepo( cls, ignore=False ):
-        cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'stop', 'rms_archiva'], ignore=ignore)
-
 #=============================================================================        
 class cid_artifactory_Test ( cid_RMS_UTBase ) :
     # Disabled as Pro version is required, use manual testing run "tests/cid_rms_test.py:cid_artifactory_Test"
     __test__ = False
     TEST_DIR = os.path.join(cid_RMS_UTBase.TEST_RUN_DIR, 'rms_artifactory')
-    RT_URL = 'http://localhost:8083/artifactory'
+    RT_URL = 'http://{0}:8083/artifactory'.format(cid_RMS_UTBase.RMS_HOST)
     RMS_REPO = 'artifactory:' + RT_URL
     HASH_LIST = ('md5', 'sha1', 'sha256')
 
@@ -300,18 +252,6 @@ class cid_artifactory_Test ( cid_RMS_UTBase ) :
                 'artifactoryPassword' : 'password',
             }
         })
-        
-        cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'pull', 'docker.bintray.io/jfrog/artifactory-pro:latest'])
-        try:
-            cls._call_cid(['tool', 'exec', 'docker', '--',
-                        'run', '--name', 'rms_artifactory', '-d',
-                        '-p', '8083:8081',
-                        '-m', '512m',
-                        'docker.bintray.io/jfrog/artifactory-pro:latest'])
-        except:
-            cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'start', 'rms_artifactory'])
             
         for i in range(1, 180):
             if cls._call_cid(['rms', 'pool', 'list', '--rmsRepo={0}'.format(cls.RMS_REPO)], ignore=True):
@@ -334,18 +274,13 @@ class cid_artifactory_Test ( cid_RMS_UTBase ) :
                         '-X', 'DELETE',
                         '{0}/{1}'.format(cls.RT_URL, r)
                         ])
-    
-    @classmethod
-    def _removeRepo( cls, ignore=False ):
-        cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'stop', 'rms_artifactory'], ignore=ignore)
 
 
 #=============================================================================        
 class cid_nexus_Test ( cid_RMS_UTBase ) :
     __test__ = True
     TEST_DIR = os.path.join(cid_RMS_UTBase.TEST_RUN_DIR, 'rms_nexus')
-    NXS_URL = 'http://localhost:8081/nexus'
+    NXS_URL = 'http://{0}:8081/nexus'.format(cid_RMS_UTBase.RMS_HOST)
     RMS_REPO = 'nexus:' + NXS_URL
     HASH_LIST = ('md5', 'sha1')
 
@@ -357,17 +292,6 @@ class cid_nexus_Test ( cid_RMS_UTBase ) :
                 'nexusPassword' : 'admin123',
             }
         })
-        cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'pull', 'sonatype/nexus:oss'])
-        try:
-            cls._call_cid(['tool', 'exec', 'docker', '--',
-                        'run', '--name', 'rms_nexus', '-d',
-                        '-p', '8081:8081',
-                        '-m', '512m',
-                        'sonatype/nexus:oss'])
-        except:
-            cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'start', 'rms_nexus'])
             
         for i in range(1, 180):
             if cls._call_cid(['rms', 'pool', 'list', '--rmsRepo={0}'.format(cls.RMS_REPO)], ignore=True):
@@ -392,18 +316,13 @@ class cid_nexus_Test ( cid_RMS_UTBase ) :
                             '{0}/service/local/repositories/{1}'.format(cls.NXS_URL, r)
                             ], ignore=ignore)
     
-    @classmethod
-    def _removeRepo( cls ):
-        cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'stop', 'rms_nexus'])
-    
 #=============================================================================        
 class cid_nexus3_Test ( cid_RMS_UTBase ) :
     # Nexus 3.x does have REST API, only provisioning scripts
     # Not fully supported.
     __test__ = False
     TEST_DIR = os.path.join(cid_RMS_UTBase.TEST_RUN_DIR, 'rms_nexus3')
-    NXS_URL = 'http://localhost:8082'
+    NXS_URL = 'http://{0}:8082'.format(cid_RMS_UTBase.RMS_HOST)
     RMS_REPO = 'nexus3:' + NXS_URL
 
     @classmethod
@@ -414,18 +333,6 @@ class cid_nexus3_Test ( cid_RMS_UTBase ) :
                 'nexus3Password' : 'admin123',
             }
         })
-        cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'pull', 'sonatype/nexus3'])
-        try:
-            cls._call_cid(['tool', 'exec', 'docker', '--',
-                        'run', '--name', 'rms_nexus3', '-d',
-                        '-p', '8082:8081',
-                        '-m', '512m',
-                        'sonatype/nexus3'])
-        except:
-            cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'start', 'rms_nexus3'])
-        
             
         for i in range(1, 180):
             if cls._call_cid(['rms', 'pool', 'list', '--rmsRepo={0}'.format(cls.RMS_REPO)], ignore=True):
@@ -449,11 +356,6 @@ class cid_nexus3_Test ( cid_RMS_UTBase ) :
                         '-X', 'DELETE',
                         '{0}/repositories/{1}'.format(cls.NXS_URL, r)
                         ], ignore=True)
-    
-    @classmethod
-    def _removeRepo( cls ):
-        cls._call_cid(['tool', 'exec', 'docker', '--',
-                       'stop', 'rms_nexus3'])
 
 #=============================================================================        
 class cid_scp_Test ( cid_RMS_UTBase ) :

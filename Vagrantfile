@@ -4,7 +4,7 @@ Vagrant.configure("2") do |config|
   
     config.vm.provider "virtualbox" do |v|
         v.linked_clone = true
-        v.memory = 1024
+        v.memory = 512
         v.cpus = 2
         if ENV['VAGRANT_GUI']
             v.gui = 1
@@ -15,7 +15,10 @@ Vagrant.configure("2") do |config|
 which apt-get && apt-get update || true
     SHELL
     
+    node_id = 0
+    
     {
+        'rmshost' => 'debian/jessie64',
         'debian_jessie' => 'debian/jessie64',
         'ubuntu_xenial' => 'bento/ubuntu-16.04',
         'centos_7' => 'centos/7',
@@ -68,6 +71,38 @@ which apt-get && apt-get update || true
             end
             
             node.vm.synced_folder ".", "/vagrant", type: "rsync", rsync__exclude: ".git/", create: true, group: group
+            
+            if name == 'rmshost'
+                node.vm.provider "virtualbox" do |v|
+                    v.memory = 2048
+                end
+                
+                node.vm.provision "shell", inline: <<-SHELL
+                    cd /vagrant && sudo -H -u vagrant /vagrant/tests/run.sh rmshost
+                SHELL
+                
+                node.vm.network(
+                    "private_network",
+                    adapter: 2,
+                    ip: "10.11.1.11",
+                    netmask: "24",
+                    nic_type: 'virtio',
+                    virtualbox__intnet: "ciddmz",
+                    auto_config: true
+                )
+            else
+                node.vm.network(
+                    "private_network",
+                    adapter: 2,
+                    ip: "10.11.1.#{100 + node_id}",
+                    netmask: "24",
+                    nic_type: 'virtio',
+                    virtualbox__intnet: "ciddmz",
+                    auto_config: true
+                )
+                
+                node_id += 1
+            end
         end
     end
 end
