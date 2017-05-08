@@ -7,6 +7,7 @@
 * CHANGED: internally cid promote is split into rmsUpload & rmsPromote
 * CHANGED: update scpTool to fully support RMS requirements & misc. optimizations
 * CHANGED: Brightbox rubies support Zesty now
+* CHANGED: to use ${HOME}/.cache/futoin-cid for implicit file operations
 * NEW: added family of "cid rms" commands
 * NEW: added scpTool port support
 * NEW: added dockerTag env support for build process, improved 'tool exec'

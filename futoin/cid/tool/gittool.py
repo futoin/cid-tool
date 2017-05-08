@@ -1,7 +1,6 @@
 
 import os
 import subprocess
-import tempfile
 
 from ..vcstool import VcsTool
 from .bashtoolmixin import BashToolMixIn
@@ -297,7 +296,7 @@ if not set by user.
         else:
             # a dirty hack to avoid error message of not found
             # local git repo
-            repo = tempfile.mkdtemp('fakegit', dir='.')
+            repo = self._tmpCacheDir('git_')
             
             self._callExternal( [
                 config['env']['gitBin'],

@@ -1,7 +1,6 @@
 
 import os
 import subprocess
-import tempfile
 import glob
 
 from ..vcstool import VcsTool
@@ -114,7 +113,11 @@ Home: https://www.mercurial-scm.org/
             if os.path.exists('.hg') and self.vcsGetRepo( config, vcs_cache_dir ) == vcsrepo:
                 vcs_cache_dir = '.'
             else:
-                vcs_cache_dir = vcsrepo.replace('/', '_').replace(':', '_')
+                vcs_cache_dir = self._cacheDir('hg')
+                vcs_cache_dir = os.path.join(
+                        vcs_cache_dir,
+                        vcsrepo.replace('/', '_').replace(':', '_')
+                )
             vcs_cache_dir = os.path.realpath(vcs_cache_dir)
 
         if os.path.isdir( vcs_cache_dir ):

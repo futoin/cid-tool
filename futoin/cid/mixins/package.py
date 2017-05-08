@@ -1,7 +1,7 @@
 
 from __future__ import print_function, absolute_import
 
-import os, tempfile, subprocess, platform, glob
+import os, subprocess, platform, glob
 
 try:
     import urllib.request as urllib
@@ -137,12 +137,14 @@ class PackageMixIn( object ):
             return
         
         if gpg_key:
-            (fd, tf) = tempfile.mkstemp('cidgpg', text=True)
             try:
-                os.write(fd, gpg_key.encode(encoding='UTF-8'))
+                gpg_key = gpg_key.encode(encoding='UTF-8')
             except:
-                os.write(fd, gpg_key)
-            os.close(fd)
+                pass
+            
+            tmp_dir = self._tmpCacheDir('cidgpg')
+            tf = os.path.join(tmp_dir, 'key.gpg')
+            self._writeTextFile(tf, gpg_key)
 
             self._trySudoCall(
                 ['apt-key', 'add', tf],
@@ -184,10 +186,10 @@ class PackageMixIn( object ):
         
         if not rpm:
             return
-            
-        (fd, tf) = tempfile.mkstemp('cidgpg', text=True)
-        os.write(fd, gpg_key.encode(encoding='UTF-8'))
-        os.close(fd)
+        
+        tmp_dir = self._tmpCacheDir('cidgpg')
+        tf = os.path.join(tmp_dir, 'key.gpg')
+        self._writeTextFile(tf, gpg_key)
             
         self._trySudoCall(
             [rpm, '--import', tf],
@@ -221,7 +223,7 @@ class PackageMixIn( object ):
                         
                             repo_info = repo_info.replace('$releasever', str(releasevermax))
                         
-                            tmp_dir = tempfile.mkdtemp('cidrepo')
+                            tmp_dir = self._tmpCacheDir('cidrepo')
                             repo_file = url.split('/')[-1]
                             repo_file = os.path.join(tmp_dir, repo_file)
                             

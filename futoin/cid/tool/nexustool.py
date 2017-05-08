@@ -1,5 +1,5 @@
 
-import os, shutil, tempfile
+import os, shutil
 
 from ..rmstool import RmsTool
 
