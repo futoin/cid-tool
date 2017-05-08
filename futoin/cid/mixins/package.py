@@ -142,7 +142,7 @@ class PackageMixIn( object ):
             except:
                 pass
             
-            tmp_dir = self._tmpCacheDir('cidgpg')
+            tmp_dir = self._tmpCacheDir(prefix='cidgpg')
             tf = os.path.join(tmp_dir, 'key.gpg')
             self._writeTextFile(tf, gpg_key)
 
@@ -187,7 +187,7 @@ class PackageMixIn( object ):
         if not rpm:
             return
         
-        tmp_dir = self._tmpCacheDir('cidgpg')
+        tmp_dir = self._tmpCacheDir(prefix='cidgpg')
         tf = os.path.join(tmp_dir, 'key.gpg')
         self._writeTextFile(tf, gpg_key)
             
@@ -223,7 +223,7 @@ class PackageMixIn( object ):
                         
                             repo_info = repo_info.replace('$releasever', str(releasevermax))
                         
-                            tmp_dir = self._tmpCacheDir('cidrepo')
+                            tmp_dir = self._tmpCacheDir(prefix='cidrepo')
                             repo_file = url.split('/')[-1]
                             repo_file = os.path.join(tmp_dir, repo_file)
                             

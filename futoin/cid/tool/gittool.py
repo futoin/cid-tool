@@ -296,7 +296,7 @@ if not set by user.
         else:
             # a dirty hack to avoid error message of not found
             # local git repo
-            repo = self._tmpCacheDir('git_')
+            repo = self._tmpCacheDir(prefix='git_')
             
             self._callExternal( [
                 config['env']['gitBin'],

@@ -36,12 +36,15 @@ class cid_UTBase ( unittest.TestCase ) :
         os.chdir( cls.TEST_RUN_DIR )
         os.environ['HOME'] = cls.TEST_RUN_DIR
 
-        if os.path.exists( cls.TEST_DIR ) :
-            for ( path, dirs, files ) in os.walk( cls.TEST_DIR ) :
-                for id in dirs + files :
-                    os.chmod( os.path.join( path, id ), stat.S_IRWXU )
-            shutil.rmtree( cls.TEST_DIR )
+        cache_dir = os.path.join(os.environ['HOME'], '.cache', 'futoin-cid')
 
+        for cleanup_dir in (cache_dir, cls.TEST_DIR):
+            if os.path.exists( cleanup_dir ) :
+                for ( path, dirs, files ) in os.walk( cleanup_dir ) :
+                    for id in dirs + files :
+                        os.chmod( os.path.join( path, id ), stat.S_IRWXU )
+                shutil.rmtree( cleanup_dir )
+            
     def _goToBase( self ):
         os.chdir( self.TEST_DIR )
 
