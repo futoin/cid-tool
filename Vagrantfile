@@ -15,9 +15,7 @@ Vagrant.configure("2") do |config|
 which apt-get && apt-get update || true
     SHELL
     
-    node_id = 0
-    
-    {
+    vms = {
         'rmshost' => 'debian/jessie64',
         'debian_jessie' => 'debian/jessie64',
         'ubuntu_xenial' => 'bento/ubuntu-16.04',
@@ -40,7 +38,9 @@ which apt-get && apt-get update || true
         #'ubuntu_yakkety' => 'bento/ubuntu-16.10', # non-LTS
         'ubuntu_zesty' => 'wholebits/ubuntu17.04-64', # non-LTS
         #'centos_6' => 'centos/6', # too old
-    }.each do |name, box|
+    }
+    
+    vms.each do |name, box|
         config.vm.define('cid_' + name) do |node|
             node.vm.box = box
             
@@ -60,6 +60,12 @@ which apt-get && apt-get update || true
                 dist_controller = 'SCSI'
             else
                 dist_controller = 'SATA Controller'
+            end
+            
+            if name == 'ubuntu_trusty'
+                nic_type = '82540EM'
+            else
+                nic_type = 'virtio'
             end
             
             node.vm.provider "virtualbox" do |v|
@@ -86,22 +92,26 @@ which apt-get && apt-get update || true
                     adapter: 2,
                     ip: "10.11.1.11",
                     netmask: "24",
-                    nic_type: 'virtio',
+                    nic_type: nic_type,
                     virtualbox__intnet: "ciddmz",
                     auto_config: true
                 )
             else
+                host_addr = 100 + vms.keys().index(name)
+            
                 node.vm.network(
                     "private_network",
                     adapter: 2,
-                    ip: "10.11.1.#{100 + node_id}",
-                    netmask: "24",
-                    nic_type: 'virtio',
+                    ip: "10.11.1.#{host_addr}",
+                    netmask: "255.255.255.0",
+                    nic_type: nic_type,
                     virtualbox__intnet: "ciddmz",
                     auto_config: true
                 )
                 
-                node_id += 1
+                node.vm.provision "shell", inline: <<-SHELL
+                    ip addr  | grep DOWN | cut -d ' ' -f2 | tr ':' ' ' | xargs -n1 echo ifup
+                SHELL
             end
         end
     end
