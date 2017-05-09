@@ -8,9 +8,10 @@ import subprocess
 
 from ..runtimetool import RuntimeTool
 from .bashtoolmixin import BashToolMixIn
+from .curltoolmixin import CurlToolMixIn
 
 
-class phpTool(BashToolMixIn, RuntimeTool):
+class phpTool(BashToolMixIn, CurlToolMixIn, RuntimeTool):
     """PHP is a popular general-purpose scripting language that is especially suited to web development.
 
 Home: http://php.net/
@@ -28,7 +29,10 @@ resources due to lack of trusted binary builds.
     PHP_DIR = os.path.join(os.environ['HOME'], '.php')
 
     def getDeps(self):
-        return ['bash', 'phpbuild', 'curl']
+        return (
+            ['phpbuild'] +
+            BashToolMixIn.getDeps(self) +
+            CurlToolMixIn.getDeps(self))
 
     def _installTool(self, env):
         php_ver = env['phpVer']
@@ -61,8 +65,7 @@ resources due to lack of trusted binary builds.
 
         if self._isDebian():
             repo = env.get('phpSuryRepo', 'https://packages.sury.org/php')
-            gpg = self._callExternal(
-                [env['curlBin'], '-fsSL', repo + '/apt.gpg'])
+            gpg = self._callCurl(env, [repo + '/apt.gpg'])
 
             self._addAptRepo(
                 'sury', "deb {0} $codename$ main".format(repo), gpg)

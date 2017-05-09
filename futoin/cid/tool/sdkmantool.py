@@ -4,9 +4,10 @@ import subprocess
 
 from ..runenvtool import RunEnvTool
 from .bashtoolmixin import BashToolMixIn
+from .curltoolmixin import CurlToolMixIn
 
 
-class sdkmanTool(BashToolMixIn, RunEnvTool):
+class sdkmanTool(BashToolMixIn, CurlToolMixIn, RunEnvTool):
     """SDK Man for Java.
 
 Home: http://sdkman.io/
@@ -14,7 +15,10 @@ Home: http://sdkman.io/
     SDKMAN_DIR_DEFAULT = os.path.join(os.environ['HOME'], '.sdkman')
 
     def getDeps(self):
-        return ['bash', 'curl', 'unzip', 'zip']
+        return (
+            ['unzip', 'zip'] +
+            BashToolMixIn.getDeps(self) +
+            CurlToolMixIn.getDeps(self))
 
     def envNames(self):
         return ['sdkmanDir', 'sdkmanGet']
@@ -23,9 +27,11 @@ Home: http://sdkman.io/
         dir = env['sdkmanDir']
         get = env.get('sdkmanGet', 'https://get.sdkman.io')
 
-        self._callBash(env,
-                       'export SDKMAN_DIR="{2}"; {0} -s "{1}" | {3}'
-                       .format(env['curlBin'], get, dir, env['bashBin']))
+        installer = self._callCurl(env, [get])
+
+        os.environ['SDKMAN_DIR'] = dir
+        self._callBash(env, input=installer)
+        del os.environ['SDKMAN_DIR']
 
     def updateTool(self, env):
         self._callBash(env,

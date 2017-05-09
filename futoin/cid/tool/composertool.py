@@ -2,10 +2,10 @@
 import os
 
 from ..buildtool import BuildTool
-from .bashtoolmixin import BashToolMixIn
+from .curltoolmixin import CurlToolMixIn
 
 
-class composerTool(BashToolMixIn, BuildTool):
+class composerTool(CurlToolMixIn, BuildTool):
     """Dependency Manager for PHP.
 
 Home: https://getcomposer.org/
@@ -19,15 +19,21 @@ composerDir is equal to user's ~/bin/ folder by default.
     def _installTool(self, env):
         composer_dir = env['composerDir']
         php_bin = env['phpBin']
-        curl_bin = env['curlBin']
         composer_get = env.get(
             'composerGet', 'https://getcomposer.org/installer')
 
-        self._callBash(
-            env,
-            'mkdir -p {2} &&  {3} -s {0} | {1} -- --install-dir={2} --filename=composer'
-            .format(composer_get, php_bin, composer_dir, curl_bin)
-        )
+        composer_installer = self._callCurl(env, [composer_get])
+
+        if not os.path.exists(composer_dir):
+            os.makedirs(composer_dir)
+
+        self._callExternal(
+            [
+                php_bin, '--',
+                '--install-dir=' + composer_dir,
+                '--filename=composer'
+            ],
+            input=composer_installer)
 
     def updateTool(self, env):
         self._callExternal([env['composerBin'], 'self-update'])
@@ -53,7 +59,7 @@ composerDir is equal to user's ~/bin/ folder by default.
         return self.COMPOSER_JSON
 
     def getDeps(self):
-        return ['php', 'curl', 'bash']
+        return ['php'] + CurlToolMixIn.getDeps(self)
 
     def loadConfig(self, config):
         content = self._loadJSONConfig(self.COMPOSER_JSON)

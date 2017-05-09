@@ -205,6 +205,8 @@ NOT IMPLEMENTED YET!
         if 'archivaUser' in env and 'archivaPassword' in env:
             kwargs['auth'] = (env['archivaUser'], env['archivaPassword'])
 
+        kwargs['timeout'] = self._timeouts(env, 'requests')
+
         self._info('HTTP call {0} {1}'.format(method, url))
         import requests
         return requests.request(method, url, **kwargs)

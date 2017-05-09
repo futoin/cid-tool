@@ -11,12 +11,15 @@ from ..coloring import Coloring
 class PathMixIn(object):
     _dev_null = None
 
-    def _callExternal(self, cmd, suppress_fail=False, verbose=True, output_handler=None):
+    def _callExternal(self, cmd, suppress_fail=False, verbose=True, output_handler=None, input=False):
         try:
             if not PathMixIn._dev_null:
                 PathMixIn._dev_null = open(os.devnull, 'w')
 
-            stdin = PathMixIn._dev_null
+            if input:
+                stdin = subprocess.PIPE
+            else:
+                stdin = PathMixIn._dev_null
 
             if verbose and not suppress_fail:
                 print(Coloring.infoLabel('Call: ') +
@@ -43,6 +46,28 @@ class PathMixIn(object):
                 finally:
                     p.wait()
 
+                if p.returncode != 0:
+                    raise subprocess.CalledProcessError(
+                        'Failed {0}'.format(p.returncode))
+
+                return True
+
+            elif input:
+                p = subprocess.Popen(cmd, stdin=stdin, stderr=stderr,
+                                     bufsize=4096, close_fds=True,
+                                     stdout=subprocess.PIPE)
+
+                try:
+                    p.stdin.write(input)
+                finally:
+                    p.wait()
+
+                if p.returncode != 0:
+                    raise subprocess.CalledProcessError(
+                        'Failed {0}'.format(p.returncode))
+
+                return True
+
             else:
                 res = subprocess.check_output(cmd, stdin=stdin, stderr=stderr)
 
@@ -52,10 +77,10 @@ class PathMixIn(object):
                     pass
 
                 return res
-        except subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError:
             if suppress_fail:
                 return None
-            raise e
+            raise
 
     def _callInteractive(self, cmd, replace=True):
         if replace:

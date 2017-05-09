@@ -15,7 +15,7 @@ Home: https://github.com/creationix/nvm
     NVM_LATEST = '$(git describe --abbrev=0 --tags --match "v[0-9]*")'
 
     def getDeps(self):
-        return ['bash', 'git', 'curl']
+        return ['bash', 'git']
 
     def _installTool(self, env):
         nvm_dir = env['nvmDir']

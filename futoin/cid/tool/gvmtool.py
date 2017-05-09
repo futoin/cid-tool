@@ -4,9 +4,10 @@ import subprocess
 
 from ..runenvtool import RunEnvTool
 from .bashtoolmixin import BashToolMixIn
+from .curltoolmixin import CurlToolMixIn
 
 
-class gvmTool(BashToolMixIn, RunEnvTool):
+class gvmTool(BashToolMixIn, CurlToolMixIn, RunEnvTool):
     """Go Version Manager.
 
 Home: https://github.com/moovweb/gvm
@@ -16,7 +17,10 @@ Home: https://github.com/moovweb/gvm
     GVM_INSTALLER_DEFAULT = 'https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer'
 
     def getDeps(self):
-        return ['bash', 'git', 'hg', 'curl', 'make', 'binutils']
+        return (
+            ['git', 'hg', 'make', 'binutils'] +
+            BashToolMixIn.getDeps(self) +
+            CurlToolMixIn.getDeps(self))
 
     def _installTool(self, env):
         self._requireDeb(['bison', 'gcc', 'build-essential'])
@@ -24,11 +28,11 @@ Home: https://github.com/moovweb/gvm
         self._requireEmergeDepsOnly(['dev-lang/go'])
         self._requirePacman(['bison', 'gcc', 'glibc', ])
 
-        self._callBash(env,
-                       '{0} < <({1} -s -S -L {2})'
-                       .format(env['bashBin'], env['curlBin'], env['gvmInstaller']),
-                       suppress_fail=True  # error when Go is not yet installed
-                       )
+        gvm_installer = self._callCurl(env, [env['gvmInstaller']])
+        self._callBash(
+            env,
+            input=gvm_installer,
+            suppress_fail=True)  # error when Go is not yet installed
 
     def updateTool(self, env):
         self._installTool(env)

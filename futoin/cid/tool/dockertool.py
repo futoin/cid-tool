@@ -4,9 +4,10 @@ import os
 
 from ..buildtool import BuildTool
 from ..runenvtool import RunEnvTool
+from .curltoolmixin import CurlToolMixIn
 
 
-class dockerTool(BuildTool, RunEnvTool):
+class dockerTool(BuildTool, CurlToolMixIn, RunEnvTool):
     """Docker - Build, Ship, and Run Any App, Anywhere.
 
 Home: https://www.docker.com/
@@ -21,9 +22,6 @@ Docker EE or other installation methods are out of scope for now.
 
     def autoDetectFiles(self):
         return 'Dockerfile'
-
-    def getDeps(self):
-        return ['curl']
 
     def getOrder(self):
         return 10
@@ -41,8 +39,7 @@ Docker EE or other installation methods are out of scope for now.
             self._addYumRepo('docker', repo + '/linux/fedora/docker-ce.repo')
 
         elif self._isDebian():
-            gpg = self._callExternal(
-                [env['curlBin'], '-fsSL', repo + '/linux/debian/gpg'])
+            gpg = self._callCurl(env, [repo + '/linux/debian/gpg'])
             self._addAptRepo(
                 'docker',
                 'deb [arch=amd64] {0}/linux/debian $codename$ stable'.format(
@@ -51,8 +48,7 @@ Docker EE or other installation methods are out of scope for now.
             )
 
         elif self._isUbuntu():
-            gpg = self._callExternal(
-                [env['curlBin'], '-fsSL', repo + '/linux/ubuntu/gpg'])
+            gpg = self._callCurl(env, [repo + '/linux/ubuntu/gpg'])
             self._addAptRepo(
                 'docker',
                 'deb [arch=amd64] {0}/linux/ubuntu $codename$ stable'.format(
@@ -79,10 +75,10 @@ Docker EE or other installation methods are out of scope for now.
         #    else:
         #        virt_repo += '/SLE_'+releasever
         #
-        #    virt_gpg = self._callExternal([ env['curlBin'], '-fsSL', virt_repo+'/repodata/repomd.xml.key'])
+        #    virt_gpg = self._callCurl(env, [virt_repo+'/repodata/repomd.xml.key'])
         #    self._addZypperRepo('Virtualization', virt_repo+'/Virtualization.repo', virt_gpg)
         #
-        #    gpg = self._callExternal([ env['curlBin'], '-fsSL', repo+'/linux/centos/gpg'])
+        #    gpg = self._callCurl(env, [repo+'/linux/centos/gpg'])
         #    self._addZypperRepo('docker', repo + '/linux/centos/7/x86_64/stable/', gpg, yum=True)
 
         else:

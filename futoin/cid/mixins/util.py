@@ -160,3 +160,19 @@ class UtilMixIn(object):
             self._writeTextFile(placeholder, '')
 
         return tempfile.mkdtemp(dir=tmp_dir, **kwargs)
+
+    def _timeouts(self, env, fmt):
+        timeouts = env['timeouts']
+        connect_to = int(timeouts['connect'])
+        read_to = int(timeouts['read'])
+        total_to = int(timeouts['total'])
+
+        if fmt == 'requests':
+            return (connect_to, read_to)
+        elif fmt == 'curl':
+            return [
+                '--connect-timeout', '{0}'.format(int(connect_to)),
+                '--max-time', '{0}'.format(int(total_to)),
+            ]
+
+        raise NotImplemented('Unknown format: {0}'.format(fmt))

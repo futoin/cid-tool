@@ -4,9 +4,10 @@ import subprocess
 
 from ..runenvtool import RunEnvTool
 from .bashtoolmixin import BashToolMixIn
+from .curltoolmixin import CurlToolMixIn
 
 
-class rustupTool(BashToolMixIn, RunEnvTool):
+class rustupTool(BashToolMixIn, CurlToolMixIn, RunEnvTool):
     """rustup is an installer for the systems programming language Rust.
 
 Home: https://www.rustup.rs/
@@ -16,13 +17,17 @@ Home: https://www.rustup.rs/
     INSTALLER_DEFAULT = 'https://sh.rustup.rs'
 
     def getDeps(self):
-        return ['bash', 'curl']
+        return (
+            BashToolMixIn.getDeps(self) +
+            CurlToolMixIn.getDeps(self))
 
     def _installTool(self, env):
-        self._callBash(env,
-                       '{0} {1} -sSf | {2} -s -- -y --no-modify-path'
-                       .format(env['curlBin'], env['rustupInstaller'], env['bashBin'])
-                       )
+        installer = self._callCurl([env['rustupInstaller']])
+
+        self._callBash(
+            env,
+            bash_args=['--', '-y', '--no-modify-path'],
+            input=installer)
 
     def updateTool(self, env):
         self._callExternal([

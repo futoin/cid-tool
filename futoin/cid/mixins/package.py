@@ -331,8 +331,19 @@ class PackageMixIn(object):
         brew = self._which('brew')
 
         if not brew:
-            self._callExternal(
-                ['bash', '-c', '/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"'])
+            curl = self._which('curl')
+            ruby = self._which('ruby')
+
+            # TODO: change to use env timeouts
+            brew_installer = self._callExternal([
+                curl, '-fsSL',
+                '--connect-timeout', '10',
+                '--max-time', '300',
+                'https://raw.githubusercontent.com/Homebrew/install/master/install'
+            ])
+
+            self._callExternal([ruby, '-e', brew_installer])
+
             brew = self._which('brew')
 
         for package in packages:
@@ -353,7 +364,16 @@ class PackageMixIn(object):
         for package in packages:
             base_name = package.split('/')[-1]
             local_name = os.path.join(os.environ['HOME'])
-            self._callExternal([curl, '-o', base_name, package])
+
+            # TODO: change to use env timeouts
+            self._callExternal([
+                curl,
+                '-fsSL',
+                '--connect-timeout', '10',
+                '--max-time', '300',
+                '-o', base_name,
+                package
+            ])
 
             volumes = set(os.listdir(volumes_dir))
             self._trySudoCall([hdiutil, 'attach', local_name])

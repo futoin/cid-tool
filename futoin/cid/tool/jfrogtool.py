@@ -3,9 +3,10 @@ import os
 import stat
 
 from ..runenvtool import RunEnvTool
+from .curltoolmixin import CurlToolMixIn
 
 
-class jfrogTool(RunEnvTool):
+class jfrogTool(CurlToolMixIn, RunEnvTool):
     """JFrog: Command Line Interface for Artifactory and Bintray
 
 Home: https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
@@ -13,7 +14,6 @@ Home: https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
 
     def _installTool(self, env):
         dst_dir = env['jfrogDir']
-        curl_bin = env['curlBin']
         get_url = env['jfrogGet']
         jfrog_bin = env['jfrogBin']
 
@@ -23,7 +23,7 @@ Home: https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
         if self._isMacOS():
             self._requireHomebrew('jfrog-cli-go')
         else:
-            self._callExternal([curl_bin, '-fsSL', get_url, '-o', jfrog_bin])
+            self._callCurl(env, [get_url, '-o', jfrog_bin])
             os.chmod(jfrog_bin, stat.S_IRWXU | stat.S_IRGRP |
                      stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
 
@@ -64,6 +64,3 @@ Home: https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
         self._addBinPath(bin_dir)
 
         self._have_tool = os.path.exists(jfrog_bin)
-
-    def getDeps(self):
-        return ['curl']

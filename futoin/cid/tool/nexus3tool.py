@@ -130,5 +130,7 @@ avoid setting these variables in process environment.
         if 'nexus3User' in env and 'nexus3Password' in env:
             kwargs['auth'] = (env['nexus3User'], env['nexus3Password'])
 
+        kwargs['timeout'] = self._timeouts(env, 'requests')
+
         self._info('HTTP call {0} {1}'.format(method, url))
         return requests.request(method, url, **kwargs)

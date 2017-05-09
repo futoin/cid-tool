@@ -1425,6 +1425,11 @@ class CIDTool(PathMixIn, UtilMixIn):
         env.setdefault('pluginPacks', [])
         env.setdefault('externalSetup', False)
 
+        timeouts = env.setdefault('timeouts', {})
+        timeouts.setdefault('connect', 10)
+        read_to = timeouts.setdefault('read', 60)
+        timeouts.setdefault('total', read_to * 60)
+
         env.setdefault('binDir', os.path.join(os.environ['HOME'], 'bin'))
         self._addBinPath(env['binDir'])
 

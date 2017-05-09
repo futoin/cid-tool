@@ -189,6 +189,8 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
         elif 'password' in server_cfg:
             kwargs['auth'] = (server_cfg['user'], server_cfg['password'])
 
+        kwargs['timeout'] = self._timeouts(env, 'requests')
+
         self._info('HTTP call {0} {1}'.format(method, url))
         return requests.request(method, url, **kwargs)
 

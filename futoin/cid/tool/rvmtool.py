@@ -3,9 +3,10 @@ import os
 
 from ..runenvtool import RunEnvTool
 from .bashtoolmixin import BashToolMixIn
+from .curltoolmixin import CurlToolMixIn
 
 
-class rvmTool(BashToolMixIn, RunEnvTool):
+class rvmTool(BashToolMixIn, CurlToolMixIn, RunEnvTool):
     """Ruby Version Manager.
 
 Home: https://rvm.io/
@@ -19,7 +20,10 @@ Stable RVM is used by default.
     RVM_GET = 'https://get.rvm.io'
 
     def getDeps(self):
-        return ['bash', 'curl', 'gpg']
+        return (
+            ['gpg'] +
+            BashToolMixIn.getDeps(self) +
+            CurlToolMixIn.getDeps(self))
 
     def _installTool(self, env):
         rvm_dir = env['rvmDir']
@@ -34,9 +38,12 @@ Stable RVM is used by default.
         os.environ['rvm_user_install_flag'] = '1'
         os.environ['rvm_auto_dotfiles_flag'] = '0'
 
-        self._callBash(env,
-                       '{0} -sSL {1} | {2} -s {3} --path {4}'
-                       .format(env['curlBin'], rvm_get, env['bashBin'], env['rvmVer'], env['rvmDir']))
+        installer = self._callCurl(env, [rvm_get])
+
+        self._callBash(
+            env,
+            bash_args=['--', env['rvmVer'], '--path', rvm_dir],
+            input=installer)
 
     def updateTool(self, env):
         self._callExternal([env['rvmBin'], 'get', env['rvmVer']])
