@@ -109,8 +109,8 @@ which apt-get && apt-get update || true
                     auto_config: true
                 )
                 
-                node.vm.provision "shell", inline: <<-SHELL
-                    ip addr  | grep DOWN | cut -d ' ' -f2 | tr ':' ' ' | xargs -n1 echo ifup
+                node.vm.provision "shell", run: "always", inline: <<-SHELL
+                    ip addr  | grep DOWN | cut -d ' ' -f2 | tr ':' ' ' | xargs -n1 --no-run-if-empty ifup
                 SHELL
             end
         end

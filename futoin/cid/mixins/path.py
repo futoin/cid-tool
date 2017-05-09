@@ -44,6 +44,8 @@ class PathMixIn(object):
                         else:
                             break
                 finally:
+                    while p.stdout.read(chunk_size):
+                        pass
                     p.wait()
 
                 if p.returncode != 0:
@@ -58,13 +60,19 @@ class PathMixIn(object):
                                      stdout=subprocess.PIPE)
 
                 try:
+                    input = input.encode(encoding='UTF-8')
+                except:
+                    pass
+
+                try:
                     p.stdin.write(input)
                 finally:
+                    p.stdin.close()
                     p.wait()
 
                 if p.returncode != 0:
                     raise subprocess.CalledProcessError(
-                        'Failed {0}'.format(p.returncode))
+                        p.returncode, cmd, None)
 
                 return True
 

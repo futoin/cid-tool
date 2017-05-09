@@ -22,7 +22,7 @@ Home: https://www.rustup.rs/
             CurlToolMixIn.getDeps(self))
 
     def _installTool(self, env):
-        installer = self._callCurl([env['rustupInstaller']])
+        installer = self._callCurl(env, [env['rustupInstaller']])
 
         self._callBash(
             env,
