@@ -9,9 +9,9 @@ Usage:
     cid package
     cid check [--permissive]
     cid promote <rms_pool> <packages>... [--rmsRepo=<rms_repo>]
-    cid deploy vcstag [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>]
-    cid deploy vcsref <vcs_ref> [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>]
-    cid deploy [rms] <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--build]
+    cid deploy vcstag [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>]
+    cid deploy vcsref <vcs_ref> [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>]
+    cid deploy [rms] <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--build] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>]
     cid migrate
     cid run
     cid run <command> [<command_arg>...]
@@ -36,6 +36,10 @@ Usage:
     cid rms retrieve <rms_pool> <packages>... [--rmsRepo=<rms_repo>]
     cid rms pool create <rms_pool> [--rmsRepo=<rms_repo>]
     cid rms pool list [--rmsRepo=<rms_repo>]
+    cid service run [--deployDir=<deploy_dir>] [--adapt] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>]
+    cid service exec <entry_point> <instance_id> [--deployDir=<deploy_dir>]
+    cid service stop <entry_point> <instance_id> <pid> [--deployDir=<deploy_dir>]
+    cid service reload <entry_point> <instance_id> <pid> [--deployDir=<deploy_dir>]
     
 
 Options:
@@ -50,6 +54,9 @@ Options:
     --permissive                    Ignore test failures.
     --debug                         Build in debug mode, if applicable.
     --cacheDir=<cache_dir>          Directory to hold VCS cache.
+    --adapt                         Re-balance available resources before execution.
+    --limit-memory=<mem_limit>      Limit allocated memory (B, K, M or G postfix is required).
+    --limit-cpus=<cpu_count>        Limit CPU cores (affects instance count).
     <rms_pool>                      Either "dst_pool" or  "src_pool:dst_pool" for promotion.
     <packages>                      Either "local/file" or "remote_file" or "<package>@<hash>".
 """
@@ -158,6 +165,11 @@ def runInner():
 
         if cache_dir:
             cache_dir = os.path.realpath(cache_dir)
+
+        #---
+        deploy = overrides.setdefault('_deploy', {})
+        deploy['maxTotalMemory'] = args['--limit-memory']
+        deploy['maxCpuCount'] = args['--limit-cpus']
 
         #---
         cit = CIDTool(overrides=overrides)

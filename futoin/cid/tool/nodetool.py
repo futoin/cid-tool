@@ -48,3 +48,13 @@ Home: https://nodejs.org/en/
         if env_to_set:
             self._updateEnvFromOutput(env_to_set)
             super(nodeTool, self).initEnv(env)
+
+    def tuneDefaults(self):
+        return {
+            'minMemory': '64M',
+            'debugOverhead': '128M',
+            'connMemory': '100K',
+            'debugConnOverhead': '1M',
+            'socketType': 'unix',
+            'scalable': True,
+        }

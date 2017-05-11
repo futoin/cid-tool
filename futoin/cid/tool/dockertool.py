@@ -4,10 +4,11 @@ import os
 
 from ..buildtool import BuildTool
 from ..runenvtool import RunEnvTool
+from ..runtimetool import RuntimeTool
 from .curltoolmixin import CurlToolMixIn
 
 
-class dockerTool(BuildTool, CurlToolMixIn, RunEnvTool):
+class dockerTool(BuildTool, CurlToolMixIn, RunEnvTool, RuntimeTool):
     """Docker - Build, Ship, and Run Any App, Anywhere.
 
 Home: https://www.docker.com/
@@ -126,3 +127,23 @@ Docker EE or other installation methods are out of scope for now.
         else:
             sudo = self._which('sudo')
             self._callInteractive([sudo, bin] + args)
+
+    def onRun(self, config, file, args, tune):
+        env = config['env']
+        cmd = [env['dockerBin'], 'run', file]
+
+        if self._haveGroup('docker'):
+            self._callExternal(cmd)
+        else:
+            sudo = self._which('sudo')
+            self._callExternal([sudo] + cmd)
+
+    def tuneDefaults(self):
+        return {
+            'minMemory': '256M',
+            'debugOverhead': '128M',
+            'connMemory': '100K',
+            'debugConnOverhead': '1M',
+            'socketType': 'tcp',
+            'scalable': False,
+        }

@@ -10,3 +10,9 @@ class RuntimeTool(SubTool):
         self._callInteractive([
             env[self._name + 'Bin'], file
         ] + args)
+
+    def tuneDefaults(self):
+        return {
+            'socketType': 'unix',
+            'scalable': False,
+        }

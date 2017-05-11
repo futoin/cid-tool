@@ -176,3 +176,20 @@ class UtilMixIn(object):
             ]
 
         raise NotImplemented('Unknown format: {0}'.format(fmt))
+
+    #---
+    __memory_mult_table = {
+        'B': 1,
+        'K': (1 << 10),
+        'M': (1 << 20),
+        'G': (1 << 30),
+    }
+
+    def _parseMemory(self, val):
+        b = int(val[:-1])
+        m = self.__memory_mult_table[val[-1]]
+
+        if b <= 0:
+            raise ValueError('Memory must be positive')
+
+        return b * m

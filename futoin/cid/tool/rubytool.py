@@ -273,3 +273,10 @@ CRD12l8Jwxc6pl2BA/4p5DFEpGVvkgLj7/YLYCtYmZDw8i/drGbkWfIQiOgPWIf8QgpJXVME
 =G8vE
 -----END PGP PUBLIC KEY BLOCK-----
 '''
+
+    def tuneDefaults(self):
+        return {
+            'minMemory': '8M',
+            'socketType': 'none',
+            'scalable': False,
+        }

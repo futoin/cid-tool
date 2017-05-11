@@ -145,3 +145,13 @@ Mpkkl/Zpp0BirhGWNyTg8K4JrsQ=
 =d320
 -----END PGP PUBLIC KEY BLOCK-----
 '''
+
+    def tuneDefaults(self):
+        return {
+            'minMemory': '64M',
+            'debugOverhead': '128M',
+            'connMemory': '100K',
+            'debugConnOverhead': '1M',
+            'socketType': 'tcp',
+            'scalable': False,
+        }

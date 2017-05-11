@@ -109,7 +109,7 @@ resources due to lack of trusted binary builds.
         self._have_tool = False
 
     def envNames(self):
-        return ['phpDir', 'phpBin', 'phpVer', 'phpfpmBin', 'phpBinOnly', 'phpSuryRepo']
+        return ['phpDir', 'phpBin', 'phpVer', 'phpBinOnly', 'phpSuryRepo']
 
     def initEnv(self, env):
         #---
@@ -168,6 +168,11 @@ resources due to lack of trusted binary builds.
 
                     self._updateEnvFromOutput(env_to_set)
                     super(phpTool, self).initEnv(env)
+
+                    php_fpm = self._which('php-fpm')
+
+                    if php_fpm:
+                        env.setdefault('phpfpmBin', php_fpm)
                 else:
                     pass
 
@@ -515,3 +520,10 @@ resources due to lack of trusted binary builds.
 
         self._requireEmerge(['dev-lang/php'])
         self._requirePacman(['php'])
+
+    def tuneDefaults(self):
+        return {
+            'minMemory': '8M',
+            'socketType': 'none',
+            'scalable': False,
+        }

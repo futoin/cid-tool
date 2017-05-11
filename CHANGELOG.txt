@@ -22,6 +22,8 @@
 * NEW: implemented Apache Archiva support (raw WebDAV)
 * NEW: added generic network timeouts support
 * NEW: implemented network timeouts for curl & requests
+* NEW: added generic memory & cpu limit concept
+* NEW: added separate phpfpmTool for entry points
 
 === 0.7.3 (2017-04-20) ===
 * FIXED: merge failed message to distinguish aborted/left as-is cases

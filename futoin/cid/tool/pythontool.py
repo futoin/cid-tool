@@ -75,3 +75,10 @@ system packages OS-specific way.
                 )
 
             env['pythonFactVer'] = python_ver_fact
+
+    def tuneDefaults(self):
+        return {
+            'minMemory': '8M',
+            'socketType': 'none',
+            'scalable': False,
+        }
