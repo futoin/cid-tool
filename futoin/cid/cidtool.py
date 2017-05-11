@@ -533,7 +533,7 @@ class CIDTool(PathMixIn, UtilMixIn):
         self._unlockCommon('_global_lock')
 
     @cid_action
-    def deploy(self, mode, p1, p2=None):
+    def deploy(self, mode, p1=None, p2=None):
         # Get to deploy folder
         deploy_dir = self._config['deployDir']
 
@@ -568,6 +568,8 @@ class CIDTool(PathMixIn, UtilMixIn):
             self._vcsref_deploy(p1)
         elif mode == 'vcstag':
             self._vcstag_deploy(p1)
+        elif mode == 'init':
+            self._deploy_init()
         else:
             self._errorExit('Not supported deploy mode: ' + mode)
 
@@ -716,6 +718,9 @@ class CIDTool(PathMixIn, UtilMixIn):
         # Common processing
         self._deployCommon(vcs_ref_tmp, target_dir, [vcs_cache])
 
+    def _deploy_init(self):
+        self._deployConfig()
+
     def _versionSort(self, verioned_list):
         def castver(v):
             res = re.split(r'[\W_]+', v)
@@ -783,6 +788,7 @@ class CIDTool(PathMixIn, UtilMixIn):
                 os.chmod(os.path.join(path, f), file_perm)
 
         # Setup per-user services
+        self._deployConfig()
         self._deployServices(tmp)
 
         # Move in place
@@ -811,7 +817,7 @@ class CIDTool(PathMixIn, UtilMixIn):
         for f in os.listdir('.'):
             (f_noext, f_ext) = os.path.splitext(f)
 
-            if f in whitelist:
+            if f[0] == '.' or f in whitelist:
                 continue
 
             if os.path.isdir(f):
@@ -819,6 +825,25 @@ class CIDTool(PathMixIn, UtilMixIn):
             else:
                 os.chmod(f, stat.S_IRWXU)
                 os.remove(f)
+
+    def _deployConfig(self):
+        config = self._config
+        orig_config = self._deploy_config
+        new_config = OrderedDict()
+
+        for cv in self.CONFIG_VARS:
+            try:
+                new_config[cv] = orig_config[cv]
+            except KeyError:
+                pass
+
+        deploy = config.get('deploy', {}).copy()
+        new_config['deploy'] = deploy
+
+        #---
+        # TODO: create auto-services
+
+        self._writeJSONConfig(self._FUTOIN_JSON, new_config)
 
     def _deployServices(self, subdir):
         pass
@@ -1314,26 +1339,27 @@ class CIDTool(PathMixIn, UtilMixIn):
 
     def _initConfig(self):
         errors = []
-        
+
         #--
         user_home = os.environ.get('HOME', '/')
         user_config_path = os.path.join(user_home, '.' + self._FUTOIN_JSON)
 
         if not os.path.exists(user_config_path) and user_home != self._overrides['wcDir']:
             user_config_path = os.path.join(user_home, self._FUTOIN_JSON)
-            
+
         user_config_path = os.path.realpath(user_config_path)
-        
-        global_config_file = os.path.join('/', 'etc', 'futoin', self._FUTOIN_JSON)
+
+        global_config_file = os.path.join(
+            '/', 'etc', 'futoin', self._FUTOIN_JSON)
         global_config_file = os.path.realpath(global_config_file)
-        
+
         deploy_config_file = None
         deploy_dir = self._overrides.get('deployDir', None)
-        
+
         if deploy_dir:
             deploy_config_file = os.path.join(deploy_dir, self._FUTOIN_JSON)
             deploy_config_file = os.path.realpath(deploy_config_file)
-            
+
         project_config_file = os.path.realpath(self._FUTOIN_JSON)
 
         #--
@@ -1341,18 +1367,18 @@ class CIDTool(PathMixIn, UtilMixIn):
         uc = {'env': {}}
         dc = {}
         pc = {}
-        
+
         gc = self._loadJSON(global_config_file, gc)
-        
+
         if user_config_path not in (deploy_config_file, project_config_file):
             uc = self._loadJSON(user_config_path, uc)
-            
+
         if project_config_file != deploy_config_file:
             pc = self._loadJSON(project_config_file, pc)
-        
+
         if deploy_config_file:
             dc = self._loadJSON(deploy_config_file, dc)
-        
+
         #---
         self._global_config = gc
         self._user_config = uc
@@ -1432,7 +1458,7 @@ class CIDTool(PathMixIn, UtilMixIn):
         #---
         deploy = dc.get('deploy', {})
         config['deploy'] = deploy
-        
+
         if '_deploy' in config:
             _deploy = config['_deploy']
             del config['_deploy']

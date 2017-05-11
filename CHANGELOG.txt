@@ -11,6 +11,7 @@
 * CHANGED: Brightbox rubies support Zesty now
 * CHANGED: to use ${HOME}/.cache/futoin-cid for implicit file operations
 * CHANGED: to always reload plugins and make sure precedence is CID->Config->Env
+* CHANGED: "cid deploy rms" is explicit now
 * NEW: added FTN16 .pluginPacks support
 * NEW: added family of "cid rms" commands
 * NEW: added scpTool port support
@@ -25,6 +26,7 @@
 * NEW: implemented network timeouts for curl & requests
 * NEW: added generic memory & cpu limit concept
 * NEW: added separate phpfpmTool for entry points
+* NEW: "cid deploy init" command
 
 === 0.7.3 (2017-04-20) ===
 * FIXED: merge failed message to distinguish aborted/left as-is cases

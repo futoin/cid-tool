@@ -11,7 +11,8 @@ Usage:
     cid promote <rms_pool> <packages>... [--rmsRepo=<rms_repo>]
     cid deploy vcstag [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>]
     cid deploy vcsref <vcs_ref> [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>]
-    cid deploy [rms] <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--build] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>]
+    cid deploy rms <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--build] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>]
+    cid deploy init [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>]
     cid migrate
     cid run
     cid run <command> [<command_arg>...]
@@ -127,8 +128,12 @@ def runInner():
         overrides['wcDir'] = os.path.realpath(args['--wcDir'] or def_wc_dir)
         #--
         deploy_dir = args['--deployDir']
-        overrides['deployDir'] = deploy_dir and os.path.realpath(
-            deploy_dir) or None
+
+        if deploy_dir:
+            overrides['deployDir'] = os.path.realpath(deploy_dir)
+        elif args['deploy'] or args['service']:
+            overrides['deployDir'] = os.path.realpath('.')
+
         overrides['reDeploy'] = args['--redeploy'] and True or False
 
         if args['--build']:
@@ -239,6 +244,17 @@ def runInner():
                 cit.rms_retrieve(args['<rms_pool>'], args['<packages>'])
             else:
                 raise RuntimeError("Not implemented yet.")
+        elif args['deploy']:
+            if args['vcsref']:
+                cit.deploy('vcsref', args['<vcs_ref>'])
+            elif args['vcstag']:
+                cit.deploy('vcstag', args['<vcs_ref>'])
+            elif args['init']:
+                cit.deploy('init')
+            elif args['rms']:
+                cit.deploy('rms', args['<rms_pool>'], args['<package>'])
+            else:
+                raise RuntimeError("Not implemented yet.")
         elif args['init']:
             cit.init_project(args['<project_name>'])
         elif args['tag']:
@@ -253,13 +269,6 @@ def runInner():
             cit.check()
         elif args['promote']:
             cit.promote(args['<rms_pool>'], args['<packages>'])
-        elif args['deploy']:
-            if args['vcsref']:
-                cit.deploy('vcsref', args['<vcs_ref>'])
-            elif args['vcstag']:
-                cit.deploy('vcstag', args['<vcs_ref>'])
-            else:
-                cit.deploy('rms', args['<rms_pool>'], args['<package>'])
         elif args['migrate']:
             cit.migrate()
         elif args['run']:

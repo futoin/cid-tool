@@ -295,19 +295,29 @@ Please see details in the FTN16 spec: ::
     cid promote <rms_pool> <packages>... [--rmsRepo=<rms_repo>]
         Promote package to Release Management System (RMS) or manage
         package across RMS pools.
+
+        
+    cid deploy ...
+        Common arguments for deploy family of commands:
+        [--deployDir=<deploy_dir>] - target folder, CWD by default
+        [--limit-memory=<mem_limit>] - memory limit with B, K, M or G postfix.
+        [--limit-cpus=<cpu_count>] - max number of CPU cores to use.
+        
+    cid deploy init
+        Prepare directory for deployment. Allows adjusting futoin.json
+        before actual deployment is done to define limits once or add
+        project settings overrides. Not necessary otherwise.
        
     cid deploy vcstag [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--redeploy]
-        [--deployDir=<deploy_dir>]
         Deploy from VCS tag.
        
     cid deploy vcsref <vcs_ref> [--vcsRepo=<vcs_repo>] [--redeploy]
-        [--deployDir=<deploy_dir>]
         Deploy from VCS branch.
        
-    cid deploy [rms] <rms_pool> [<package>] [--rmsRepo=<rms_repo>]
-        [--redeploy] [--deployDir=<deploy_dir>] [--build]
+    cid deploy rms <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--build]
         Deploy from RMS.
-        
+
+
     cid migrate
         Runs data migration tasks.
 

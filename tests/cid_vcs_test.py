@@ -147,7 +147,7 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         
         os.makedirs( 'test_deploy' )
         os.chdir( 'test_deploy' )
-        self._call_cid( [ 'deploy', 'Prod',
+        self._call_cid( [ 'deploy', 'rms', 'Prod',
                             '--rmsRepo', 'scp:' + rms_dir ] )
 
         self.assertTrue(glob.glob('wc-CI-1.3.1-*'))
@@ -156,7 +156,7 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         rms_dir = os.path.realpath( 'rms_repo' )
         
         os.chdir( 'test_deploy' )
-        self._call_cid( [ 'deploy', 'Prod',
+        self._call_cid( [ 'deploy', 'rms', 'Prod',
                             '--rmsRepo', 'scp:' + rms_dir,
                             '--redeploy'] )
         
@@ -169,17 +169,17 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         
         package = 'wc-1.2.4-*'
 
-        self._call_cid( [ 'deploy', 'Builds', package,
+        self._call_cid( [ 'deploy', 'rms', 'Builds', package,
                             '--rmsRepo', 'scp:' + rms_dir ] )
         
         self.assertTrue(glob.glob('wc-1.2.4-*'))
         
-        self._call_cid( [ 'deploy', 'Builds', package,
+        self._call_cid( [ 'deploy', 'rms', 'Builds', package,
                             '--rmsRepo', 'scp:' + rms_dir ] )
         
         self.assertTrue(glob.glob('wc-1.2.4-*'))
         
-        self._call_cid( [ 'deploy', 'Builds', package,
+        self._call_cid( [ 'deploy', 'rms', 'Builds', package,
                             '--rmsRepo', 'scp:' + rms_dir,
                             '--redeploy' ] )
         
