@@ -1314,29 +1314,57 @@ class CIDTool(PathMixIn, UtilMixIn):
 
     def _initConfig(self):
         errors = []
+        
+        #--
         user_home = os.environ.get('HOME', '/')
         user_config_path = os.path.join(user_home, '.' + self._FUTOIN_JSON)
 
         if not os.path.exists(user_config_path) and user_home != self._overrides['wcDir']:
             user_config_path = os.path.join(user_home, self._FUTOIN_JSON)
-
-        self._global_config = gc = self._loadJSON(os.path.join(
-            '/', 'etc', 'futoin', self._FUTOIN_JSON), {'env': {}})
-        self._user_config = uc = self._loadJSON(user_config_path, {'env': {}})
-        self._project_config = pc = self._loadJSON(self._FUTOIN_JSON, {})
-
+            
+        user_config_path = os.path.realpath(user_config_path)
+        
+        global_config_file = os.path.join('/', 'etc', 'futoin', self._FUTOIN_JSON)
+        global_config_file = os.path.realpath(global_config_file)
+        
+        deploy_config_file = None
         deploy_dir = self._overrides.get('deployDir', None)
-        dc = {}
+        
         if deploy_dir:
-            dc = self._loadJSON(os.path.join(
-                deploy_dir, self._FUTOIN_JSON), dc)
+            deploy_config_file = os.path.join(deploy_dir, self._FUTOIN_JSON)
+            deploy_config_file = os.path.realpath(deploy_config_file)
+            
+        project_config_file = os.path.realpath(self._FUTOIN_JSON)
+
+        #--
+        gc = {'env': {}}
+        uc = {'env': {}}
+        dc = {}
+        pc = {}
+        
+        gc = self._loadJSON(global_config_file, gc)
+        
+        if user_config_path not in (deploy_config_file, project_config_file):
+            uc = self._loadJSON(user_config_path, uc)
+            
+        if project_config_file != deploy_config_file:
+            pc = self._loadJSON(project_config_file, pc)
+        
+        if deploy_config_file:
+            dc = self._loadJSON(deploy_config_file, dc)
+        
+        #---
+        self._global_config = gc
+        self._user_config = uc
         self._deploy_config = dc
+        self._project_config = pc
+        #--
 
         config = dict(pc)
 
         # Deployment config can override project config
         for (k, v) in dc.items():
-            if k == 'env':
+            if k in ('deploy', 'env'):
                 continue
             elif k == 'entryPoints':
                 config_epoints = config.setdefault('entryPoints', {})
@@ -1402,8 +1430,10 @@ class CIDTool(PathMixIn, UtilMixIn):
         self._sanitizeEntryPoints(entry_points, errors)
 
         #---
+        deploy = dc.get('deploy', {})
+        config['deploy'] = deploy
+        
         if '_deploy' in config:
-            deploy = config.setdefault('deploy', {})
             _deploy = config['_deploy']
             del config['_deploy']
 
