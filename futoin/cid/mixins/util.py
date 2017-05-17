@@ -44,7 +44,7 @@ class UtilMixIn(object):
         return False
 
     #---
-    def _loadJSONConfig(self, file_name):
+    def _loadJSONConfig(self, file_name, defvalue=None):
         if os.path.exists(file_name):
             with open(file_name, 'r') as content_file:
                 content = content_file.read()
@@ -52,7 +52,7 @@ class UtilMixIn(object):
                 def object_pairs_hook(pairs): return OrderedDict(pairs)
                 return json.loads(content, object_pairs_hook=object_pairs_hook)
         else:
-            return None
+            return defvalue
 
     def _updateJSONConfig(self, file_name, updater, indent=2, separators=(',', ': ')):
         content = self._loadJSONConfig(file_name)

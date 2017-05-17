@@ -30,6 +30,7 @@ from .runtimetool import RuntimeTool
 
 
 __all__ = ['CIDTool']
+ospath = os.path
 
 
 def _call_cmd(cmd):
@@ -64,74 +65,14 @@ def cid_action(f):
     return custom_f
 
 
-class CIDTool(PathMixIn, UtilMixIn):
-    TO_GZIP = '\.(js|json|css|svg|txt)$'
-    VCS_CACHE_DIR = 'vcs'
+class HelpersMixIn(object):
+    def _checkKnownTool(self, tool, tool_impl=None):
+        if tool_impl is None:
+            tool_impl = self._tool_impl
 
-    try:
-        _str_type = (str, unicode)
-    except NameError:
-        _str_type = str
-
-    CONFIG_VARS = OrderedDict([
-        ('name', _str_type),
-        ('version', _str_type),
-        ('vcs', _str_type),
-        ('vcsRepo', _str_type),
-        ('deployBuild', bool),
-        ('permissiveChecks', bool),
-        ('rms', _str_type),
-        ('rmsRepo', _str_type),
-        ('rmsPool', _str_type),
-        ('tools', dict),
-        ('toolTune', dict),
-        ('package', list),
-        ('packageGzipStatic', bool),
-        ('packageChecksums', bool),
-        ('persistent', list),
-        ('entryPoints', dict),
-        ('configenv', dict),
-        ('webcfg', dict),
-        ('actions', dict),
-        ('plugins', dict),
-        ('pluginPacks', list),
-    ])
-
-    CONFIG_TUNE_VARS = OrderedDict([
-        ('minMemory', 'memory'),
-        ('maxMemory', 'memory'),
-        ('connMemory', 'memory'),
-        ('debugOverhead', 'memory'),
-        ('debugConnOverhead', 'memory'),
-        ('scalable', bool),
-        ('reloadable', bool),
-        ('cpuWeight', 'weight'),
-        ('memWeight', 'weight'),
-        ('instances', int),
-        ('maxInstances', int),
-        ('socketTypes', list),
-        ('socketProtocols', list),
-    ])
-
-    FUTOIN_ENV_VARS = OrderedDict([
-        ('type', _str_type),
-        ('persistentDir', _str_type),
-        ('vars', dict),
-        ('plugins', dict),
-        ('pluginPacks', list),
-        ('externalSetup', bool),
-    ])
-
-    DEPLOY_LOCK_FILE = '.futoin-deploy.lock'
-    GLOBAL_LOCK_FILE = os.path.join(os.environ['HOME'], '.futoin-global.lock')
-
-    def __init__(self, overrides):
-        self._deploy_lock = None
-        self._global_lock = None
-        self._startup_env = dict(os.environ)
-        self._tool_impl = None
-        self._overrides = overrides
-        self._initConfig()
+        if tool not in tool_impl:
+            self._errorExit(
+                'Implementation for "{0}" was not found'.format(tool))
 
     def _forEachTool(self, cb, allow_failure=False, base=None):
         config = self._config
@@ -198,7 +139,7 @@ class CIDTool(PathMixIn, UtilMixIn):
         config = self._config
         wcDir = config['wcDir']
 
-        if not os.path.exists(wcDir):
+        if not ospath.exists(wcDir):
             os.makedirs(wcDir)
 
         if wcDir != os.getcwd():
@@ -217,6 +158,821 @@ class CIDTool(PathMixIn, UtilMixIn):
             os.chdir(wcDir)
             self._overrides['wcDir'] = config['wcDir'] = os.getcwd()
             self._initConfig()
+
+
+class LockMixIn(object):            
+    DEPLOY_LOCK_FILE = '.futoin-deploy.lock'
+    GLOBAL_LOCK_FILE = ospath.join(os.environ['HOME'], '.futoin-global.lock')
+    
+    def _initLocks(self):
+        self._deploy_lock = None
+        self._global_lock = None
+
+    def _lockCommon(self, lock, file, flags):
+        assert self.__dict__[lock] is None
+        self.__dict__[lock] = os.open(file, os.O_WRONLY | os.O_CREAT)
+        try:
+            fcntl.flock(self.__dict__[lock], flags)
+        except Exception as e:
+            self._errorExit('FAILED to acquire{0}: {1}'.format(
+                lock.replace('_', ' '), e))
+
+    def _unlockCommon(self, lock):
+        fcntl.flock(self.__dict__[lock], fcntl.LOCK_UN)
+        os.close(self.__dict__[lock])
+        self.__dict__[lock] = None
+
+    def _deployLock(self):
+        self._lockCommon(
+            '_deploy_lock',
+            ospath.join(self._config['deployDir'], self.DEPLOY_LOCK_FILE),
+            fcntl.LOCK_EX | fcntl.LOCK_NB
+        )
+
+    def _deployUnlock(self):
+        self._unlockCommon('_deploy_lock')
+
+    def _globalLock(self):
+        self._lockCommon('_global_lock', self.GLOBAL_LOCK_FILE, fcntl.LOCK_EX)
+
+    def _globalUnlock(self):
+        self._unlockCommon('_global_lock')
+
+
+class ConfigMixIn(object):            
+    try:
+        _str_type = (str, unicode)
+    except NameError:
+        _str_type = str
+
+    CONFIG_VARS = OrderedDict([
+        ('name', _str_type),
+        ('version', _str_type),
+        ('vcs', _str_type),
+        ('vcsRepo', _str_type),
+        ('deployBuild', bool),
+        ('permissiveChecks', bool),
+        ('rms', _str_type),
+        ('rmsRepo', _str_type),
+        ('rmsPool', _str_type),
+        ('tools', dict),
+        ('toolTune', dict),
+        ('package', list),
+        ('packageGzipStatic', bool),
+        ('packageChecksums', bool),
+        ('persistent', list),
+        ('entryPoints', dict),
+        ('configenv', dict),
+        ('webcfg', dict),
+        ('actions', dict),
+        ('plugins', dict),
+        ('pluginPacks', list),
+    ])
+
+    CONFIG_TUNE_VARS = OrderedDict([
+        ('minMemory', 'memory'),
+        ('maxMemory', 'memory'),
+        ('connMemory', 'memory'),
+        ('debugOverhead', 'memory'),
+        ('debugConnOverhead', 'memory'),
+        ('scalable', bool),
+        ('reloadable', bool),
+        ('cpuWeight', 'weight'),
+        ('memWeight', 'weight'),
+        ('instances', int),
+        ('maxInstances', int),
+        ('socketTypes', list),
+        ('socketProtocols', list),
+    ])
+
+    FUTOIN_ENV_VARS = OrderedDict([
+        ('type', _str_type),
+        ('persistentDir', _str_type),
+        ('vars', dict),
+        ('plugins', dict),
+        ('pluginPacks', list),
+        ('externalSetup', bool),
+    ])
+    
+    def _initConfig(self):
+        errors = []
+
+        #--
+        user_home = os.environ.get('HOME', '/')
+        user_config_path = ospath.join(user_home, '.' + self._FUTOIN_JSON)
+
+        if not ospath.exists(user_config_path) and user_home != self._overrides['wcDir']:
+            user_config_path = ospath.join(user_home, self._FUTOIN_JSON)
+
+        user_config_path = ospath.realpath(user_config_path)
+
+        global_config_file = ospath.join(
+            '/', 'etc', 'futoin', self._FUTOIN_JSON)
+        global_config_file = ospath.realpath(global_config_file)
+
+        deploy_config_file = None
+        deploy_dir = self._overrides.get('deployDir', None)
+
+        if deploy_dir:
+            deploy_config_file = ospath.join(deploy_dir, self._FUTOIN_JSON)
+            deploy_config_file = ospath.realpath(deploy_config_file)
+
+        project_config_file = ospath.realpath(self._FUTOIN_JSON)
+
+        #--
+        gc = {'env': {}}
+        uc = {'env': {}}
+        dc = {}
+        pc = {}
+
+        gc = self._loadJSONConfig(global_config_file, gc)
+
+        if user_config_path not in (deploy_config_file, project_config_file):
+            uc = self._loadJSONConfig(user_config_path, uc)
+
+        if project_config_file != deploy_config_file:
+            pc = self._loadJSONConfig(project_config_file, pc)
+
+        if deploy_config_file:
+            dc = self._loadJSONConfig(deploy_config_file, dc)
+
+        #---
+        self._global_config = gc
+        self._user_config = uc
+        self._deploy_config = dc
+        self._project_config = pc
+        #--
+
+        config = dict(pc)
+
+        # Deployment config can override project config
+        for (k, v) in dc.items():
+            if k in ('deploy', 'env'):
+                continue
+            elif k == 'entryPoints':
+                config_epoints = config.setdefault('entryPoints', {})
+
+                for (ek, ev) in v.items():
+                    cep = config_epoints.setdefault(ek, {})
+
+                    if ek == 'tune':
+                        cep_tune = cep.setdefault('tune', {})
+                        cep_tune.update(ev)
+                    else:
+                        cep[ek] = ev
+            else:
+                config[k] = v
+
+        self._sanitizeConfig(config, errors)
+
+        if 'env' in pc:
+            errors.append('.env node must not be set in project config')
+
+        if 'deploy' in pc:
+            errors.append('.deploy node must not be set in project config')
+
+        env = dict(dc.get('env', {}))
+
+        for ct in (uc, gc):
+            if 'env' not in ct or len(ct) != 1:
+                errors.append(
+                    'User and Global configs must have the only .env node')
+                continue
+
+            for (k, v) in ct['env'].items():
+                if k == 'plugins':
+                    plugins = env.setdefault('plugins', {})
+
+                    for pk, pv in env['plugins'].items():
+                        plugins.setdefault(pk, pv)
+                elif k == 'pluginPacks':
+                    pluginPacks = env.setdefault('pluginPacks', [])
+                    pluginPacks += v
+                else:
+                    env.setdefault(k, v)
+
+        self._initEnv(env)
+
+        config['env'] = env
+        config.update(self._overrides)
+        self._config = config
+
+        self._initTools()
+
+        #
+        entry_points = config.get('entryPoints', {})
+
+        for (en, ep) in entry_points.items():
+            t = self._tool_impl[ep['tool']]
+            ep_tune = ep.setdefault('tune', {})
+
+            for (tk, tv) in t.tuneDefaults().items():
+                ep_tune.setdefault(tk, tv)
+
+        # run again to check tuneDefaults() from plugins
+        self._sanitizeEntryPoints(entry_points, errors)
+
+        #---
+        deploy = dc.get('deploy', {})
+        config['deploy'] = deploy
+
+        if '_deploy' in config:
+            _deploy = config['_deploy']
+            del config['_deploy']
+
+            for (dk, dv) in _deploy.items():
+                if dv is not None:
+                    deploy[dk] = dv
+
+        self._sanitizeDeployConfig(config, errors)
+
+        #---
+        if errors:
+            self._errorExit(
+                "Configuration issues are found:\n\n* " +
+                "\n* ".join(set(errors)))
+
+    def _sanitizeConfig(self, config, errors):
+        conf_vars = self.CONFIG_VARS
+
+        for (k, v) in config.items():
+            if k not in conf_vars:
+                self._warn('Removing unknown config variable "{0}"'.format(k))
+                del config[k]
+            elif not isinstance(v, conf_vars[k]):
+                req_t = conf_vars[k]
+                if isinstance(req_t, tuple):
+                    req_t = req_t[0]
+
+                errors.append(
+                    'Config variable "{0}" type "{1}" is not instance of "{2}"'
+                    .format(k, v.__class__.__name__, req_t[0].__name__)
+                )
+
+        #---
+        # Make sure futoinTool is enabled, if futoin.json is present.
+        # Otherwise, auto-detection gets disabled and futoin.json is not
+        # updated
+        tools = config.get('tools', None)
+
+        if tools and 'futoin' not in tools:
+            tools['futoin'] = True
+
+        #---
+        entry_points = config.get('entryPoints', None)
+
+        if entry_points:
+            self._sanitizeEntryPoints(entry_points, errors)
+
+        #---
+        toolTune = config.get('toolTune', None)
+
+        if toolTune:
+            for (tn, tune) in toolTune.items():
+                if not isinstance(tune, dict):
+                    errors.append(
+                        'Tool tune "{0}" is not of map type'.format(tn))
+
+    def _sanitizeEntryPoints(self, entry_points, errors):
+        for (en, ep) in entry_points.items():
+            for k in ['tool', 'file']:
+                if k not in ep:
+                    errors.append(
+                        'Entry point "{0}" is missing "{1}"'.format(en, k))
+
+            if 'tune' in ep:
+                ep_tune = ep['tune']
+
+                if not isinstance(ep_tune, dict):
+                    errors.append(
+                        'Entry point "{0}" has invalid tune parameter'.format(en))
+                    continue
+
+                for (tk, tt) in self.CONFIG_TUNE_VARS.items():
+                    try:
+                        tv = ep_tune[tk]
+                    except KeyError:
+                        continue
+
+                    if tt == 'memory':
+                        self._sanitizeMemory(
+                            "{0}/{1}".format(en, tk), tv, errors)
+
+                    elif tt == 'weight':
+                        if not isinstance(tv, int) or tv <= 0:
+                            errors.append(
+                                'Weight value "{0}/{1}" must be positive'.format(en, tk))
+
+                    elif not isinstance(tv, tt):
+                        errors.append(
+                            'Config tune variable "{0}" type "{1}" is not instance of "{2}"'
+                            .format(tk, tv.__class__.__name__, tt.__name__)
+                        )
+
+    def _sanitizeDeployConfig(self, dc, errors):
+        deploy = dc.get('deploy', {})
+
+        if 'maxTotalMemory' in deploy:
+            self._sanitizeMemory('deploy/maxTotalMemory',
+                                 deploy['maxTotalMemory'], errors)
+
+        if 'maxCpuCount' in deploy:
+            val = deploy['maxCpuCount']
+
+            if not isinstance(val, int) or val <= 0:
+                errors.append(
+                    '"deploy/maxCpuCount" must be a positive integer')
+
+    def _sanitizeMemory(self, key, val, errors):
+        try:
+            self._parseMemory(val)
+        except:
+            errors.append(
+                'Memory value "{0}" must be positive '
+                'integer with B, K, M or G postfix (e.g. "16M")'
+                .format(key))
+
+    def _initEnv(self, env):
+        env.setdefault('type', 'dev')
+        env.setdefault('vars', {})
+        env.setdefault('plugins', {})
+        env.setdefault('pluginPacks', [])
+        env.setdefault('externalSetup', False)
+
+        timeouts = env.setdefault('timeouts', {})
+        timeouts.setdefault('connect', 10)
+        read_to = timeouts.setdefault('read', 60)
+        timeouts.setdefault('total', read_to * 60)
+
+        env.setdefault('binDir', ospath.join(os.environ['HOME'], 'bin'))
+        self._addBinPath(env['binDir'])
+
+        #---
+        env_vars = self.FUTOIN_ENV_VARS
+
+        for (k, v) in env.items():
+            if k not in env_vars:
+                continue
+            elif not isinstance(v, env_vars[k]):
+                req_t = env_vars[k]
+                if isinstance(req_t, tuple):
+                    req_t = req_t[0]
+
+                self._errorExit(
+                    'Config variable "{0}" type "{1}" is not instance of "{2}"'
+                    .format(k, v.__class__.__name__, req_t[0].__name__)
+                )
+
+        if env['type'] not in ('prod', 'test', 'dev'):
+            self._errorExit(
+                'Not valid environment type "{0}'.format(env['type']))
+
+    def _initTools(self):
+        config = self._config
+        env = config['env']
+
+        #---
+        config['projectRootSet'] = set(os.listdir('.'))
+
+        #---
+        plugins = {}
+        plugins.update(env['plugins'])
+        plugins.update(config.get('plugins', {}))
+
+        plugin_packs = []
+        plugin_packs += env['pluginPacks']
+        plugin_packs += config.get('pluginPacks', {})
+        plugin_packs.append('futoin.cid.tool')
+
+        for pack_mod_name in plugin_packs:
+            m = importlib.import_module(pack_mod_name)
+            pack_dir = ospath.dirname(m.__file__)
+            tool_files = os.listdir(pack_dir)
+            tool_files = fnmatch.filter(tool_files, '*tool.py')
+
+            for f in tool_files:
+                tool = f.replace('tool.py', '')
+                tool_mod_name = '{0}.{1}tool'.format(pack_mod_name, tool)
+                plugins[tool] = tool_mod_name
+
+        tool_impl = {}
+        self._tool_impl = tool_impl
+
+        for (tool, tool_mod_name) in plugins.items():
+            if tool not in tool_impl:
+                tool_module = importlib.import_module(tool_mod_name)
+                tool_impl[tool] = getattr(tool_module, tool + 'Tool')(tool)
+
+        #---
+        curr_tool = config.get('tool', None)
+
+        if curr_tool:
+            tools = [curr_tool]
+            tool_ver = config.get('toolVer', None)
+
+            if tool_ver:
+                config['env'][curr_tool + 'Ver'] = tool_ver
+        else:
+            config_tools = config.get('tools', {})
+            tools = []
+
+            if config_tools:
+                if not isinstance(config_tools, dict):
+                    self._errorExit(
+                        'futoin.json:tools must be a map of tool=>version pairs')
+
+                for (tool, v) in config_tools.items():
+                    self._checkKnownTool(tool, tool_impl)
+                    tools.append(tool)
+
+                    if v != '*' and v != True:
+                        env[tool + 'Ver'] = v
+            else:
+                for (n, t) in tool_impl.items():
+                    if t.autoDetect(config):
+                        tools.append(n)
+
+            # Make sure deps & env are processed for cli-supplied tools
+            #--
+            for (item, base) in {'rms': RmsTool, 'vcs': VcsTool}.items():
+                tool = config.get(item, None)
+
+                if tool:
+                    self._checkKnownTool(tool, tool_impl)
+                    tools.append(tool)
+
+                    if not isinstance(tool_impl[tool], base):
+                        self._errorExit(
+                            'Tool {0} does not suite {1} type'.format(tool, item))
+
+            # Make sure tools defined in entryPoints are auto-detected
+            #--
+            for (ep, ed) in config.get('entryPoints', {}).items():
+                tool = ed.get('tool', None)
+
+                if tool:
+                    self._checkKnownTool(tool, tool_impl)
+                    tools.append(tool)
+
+                    if not isinstance(tool_impl[tool], RuntimeTool):
+                        self._errorExit(
+                            'Tool {0} does not suite RuntimeTool type'.format(tool))
+
+        # add all deps
+        #--
+        dep_generations = [set(tools)]
+        tools = set(tools)
+        postdeps = set()
+        dep_length = 0
+        last_index = 0
+        while len(dep_generations) != dep_length:
+            dep_length = len(dep_generations)
+            curr_index = last_index
+            last_index = len(dep_generations)
+
+            for g in dep_generations[curr_index:]:
+                for tn in g:
+                    self._checkKnownTool(tn, tool_impl)
+                    t = tool_impl[tn]
+                    moredeps = set(t.getDeps())
+                    if moredeps:
+                        dep_generations.append(moredeps)
+                        tools.update(moredeps)
+                    postdeps.update(set(t.getPostDeps()) - tools)
+
+            if len(dep_generations) == dep_length and postdeps:
+                dep_generations.append(postdeps)
+                tools.update(postdeps)
+                postdeps = set()
+
+        #---
+        dep_generations.reverse()
+        tools = []
+        for d in dep_generations:
+            tools.extend(d - set(tools))
+        config['toolOrder'] = tools
+
+        #--
+        for tool in tools:
+            t = tool_impl[tool]
+            t.envDeps(env)
+
+        #--
+        if config['toolTest']:
+            for tool in tools:
+                t = tool_impl[tool]
+                t.sanitizeVersion(env)
+                t.importEnv(env)
+                if not t.isInstalled(env):
+                    break
+        else:
+            # note, it may have some undesired effect on parallel execution,
+            # but let's leave that for now
+            self._globalLock()
+
+            for tool in tools:
+                t = tool_impl[tool]
+                t.sanitizeVersion(env)
+                t.requireInstalled(env)
+                if tool != curr_tool:
+                    t.loadConfig(config)
+
+            self._globalUnlock()
+
+        # Solves generic issues of ordering independent tools in
+        # later execution with predictable results:
+        # 1. sort by integer order
+        # 2. sort by tool name
+        tools.sort(key=lambda v: (tool_impl[v].getOrder(), v))
+        
+        
+class DeployMixIn(object):
+    def _redeployExit(self, deploy_type):
+        self._warn(deploy_type + " has been already deployed. Use --redeploy.")
+        sys.exit(0)
+
+    def _rms_deploy(self, rms_pool, package=None):
+        config = self._config
+        rmstool = self._getRmsTool()
+
+        # Find out package to deploy
+        self._info('Finding package in RMS')
+        package_list = rmstool.rmsGetList(config, rms_pool, package)
+
+        if package:
+            package_list = fnmatch.filter(package_list, package)
+
+        if not package_list:
+            self._errorExit("No package found")
+
+        package = self._getLatest(package_list)
+        self._info('Found package {0}'.format(package))
+
+        # cleanup first, in case of incomplete actions
+        self._info('Pre-cleanup of deploy directory')
+        self._deployCleanup([package])
+
+        # Prepare package name components
+        package_basename = ospath.basename(package)
+        (package_noext, package_ext) = ospath.splitext(package_basename)
+
+        # Check if already deployed:
+        if ospath.exists(package_noext):
+            if config['reDeploy']:
+                self._warn('Forcing re-deploy of the package')
+            else:
+                self._redeployExit('Package')
+
+        # Retrieve package, if not available
+        if not ospath.exists(package_basename):
+            self._info('Retrieving the package')
+            package_list = [package]
+            package_list = rmstool.rmsProcessChecksums(
+                config, rms_pool, package_list)
+            rmstool.rmsRetrieve(config, rms_pool, package_list)
+
+        package_noext_tmp = package_noext + '.tmp'
+
+        # Prepare temporary folder
+        os.mkdir(package_noext_tmp)
+
+        # Unpack package to temporary folder
+        self._info('Extracting the package')
+        if package_ext == '.txz':
+            _call_cmd(['tar', 'xJf', package_basename,
+                       '-C', package_noext_tmp])
+        elif package_ext == '.tbz2':
+            _call_cmd(['tar', 'xjf', package_basename,
+                       '-C', package_noext_tmp])
+        elif package_ext == '.tgz':
+            _call_cmd(['tar', 'xzf', package_basename,
+                       '-C', package_noext_tmp])
+        elif package_ext == '.tar':
+            _call_cmd(['tar', 'xf', package_basename, '-C', package_noext_tmp])
+        else:
+            self._errorExit('Not supported package format: ' + package_ext)
+
+        # Common processing
+        self._deployCommon(package_noext_tmp, package_noext, [package])
+
+    def _vcsref_deploy(self, vcs_ref):
+        config = self._config
+        vcstool = self._getVcsTool()
+
+        # Find out package to deploy
+        self._info('Getting the latest revision of {0}'.format(vcs_ref))
+        vcs_cache = ospath.realpath(self.VCS_CACHE_DIR)
+        rev = vcstool.vcsGetRefRevision(config, vcs_cache, vcs_ref)
+
+        if not rev:
+            self._errorExit("No VCS refs found")
+
+        target_dir = vcs_ref.replace(os.sep, '_').replace(':', '_')
+        target_dir += '__' + rev
+
+        # cleanup first, in case of incomplete actions
+        self._info('Pre-cleanup of deploy directory')
+        self._deployCleanup([vcs_cache, target_dir])
+
+        # Check if already deployed:
+        if ospath.exists(target_dir):
+            if config['reDeploy']:
+                self._warn('Forcing re-deploy of the VCS ref')
+            else:
+                self._redeployExit('VCS ref')
+
+        # Retrieve tag
+        self._info('Retrieving the VCS ref')
+        target_tmp = target_dir + '.tmp'
+        # Note: acceptable race condition is possible: vcs_ref
+        # may get updated after we get its revision and before
+        # we do actual export
+        vcstool.vcsExport(config, vcs_cache, vcs_ref, target_tmp)
+
+        # Common processing
+        self._deployCommon(target_tmp, target_dir, [vcs_cache])
+
+    def _vcstag_deploy(self, vcs_ref):
+        config = self._config
+        vcstool = self._getVcsTool()
+
+        # Find out package to deploy
+        self._info('Finding tag in VCS')
+        vcs_cache = ospath.realpath(self.VCS_CACHE_DIR)
+        tag_list = vcstool.vcsListTags(config, vcs_cache, vcs_ref)
+
+        if vcs_ref:
+            tag_list = fnmatch.filter(tag_list, vcs_ref)
+
+        if not tag_list:
+            self._errorExit("No tags found")
+
+        vcs_ref = self._getLatest(tag_list)
+        target_dir = vcs_ref.replace(os.sep, '_').replace(':', '_')
+        self._info('Found tag {0}'.format(vcs_ref))
+
+        # cleanup first, in case of incomplete actions
+        self._info('Pre-cleanup of deploy directory')
+        self._deployCleanup([vcs_cache, target_dir])
+
+        # Check if already deployed:
+        if ospath.exists(target_dir):
+            if config['reDeploy']:
+                self._warn('Forcing re-deploy of the VCS tag')
+            else:
+                self._redeployExit('VCS tag')
+
+        # Retrieve tag
+        self._info('Retrieving the VCS tag')
+        vcs_ref_tmp = target_dir + '.tmp'
+        vcstool.vcsExport(config, vcs_cache, vcs_ref, vcs_ref_tmp)
+
+        # Common processing
+        self._deployCommon(vcs_ref_tmp, target_dir, [vcs_cache])
+
+    def _deploy_setup(self):
+        self._deployConfig()
+
+    def _versionSort(self, verioned_list):
+        def castver(v):
+            res = re.split(r'[\W_]+', v)
+            for (i, vc) in enumerate(res):
+                try:
+                    res[i] = int(vc, 10)
+                except:
+                    pass
+            return res
+
+        verioned_list.sort(key=castver)
+
+    def _getLatest(self, verioned_list):
+        self._versionSort(verioned_list)
+        return verioned_list[-1]
+
+    def _deployCommon(self, tmp, dst, cleanup_whitelist):
+        config = self._config
+        config['wcDir'] = ospath.realpath(tmp)
+
+        # Setup persistent folders
+        self._info('Setting up read-write directories')
+        persistent_dir = ospath.abspath(
+            config['env'].get('persistentDir', 'persistent'))
+        wdir_wperm = stat.S_IRUSR | stat.S_IXUSR | \
+            stat.S_IRGRP | stat.S_IXGRP | \
+            stat.S_IWUSR | stat.S_IWGRP
+
+        for d in config.get('persistent', []):
+            pd = ospath.join(persistent_dir, d)
+            dd = ospath.join(tmp, d)
+
+            if not ospath.isdir(pd):
+                os.makedirs(pd, wdir_wperm)
+
+            if ospath.exists(dd):
+                shutil.copytree(dd, pd)
+                self._rmTree(dd)
+
+            os.symlink(pd, dd)
+
+        # Build
+        if config.get('deployBuild', False):
+            self._info('Building project in deployment')
+            self.prepare(None)
+            self.build()
+
+        # Complete migration
+        self.migrate(tmp)
+
+        # return back
+        os.chdir(config['deployDir'])
+
+        # Setup read-only permissions
+        self._info('Setting up read-only permissions')
+        dir_perm = stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP
+        file_perm = stat.S_IRUSR | stat.S_IRGRP
+        walk_list = os.walk(tmp)
+        os.chmod(tmp, dir_perm)
+
+        for (path, dirs, files) in walk_list:
+            for d in dirs:
+                os.chmod(ospath.join(path, d), dir_perm)
+            for f in files:
+                os.chmod(ospath.join(path, f), file_perm)
+
+        # Setup per-user services
+        self._deployConfig()
+        self._deployServices(tmp)
+
+        # Move in place
+        self._info('Switching current deployment')
+        if ospath.exists(dst):
+            # re-deploy case
+            os.rename(dst, dst + '.tmprm')
+
+        os.rename(tmp, dst)
+        os.symlink(dst, 'current.tmp')
+        os.rename('current.tmp', 'current')
+
+        # Re-run
+        self._reloadServices()
+
+        # Cleanup old packages and deploy dirs
+        self._info('Post-cleanup of deploy directory')
+        self._deployCleanup(cleanup_whitelist)
+
+    def _deployCleanup(self, whitelist):
+        if ospath.exists('current'):
+            whitelist.append(ospath.basename(os.readlink('current')))
+
+        whitelist += ['current', 'persistent', self.DEPLOY_LOCK_FILE]
+
+        for f in os.listdir('.'):
+            (f_noext, f_ext) = ospath.splitext(f)
+
+            if f[0] == '.' or f in whitelist:
+                continue
+
+            if ospath.isdir(f):
+                self._rmTree(f)
+            else:
+                os.chmod(f, stat.S_IRWXU)
+                os.remove(f)
+
+    def _deployConfig(self):
+        config = self._config
+        orig_config = self._deploy_config
+        new_config = OrderedDict()
+
+        for cv in self.CONFIG_VARS:
+            try:
+                new_config[cv] = orig_config[cv]
+            except KeyError:
+                pass
+
+        deploy = config.get('deploy', {}).copy()
+        new_config['deploy'] = deploy
+
+        #---
+        # TODO: create auto-services
+
+        self._writeJSONConfig(self._FUTOIN_JSON, new_config)
+
+    def _deployServices(self, subdir):
+        pass
+
+    def _reloadServices(self):
+        pass
+
+class CIDTool(DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, PathMixIn, UtilMixIn):
+    TO_GZIP = '\.(js|json|css|svg|txt)$'
+    VCS_CACHE_DIR = 'vcs'
+
+    def __init__(self, overrides):
+        self._startup_env = dict(os.environ)
+        self._tool_impl = None
+        self._overrides = overrides
+        self._initLocks()
+        self._initConfig()
 
     @cid_action
     def tag(self, branch, next_version=None):
@@ -361,7 +1117,7 @@ class CIDTool(PathMixIn, UtilMixIn):
             for (path, dirs, files) in os.walk(webroot):
                 for f in files:
                     if to_gzip_re.search(f):
-                        f = os.path.join(path, f)
+                        f = ospath.join(path, f)
                         with open(f, 'rb') as f_in:
                             with gzip.open(f + '.gz', 'wb', 9) as f_out:
                                 shutil.copyfileobj(f_in, f_out)
@@ -396,13 +1152,13 @@ class CIDTool(PathMixIn, UtilMixIn):
             cs_files = []
 
             for pkg_item in sorted(package_content):
-                if os.path.isfile(pkg_item):
+                if ospath.isfile(pkg_item):
                     cs_files.append(pkg_item)
 
-                if os.path.isdir(pkg_item):
+                if ospath.isdir(pkg_item):
                     for (path, dirs, files) in os.walk(pkg_item):
                         for f in sorted(files):
-                            f = os.path.join(path, f)
+                            f = ospath.join(path, f)
                             cs_files.append(f)
 
             for cf in cs_files:
@@ -502,58 +1258,28 @@ class CIDTool(PathMixIn, UtilMixIn):
             base=MigrationTool
         )
 
-    def _lockCommon(self, lock, file, flags):
-        assert self.__dict__[lock] is None
-        self.__dict__[lock] = os.open(file, os.O_WRONLY | os.O_CREAT)
-        try:
-            fcntl.flock(self.__dict__[lock], flags)
-        except Exception as e:
-            self._errorExit('FAILED to acquire{0}: {1}'.format(
-                lock.replace('_', ' '), e))
-
-    def _unlockCommon(self, lock):
-        fcntl.flock(self.__dict__[lock], fcntl.LOCK_UN)
-        os.close(self.__dict__[lock])
-        self.__dict__[lock] = None
-
-    def _deployLock(self):
-        self._lockCommon(
-            '_deploy_lock',
-            os.path.join(self._config['deployDir'], self.DEPLOY_LOCK_FILE),
-            fcntl.LOCK_EX | fcntl.LOCK_NB
-        )
-
-    def _deployUnlock(self):
-        self._unlockCommon('_deploy_lock')
-
-    def _globalLock(self):
-        self._lockCommon('_global_lock', self.GLOBAL_LOCK_FILE, fcntl.LOCK_EX)
-
-    def _globalUnlock(self):
-        self._unlockCommon('_global_lock')
-
     @cid_action
     def deploy(self, mode, p1=None, p2=None):
         # Get to deploy folder
         deploy_dir = self._config['deployDir']
 
         if not deploy_dir:
-            deploy_dir = os.path.realpath('.')
+            deploy_dir = ospath.realpath('.')
             self._overrides['deployDir'] = deploy_dir
             self._initConfig()
 
         self._info('Using {0} as deploy directory'.format(deploy_dir))
 
-        placeholder = os.path.join(deploy_dir, self.DEPLOY_LOCK_FILE)
+        placeholder = ospath.join(deploy_dir, self.DEPLOY_LOCK_FILE)
 
-        if not os.path.exists(deploy_dir):
+        if not ospath.exists(deploy_dir):
             self._info('Creating deploy directory')
             os.makedirs(deploy_dir)
             open(placeholder, 'w').close()
-        elif not os.path.exists(placeholder) and os.listdir(deploy_dir):
+        elif not ospath.exists(placeholder) and os.listdir(deploy_dir):
             self._errorExit(
                 "Deployment dir '{0}' is missing safety placeholder {1}."
-                .format(deploy_dir, os.path.basename(placeholder))
+                .format(deploy_dir, ospath.basename(placeholder))
             )
 
         print(Coloring.infoLabel('Changing to: ') + Coloring.info(deploy_dir),
@@ -574,282 +1300,6 @@ class CIDTool(PathMixIn, UtilMixIn):
             self._errorExit('Not supported deploy mode: ' + mode)
 
         self._deployUnlock()
-
-    def _redeployExit(self, deploy_type):
-        self._warn(deploy_type + " has been already deployed. Use --redeploy.")
-        sys.exit(0)
-
-    def _rms_deploy(self, rms_pool, package=None):
-        config = self._config
-        rmstool = self._getRmsTool()
-
-        # Find out package to deploy
-        self._info('Finding package in RMS')
-        package_list = rmstool.rmsGetList(config, rms_pool, package)
-
-        if package:
-            package_list = fnmatch.filter(package_list, package)
-
-        if not package_list:
-            self._errorExit("No package found")
-
-        package = self._getLatest(package_list)
-        self._info('Found package {0}'.format(package))
-
-        # cleanup first, in case of incomplete actions
-        self._info('Pre-cleanup of deploy directory')
-        self._deployCleanup([package])
-
-        # Prepare package name components
-        package_basename = os.path.basename(package)
-        (package_noext, package_ext) = os.path.splitext(package_basename)
-
-        # Check if already deployed:
-        if os.path.exists(package_noext):
-            if config['reDeploy']:
-                self._warn('Forcing re-deploy of the package')
-            else:
-                self._redeployExit('Package')
-
-        # Retrieve package, if not available
-        if not os.path.exists(package_basename):
-            self._info('Retrieving the package')
-            package_list = [package]
-            package_list = rmstool.rmsProcessChecksums(
-                config, rms_pool, package_list)
-            rmstool.rmsRetrieve(config, rms_pool, package_list)
-
-        package_noext_tmp = package_noext + '.tmp'
-
-        # Prepare temporary folder
-        os.mkdir(package_noext_tmp)
-
-        # Unpack package to temporary folder
-        self._info('Extracting the package')
-        if package_ext == '.txz':
-            _call_cmd(['tar', 'xJf', package_basename,
-                       '-C', package_noext_tmp])
-        elif package_ext == '.tbz2':
-            _call_cmd(['tar', 'xjf', package_basename,
-                       '-C', package_noext_tmp])
-        elif package_ext == '.tgz':
-            _call_cmd(['tar', 'xzf', package_basename,
-                       '-C', package_noext_tmp])
-        elif package_ext == '.tar':
-            _call_cmd(['tar', 'xf', package_basename, '-C', package_noext_tmp])
-        else:
-            self._errorExit('Not supported package format: ' + package_ext)
-
-        # Common processing
-        self._deployCommon(package_noext_tmp, package_noext, [package])
-
-    def _vcsref_deploy(self, vcs_ref):
-        config = self._config
-        vcstool = self._getVcsTool()
-
-        # Find out package to deploy
-        self._info('Getting the latest revision of {0}'.format(vcs_ref))
-        vcs_cache = os.path.realpath(self.VCS_CACHE_DIR)
-        rev = vcstool.vcsGetRefRevision(config, vcs_cache, vcs_ref)
-
-        if not rev:
-            self._errorExit("No VCS refs found")
-
-        target_dir = vcs_ref.replace(os.sep, '_').replace(':', '_')
-        target_dir += '__' + rev
-
-        # cleanup first, in case of incomplete actions
-        self._info('Pre-cleanup of deploy directory')
-        self._deployCleanup([vcs_cache, target_dir])
-
-        # Check if already deployed:
-        if os.path.exists(target_dir):
-            if config['reDeploy']:
-                self._warn('Forcing re-deploy of the VCS ref')
-            else:
-                self._redeployExit('VCS ref')
-
-        # Retrieve tag
-        self._info('Retrieving the VCS ref')
-        target_tmp = target_dir + '.tmp'
-        # Note: acceptable race condition is possible: vcs_ref
-        # may get updated after we get its revision and before
-        # we do actual export
-        vcstool.vcsExport(config, vcs_cache, vcs_ref, target_tmp)
-
-        # Common processing
-        self._deployCommon(target_tmp, target_dir, [vcs_cache])
-
-    def _vcstag_deploy(self, vcs_ref):
-        config = self._config
-        vcstool = self._getVcsTool()
-
-        # Find out package to deploy
-        self._info('Finding tag in VCS')
-        vcs_cache = os.path.realpath(self.VCS_CACHE_DIR)
-        tag_list = vcstool.vcsListTags(config, vcs_cache, vcs_ref)
-
-        if vcs_ref:
-            tag_list = fnmatch.filter(tag_list, vcs_ref)
-
-        if not tag_list:
-            self._errorExit("No tags found")
-
-        vcs_ref = self._getLatest(tag_list)
-        target_dir = vcs_ref.replace(os.sep, '_').replace(':', '_')
-        self._info('Found tag {0}'.format(vcs_ref))
-
-        # cleanup first, in case of incomplete actions
-        self._info('Pre-cleanup of deploy directory')
-        self._deployCleanup([vcs_cache, target_dir])
-
-        # Check if already deployed:
-        if os.path.exists(target_dir):
-            if config['reDeploy']:
-                self._warn('Forcing re-deploy of the VCS tag')
-            else:
-                self._redeployExit('VCS tag')
-
-        # Retrieve tag
-        self._info('Retrieving the VCS tag')
-        vcs_ref_tmp = target_dir + '.tmp'
-        vcstool.vcsExport(config, vcs_cache, vcs_ref, vcs_ref_tmp)
-
-        # Common processing
-        self._deployCommon(vcs_ref_tmp, target_dir, [vcs_cache])
-
-    def _deploy_setup(self):
-        self._deployConfig()
-
-    def _versionSort(self, verioned_list):
-        def castver(v):
-            res = re.split(r'[\W_]+', v)
-            for (i, vc) in enumerate(res):
-                try:
-                    res[i] = int(vc, 10)
-                except:
-                    pass
-            return res
-
-        verioned_list.sort(key=castver)
-
-    def _getLatest(self, verioned_list):
-        self._versionSort(verioned_list)
-        return verioned_list[-1]
-
-    def _deployCommon(self, tmp, dst, cleanup_whitelist):
-        config = self._config
-        config['wcDir'] = os.path.realpath(tmp)
-
-        # Setup persistent folders
-        self._info('Setting up read-write directories')
-        persistent_dir = os.path.abspath(
-            config['env'].get('persistentDir', 'persistent'))
-        wdir_wperm = stat.S_IRUSR | stat.S_IXUSR | \
-            stat.S_IRGRP | stat.S_IXGRP | \
-            stat.S_IWUSR | stat.S_IWGRP
-
-        for d in config.get('persistent', []):
-            pd = os.path.join(persistent_dir, d)
-            dd = os.path.join(tmp, d)
-
-            if not os.path.isdir(pd):
-                os.makedirs(pd, wdir_wperm)
-
-            if os.path.exists(dd):
-                shutil.copytree(dd, pd)
-                self._rmTree(dd)
-
-            os.symlink(pd, dd)
-
-        # Build
-        if config.get('deployBuild', False):
-            self._info('Building project in deployment')
-            self.prepare(None)
-            self.build()
-
-        # Complete migration
-        self.migrate(tmp)
-
-        # return back
-        os.chdir(config['deployDir'])
-
-        # Setup read-only permissions
-        self._info('Setting up read-only permissions')
-        dir_perm = stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP
-        file_perm = stat.S_IRUSR | stat.S_IRGRP
-        walk_list = os.walk(tmp)
-        os.chmod(tmp, dir_perm)
-
-        for (path, dirs, files) in walk_list:
-            for d in dirs:
-                os.chmod(os.path.join(path, d), dir_perm)
-            for f in files:
-                os.chmod(os.path.join(path, f), file_perm)
-
-        # Setup per-user services
-        self._deployConfig()
-        self._deployServices(tmp)
-
-        # Move in place
-        self._info('Switching current deployment')
-        if os.path.exists(dst):
-            # re-deploy case
-            os.rename(dst, dst + '.tmprm')
-
-        os.rename(tmp, dst)
-        os.symlink(dst, 'current.tmp')
-        os.rename('current.tmp', 'current')
-
-        # Re-run
-        self._reloadServices()
-
-        # Cleanup old packages and deploy dirs
-        self._info('Post-cleanup of deploy directory')
-        self._deployCleanup(cleanup_whitelist)
-
-    def _deployCleanup(self, whitelist):
-        if os.path.exists('current'):
-            whitelist.append(os.path.basename(os.readlink('current')))
-
-        whitelist += ['current', 'persistent', self.DEPLOY_LOCK_FILE]
-
-        for f in os.listdir('.'):
-            (f_noext, f_ext) = os.path.splitext(f)
-
-            if f[0] == '.' or f in whitelist:
-                continue
-
-            if os.path.isdir(f):
-                self._rmTree(f)
-            else:
-                os.chmod(f, stat.S_IRWXU)
-                os.remove(f)
-
-    def _deployConfig(self):
-        config = self._config
-        orig_config = self._deploy_config
-        new_config = OrderedDict()
-
-        for cv in self.CONFIG_VARS:
-            try:
-                new_config[cv] = orig_config[cv]
-            except KeyError:
-                pass
-
-        deploy = config.get('deploy', {}).copy()
-        new_config['deploy'] = deploy
-
-        #---
-        # TODO: create auto-services
-
-        self._writeJSONConfig(self._FUTOIN_JSON, new_config)
-
-    def _deployServices(self, subdir):
-        pass
-
-    def _reloadServices(self):
-        pass
 
     def run(self, command, args):
         self._processWcDir()
@@ -911,7 +1361,7 @@ class CIDTool(PathMixIn, UtilMixIn):
         config = self._config
         wcDir = config['wcDir']
 
-        if os.path.exists(wcDir) and wcDir != os.getcwd():
+        if ospath.exists(wcDir) and wcDir != os.getcwd():
             try:
                 dst = '{0}.bak{1}'.format(wcDir, int(time.time()))
                 print(Coloring.infoLabel('Renaming: ') +
@@ -1136,7 +1586,7 @@ class CIDTool(PathMixIn, UtilMixIn):
     def init_project(self, project_name):
         self._processWcDir()
 
-        if os.path.exists(self._FUTOIN_JSON):
+        if ospath.exists(self._FUTOIN_JSON):
             self._errorExit('futoin.json already exists in project root')
 
         config = self._config
@@ -1145,7 +1595,7 @@ class CIDTool(PathMixIn, UtilMixIn):
         if project_name:
             new_config['name'] = project_name
         elif 'name' not in config:
-            new_config['name'] = os.path.basename(config['wcDir'])
+            new_config['name'] = ospath.basename(config['wcDir'])
 
         for cv in self.CONFIG_VARS:
             try:
@@ -1214,7 +1664,7 @@ class CIDTool(PathMixIn, UtilMixIn):
         vcstool.vcsDelete(config, vcs_cache_dir, vcs_ref)
 
     def vcs_export(self, vcs_ref, dst_path, vcs_cache_dir):
-        if os.path.exists(dst_path):
+        if ospath.exists(dst_path):
             if os.listdir(dst_path):
                 self._errorExit(
                     'Destination directory {0} exists and is not empty'.format(dst_path))
@@ -1306,9 +1756,9 @@ class CIDTool(PathMixIn, UtilMixIn):
         self._info('Retrieving packages from RMS...')
 
         for p in package_list:
-            p = os.path.basename(p).split('@', 1)[0]
+            p = ospath.basename(p).split('@', 1)[0]
 
-            if os.path.exists(p):
+            if ospath.exists(p):
                 self._errorExit('File already exists: {0}'.format(p))
 
         package_list = rmstool.rmsProcessChecksums(
@@ -1337,451 +1787,3 @@ class CIDTool(PathMixIn, UtilMixIn):
 
         print("\n".join(pool_list))
 
-    def _initConfig(self):
-        errors = []
-
-        #--
-        user_home = os.environ.get('HOME', '/')
-        user_config_path = os.path.join(user_home, '.' + self._FUTOIN_JSON)
-
-        if not os.path.exists(user_config_path) and user_home != self._overrides['wcDir']:
-            user_config_path = os.path.join(user_home, self._FUTOIN_JSON)
-
-        user_config_path = os.path.realpath(user_config_path)
-
-        global_config_file = os.path.join(
-            '/', 'etc', 'futoin', self._FUTOIN_JSON)
-        global_config_file = os.path.realpath(global_config_file)
-
-        deploy_config_file = None
-        deploy_dir = self._overrides.get('deployDir', None)
-
-        if deploy_dir:
-            deploy_config_file = os.path.join(deploy_dir, self._FUTOIN_JSON)
-            deploy_config_file = os.path.realpath(deploy_config_file)
-
-        project_config_file = os.path.realpath(self._FUTOIN_JSON)
-
-        #--
-        gc = {'env': {}}
-        uc = {'env': {}}
-        dc = {}
-        pc = {}
-
-        gc = self._loadJSON(global_config_file, gc)
-
-        if user_config_path not in (deploy_config_file, project_config_file):
-            uc = self._loadJSON(user_config_path, uc)
-
-        if project_config_file != deploy_config_file:
-            pc = self._loadJSON(project_config_file, pc)
-
-        if deploy_config_file:
-            dc = self._loadJSON(deploy_config_file, dc)
-
-        #---
-        self._global_config = gc
-        self._user_config = uc
-        self._deploy_config = dc
-        self._project_config = pc
-        #--
-
-        config = dict(pc)
-
-        # Deployment config can override project config
-        for (k, v) in dc.items():
-            if k in ('deploy', 'env'):
-                continue
-            elif k == 'entryPoints':
-                config_epoints = config.setdefault('entryPoints', {})
-
-                for (ek, ev) in v.items():
-                    cep = config_epoints.setdefault(ek, {})
-
-                    if ek == 'tune':
-                        cep_tune = cep.setdefault('tune', {})
-                        cep_tune.update(ev)
-                    else:
-                        cep[ek] = ev
-            else:
-                config[k] = v
-
-        self._sanitizeConfig(config, errors)
-
-        if 'env' in pc:
-            errors.append('.env node must not be set in project config')
-
-        if 'deploy' in pc:
-            errors.append('.deploy node must not be set in project config')
-
-        env = dict(dc.get('env', {}))
-
-        for ct in (uc, gc):
-            if 'env' not in ct or len(ct) != 1:
-                errors.append(
-                    'User and Global configs must have the only .env node')
-                continue
-
-            for (k, v) in ct['env'].items():
-                if k == 'plugins':
-                    plugins = env.setdefault('plugins', {})
-
-                    for pk, pv in env['plugins'].items():
-                        plugins.setdefault(pk, pv)
-                elif k == 'pluginPacks':
-                    pluginPacks = env.setdefault('pluginPacks', [])
-                    pluginPacks += v
-                else:
-                    env.setdefault(k, v)
-
-        self._initEnv(env)
-
-        config['env'] = env
-        config.update(self._overrides)
-        self._config = config
-
-        self._initTools()
-
-        #
-        entry_points = config.get('entryPoints', {})
-
-        for (en, ep) in entry_points.items():
-            t = self._tool_impl[ep['tool']]
-            ep_tune = ep.setdefault('tune', {})
-
-            for (tk, tv) in t.tuneDefaults().items():
-                ep_tune.setdefault(tk, tv)
-
-        # run again to check tuneDefaults() from plugins
-        self._sanitizeEntryPoints(entry_points, errors)
-
-        #---
-        deploy = dc.get('deploy', {})
-        config['deploy'] = deploy
-
-        if '_deploy' in config:
-            _deploy = config['_deploy']
-            del config['_deploy']
-
-            for (dk, dv) in _deploy.items():
-                if dv is not None:
-                    deploy[dk] = dv
-
-        self._sanitizeDeployConfig(config, errors)
-
-        #---
-        if errors:
-            self._errorExit(
-                "Configuration issues are found:\n\n* " +
-                "\n* ".join(set(errors)))
-
-    def _sanitizeConfig(self, config, errors):
-        conf_vars = self.CONFIG_VARS
-
-        for (k, v) in config.items():
-            if k not in conf_vars:
-                self._warn('Removing unknown config variable "{0}"'.format(k))
-                del config[k]
-            elif not isinstance(v, conf_vars[k]):
-                req_t = conf_vars[k]
-                if isinstance(req_t, tuple):
-                    req_t = req_t[0]
-
-                errors.append(
-                    'Config variable "{0}" type "{1}" is not instance of "{2}"'
-                    .format(k, v.__class__.__name__, req_t[0].__name__)
-                )
-
-        #---
-        # Make sure futoinTool is enabled, if futoin.json is present.
-        # Otherwise, auto-detection gets disabled and futoin.json is not
-        # updated
-        tools = config.get('tools', None)
-
-        if tools and 'futoin' not in tools:
-            tools['futoin'] = True
-
-        #---
-        entry_points = config.get('entryPoints', None)
-
-        if entry_points:
-            self._sanitizeEntryPoints(entry_points, errors)
-
-        #---
-        toolTune = config.get('toolTune', None)
-
-        if toolTune:
-            for (tn, tune) in toolTune.items():
-                if not isinstance(tune, dict):
-                    errors.append(
-                        'Tool tune "{0}" is not of map type'.format(tn))
-
-    def _sanitizeEntryPoints(self, entry_points, errors):
-        for (en, ep) in entry_points.items():
-            for k in ['tool', 'file']:
-                if k not in ep:
-                    errors.append(
-                        'Entry point "{0}" is missing "{1}"'.format(en, k))
-
-            if 'tune' in ep:
-                ep_tune = ep['tune']
-
-                if not isinstance(ep_tune, dict):
-                    errors.append(
-                        'Entry point "{0}" has invalid tune parameter'.format(en))
-                    continue
-
-                for (tk, tt) in self.CONFIG_TUNE_VARS.items():
-                    try:
-                        tv = ep_tune[tk]
-                    except KeyError:
-                        continue
-
-                    if tt == 'memory':
-                        self._sanitizeMemory(
-                            "{0}/{1}".format(en, tk), tv, errors)
-
-                    elif tt == 'weight':
-                        if not isinstance(tv, int) or tv <= 0:
-                            errors.append(
-                                'Weight value "{0}/{1}" must be positive'.format(en, tk))
-
-                    elif not isinstance(tv, tt):
-                        errors.append(
-                            'Config tune variable "{0}" type "{1}" is not instance of "{2}"'
-                            .format(tk, tv.__class__.__name__, tt.__name__)
-                        )
-
-    def _sanitizeDeployConfig(self, dc, errors):
-        deploy = dc.get('deploy', {})
-
-        if 'maxTotalMemory' in deploy:
-            self._sanitizeMemory('deploy/maxTotalMemory',
-                                 deploy['maxTotalMemory'], errors)
-
-        if 'maxCpuCount' in deploy:
-            val = deploy['maxCpuCount']
-
-            if not isinstance(val, int) or val <= 0:
-                errors.append(
-                    '"deploy/maxCpuCount" must be a positive integer')
-
-    def _sanitizeMemory(self, key, val, errors):
-        try:
-            self._parseMemory(val)
-        except:
-            errors.append(
-                'Memory value "{0}" must be positive '
-                'integer with B, K, M or G postfix (e.g. "16M")'
-                .format(key))
-
-    def _loadJSON(self, file_name, defvalue):
-        try:
-            with open(file_name, 'r') as content_file:
-                content = content_file.read()
-
-                def object_pairs_hook(pairs): return OrderedDict(pairs)
-                return json.loads(content, object_pairs_hook=object_pairs_hook)
-        except IOError:
-            return defvalue
-
-    def _initEnv(self, env):
-        env.setdefault('type', 'dev')
-        env.setdefault('vars', {})
-        env.setdefault('plugins', {})
-        env.setdefault('pluginPacks', [])
-        env.setdefault('externalSetup', False)
-
-        timeouts = env.setdefault('timeouts', {})
-        timeouts.setdefault('connect', 10)
-        read_to = timeouts.setdefault('read', 60)
-        timeouts.setdefault('total', read_to * 60)
-
-        env.setdefault('binDir', os.path.join(os.environ['HOME'], 'bin'))
-        self._addBinPath(env['binDir'])
-
-        #---
-        env_vars = self.FUTOIN_ENV_VARS
-
-        for (k, v) in env.items():
-            if k not in env_vars:
-                continue
-            elif not isinstance(v, env_vars[k]):
-                req_t = env_vars[k]
-                if isinstance(req_t, tuple):
-                    req_t = req_t[0]
-
-                self._errorExit(
-                    'Config variable "{0}" type "{1}" is not instance of "{2}"'
-                    .format(k, v.__class__.__name__, req_t[0].__name__)
-                )
-
-        if env['type'] not in ('prod', 'test', 'dev'):
-            self._errorExit(
-                'Not valid environment type "{0}'.format(env['type']))
-
-    def _checkKnownTool(self, tool, tool_impl=None):
-        if tool_impl is None:
-            tool_impl = self._tool_impl
-
-        if tool not in tool_impl:
-            self._errorExit(
-                'Implementation for "{0}" was not found'.format(tool))
-
-    def _initTools(self):
-        config = self._config
-        env = config['env']
-
-        #---
-        config['projectRootSet'] = set(os.listdir('.'))
-
-        #---
-        plugins = {}
-        plugins.update(env['plugins'])
-        plugins.update(config.get('plugins', {}))
-
-        plugin_packs = []
-        plugin_packs += env['pluginPacks']
-        plugin_packs += config.get('pluginPacks', {})
-        plugin_packs.append('futoin.cid.tool')
-
-        for pack_mod_name in plugin_packs:
-            m = importlib.import_module(pack_mod_name)
-            pack_dir = os.path.dirname(m.__file__)
-            tool_files = os.listdir(pack_dir)
-            tool_files = fnmatch.filter(tool_files, '*tool.py')
-
-            for f in tool_files:
-                tool = f.replace('tool.py', '')
-                tool_mod_name = '{0}.{1}tool'.format(pack_mod_name, tool)
-                plugins[tool] = tool_mod_name
-
-        tool_impl = {}
-        self._tool_impl = tool_impl
-
-        for (tool, tool_mod_name) in plugins.items():
-            if tool not in tool_impl:
-                tool_module = importlib.import_module(tool_mod_name)
-                tool_impl[tool] = getattr(tool_module, tool + 'Tool')(tool)
-
-        #---
-        curr_tool = config.get('tool', None)
-
-        if curr_tool:
-            tools = [curr_tool]
-            tool_ver = config.get('toolVer', None)
-
-            if tool_ver:
-                config['env'][curr_tool + 'Ver'] = tool_ver
-        else:
-            config_tools = config.get('tools', {})
-            tools = []
-
-            if config_tools:
-                if not isinstance(config_tools, dict):
-                    self._errorExit(
-                        'futoin.json:tools must be a map of tool=>version pairs')
-
-                for (tool, v) in config_tools.items():
-                    self._checkKnownTool(tool, tool_impl)
-                    tools.append(tool)
-
-                    if v != '*' and v != True:
-                        env[tool + 'Ver'] = v
-            else:
-                for (n, t) in tool_impl.items():
-                    if t.autoDetect(config):
-                        tools.append(n)
-
-            # Make sure deps & env are processed for cli-supplied tools
-            #--
-            for (item, base) in {'rms': RmsTool, 'vcs': VcsTool}.items():
-                tool = config.get(item, None)
-
-                if tool:
-                    self._checkKnownTool(tool, tool_impl)
-                    tools.append(tool)
-
-                    if not isinstance(tool_impl[tool], base):
-                        self._errorExit(
-                            'Tool {0} does not suite {1} type'.format(tool, item))
-
-            # Make sure tools defined in entryPoints are auto-detected
-            #--
-            for (ep, ed) in config.get('entryPoints', {}).items():
-                tool = ed.get('tool', None)
-
-                if tool:
-                    self._checkKnownTool(tool, tool_impl)
-                    tools.append(tool)
-
-                    if not isinstance(tool_impl[tool], RuntimeTool):
-                        self._errorExit(
-                            'Tool {0} does not suite RuntimeTool type'.format(tool))
-
-        # add all deps
-        #--
-        dep_generations = [set(tools)]
-        tools = set(tools)
-        postdeps = set()
-        dep_length = 0
-        last_index = 0
-        while len(dep_generations) != dep_length:
-            dep_length = len(dep_generations)
-            curr_index = last_index
-            last_index = len(dep_generations)
-
-            for g in dep_generations[curr_index:]:
-                for tn in g:
-                    self._checkKnownTool(tn, tool_impl)
-                    t = tool_impl[tn]
-                    moredeps = set(t.getDeps())
-                    if moredeps:
-                        dep_generations.append(moredeps)
-                        tools.update(moredeps)
-                    postdeps.update(set(t.getPostDeps()) - tools)
-
-            if len(dep_generations) == dep_length and postdeps:
-                dep_generations.append(postdeps)
-                tools.update(postdeps)
-                postdeps = set()
-
-        #---
-        dep_generations.reverse()
-        tools = []
-        for d in dep_generations:
-            tools.extend(d - set(tools))
-        config['toolOrder'] = tools
-
-        #--
-        for tool in tools:
-            t = tool_impl[tool]
-            t.envDeps(env)
-
-        #--
-        if config['toolTest']:
-            for tool in tools:
-                t = tool_impl[tool]
-                t.sanitizeVersion(env)
-                t.importEnv(env)
-                if not t.isInstalled(env):
-                    break
-        else:
-            # note, it may have some undesired effect on parallel execution,
-            # but let's leave that for now
-            self._globalLock()
-
-            for tool in tools:
-                t = tool_impl[tool]
-                t.sanitizeVersion(env)
-                t.requireInstalled(env)
-                if tool != curr_tool:
-                    t.loadConfig(config)
-
-            self._globalUnlock()
-
-        # Solves generic issues of ordering independent tools in
-        # later execution with predictable results:
-        # 1. sort by integer order
-        # 2. sort by tool name
-        tools.sort(key=lambda v: (tool_impl[v].getOrder(), v))
