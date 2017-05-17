@@ -568,8 +568,8 @@ class CIDTool(PathMixIn, UtilMixIn):
             self._vcsref_deploy(p1)
         elif mode == 'vcstag':
             self._vcstag_deploy(p1)
-        elif mode == 'init':
-            self._deploy_init()
+        elif mode == 'setup':
+            self._deploy_setup()
         else:
             self._errorExit('Not supported deploy mode: ' + mode)
 
@@ -718,7 +718,7 @@ class CIDTool(PathMixIn, UtilMixIn):
         # Common processing
         self._deployCommon(vcs_ref_tmp, target_dir, [vcs_cache])
 
-    def _deploy_init(self):
+    def _deploy_setup(self):
         self._deployConfig()
 
     def _versionSort(self, verioned_list):

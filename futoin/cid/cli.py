@@ -9,10 +9,10 @@ Usage:
     cid package
     cid check [--permissive]
     cid promote <rms_pool> <packages>... [--rmsRepo=<rms_repo>]
-    cid deploy vcstag [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>]
-    cid deploy vcsref <vcs_ref> [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>]
-    cid deploy rms <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--build] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>]
-    cid deploy init [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>]
+    cid deploy setup [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]
+    cid deploy vcstag [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]
+    cid deploy vcsref <vcs_ref> [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]
+    cid deploy rms <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--build] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]
     cid migrate
     cid run
     cid run <command> [<command_arg>...]
@@ -58,6 +58,7 @@ Options:
     --adapt                         Re-balance available resources before execution.
     --limit-memory=<mem_limit>      Limit allocated memory (B, K, M or G postfix is required).
     --limit-cpus=<cpu_count>        Limit CPU cores (affects instance count).
+    --listen-addr=<address>         Address to bind services, all by default.
     <rms_pool>                      Either "dst_pool" or  "src_pool:dst_pool" for promotion.
     <packages>                      Either "local/file" or "remote_file" or "<package>@<hash>".
 """
@@ -175,6 +176,12 @@ def runInner():
         deploy = overrides.setdefault('_deploy', {})
         deploy['maxTotalMemory'] = args['--limit-memory']
         deploy['maxCpuCount'] = args['--limit-cpus']
+        deploy['listenAddress'] = args['--listen-addr']
+        
+        if deploy['maxCpuCount']:
+            try: deploy['maxCpuCount'] = int(deploy['maxCpuCount'])
+            except ValueError: pass
+
 
         #---
         cit = CIDTool(overrides=overrides)
@@ -245,14 +252,14 @@ def runInner():
             else:
                 raise RuntimeError("Not implemented yet.")
         elif args['deploy']:
-            if args['vcsref']:
+            if args['rms']:
+                cit.deploy('rms', args['<rms_pool>'], args['<package>'])
+            elif args['vcsref']:
                 cit.deploy('vcsref', args['<vcs_ref>'])
             elif args['vcstag']:
                 cit.deploy('vcstag', args['<vcs_ref>'])
-            elif args['init']:
-                cit.deploy('init')
-            elif args['rms']:
-                cit.deploy('rms', args['<rms_pool>'], args['<package>'])
+            elif args['setup']:
+                cit.deploy('setup')
             else:
                 raise RuntimeError("Not implemented yet.")
         elif args['init']:

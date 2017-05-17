@@ -303,10 +303,11 @@ Please see details in the FTN16 spec: ::
         [--limit-memory=<mem_limit>] - memory limit with B, K, M or G postfix.
         [--limit-cpus=<cpu_count>] - max number of CPU cores to use.
         
-    cid deploy init
+    cid deploy setup
         Prepare directory for deployment. Allows adjusting futoin.json
         before actual deployment is done to define limits once or add
-        project settings overrides. Not necessary otherwise.
+        project settings overrides. Allows adjusting settings for next
+        deployment. Not necessary otherwise.
        
     cid deploy vcstag [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--redeploy]
         Deploy from VCS tag.
