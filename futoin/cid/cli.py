@@ -37,7 +37,8 @@ Usage:
     cid rms retrieve <rms_pool> <packages>... [--rmsRepo=<rms_repo>]
     cid rms pool create <rms_pool> [--rmsRepo=<rms_repo>]
     cid rms pool list [--rmsRepo=<rms_repo>]
-    cid service run [--deployDir=<deploy_dir>] [--adapt] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>]
+    cid service master [--deployDir=<deploy_dir>] [--adapt] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]
+    cid service list [--deployDir=<deploy_dir>] [--adapt] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]
     cid service exec <entry_point> <instance_id> [--deployDir=<deploy_dir>]
     cid service stop <entry_point> <instance_id> <pid> [--deployDir=<deploy_dir>]
     cid service reload <entry_point> <instance_id> <pid> [--deployDir=<deploy_dir>]
@@ -177,11 +178,13 @@ def runInner():
         deploy['maxTotalMemory'] = args['--limit-memory']
         deploy['maxCpuCount'] = args['--limit-cpus']
         deploy['listenAddress'] = args['--listen-addr']
-        
-        if deploy['maxCpuCount']:
-            try: deploy['maxCpuCount'] = int(deploy['maxCpuCount'])
-            except ValueError: pass
+        overrides['adaptDeploy'] = args['--adapt']
 
+        if deploy['maxCpuCount']:
+            try:
+                deploy['maxCpuCount'] = int(deploy['maxCpuCount'])
+            except ValueError:
+                pass
 
         #---
         cit = CIDTool(overrides=overrides)
@@ -260,6 +263,21 @@ def runInner():
                 cit.deploy('vcstag', args['<vcs_ref>'])
             elif args['setup']:
                 cit.deploy('setup')
+            else:
+                raise RuntimeError("Not implemented yet.")
+        elif args['service']:
+            if args['master']:
+                cit.service_master()
+            elif args['list']:
+                cit.service_list()
+            elif args['exec']:
+                cit.service_exec(args['entry_point'], args['instance_id'])
+            elif args['stop']:
+                cit.service_stop(args['entry_point'],
+                                 args['instance_id'], args['pid'])
+            elif args['reload']:
+                cit.service_reload(args['entry_point'],
+                                   args['instance_id'], args['pid'])
             else:
                 raise RuntimeError("Not implemented yet.")
         elif args['init']:

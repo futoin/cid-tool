@@ -15,6 +15,7 @@ import time
 import fnmatch
 import fcntl
 import hashlib
+import signal
 from collections import OrderedDict
 
 from .mixins.path import PathMixIn
@@ -63,6 +64,14 @@ def cid_action(f):
         else:
             f(self, *args, **kwargs)
     return custom_f
+
+
+class TimeoutException(RuntimeError):
+    @classmethod
+    def alarmHandler(cls):
+        raise TimeoutException('Alarm')
+
+#=============================================================================
 
 
 class HelpersMixIn(object):
@@ -160,10 +169,11 @@ class HelpersMixIn(object):
             self._initConfig()
 
 
-class LockMixIn(object):            
+#=============================================================================
+class LockMixIn(object):
     DEPLOY_LOCK_FILE = '.futoin-deploy.lock'
     GLOBAL_LOCK_FILE = ospath.join(os.environ['HOME'], '.futoin-global.lock')
-    
+
     def _initLocks(self):
         self._deploy_lock = None
         self._global_lock = None
@@ -199,7 +209,8 @@ class LockMixIn(object):
         self._unlockCommon('_global_lock')
 
 
-class ConfigMixIn(object):            
+#=============================================================================
+class ConfigMixIn(object):
     try:
         _str_type = (str, unicode)
     except NameError:
@@ -237,6 +248,7 @@ class ConfigMixIn(object):
         ('debugConnOverhead', 'memory'),
         ('scalable', bool),
         ('reloadable', bool),
+        ('exitTimeoutMS', int),
         ('cpuWeight', 'weight'),
         ('memWeight', 'weight'),
         ('instances', int),
@@ -253,7 +265,7 @@ class ConfigMixIn(object):
         ('pluginPacks', list),
         ('externalSetup', bool),
     ])
-    
+
     def _initConfig(self):
         errors = []
 
@@ -684,8 +696,9 @@ class ConfigMixIn(object):
         # 1. sort by integer order
         # 2. sort by tool name
         tools.sort(key=lambda v: (tool_impl[v].getOrder(), v))
-        
-        
+
+
+#=============================================================================
 class DeployMixIn(object):
     def _redeployExit(self, deploy_type):
         self._warn(deploy_type + " has been already deployed. Use --redeploy.")
@@ -963,7 +976,312 @@ class DeployMixIn(object):
     def _reloadServices(self):
         pass
 
-class CIDTool(DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, PathMixIn, UtilMixIn):
+
+#=============================================================================
+class ServiceMixIn(object):
+    RESTART_DELAY_THRESHOLD = 10
+    RESTART_DELAY = 10
+
+    def _serviceAdapt(self):
+        if not self._config['adaptDeploy']:
+            return
+
+        self._deployLock()
+        # TODO: recalculate services
+        self._deployUnlock()
+
+    def _serviceList(self):
+        self._deployLock()
+        self._initConfig()
+        self._deployUnlock()
+
+        config = self._config
+
+        entry_points = config.get('entryPoints', {})
+        auto_services = config.get('deploy', {}).get('autoServices', {})
+        res = []
+
+        for (ep, ei) in entry_points.items():
+            if ep not in auto_services:
+                self._errorExit(
+                    'Unknown service entry point "{0}"'.format(ep))
+
+            i = 0
+
+            for svctune in auto_services[ep]:
+                r = ei.deepcopy()
+                r['name'] = ep
+                r['instance_id'] = i
+                r['tune'].update(svctune)
+                res.append(r)
+                i += 1
+
+        return res
+
+    def _serviceCommon(self, entry_point, instance_id):
+        config = self._config
+        entry_points = config.get('entryPoints', {})
+        auto_services = config.get('deploy', {}).get('autoServices', {})
+
+        try:
+            ep = entry_points[entry_point]
+        except KeyError:
+            self._errorExit('Unknown entry point "{0}"'.format(entry_point))
+
+        try:
+            dep = auto_services[entry_point][instance_id]
+        except KeyError:
+            self._errorExit(
+                'Unknown service entry point "{0}"'.format(entry_point))
+        except IndexError:
+            self._errorExit('Unknown service entry point "{0}" instance "{1}"'.format(
+                entry_point, instance_id))
+
+        res = ep.deepcopy()
+        res.setdefault('tune', {}).update(dep)
+        return res
+
+    def _serviceStop(self, svc, toolImpl, pid):
+        signal.signal(signal.SIGALRM, TimeoutException.alarmHandler)
+
+        tune = svc['tune']
+        toolImpl.onStop(self._config, pid, tune)
+
+        try:
+            timeout = tune.get(
+                'exitTimeoutMS', RuntimeTool.DEFAULT_EXIT_TIMEOUT)
+            timeout /= 1000.0
+            signal.setitimer(signal.ITIMER_REAL, timeout)
+
+            try:
+                os.waitpid(pid, 0)
+            except TimeoutException:
+                signal.setitimer(signal.ITIMER_REAL, 0)
+                os.kill(pid, signal.SIGKILL)
+                os.waitpid(pid, 0)
+        except OSError:
+            pass
+        finally:
+            signal.setitimer(signal.ITIMER_REAL, 0)
+
+    def _serviceMaster(self):
+        svc_list = []
+        pid_to_svc = {}
+
+        self._running = True
+        self._reload_services = True
+
+        def serviceExitSignal():
+            self._running = False
+            signal.signal(signal.SIGTERM, signal.SIG_IGN)
+            signal.signal(signal.SIGINT, signal.SIG_IGN)
+            signal.signal(signal.SIGHUP, signal.SIG_IGN)
+            signal.signal(signal.SIGUSR1, signal.SIG_IGN)
+            signal.signal(signal.SIGUSR2, signal.SIG_IGN)
+            raise KeyboardInterrupt('Exit received')
+
+        def serviceReloadSignal():
+            self._reload_services = True
+            raise KeyboardInterrupt('Reload received')
+
+        signal.signal(signal.SIGTERM, serviceExitSignal)
+        signal.signal(signal.SIGINT, serviceExitSignal)
+        signal.signal(signal.SIGHUP, serviceReloadSignal)
+        signal.signal(signal.SIGUSR1, serviceReloadSignal)
+        signal.signal(signal.SIGUSR2, serviceReloadSignal)
+
+        # Still, it's not safe to assume processes continue
+        # to run in set process group.
+        # DO NOT use os.killpg()
+        #os.setpgid(0, 0)
+
+        # Main loop
+        #---
+        self._info('Starting master process')
+
+        while self._running:
+            try:
+                # Reload services
+                #---
+                if self._reload_services:
+                    self._info('Reloading services')
+
+                    # Mark shutdown by default
+                    for svc in svc_list:
+                        svc['_remove'] = True
+
+                    # Prepare process list
+                    for newsvc in self._serviceList():
+                        for svc in svc_list:
+                            for (sk, sv) in newsvc.items():
+                                if svc.get(sk, None) != sv:
+                                    break
+                            else:
+                                break
+                        else:
+                            svc = svc
+                            svc_list.append(newsvc)
+                            svc['_pid'] = None
+                            svc['_lastExit1'] = self.RESTART_DELAY_THRESHOLD + 1
+                            svc['_lastExit2'] = 0
+
+                            tool = svc['tool']
+                            t = self._tool_impl[tool]
+
+                            if isinstance(t, RuntimeTool):
+                                newsvc['toolImpl'] = t
+                            else:
+                                self._errorExit(
+                                    'Tool "{0}" for "{1}" does not support "service run" command'
+                                    .format(tool, newsvc['name']))
+
+                            self._info('Added "{0}:{1}"'.format(
+                                svc['name'], svc['instance_id']))
+
+                        svc['_remove'] = False
+
+                    if not len(svc_list):
+                        break
+
+                    # Kill removed or changed services
+                    for svc in svc_list:
+                        if svc['_remove']:
+                            pid = svc['_pid']
+
+                            if pid:
+                                self._serviceStop(svc, svc['toolImpl'], pid)
+                                pid_to_svc[pid]['_pid'] = None
+                                del pid_to_svc[pid]
+
+                            self._info('Removed "{0}:{1}" pid "{2}"'.format(
+                                svc['name'], svc['instance_id'], pid))
+
+                    svc_list = filter(lambda v: not v['_remove'], svc_list)
+
+                    # actual reload of services
+                    for pid in pid_to_svc.keys():
+                        svc = pid_to_svc[pid]
+
+                        if svc['tune'].get('reloadable', False):
+                            self._info('Reloading "{0}:{1}" pid "{2}"'.format(
+                                svc['name'], svc['instance_id'], pid))
+                            try:
+                                svc['toolImpl'].onReload(
+                                    self._config, pid, svc['tune'])
+                            except OSError:
+                                pass
+                        else:
+                            self._info('Stopping "{0}:{1}" pid "{2}"'.format(
+                                svc['name'], svc['instance_id'], pid))
+                            self._serviceStop(svc, svc['toolImpl'], pid)
+
+                            del pid_to_svc[pid]
+                            svc['_lastExit1'] = self.RESTART_DELAY_THRESHOLD + 1
+                            svc['_lastExit2'] = 0
+                            svc['_pid'] = None
+
+                    self._reload_services = False
+
+                # create children
+                for svc in svc_list:
+                    pid = svc['_pid']
+                    if pid:
+                        continue
+
+                    pid = os.fork()
+                    delay = 0
+
+                    if (svc['_lastExit1'] - svc['_lastExit2']) < self.RESTART_DELAY_THRESHOLD:
+                        delay = self.RESTART_DELAY
+
+                    if pid:
+                        if delay:
+                            self._warn('Delaying start "{0}:{1}" pid "{2}"'.format(
+                                svc['name'], svc['instance_id'], pid))
+                        else:
+                            self._info('Started "{0}:{1}" pid "{2}"'.format(
+                                svc['name'], svc['instance_id'], pid))
+                    else:
+                        sys.stdin.close()
+                        sys.stdin = open(os.devnull, 'r')
+
+                        if delay:
+                            time.sleep(delay)
+
+                        svc['toolImpl'].onRun(
+                            self._config, svc['file'], [], svc['tune'])
+
+                # Wait for children to exit
+                (pid, excode) = os.wait()
+
+                svc = pid_to_svc[pid]
+                del pid_to_svc[pid]
+                svc['_pid'] = None
+                svc['_lastExit2'] = svc['_lastExit1']
+
+                try:
+                    svc['_lastExit1'] = time.monotonic()
+                except:
+                    times = os.times()
+                    svc['_lastExit1'] = times[4]
+
+                self._warn('Exited "{0}:{1}" pid "{2}" exit code "{3}"'.format(
+                    svc['name'], svc['instance_id'], pid, excode))
+
+            except KeyboardInterrupt:
+                pass
+
+        # try terminate children
+        #---
+        for svc in svc_list:
+            pid = svc['_pid']
+
+            if pid:
+                try:
+                    self._info('Terminating "{0}:{1}" pid "{2}"'.format(
+                        svc['name'], svc['instance_id'], pid))
+                    os.kill(pid, signal.SIGTERM)
+                except OSError:
+                    del pid_to_svc[pid]
+                    self._info('Exited "{0}:{1}" pid "{2}"'.format(
+                        svc['name'], svc['instance_id'], pid))
+
+        # try wait children
+        #---
+        signal.signal(signal.SIGALRM, TimeoutException.alarmHandler)
+
+        try:
+            signal.setitimer(signal.ITIMER_REAL,
+                             RuntimeTool.DEFAULT_EXIT_TIMEOUT)
+
+            while len(pid_to_svc) > 0:
+                (pid, excode) = os.waitpid(-1, 0)
+                svc = pid_to_svc[pid]
+                del pid_to_svc[pid]
+                self._info('Exited "{0}:{1}" pid "{2}"'.format(
+                    svc['name'], svc['instance_id'], pid))
+        except TimeoutException:
+            pass
+        finally:
+            signal.setitimer(signal.ITIMER_REAL, 0)
+
+        # final kill
+        #---
+        for pid in pid_to_svc:
+            try:
+                svc = pid_to_svc[pid]
+                self._info('Killing "{0}:{1}" pid "{2}"'.format(
+                    svc['name'], svc['instance_id'], pid))
+                os.kill(pid, signal.SIGKILL)
+                os.waitpid(pid, 0)
+            except OSError:
+                pass
+
+        self._info('Master process exit')
+
+
+#=============================================================================
+class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, PathMixIn, UtilMixIn):
     TO_GZIP = '\.(js|json|css|svg|txt)$'
     VCS_CACHE_DIR = 'vcs'
 
@@ -1491,8 +1809,6 @@ class CIDTool(DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, PathMixIn, Util
 
     def _tool_cmd(self, tool, base, method):
         config = self._config
-        env = config['env']
-
         t = self._tool_impl[tool]
 
         if isinstance(t, base):
@@ -1787,3 +2103,76 @@ class CIDTool(DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, PathMixIn, Util
 
         print("\n".join(pool_list))
 
+    def service_master(self):
+        self._processWcDir()
+        self._serviceAdapt()
+        self._serviceMaster()
+
+    def service_list(self):
+        self._processWcDir()
+        self._serviceAdapt()
+
+        for svc in self._serviceList():
+            svc_tune = svc['tune']
+
+            if 'socketType' not in svc_tune:
+                print("{0}\t{1}\t{2}\t{3}".format(
+                    svc['name'], svc['instance_id']))
+                return
+
+            socket_type = svc_tune['socketType']
+
+            if socket_type == 'unix':
+                socket_addr = svc_tune['socketPath']
+            else:
+                socket_addr = '{0}:{1}'.format(
+                    svc_tune['socketAddress'],
+                    svc_tune['socketPort']
+                )
+
+            print("{0}\t{1}\t{2}\t{3}".format(
+                svc['name'], svc['instance_id'], socket_type, socket_addr))
+
+    def service_exec(self, entry_point, instance_id):
+        self._processWcDir()
+
+        config = self._config
+        svc = self._serviceCommon(entry_point, instance_id)
+
+        tool = svc['tool']
+        t = self._tool_impl[tool]
+
+        if isinstance(t, RuntimeTool):
+            t.onRun(config, svc['file'], [], svc['tune'])
+        else:
+            self._errorExit(
+                'Tool "{0}" for "{1}" does not support "service exec" command'.format(tool, entry_point))
+
+    def service_stop(self, entry_point, instance_id, pid):
+        self._processWcDir()
+
+        svc = self._serviceCommon(entry_point, instance_id)
+
+        tool = svc['tool']
+        t = self._tool_impl[tool]
+
+        if isinstance(t, RuntimeTool):
+            self._serviceStop(svc, t, pid)
+        else:
+            self._errorExit(
+                'Tool "{0}" for "{1}" does not support "service stop" command'.format(tool, entry_point))
+
+    def service_reload(self, entry_point, instance_id, pid):
+        self._processWcDir()
+
+        config = self._config
+        svc = self._serviceCommon(entry_point, instance_id)
+
+        tool = svc['tool']
+        t = self._tool_impl[tool]
+
+        if isinstance(t, RuntimeTool):
+            t.onReload(config, pid, svc['tune'])
+        else:
+            self._errorExit(
+                'Tool "{0}" for "{1}" does not support "service reload" command'.format(tool, entry_point))
