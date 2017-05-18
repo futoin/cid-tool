@@ -2238,3 +2238,12 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
         else:
             self._errorExit(
                 'Tool "{0}" for "{1}" does not support "service reload" command'.format(tool, entry_point))
+
+    def devserve(self):
+        self.service_list()
+        self._serviceMaster()
+
+        config = self._config
+
+        if config.get('deployDirRemove', False):
+            self._rmTree(config['deployDir'])

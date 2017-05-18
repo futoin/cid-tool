@@ -37,6 +37,7 @@ Usage:
     cid rms retrieve <rms_pool> <packages>... [--rmsRepo=<rms_repo>]
     cid rms pool create <rms_pool> [--rmsRepo=<rms_repo>]
     cid rms pool list [--rmsRepo=<rms_repo>]
+    cid devserve [--wcDir=<wc_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]
     cid service master [--deployDir=<deploy_dir>] [--adapt] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]
     cid service list [--deployDir=<deploy_dir>] [--adapt] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]
     cid service exec <entry_point> <instance_id> [--deployDir=<deploy_dir>]
@@ -135,6 +136,12 @@ def runInner():
             overrides['deployDir'] = os.path.realpath(deploy_dir)
         elif args['deploy'] or args['service']:
             overrides['deployDir'] = os.path.realpath('.')
+        elif args['devserve']:
+            import tempfile
+            deploy_dir = tempfile.mkdtemp(prefix='futoin-cid-devserve')
+            os.symlink(overrides['wcDir'], os.path.join(deploy_dir, 'current'))
+            overrides['deployDir'] = os.path.realpath(deploy_dir)
+            overrides['deployDirRemove'] = True
 
         overrides['reDeploy'] = args['--redeploy'] and True or False
 
@@ -178,7 +185,7 @@ def runInner():
         deploy['maxTotalMemory'] = args['--limit-memory']
         deploy['maxCpuCount'] = args['--limit-cpus']
         deploy['listenAddress'] = args['--listen-addr']
-        overrides['adaptDeploy'] = args['--adapt']
+        overrides['adaptDeploy'] = args['--adapt'] or args['devserve']
 
         if deploy['maxCpuCount']:
             try:
@@ -300,6 +307,8 @@ def runInner():
             cit.run(args['<command>'], args['<command_arg>'])
         elif args['ci_build']:
             cit.ci_build(args['<vcs_ref>'], args['<rms_pool>'])
+        elif args['devserve']:
+            cit.devserve()
         else:
             raise RuntimeError("Unknown Command")
 
