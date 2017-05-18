@@ -9,6 +9,7 @@ import sys
 import grp
 import time
 import tempfile
+import re
 from collections import OrderedDict
 from ..coloring import Coloring
 
@@ -193,3 +194,20 @@ class UtilMixIn(object):
             raise ValueError('Memory must be positive')
 
         return b * m
+
+    #---
+    def _versionSort(self, verioned_list):
+        def castver(v):
+            res = re.split(r'[\W_]+', v)
+            for (i, vc) in enumerate(res):
+                try:
+                    res[i] = int(vc, 10)
+                except:
+                    pass
+            return res
+
+        verioned_list.sort(key=castver)
+
+    def _getLatest(self, verioned_list):
+        self._versionSort(verioned_list)
+        return verioned_list[-1]

@@ -172,10 +172,12 @@ class HelpersMixIn(object):
 #=============================================================================
 class LockMixIn(object):
     DEPLOY_LOCK_FILE = '.futoin-deploy.lock'
+    MASTER_LOCK_FILE = '.futoin-master.lock'
     GLOBAL_LOCK_FILE = ospath.join(os.environ['HOME'], '.futoin-global.lock')
 
     def _initLocks(self):
         self._deploy_lock = None
+        self._master_lock = None
         self._global_lock = None
 
     def _lockCommon(self, lock, file, flags):
@@ -202,11 +204,25 @@ class LockMixIn(object):
     def _deployUnlock(self):
         self._unlockCommon('_deploy_lock')
 
+    def _requireDeployLock(self):
+        if self._deploy_lock is None:
+            self._errorExit('Deploy lock must be already acquired')
+
     def _globalLock(self):
         self._lockCommon('_global_lock', self.GLOBAL_LOCK_FILE, fcntl.LOCK_EX)
 
     def _globalUnlock(self):
         self._unlockCommon('_global_lock')
+
+    def _masterLock(self):
+        self._lockCommon(
+            '_master_lock',
+            ospath.join(self._config['deployDir'], self.MASTER_LOCK_FILE),
+            fcntl.LOCK_EX | fcntl.LOCK_NB
+        )
+
+    def _masterUnlock(self):
+        self._unlockCommon('_master_lock')
 
 
 #=============================================================================
@@ -288,8 +304,10 @@ class ConfigMixIn(object):
         if deploy_dir:
             deploy_config_file = ospath.join(deploy_dir, self._FUTOIN_JSON)
             deploy_config_file = ospath.realpath(deploy_config_file)
-
-        project_config_file = ospath.realpath(self._FUTOIN_JSON)
+            project_config_file = ospath.join('current', self._FUTOIN_JSON)
+            project_config_file = ospath.realpath(project_config_file)
+        else:
+            project_config_file = ospath.realpath(self._FUTOIN_JSON)
 
         #--
         gc = {'env': {}}
@@ -700,11 +718,15 @@ class ConfigMixIn(object):
 
 #=============================================================================
 class DeployMixIn(object):
+    VCS_CACHE_DIR = 'vcs'
+
     def _redeployExit(self, deploy_type):
         self._warn(deploy_type + " has been already deployed. Use --redeploy.")
         sys.exit(0)
 
     def _rms_deploy(self, rms_pool, package=None):
+        self._requireDeployLock()
+
         config = self._config
         rmstool = self._getRmsTool()
 
@@ -769,6 +791,8 @@ class DeployMixIn(object):
         self._deployCommon(package_noext_tmp, package_noext, [package])
 
     def _vcsref_deploy(self, vcs_ref):
+        self._requireDeployLock()
+
         config = self._config
         vcstool = self._getVcsTool()
 
@@ -806,6 +830,8 @@ class DeployMixIn(object):
         self._deployCommon(target_tmp, target_dir, [vcs_cache])
 
     def _vcstag_deploy(self, vcs_ref):
+        self._requireDeployLock()
+
         config = self._config
         vcstool = self._getVcsTool()
 
@@ -846,23 +872,9 @@ class DeployMixIn(object):
     def _deploy_setup(self):
         self._deployConfig()
 
-    def _versionSort(self, verioned_list):
-        def castver(v):
-            res = re.split(r'[\W_]+', v)
-            for (i, vc) in enumerate(res):
-                try:
-                    res[i] = int(vc, 10)
-                except:
-                    pass
-            return res
-
-        verioned_list.sort(key=castver)
-
-    def _getLatest(self, verioned_list):
-        self._versionSort(verioned_list)
-        return verioned_list[-1]
-
     def _deployCommon(self, tmp, dst, cleanup_whitelist):
+        self._requireDeployLock()
+
         config = self._config
         config['wcDir'] = ospath.realpath(tmp)
 
@@ -912,9 +924,8 @@ class DeployMixIn(object):
             for f in files:
                 os.chmod(ospath.join(path, f), file_perm)
 
-        # Setup per-user services
+        # Setup services
         self._deployConfig()
-        self._deployServices(tmp)
 
         # Move in place
         self._info('Switching current deployment')
@@ -934,6 +945,8 @@ class DeployMixIn(object):
         self._deployCleanup(cleanup_whitelist)
 
     def _deployCleanup(self, whitelist):
+        self._requireDeployLock()
+
         if ospath.exists('current'):
             whitelist.append(ospath.basename(os.readlink('current')))
 
@@ -952,6 +965,10 @@ class DeployMixIn(object):
                 os.remove(f)
 
     def _deployConfig(self):
+        self._requireDeployLock()
+
+        self._rebalanceServices()
+
         config = self._config
         orig_config = self._deploy_config
         new_config = OrderedDict()
@@ -965,20 +982,26 @@ class DeployMixIn(object):
         deploy = config.get('deploy', {}).copy()
         new_config['deploy'] = deploy
 
-        #---
-        # TODO: create auto-services
-
         self._writeJSONConfig(self._FUTOIN_JSON, new_config)
 
-    def _deployServices(self, subdir):
-        pass
-
     def _reloadServices(self):
+        self._requireDeployLock()
+
+        # Only service master mode is supported this way
+        # Otherwise, deployment invoker is responsible for service reload.
+        pid = self._serviceMasterPID()
+
+        if pid:
+            os.kill(pid, signal.SIGHUP)
+
+    def _rebalanceServices(self):
         pass
+        # TODO
 
 
 #=============================================================================
 class ServiceMixIn(object):
+    MASTER_PID_FILE = '.futoin.master.pid'
     RESTART_DELAY_THRESHOLD = 10
     RESTART_DELAY = 10
 
@@ -987,13 +1010,17 @@ class ServiceMixIn(object):
             return
 
         self._deployLock()
-        # TODO: recalculate services
-        self._deployUnlock()
+        try:
+            self._deploy_setup()
+        finally:
+            self._deployUnlock()
 
     def _serviceList(self):
         self._deployLock()
-        self._initConfig()
-        self._deployUnlock()
+        try:
+            self._initConfig()
+        finally:
+            self._deployUnlock()
 
         config = self._config
 
@@ -1064,6 +1091,26 @@ class ServiceMixIn(object):
         finally:
             signal.setitimer(signal.ITIMER_REAL, 0)
 
+    def _serviceMasterPID(self):
+        self._requireDeployLock()
+
+        if not ospath.exists(self.MASTER_PID_FILE):
+            return None
+
+        try:
+            pid = int(self._readTextFile(self.MASTER_PID_FILE))
+        except ValueError:
+            return None
+
+        try:
+            self._masterLock()
+            self._masterUnlock()
+            return None
+        except:
+            pass
+
+        return pid
+
     def _serviceMaster(self):
         svc_list = []
         pid_to_svc = {}
@@ -1097,6 +1144,20 @@ class ServiceMixIn(object):
 
         # Main loop
         #---
+        self._deployLock()
+        try:
+            current_master = self._serviceMasterPID()
+
+            if current_master:
+                self._errorExit(
+                    'Master process is already running with PID "{0}"'.format(current_master))
+
+            self._masterLock()
+            self._writeTextFile(self.MASTER_PID_FILE,
+                                '{0}'.format(os.getpid()))
+        finally:
+            self._deployUnlock()
+
         self._info('Starting master process')
 
         while self._running:
@@ -1278,12 +1339,12 @@ class ServiceMixIn(object):
                 pass
 
         self._info('Master process exit')
+        self._masterUnlock()
 
 
 #=============================================================================
 class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, PathMixIn, UtilMixIn):
     TO_GZIP = '\.(js|json|css|svg|txt)$'
-    VCS_CACHE_DIR = 'vcs'
 
     def __init__(self, overrides):
         self._startup_env = dict(os.environ)
@@ -1606,18 +1667,19 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
 
         self._deployLock()
 
-        if mode == 'rms':
-            self._rms_deploy(p1, p2)
-        elif mode == 'vcsref':
-            self._vcsref_deploy(p1)
-        elif mode == 'vcstag':
-            self._vcstag_deploy(p1)
-        elif mode == 'setup':
-            self._deploy_setup()
-        else:
-            self._errorExit('Not supported deploy mode: ' + mode)
-
-        self._deployUnlock()
+        try:
+            if mode == 'rms':
+                self._rms_deploy(p1, p2)
+            elif mode == 'vcsref':
+                self._vcsref_deploy(p1)
+            elif mode == 'vcstag':
+                self._vcstag_deploy(p1)
+            elif mode == 'setup':
+                self._deploy_setup()
+            else:
+                self._errorExit('Not supported deploy mode: ' + mode)
+        finally:
+            self._deployUnlock()
 
     def run(self, command, args):
         self._processWcDir()
