@@ -26,8 +26,9 @@
 * NEW: implemented network timeouts for curl & requests
 * NEW: added generic memory & cpu limit concept
 * NEW: added separate phpfpmTool for entry points
-* NEW: "cid deploy init" command
+* NEW: "cid deploy setup" command
 * NEW: "cid service" commands
+* NEW: "cid devserve" command
 
 === 0.7.3 (2017-04-20) ===
 * FIXED: merge failed message to distinguish aborted/left as-is cases

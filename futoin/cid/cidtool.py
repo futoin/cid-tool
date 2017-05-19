@@ -2192,8 +2192,8 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
                     svc_tune['socketPort']
                 )
 
-            print("{0}\t{1}\t{2}\t{3}".format(
-                svc['name'], svc['instance_id'], socket_type, socket_addr))
+            print("\t".join(svc['name'], svc['instance_id'],
+                            socket_type, socket_addr))
 
     def service_exec(self, entry_point, instance_id):
         self._processWcDir()

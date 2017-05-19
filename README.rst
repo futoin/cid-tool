@@ -430,7 +430,42 @@ Please see details in the FTN16 spec: ::
 
     cid rms pool list [--rmsRepo=<rms_repo>]
         List currently available RMS pools.
+        
+        
+    cid devserve [--wcDir=<wc_dir>]
+        [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]
+        Create temporary deployment directory and use working directory as "current".
+        Re-balance services.
+        Then act like "cid service list" and "cid service master".
 
+
+    cid service ...
+        Service execution helpers.
+
+    cid service master [--deployDir=<deploy_dir>]
+        [--adapt [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]]
+        Re-balance services, if --adapt.
+        Run all entry points as children.
+        Restarts services on exit.
+        Has 10 second delay for too fast to exit services.
+        Supports SIGTERM for clean shutdown.
+        Supports SIGHUP for reload of service list & the services themselves.
+    
+    cid service list [--deployDir=<deploy_dir>]
+        [--adapt [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]]
+        Re-balance services, if --adapt.
+        List services in the following format:
+        <entry point> <TAB> <instance ID> <TAB> <socket type> <TAB> <socket address>
+
+    cid service exec <entry_point> <instance_id> [--deployDir=<deploy_dir>]
+        Helper for system init to execute pre-configured service.
+        
+    cid service stop <entry_point> <instance_id> <pid> [--deployDir=<deploy_dir>]
+        Helper for system init to gracefully stop pre-configured service.
+        
+    cid service reload <entry_point> <instance_id> <pid> [--deployDir=<deploy_dir>]
+        Helper for system init to gracefully reload pre-configured service.
+        Note: if reload is not supported then reload acts as "stop" to force restart.
 
 Excplicit futoin.json example
 -----------------------------
