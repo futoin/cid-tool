@@ -58,8 +58,8 @@ Options:
     --debug                         Build in debug mode, if applicable.
     --cacheDir=<cache_dir>          Directory to hold VCS cache.
     --adapt                         Re-balance available resources before execution.
-    --limit-memory=<mem_limit>      Limit allocated memory (B, K, M or G postfix is required).
-    --limit-cpus=<cpu_count>        Limit CPU cores (affects instance count).
+    --limit-memory=<mem_limit>|auto Limit allocated memory (B, K, M or G postfix is required).
+    --limit-cpus=<cpu_count>|auto   Limit CPU cores (affects instance count).
     --listen-addr=<address>         Address to bind services, all by default.
     <rms_pool>                      Either "dst_pool" or  "src_pool:dst_pool" for promotion.
     <packages>                      Either "local/file" or "remote_file" or "<package>@<hash>".
@@ -136,12 +136,6 @@ def runInner():
             overrides['deployDir'] = os.path.realpath(deploy_dir)
         elif args['deploy'] or args['service']:
             overrides['deployDir'] = os.path.realpath('.')
-        elif args['devserve']:
-            import tempfile
-            deploy_dir = tempfile.mkdtemp(prefix='futoin-cid-devserve')
-            os.symlink(overrides['wcDir'], os.path.join(deploy_dir, 'current'))
-            overrides['deployDir'] = os.path.realpath(deploy_dir)
-            overrides['deployDirRemove'] = True
 
         overrides['reDeploy'] = args['--redeploy'] and True or False
 

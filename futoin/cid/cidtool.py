@@ -259,11 +259,13 @@ class ConfigMixIn(object):
     CONFIG_TUNE_VARS = OrderedDict([
         ('minMemory', 'memory'),
         ('maxMemory', 'memory'),
+        ('maxTotalMemory', 'memory'),
         ('connMemory', 'memory'),
         ('debugOverhead', 'memory'),
         ('debugConnOverhead', 'memory'),
         ('scalable', bool),
         ('reloadable', bool),
+        ('multiCore', bool),
         ('exitTimeoutMS', int),
         ('cpuWeight', 'weight'),
         ('memWeight', 'weight'),
@@ -503,13 +505,20 @@ class ConfigMixIn(object):
         deploy = dc.get('deploy', {})
 
         if 'maxTotalMemory' in deploy:
-            self._sanitizeMemory('deploy/maxTotalMemory',
-                                 deploy['maxTotalMemory'], errors)
+            maxTotalMemory = deploy['maxTotalMemory']
+
+            if maxTotalMemory == 'auto':
+                del deploy['maxTotalMemory']
+            else:
+                self._sanitizeMemory('deploy/maxTotalMemory',
+                                     maxTotalMemory, errors)
 
         if 'maxCpuCount' in deploy:
             val = deploy['maxCpuCount']
 
-            if not isinstance(val, int) or val <= 0:
+            if val == 'auto':
+                del deploy['maxCpuCount']
+            elif not isinstance(val, int) or val <= 0:
                 errors.append(
                     '"deploy/maxCpuCount" must be a positive integer')
 
@@ -995,8 +1004,8 @@ class DeployMixIn(object):
             os.kill(pid, signal.SIGHUP)
 
     def _rebalanceServices(self):
-        pass
-        # TODO
+        from .details.resourcealgo import ResourceAlgo
+        ResourceAlgo().configServices(self._config)
 
 
 #=============================================================================
@@ -1040,6 +1049,10 @@ class ServiceMixIn(object):
                 r['name'] = ep
                 r['instance_id'] = i
                 r['tune'].update(svctune)
+
+                if r['tune'].get('socketAddress', None) == '0.0.0.0':
+                    r['tune']['socketAddress'] = '127.0.0.1'
+
                 res.append(r)
                 i += 1
 
@@ -2240,10 +2253,22 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
                 'Tool "{0}" for "{1}" does not support "service reload" command'.format(tool, entry_point))
 
     def devserve(self):
-        self.service_list()
-        self._serviceMaster()
+        import tempfile
+        deploy_dir = tempfile.mkdtemp(prefix='futoin-cid-devserve')
 
-        config = self._config
+        try:
+            os.symlink(
+                ospath.realpath(self._overrides['wcDir']),
+                ospath.join(deploy_dir, 'current')
+            )
 
-        if config.get('deployDirRemove', False):
-            self._rmTree(config['deployDir'])
+            self._overrides['deployDir'] = os.path.realpath(deploy_dir)
+            os.chdir(deploy_dir)
+
+            self._initConfig()
+            config = self._config
+
+            self.service_list()
+            self._serviceMaster()
+        finally:
+            self._rmTree(deploy_dir)
