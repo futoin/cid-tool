@@ -128,5 +128,80 @@ class cid_deploy_Test( cid_UTBase ) :
                         '--limit-cpus=132'])
         config = self._readJSON(os.path.join('setupdir', 'futoin.json'))
         self.assertEqual(132, ResourceAlgo().cpuLimit(config))
+        
+    def test_03_distribute(self):
+        ra = ResourceAlgo()
+        
+        config = {
+            'deployDir' : 'deploydst',
+            'entryPoints': {
+                'scalableMono' : {
+                    'tune': {
+                        'minMemory' : '100M',
+                        'connMemory' : '32K',
+                        'memWeight' : 50,
+                        'multiCore' : False,
+                    },
+                },
+                'scalableMulti': {
+                    'tune': {
+                        'minMemory' : '3G',
+                        'connMemory' : '32M',
+                        'memWeight' : 300,
+                        'multiCore' : True,
+                        'socketType' : 'tcp',
+                        'socketPort' : 8080,
+                    },
+                },
+                'nonScalable' : {
+                    'tune': {
+                        'minMemory' : '256M',
+                        'maxTotalMemory': '4G',
+                        'connMemory' : '16K',
+                        'scalable' : False,
+                        'socketType' : 'tcp',
+                    },
+                },
+            },
+            'deploy' : {
+                'maxTotalMemory' : '63G',
+                'maxCpuCount' : 15,
+                'listenAddress' : '127.1.2.3',
+            },
+        }
+            
+        ra.configServices(config)
+        self._writeJSON('autoservices.json', config)
+        
+        total_mem = 0
+        service_mem = {}
+        autoServices = config['deploy']['autoServices']
+        
+        for (sn, sl) in autoServices.items():
+            service_mem[sn] = 0
+            for s in sl:
+                total_mem += s['maxMemory']
+                service_mem[sn] += s['maxMemory']
+                
+                if sn == 'scalableMono':
+                    self.assertEqual('unix', s['socketType'])
+                else:
+                    self.assertEqual('tcp', s['socketType'])
+                    self.assertEqual('127.1.2.3', s['socketAddr'])
+            
+        self.assertGreaterEqual(63*1024*1024*1024, total_mem)
+        self.assertLessEqual(63*1024*1024*1024 - ra.pageSize(), total_mem)
+        
+        self.assertEqual(15, len(autoServices['scalableMono']))
+        self.assertEqual(2, len(autoServices['scalableMulti']))
+        self.assertEqual(1, len(autoServices['nonScalable']))
+        
+        base = (63-3-4)*1024
+        base -= 100
+        mb = 1024*1024
+        
+        self.assertAlmostEqual(int(base * 50 / 350 + 100) * mb, service_mem['scalableMono'], delta=mb)
+        self.assertAlmostEqual(int(base * 300 / 350 + 3*1024) * mb, service_mem['scalableMulti'], delta=mb)
+        self.assertEqual(4 * 1024 * mb, service_mem['nonScalable'])
 
         

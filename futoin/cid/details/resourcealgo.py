@@ -5,9 +5,12 @@ from ..mixins.util import UtilMixIn
 
 
 class ResourceAlgo(UtilMixIn):
+    def pageSize(self):
+        return os.sysconf('SC_PAGE_SIZE')
+
     def systemMemory(self):
         try:
-            return os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
+            return self.pageSize() * os.sysconf('SC_PHYS_PAGES')
         except ValueError:
             if self._isMacOS():
                 return int(subprocess.check_output(['sysctl', '-n', 'hw.memsize']).strip())
@@ -80,8 +83,13 @@ class ResourceAlgo(UtilMixIn):
         self.distributeResources(config, memLimit, cpuLimit)
         self.assignSockets(config)
 
-    def distributeResources(self, config, maxmem, maxcpu, granularity=1024):
-        maxmem /= granularity
+    def distributeResources(self, config, maxmem, maxcpu, granularity=None):
+        import math
+
+        if granularity is None:
+            granularity = self.pageSize()
+
+        maxmem = int(maxmem / granularity)
         availMem = maxmem
         deploy = config.setdefault('deploy', {})
         autoServices = deploy.setdefault('autoServices', {})
@@ -93,17 +101,18 @@ class ResourceAlgo(UtilMixIn):
 
         # Init
         for (en, ei) in entryPoints.items():
-            ei = ei.copy()
+            ei = ei.get('tune', {}).copy()
 
             for f in ('minMemory', 'connMemory'):
                 if f not in ei:
                     self._errorExit(
                         '"{0}" is missing from {1} entry point'.format(f, en))
-                ei[f] = self._parseMemory(ei[f]) / granularity
+                ei[f] = int(math.ceil(self._parseMemory(ei[f]) / granularity))
 
             for f in ('maxMemory', 'maxTotalMemory', 'debugOverhead', 'debugConnOverhead'):
                 if f in ei:
-                    ei[f] = self._parseMemory(ei[f]) / granularity
+                    ei[f] = int(
+                        math.ceil(self._parseMemory(ei[f]) / granularity))
 
             ei.setdefault('memWeight', 100)
             ei.setdefault('cpuWeight', 100)
@@ -144,12 +153,15 @@ class ResourceAlgo(UtilMixIn):
             for en in candidates:
                 ei = services[en]
                 memAlloc = ei['memAlloc']
-                addAlloc = distMem * ei['memWeight'] / overall_weight
+                addAlloc = int(math.floor(
+                    distMem * ei['memWeight'] / overall_weight))
 
                 if (memAlloc + addAlloc) > ei['maxTotalMemory']:
                     ei['memAlloc'] = ei['maxTotalMemory']
                     addAlloc = ei['memAlloc'] - memAlloc
                     to_del.add(en)
+                else:
+                    ei['memAlloc'] += addAlloc
 
                 availMem -= addAlloc
 
@@ -171,7 +183,8 @@ class ResourceAlgo(UtilMixIn):
                 if (not ei['reloadable']) and ei['memAlloc'] >= (reasonableMinMemory * 2):
                     ei['instances'] = 2
             else:
-                possible_instances = ei['memAlloc'] / reasonableMinMemory
+                possible_instances = int(math.floor(
+                    ei['memAlloc'] / reasonableMinMemory))
 
                 if ei['reloadable'] or maxcpu > 1:
                     ei['instances'] = min(maxcpu, possible_instances)
@@ -187,14 +200,19 @@ class ResourceAlgo(UtilMixIn):
             instance_count = ei['instances']
             service_mem = 0
 
+            if instance_count <= 0:
+                self._errorExit(
+                    'Failed to allocate instances for "{0}"'.format(en))
+
             for i in range(0, instance_count):
                 ic = {}
-                instance_mem = ei['memAlloc'] / instance_count
-                ic['maxMemory'] = instance_mem
+                instance_mem = int(math.floor(ei['memAlloc'] / instance_count))
+                ic['maxMemory'] = instance_mem * granularity
                 service_mem += instance_mem
                 instances.append(ic)
 
-            instances[0]['maxMemory'] += (ei['memAlloc'] - service_mem)
+            instances[0]['maxMemory'] += (ei['memAlloc'] -
+                                          service_mem) * granularity
 
             for ic in instances:
                 ic['maxClients'] = (
@@ -204,6 +222,7 @@ class ResourceAlgo(UtilMixIn):
 
     def assignSockets(self, config):
         port = 1025
+        ports = set()
         deploy = config.setdefault('deploy', {})
         autoServices = deploy.setdefault('autoServices', {})
         entryPoints = config.get('entryPoints', {})
@@ -213,7 +232,7 @@ class ResourceAlgo(UtilMixIn):
         run_dir = config.get('env', {}).get('runDir', run_dir)
 
         for (en, instances) in autoServices.items():
-            ei = entryPoints[en]
+            ei = entryPoints[en].get('tune', {})
 
             for i in range(0, len(instances)):
                 ic = instances[i]
@@ -228,5 +247,15 @@ class ResourceAlgo(UtilMixIn):
                         run_dir, '{0}.{1}.sock'.format(en, i))
                 else:
                     ic['socketAddr'] = deploy.get('listenAddress', '0.0.0.0')
-                    ic['socketPort'] = ei.get('socketPort', port)
-                    port += 1
+
+                    if 'socketPort' in ei:
+                        sock_port = ei['socketPort'] + i
+                    else:
+                        sock_port = port
+                        port += 1
+                    
+                    if sock_port in ports:
+                        self._errorExit('Port "{0}" is already in use'.format(sock_port))
+                    
+                    ic['socketPort'] = sock_port
+                    ports.add(sock_port)
