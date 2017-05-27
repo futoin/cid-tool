@@ -145,12 +145,6 @@ resources due to lack of trusted binary builds.
         #---
         if php_ver == self.SYSTEM_VER:
             super(phpTool, self).initEnv(env)
-            if not self._have_tool:
-                return
-
-            php_fpm = glob.glob('/usr/sbin/php*-fpm*')
-            if php_fpm:
-                env.setdefault('phpfpmBin', php_fpm[0])
             return
         elif phpBinOnly:
             if self._isDebian() or self._isUbuntu():
@@ -168,11 +162,6 @@ resources due to lack of trusted binary builds.
 
                     self._updateEnvFromOutput(env_to_set)
                     super(phpTool, self).initEnv(env)
-
-                    php_fpm = self._which('php-fpm')
-
-                    if php_fpm:
-                        env.setdefault('phpfpmBin', php_fpm)
                 else:
                     pass
 
@@ -209,8 +198,6 @@ resources due to lack of trusted binary builds.
             self._have_tool = True
             self._addBinPath(php_bin_dir, True)
             env.setdefault('phpBin', php_bin)
-            env.setdefault('phpfpmBin', os.path.join(
-                php_dir, 'sbin', 'php-fpm'))
 
     def _buildDeps(self, env):
         # APT

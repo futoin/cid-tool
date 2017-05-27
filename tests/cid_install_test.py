@@ -107,6 +107,13 @@ mixed_tools = {
             'scl': ['5.6', '7.0'],
         },
     },
+    'phpfpm' : {
+        'managed': False,
+        'binver': {
+            'deb': ['5.6', '7.0', '7.1'],
+            'scl': ['5.6', '7.0'],
+        },
+    },
     'ruby' : {
         'managed': False,
         'binver': {

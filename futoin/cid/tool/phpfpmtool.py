@@ -1,4 +1,7 @@
 
+import os
+import glob
+
 from ..runtimetool import RuntimeTool
 
 
@@ -23,3 +26,33 @@ It means any PHP file in project can be executed with all consequences.
             'scalable': True,
             'maxInstances': 2,
         }
+
+    def initEnv(self, env):
+        if env['phpVer'] == self.SYSTEM_VER:
+            pass
+        elif env['phpBinOnly']:
+            pass
+        else:
+            pass
+
+        php_bin = env['phpBin']
+        bin_name = os.path.basename(php_bin)
+
+        phpfpm_bin = self._which(bin_name)
+
+        if phpfpm_bin:
+            env['phpfpmBin'] = phpfpm_bin
+            self._have_tool = True
+            return
+
+        #--
+        phpfpm_bin = os.path.realpath(
+            os.path.join(php_bin, '..', '..', 'sbin',
+                         '{0}-fpm*'.format(bin_name))
+        )
+        phpfpm_bin = glob.glob(phpfpm_bin)
+
+        if phpfpm_bin:
+            env['phpfpmBin'] = phpfpm_bin[0]
+            self._have_tool = True
+            return
