@@ -16,6 +16,7 @@ import fnmatch
 import fcntl
 import hashlib
 import signal
+import copy
 from collections import OrderedDict
 
 from .mixins.path import PathMixIn
@@ -68,7 +69,7 @@ def cid_action(f):
 
 class TimeoutException(RuntimeError):
     @classmethod
-    def alarmHandler(cls):
+    def alarmHandler(cls, *args, **kwargs):
         raise TimeoutException('Alarm')
 
 #=============================================================================
@@ -1007,6 +1008,33 @@ class DeployMixIn(object):
         from .details.resourcealgo import ResourceAlgo
         ResourceAlgo().configServices(self._config)
 
+    def _processDeployDir(self):
+        # Get to deploy folder
+        deploy_dir = self._config['deployDir']
+
+        if not deploy_dir:
+            deploy_dir = ospath.realpath('.')
+            self._overrides['deployDir'] = deploy_dir
+            self._initConfig()
+
+        self._info('Using {0} as deploy directory'.format(deploy_dir))
+
+        placeholder = ospath.join(deploy_dir, self.DEPLOY_LOCK_FILE)
+
+        if not ospath.exists(deploy_dir):
+            self._info('Creating deploy directory')
+            os.makedirs(deploy_dir)
+            open(placeholder, 'w').close()
+        elif not ospath.exists(placeholder) and os.listdir(deploy_dir):
+            self._errorExit(
+                "Deployment dir '{0}' is missing safety placeholder {1}."
+                .format(deploy_dir, ospath.basename(placeholder))
+            )
+
+        print(Coloring.infoLabel('Changing to: ') + Coloring.info(deploy_dir),
+              file=sys.stderr)
+        os.chdir(deploy_dir)
+
 
 #=============================================================================
 class ServiceMixIn(object):
@@ -1045,7 +1073,7 @@ class ServiceMixIn(object):
             i = 0
 
             for svctune in auto_services[ep]:
-                r = ei.deepcopy()
+                r = copy.deepcopy(ei)
                 r['name'] = ep
                 r['instance_id'] = i
                 r['tune'].update(svctune)
@@ -1057,6 +1085,28 @@ class ServiceMixIn(object):
                 i += 1
 
         return res
+
+    def _serviceListPrint(self):
+        for svc in self._serviceList():
+            svc_tune = svc['tune']
+
+            if 'socketType' not in svc_tune:
+                print("{0}\t{1}\t{2}\t{3}".format(
+                    svc['name'], svc['instance_id']))
+                return
+
+            socket_type = svc_tune['socketType']
+
+            if socket_type == 'unix':
+                socket_addr = svc_tune['socketPath']
+            else:
+                socket_addr = '{0}:{1}'.format(
+                    svc_tune['socketAddress'],
+                    svc_tune['socketPort']
+                )
+
+            print("\t".join([svc['name'], str(svc['instance_id']),
+                             socket_type, socket_addr]))
 
     def _serviceCommon(self, entry_point, instance_id):
         config = self._config
@@ -1130,25 +1180,34 @@ class ServiceMixIn(object):
 
         self._running = True
         self._reload_services = True
+        self._interruptable = False
 
-        def serviceExitSignal():
+        def serviceExitSignal(*args, **kwargs):
             self._running = False
             signal.signal(signal.SIGTERM, signal.SIG_IGN)
             signal.signal(signal.SIGINT, signal.SIG_IGN)
             signal.signal(signal.SIGHUP, signal.SIG_IGN)
             signal.signal(signal.SIGUSR1, signal.SIG_IGN)
             signal.signal(signal.SIGUSR2, signal.SIG_IGN)
-            raise KeyboardInterrupt('Exit received')
 
-        def serviceReloadSignal():
+            if self._interruptable:
+                raise KeyboardInterrupt('Exit received')
+
+        def serviceReloadSignal(*args, **kwargs):
             self._reload_services = True
-            raise KeyboardInterrupt('Reload received')
+
+            if self._interruptable:
+                raise KeyboardInterrupt('Reload received')
+
+        def childSignal(*args, **kwargs):
+            pass
 
         signal.signal(signal.SIGTERM, serviceExitSignal)
         signal.signal(signal.SIGINT, serviceExitSignal)
         signal.signal(signal.SIGHUP, serviceReloadSignal)
         signal.signal(signal.SIGUSR1, serviceReloadSignal)
         signal.signal(signal.SIGUSR2, serviceReloadSignal)
+        signal.signal(signal.SIGCHLD, childSignal)
 
         # Still, it's not safe to assume processes continue
         # to run in set process group.
@@ -1174,108 +1233,119 @@ class ServiceMixIn(object):
         self._info('Starting master process')
 
         while self._running:
-            try:
-                # Reload services
-                #---
-                if self._reload_services:
-                    self._info('Reloading services')
+            # Reload services
+            #---
+            if self._reload_services:
+                self._info('Reloading services')
 
-                    # Mark shutdown by default
+                # Mark shutdown by default
+                for svc in svc_list:
+                    svc['_remove'] = True
+
+                # Prepare process list
+                for newsvc in self._serviceList():
                     for svc in svc_list:
-                        svc['_remove'] = True
-
-                    # Prepare process list
-                    for newsvc in self._serviceList():
-                        for svc in svc_list:
-                            for (sk, sv) in newsvc.items():
-                                if svc.get(sk, None) != sv:
-                                    break
-                            else:
+                        for (sk, sv) in newsvc.items():
+                            if svc.get(sk, None) != sv:
                                 break
                         else:
-                            svc = svc
-                            svc_list.append(newsvc)
-                            svc['_pid'] = None
-                            svc['_lastExit1'] = self.RESTART_DELAY_THRESHOLD + 1
-                            svc['_lastExit2'] = 0
-
-                            tool = svc['tool']
-                            t = self._tool_impl[tool]
-
-                            if isinstance(t, RuntimeTool):
-                                newsvc['toolImpl'] = t
-                            else:
-                                self._errorExit(
-                                    'Tool "{0}" for "{1}" does not support "service run" command'
-                                    .format(tool, newsvc['name']))
-
-                            self._info('Added "{0}:{1}"'.format(
-                                svc['name'], svc['instance_id']))
-
-                        svc['_remove'] = False
-
-                    if not len(svc_list):
-                        break
-
-                    # Kill removed or changed services
-                    for svc in svc_list:
-                        if svc['_remove']:
-                            pid = svc['_pid']
-
-                            if pid:
-                                self._serviceStop(svc, svc['toolImpl'], pid)
-                                pid_to_svc[pid]['_pid'] = None
-                                del pid_to_svc[pid]
-
-                            self._info('Removed "{0}:{1}" pid "{2}"'.format(
-                                svc['name'], svc['instance_id'], pid))
-
-                    svc_list = filter(lambda v: not v['_remove'], svc_list)
-
-                    # actual reload of services
-                    for pid in pid_to_svc.keys():
-                        svc = pid_to_svc[pid]
-
-                        if svc['tune'].get('reloadable', False):
-                            self._info('Reloading "{0}:{1}" pid "{2}"'.format(
-                                svc['name'], svc['instance_id'], pid))
-                            try:
-                                svc['toolImpl'].onReload(
-                                    self._config, pid, svc['tune'])
-                            except OSError:
-                                pass
-                        else:
-                            self._info('Stopping "{0}:{1}" pid "{2}"'.format(
-                                svc['name'], svc['instance_id'], pid))
-                            self._serviceStop(svc, svc['toolImpl'], pid)
-
-                            del pid_to_svc[pid]
-                            svc['_lastExit1'] = self.RESTART_DELAY_THRESHOLD + 1
-                            svc['_lastExit2'] = 0
-                            svc['_pid'] = None
-
-                    self._reload_services = False
-
-                # create children
-                for svc in svc_list:
-                    pid = svc['_pid']
-                    if pid:
-                        continue
-
-                    pid = os.fork()
-                    delay = 0
-
-                    if (svc['_lastExit1'] - svc['_lastExit2']) < self.RESTART_DELAY_THRESHOLD:
-                        delay = self.RESTART_DELAY
-
-                    if pid:
-                        if delay:
-                            self._warn('Delaying start "{0}:{1}" pid "{2}"'.format(
-                                svc['name'], svc['instance_id'], pid))
-                        else:
-                            self._info('Started "{0}:{1}" pid "{2}"'.format(
-                                svc['name'], svc['instance_id'], pid))
+                            break
                     else:
+                        svc = newsvc
+                        svc_list.append(newsvc)
+                        svc['_pid'] = None
+                        svc['_lastExit1'] = self.RESTART_DELAY_THRESHOLD + 1
+                        svc['_lastExit2'] = 0
+
+                        tool = svc['tool']
+                        t = self._tool_impl[tool]
+
+                        if isinstance(t, RuntimeTool):
+                            newsvc['toolImpl'] = t
+                        else:
+                            self._errorExit(
+                                'Tool "{0}" for "{1}" does not support "service run" command'
+                                .format(tool, newsvc['name']))
+
+                        self._info('Added "{0}:{1}"'.format(
+                            svc['name'], svc['instance_id']))
+
+                    svc['_remove'] = False
+
+                if not len(svc_list):
+                    break
+
+                # Kill removed or changed services
+                for svc in svc_list:
+                    if svc['_remove']:
+                        pid = svc['_pid']
+
+                        if pid:
+                            self._serviceStop(svc, svc['toolImpl'], pid)
+                            pid_to_svc[pid]['_pid'] = None
+                            del pid_to_svc[pid]
+
+                        self._info('Removed "{0}:{1}" pid "{2}"'.format(
+                            svc['name'], svc['instance_id'], pid))
+
+                svc_list = list(filter(lambda v: not v['_remove'], svc_list))
+
+                # actual reload of services
+                for pid in pid_to_svc.keys():
+                    svc = pid_to_svc[pid]
+
+                    if svc['tune'].get('reloadable', False):
+                        self._info('Reloading "{0}:{1}" pid "{2}"'.format(
+                            svc['name'], svc['instance_id'], pid))
+                        try:
+                            svc['toolImpl'].onReload(
+                                self._config, pid, svc['tune'])
+                        except OSError:
+                            pass
+                    else:
+                        self._info('Stopping "{0}:{1}" pid "{2}"'.format(
+                            svc['name'], svc['instance_id'], pid))
+                        self._serviceStop(svc, svc['toolImpl'], pid)
+
+                        del pid_to_svc[pid]
+                        svc['_lastExit1'] = self.RESTART_DELAY_THRESHOLD + 1
+                        svc['_lastExit2'] = 0
+                        svc['_pid'] = None
+
+                self._reload_services = False
+
+            # create children
+            for svc in svc_list:
+                pid = svc['_pid']
+                if pid:
+                    continue
+
+                delay = 0
+
+                if (svc['_lastExit1'] - svc['_lastExit2']) < self.RESTART_DELAY_THRESHOLD:
+                    delay = self.RESTART_DELAY
+
+                pid = os.fork()
+
+                if pid:
+                    svc['_pid'] = pid
+                    pid_to_svc[pid] = svc
+
+                    if delay:
+                        self._warn('Delaying start "{0}:{1}" pid "{2}"'.format(
+                            svc['name'], svc['instance_id'], pid))
+                    else:
+                        self._info('Started "{0}:{1}" pid "{2}"'.format(
+                            svc['name'], svc['instance_id'], pid))
+                else:
+                    try:
+                        signal.signal(signal.SIGTERM, signal.SIG_DFL)
+                        signal.signal(signal.SIGINT, signal.SIG_DFL)
+                        signal.signal(signal.SIGHUP, signal.SIG_DFL)
+                        signal.signal(signal.SIGUSR1, signal.SIG_DFL)
+                        signal.signal(signal.SIGUSR2, signal.SIG_DFL)
+                        signal.signal(signal.SIGCHLD, signal.SIG_DFL)
+
                         sys.stdin.close()
                         sys.stdin = open(os.devnull, 'r')
 
@@ -1284,29 +1354,48 @@ class ServiceMixIn(object):
 
                         svc['toolImpl'].onRun(
                             self._config, svc['file'], [], svc['tune'])
+                    except Exception as e:
+                        self._warn(e)
+                    finally:
+                        sys.stdout.flush()
+                        sys.stderr.flush()
+                        # Should not be reachable here
+                        os._exit(2)
 
-                # Wait for children to exit
+            # Wait for children to exit
+            try:
+                self._interruptable = True
+
+                if self._reload_services:
+                    continue
+
+                if not self._running:
+                    break
+
                 (pid, excode) = os.wait()
-
-                svc = pid_to_svc[pid]
-                del pid_to_svc[pid]
-                svc['_pid'] = None
-                svc['_lastExit2'] = svc['_lastExit1']
-
-                try:
-                    svc['_lastExit1'] = time.monotonic()
-                except:
-                    times = os.times()
-                    svc['_lastExit1'] = times[4]
-
-                self._warn('Exited "{0}:{1}" pid "{2}" exit code "{3}"'.format(
-                    svc['name'], svc['instance_id'], pid, excode))
-
             except KeyboardInterrupt:
-                pass
+                continue
+            finally:
+                self._interruptable = False
+
+            svc = pid_to_svc[pid]
+            del pid_to_svc[pid]
+            svc['_pid'] = None
+            svc['_lastExit2'] = svc['_lastExit1']
+
+            try:
+                svc['_lastExit1'] = time.monotonic()
+            except:
+                times = os.times()
+                svc['_lastExit1'] = times[4]
+
+            self._warn('Exited "{0}:{1}" pid "{2}" exit code "{3}"'.format(
+                svc['name'], svc['instance_id'], pid, excode))
 
         # try terminate children
         #---
+        self._info('Terminating children')
+
         for svc in svc_list:
             pid = svc['_pid']
 
@@ -1322,6 +1411,7 @@ class ServiceMixIn(object):
 
         # try wait children
         #---
+        self._info('Waiting for children')
         signal.signal(signal.SIGALRM, TimeoutException.alarmHandler)
 
         try:
@@ -1341,6 +1431,7 @@ class ServiceMixIn(object):
 
         # final kill
         #---
+        self._info('Killing children')
         for pid in pid_to_svc:
             try:
                 svc = pid_to_svc[pid]
@@ -1652,31 +1743,7 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
 
     @cid_action
     def deploy(self, mode, p1=None, p2=None):
-        # Get to deploy folder
-        deploy_dir = self._config['deployDir']
-
-        if not deploy_dir:
-            deploy_dir = ospath.realpath('.')
-            self._overrides['deployDir'] = deploy_dir
-            self._initConfig()
-
-        self._info('Using {0} as deploy directory'.format(deploy_dir))
-
-        placeholder = ospath.join(deploy_dir, self.DEPLOY_LOCK_FILE)
-
-        if not ospath.exists(deploy_dir):
-            self._info('Creating deploy directory')
-            os.makedirs(deploy_dir)
-            open(placeholder, 'w').close()
-        elif not ospath.exists(placeholder) and os.listdir(deploy_dir):
-            self._errorExit(
-                "Deployment dir '{0}' is missing safety placeholder {1}."
-                .format(deploy_dir, ospath.basename(placeholder))
-            )
-
-        print(Coloring.infoLabel('Changing to: ') + Coloring.info(deploy_dir),
-              file=sys.stderr)
-        os.chdir(deploy_dir)
+        self._processDeployDir()
 
         self._deployLock()
 
@@ -2179,37 +2246,17 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
         print("\n".join(pool_list))
 
     def service_master(self):
-        self._processWcDir()
+        self._processDeployDir()
         self._serviceAdapt()
         self._serviceMaster()
 
     def service_list(self):
-        self._processWcDir()
+        self._processDeployDir()
         self._serviceAdapt()
-
-        for svc in self._serviceList():
-            svc_tune = svc['tune']
-
-            if 'socketType' not in svc_tune:
-                print("{0}\t{1}\t{2}\t{3}".format(
-                    svc['name'], svc['instance_id']))
-                return
-
-            socket_type = svc_tune['socketType']
-
-            if socket_type == 'unix':
-                socket_addr = svc_tune['socketPath']
-            else:
-                socket_addr = '{0}:{1}'.format(
-                    svc_tune['socketAddress'],
-                    svc_tune['socketPort']
-                )
-
-            print("\t".join(svc['name'], svc['instance_id'],
-                            socket_type, socket_addr))
+        self._serviceListPrint()
 
     def service_exec(self, entry_point, instance_id):
-        self._processWcDir()
+        self._processDeployDir()
 
         config = self._config
         svc = self._serviceCommon(entry_point, instance_id)
@@ -2224,7 +2271,7 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
                 'Tool "{0}" for "{1}" does not support "service exec" command'.format(tool, entry_point))
 
     def service_stop(self, entry_point, instance_id, pid):
-        self._processWcDir()
+        self._processDeployDir()
 
         svc = self._serviceCommon(entry_point, instance_id)
 
@@ -2238,7 +2285,7 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
                 'Tool "{0}" for "{1}" does not support "service stop" command'.format(tool, entry_point))
 
     def service_reload(self, entry_point, instance_id, pid):
-        self._processWcDir()
+        self._processDeployDir()
 
         config = self._config
         svc = self._serviceCommon(entry_point, instance_id)
@@ -2257,18 +2304,17 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
         deploy_dir = tempfile.mkdtemp(prefix='futoin-cid-devserve')
 
         try:
-            os.symlink(
-                ospath.realpath(self._overrides['wcDir']),
-                ospath.join(deploy_dir, 'current')
-            )
+            wc_dir = ospath.realpath(self._overrides['wcDir'])
+            os.symlink(wc_dir, os.path.join(deploy_dir, 'current'))
 
             self._overrides['deployDir'] = os.path.realpath(deploy_dir)
-            os.chdir(deploy_dir)
+            self._config['deployDir'] = self._overrides['deployDir']
+            self._deployLock()
+            self._deployUnlock()
 
-            self._initConfig()
-            config = self._config
-
-            self.service_list()
+            self._processDeployDir()
+            self._serviceAdapt()
+            self._serviceListPrint()
             self._serviceMaster()
         finally:
             self._rmTree(deploy_dir)
