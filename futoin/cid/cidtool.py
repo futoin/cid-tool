@@ -1009,8 +1009,12 @@ class DeployMixIn(object):
         ResourceAlgo().configServices(self._config)
 
     def _processDeployDir(self):
-        # Get to deploy folder
         deploy_dir = self._config['deployDir']
+
+        # make sure wcDir is always set to current
+        wc_dir = ospath.join(deploy_dir, 'current')
+        self._config['wcDir'] = wc_dir
+        self._overrides['wcDir'] = wc_dir
 
         if not deploy_dir:
             deploy_dir = ospath.realpath('.')
@@ -1039,8 +1043,8 @@ class DeployMixIn(object):
 #=============================================================================
 class ServiceMixIn(object):
     MASTER_PID_FILE = '.futoin.master.pid'
-    RESTART_DELAY_THRESHOLD = 10
     RESTART_DELAY = 10
+    RESTART_DELAY_THRESHOLD = RESTART_DELAY * 2
 
     def _serviceAdapt(self):
         if not self._config['adaptDeploy']:
@@ -1090,11 +1094,17 @@ class ServiceMixIn(object):
         for svc in self._serviceList():
             svc_tune = svc['tune']
 
-            if 'socketType' not in svc_tune:
-                print("{0}\t{1}\t{2}\t{3}".format(
-                    svc['name'], svc['instance_id']))
-                return
+            #---
+            internal = svc_tune.get('internal', False)
 
+            if not internal:
+                internal = not bool(svc_tune.get('socketType', False))
+
+            if internal:
+                print("{0}\t{1}".format(svc['name'], svc['instance_id']))
+                continue
+
+            #---
             socket_type = svc_tune['socketType']
 
             if socket_type == 'unix':
@@ -1346,11 +1356,12 @@ class ServiceMixIn(object):
                         signal.signal(signal.SIGUSR2, signal.SIG_DFL)
                         signal.signal(signal.SIGCHLD, signal.SIG_DFL)
 
-                        sys.stdin.close()
-                        sys.stdin = open(os.devnull, 'r')
+                        os.dup2(os.open(os.devnull, os.O_RDONLY), 0)
 
                         if delay:
                             time.sleep(delay)
+
+                        os.chdir(self._config['wcDir'])
 
                         svc['toolImpl'].onRun(
                             self._config, svc['file'], [], svc['tune'])
@@ -1806,8 +1817,7 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
                 pid = os.fork()
 
                 if not pid:
-                    sys.stdin.close()
-                    sys.stdin = open(os.devnull, 'r')
+                    os.dup2(os.open(os.devnull, os.O_RDONLY), 0)
                     self.run(cmd, None)
 
             i = len(entry_points)

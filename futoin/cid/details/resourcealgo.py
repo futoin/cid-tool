@@ -237,10 +237,18 @@ class ResourceAlgo(UtilMixIn):
         for (en, instances) in autoServices.items():
             ei = entryPoints[en].get('tune', {})
 
+            if 'socketType' in ei and 'socketTypes' not in ei:
+                self._errorExit(
+                    'Entry point "{0}" sets socketType without socketTypes'.format(en))
+
             for i in range(0, len(instances)):
                 ic = instances[i]
 
-                socket_types = ei.get('socketTypes', ['unix'])
+                socket_types = ei.get('socketTypes', [])
+
+                if not socket_types:
+                    continue
+
                 sock_type = ei.get('socketType', socket_types[0])
 
                 ic['socketType'] = sock_type

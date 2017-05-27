@@ -18,7 +18,8 @@ class RuntimeTool(SubTool):
 
     def tuneDefaults(self):
         return {
-            'socketType': 'unix',
+            'minMemory': '1M',
+            'connMemory': '1M',
             'scalable': False,
             'reloadable': False,
             'exitTimeoutMS': self.DEFAULT_EXIT_TIMEOUT,

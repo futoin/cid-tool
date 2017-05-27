@@ -1,6 +1,9 @@
 
 import os
 import sys
+import time
+import signal
+import stat
 
 from .cid_utbase import cid_UTBase
 from futoin.cid.details.resourcealgo import ResourceAlgo
@@ -141,6 +144,7 @@ class cid_deploy_Test( cid_UTBase ) :
                         'connMemory' : '32K',
                         'memWeight' : 50,
                         'multiCore' : False,
+                        'socketTypes' : ['unix'],
                     },
                 },
                 'scalableMulti': {
@@ -149,6 +153,7 @@ class cid_deploy_Test( cid_UTBase ) :
                         'connMemory' : '32M',
                         'memWeight' : 300,
                         'multiCore' : True,
+                        'socketTypes' : ['unix', 'tcp'],
                         'socketType' : 'tcp',
                         'socketPort' : 8080,
                     },
@@ -159,6 +164,7 @@ class cid_deploy_Test( cid_UTBase ) :
                         'maxTotalMemory': '4G',
                         'connMemory' : '16K',
                         'scalable' : False,
+                        'socketTypes' : ['unix', 'tcp', 'tcp6'],
                         'socketType' : 'tcp',
                     },
                 },
@@ -204,4 +210,138 @@ class cid_deploy_Test( cid_UTBase ) :
         self.assertAlmostEqual(int(base * 300 / 350 + 3*1024) * mb, service_mem['scalableMulti'], delta=mb)
         self.assertEqual(4 * 1024 * mb, service_mem['nonScalable'])
 
+    def test_04_devserve(self):
+        os.mkdir('devserve')
+        os.chdir('devserve')
         
+        self._writeFile('longrun.sh', "#!/bin/sh\necho -n 1 >>longrun.txt;sleep 60\n")
+        os.chmod('longrun.sh', stat.S_IRWXU)
+        self._writeFile('shortrun.sh', "#!/bin/sh\necho -n 1 >>shortrun.txt;sleep 1\n")
+        os.chmod('shortrun.sh', stat.S_IRWXU)
+        
+        self._writeJSON('futoin.json', {
+            'entryPoints' : {
+                'longrun' : {
+                    'tool' : 'exe',
+                    'file' : 'longrun.sh'
+                },
+                'shortrun' : {
+                    'tool' : 'exe',
+                    'file' : 'shortrun.sh'
+                },
+                'failing' : {
+                    'tool' : 'exe',
+                    'file' : 'missing.sh'
+                },
+            },
+        })
+                
+        pid = os.fork()
+        
+        if not pid:
+            os.dup2(os.open(os.devnull, os.O_RDONLY), 0)
+            os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
+            os.dup2(os.open(os.devnull, os.O_WRONLY), 2)
+            os.execv(self.CIDTEST_BIN, [self.CIDTEST_BIN, 'devserve'])
+            
+        time.sleep(15)
+        os.kill(pid, signal.SIGTERM)
+        try: os.waitpid(pid, 0)
+        except OSError: pass
+    
+        self.assertEqual(1, len(self._readFile('longrun.txt')))
+        # 1,2,delay,3,delay
+        self.assertEqual(3, len(self._readFile('shortrun.txt')))
+
+        
+    def test_05_multiapp(self):
+        os.mkdir('multiapp')
+        os.chdir('multiapp')
+        
+        os.mkdir('webroot')
+        
+        self._writeJSON('futoin.json', {
+            'entryPoints' : {
+                'phpapp' : {
+                    'tool' : 'phpfpm',
+                    'file' : 'app.php',
+                    'tune' : {
+                        'memoryWeight' : 70,
+                    },
+                },
+                #'jsapp' : {
+                    #'tool' : 'node',
+                    #'file' : 'app.js',
+                    #'tune' : {
+                        #'socketType' : 'tcp',
+                        #'memoryWeight' : 30,
+                    #},
+                #},
+                #'rubyapp' : {
+                    #'tool' : 'rack',
+                #},
+                #'pythonapp' : {
+                    #'tool' : 'uwsgi',
+                #},
+                #'web' : {
+                    #'tool' : 'nginx',
+                    #'tune' : {
+                        #'maxMemory' : '32M',
+                    #},
+                #}
+            },
+            'webcfg' : {
+                'root' : 'webroot',
+                'main' : 'phpapp',
+                'mounts' : {
+                    '/jsapp/' : 'jsapp',
+                    '/rubyapp/' : 'rubyapp',
+                    '/pythonapp/' : 'pythonapp',
+                }
+            },
+        })
+        
+        self._writeFile('app.php', """<?php
+echo "PHP\\n";
+""")
+        self._writeFile('app.js', """
+var http = require('http');
+
+var server = http.createServer(function (request, response) {
+  response.writeHead(200, {"Content-Type": "text/plain"});
+  response.end("Node.js\\n");
+});
+
+server.listen(process.env.PORT || process.env.HTTP_PORT);
+""")
+        self._writeFile('config.ru', """
+class RubyApp
+  def call(env)
+    return [
+      200,
+      {"Content-Type" => "text/plain"},
+      ["Ruby\\n"]
+    ]
+  end
+end
+
+run RubyApp.new()                        
+""")
+        
+        self._writeFile('app.py', """
+def application(env, start_response):
+    start_response('200 OK', [('Content-Type','text/html')])
+    return [b"Python\n"]
+""")
+        pid = os.fork()
+        
+        if not pid:
+            os.dup2(os.open(os.devnull, os.O_RDONLY), 0)
+            #os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
+            #os.dup2(os.open(os.devnull, os.O_WRONLY), 2)
+            os.execv(self.CIDTEST_BIN, [self.CIDTEST_BIN, 'devserve'])
+            
+        time.sleep(3)
+        os.kill(pid, signal.SIGTERM)
+        try: os.waitpid(pid, 0)
+        except OSError: pass

@@ -18,6 +18,7 @@ else :
     CIDTEST_BIN = os.path.dirname( __file__ ) + '/../bin/cid'
 
 class cid_UTBase ( unittest.TestCase ) :
+    CIDTEST_BIN = CIDTEST_BIN
     TEST_DIR = 'invalid'
     TEST_RUN_DIR = os.environ.get('CIDTEST_RUN_DIR', os.path.realpath(
         os.path.join(os.path.dirname(__file__), '..', 'testrun')
