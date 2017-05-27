@@ -182,6 +182,9 @@ class ResourceAlgo(UtilMixIn):
             if ei['multiCore']:
                 if (not ei['reloadable']) and ei['memAlloc'] >= (reasonableMinMemory * 2):
                     ei['instances'] = 2
+                    ei['maxCpuCount'] = int(math.ceil(maxcpu / 2.0))
+                else:
+                    ei['maxCpuCount'] = maxcpu
             else:
                 possible_instances = int(math.floor(
                     ei['memAlloc'] / reasonableMinMemory))
@@ -253,9 +256,10 @@ class ResourceAlgo(UtilMixIn):
                     else:
                         sock_port = port
                         port += 1
-                    
+
                     if sock_port in ports:
-                        self._errorExit('Port "{0}" is already in use'.format(sock_port))
-                    
+                        self._errorExit(
+                            'Port "{0}" is already in use'.format(sock_port))
+
                     ic['socketPort'] = sock_port
                     ports.add(sock_port)
