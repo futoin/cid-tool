@@ -22,21 +22,54 @@ It means any PHP file in project can be executed with all consequences.
             'minMemory': '1M',
             'connMemory': '8M',
             'debugConnOverhead': '24M',
+            'socketTypes': ['unix', 'tcp'],
             'socketType': 'unix',
             'scalable': True,
             'maxInstances': 2,
         }
 
+    def _installTool(self, env):
+        php_ver = env['phpVer']
+
+        if php_ver == self.SYSTEM_VER:
+            self._systemDeps()
+            return
+
+        if env['phpBinOnly']:
+            self._installBinaries(env)
+            return
+
+    def _installBinaries(self, env):
+        ver = env['phpVer']
+
+        if self._isDebian() or self._isUbuntu():
+            self._requireDeb('php{0}-fpm'.format(ver))
+
+        elif self._isSCLSupported():
+            pass
+
+        else:
+            self._systemDeps()
+
+    def _systemDeps(self):
+        self._requireDeb(['php.*-fpm'])
+        self._requireZypper(['php*-fpm'])
+        self._requireYum(['php-fpm'])
+
     def initEnv(self, env):
+        php_bin = env['phpBin']
+
         if env['phpVer'] == self.SYSTEM_VER:
             pass
         elif env['phpBinOnly']:
-            pass
-        else:
-            pass
+            if self._isDebian() or self._isUbuntu():
+                bin_name = 'php-fpm' + env['phpVer']
 
-        php_bin = env['phpBin']
-        bin_name = os.path.basename(php_bin)
+            elif self._isSCLSupported():
+                bin_name = 'php-fpm'
+
+        else:
+            bin_name = '{0}-fpm'.format(os.path.basename(php_bin))
 
         phpfpm_bin = self._which(bin_name)
 
@@ -48,7 +81,7 @@ It means any PHP file in project can be executed with all consequences.
         #--
         phpfpm_bin = os.path.realpath(
             os.path.join(php_bin, '..', '..', 'sbin',
-                         '{0}-fpm*'.format(bin_name))
+                         '{0}*'.format(bin_name))
         )
         phpfpm_bin = glob.glob(phpfpm_bin)
 
