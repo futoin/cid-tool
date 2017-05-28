@@ -128,9 +128,9 @@ Docker EE or other installation methods are out of scope for now.
             sudo = self._which('sudo')
             self._callInteractive([sudo, bin] + args)
 
-    def onRun(self, config, file, args, tune):
+    def onRun(self, config, svc, args):
         env = config['env']
-        cmd = [env['dockerBin'], 'run', file]
+        cmd = [env['dockerBin'], 'run', svc['file']]
 
         if self._haveGroup('docker'):
             self._callExternal(cmd)

@@ -98,6 +98,31 @@ class UtilMixIn(object):
         with open(file_name, 'wb') as content_file:
             content_file.write(content)
 
+    def _writeIni(self, file_name, content):
+        str_content = []
+
+        for (sn, sv) in content.items():
+            str_content.append('[{0}]'.format(sn))
+
+            for (cn, cv) in sv.items():
+                if isinstance(cv, list):
+                    for cvi in cv:
+                        str_content.append('{0} = {1}'.format(cn, cvi))
+                else:
+                    str_content.append('{0} = {1}'.format(cn, cv))
+
+            str_content.append('')
+
+        str_content = "\n".join(str_content)
+
+        try:
+            str_content = str_content.encode(encoding='UTF-8')
+        except:
+            pass
+
+        with open(file_name, 'wb') as content_file:
+            content_file.write(str_content)
+
     #---
     def _isExternalToolsSetup(self, env):
         return env['externalSetup'] != False
@@ -194,6 +219,19 @@ class UtilMixIn(object):
             raise ValueError('Memory must be positive')
 
         return b * m
+
+    def _toMemory(self, val):
+        res = None
+        old_v = 0
+
+        for (k, v) in self.__memory_mult_table.items():
+            if val % v:
+                continue
+            elif v > old_v:
+                res = '{0}{1}'.format(int(val / v), k)
+                old_v = v
+
+        return res
 
     #---
     def _versionSort(self, verioned_list):

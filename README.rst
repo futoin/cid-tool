@@ -299,9 +299,14 @@ Please see details in the FTN16 spec: ::
         
     cid deploy ...
         Common arguments for deploy family of commands:
-        [--deployDir=<deploy_dir>] - target folder, CWD by default
+        [--deployDir=<deploy_dir>] - target folder, CWD by default.
+        [--runtimeDir=<runtime_dir>] - target runtime data folder,
+          <deploy_dir>/.runtime by default.
         [--limit-memory=<mem_limit>] - memory limit with B, K, M or G postfix.
         [--limit-cpus=<cpu_count>] - max number of CPU cores to use.
+        [--listen-addr=<address>] - address to use for IP services
+        [--user=<user>] - user name to run services.
+        [--group=<group>] - user name to run services.
         
     cid deploy setup
         Prepare directory for deployment. Allows adjusting futoin.json
@@ -432,8 +437,7 @@ Please see details in the FTN16 spec: ::
         List currently available RMS pools.
         
         
-    cid devserve [--wcDir=<wc_dir>]
-        [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]
+    cid devserve [--wcDir=<wc_dir>] [*generic deploy options*]
         Create temporary deployment directory and use working directory as "current".
         Re-balance services.
         Then act like "cid service list" and "cid service master".
@@ -443,7 +447,7 @@ Please see details in the FTN16 spec: ::
         Service execution helpers.
 
     cid service master [--deployDir=<deploy_dir>]
-        [--adapt [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]]
+        [--adapt [*generic deploy options*]]
         Re-balance services, if --adapt.
         Run all entry points as children.
         Restarts services on exit.
@@ -452,7 +456,7 @@ Please see details in the FTN16 spec: ::
         Supports SIGHUP for reload of service list & the services themselves.
     
     cid service list [--deployDir=<deploy_dir>]
-        [--adapt [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]]
+        [--adapt [*generic deploy options*]]
         Re-balance services, if --adapt.
         List services in the following format:
         <entry point> <TAB> <instance ID> <TAB> <socket type> <TAB> <socket address>

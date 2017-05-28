@@ -70,8 +70,8 @@ through CID, but you can install source releases through
             self._updateEnvFromOutput(env_to_set)
             super(goTool, self).initEnv(env)
 
-    def onRun(self, config, file, args, tune):
+    def onRun(self, config, svc, args):
         env = config['env']
         self._callInteractive([
-            env[self._name + 'Bin'], 'run', file
+            env[self._name + 'Bin'], 'run', svc['file']
         ] + args)

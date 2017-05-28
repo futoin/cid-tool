@@ -7,8 +7,9 @@ import stat
 
 from .cid_utbase import cid_UTBase
 from futoin.cid.details.resourcealgo import ResourceAlgo
+from futoin.cid.mixins.util import UtilMixIn
 
-class cid_deploy_Test( cid_UTBase ) :
+class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
     __test__ = True
     
     TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'deploycmd')
@@ -23,61 +24,146 @@ class cid_deploy_Test( cid_UTBase ) :
     def test_01_setup(self):
         cfg_file = os.path.join('setupdir', 'futoin.json')
         
+        runtime_dir = os.path.join(self.TEST_DIR, 'setupdir', '.runtime')
+        
         self._call_cid(['deploy', 'setup', '--deployDir=setupdir'])
         cfg = self._readJSON(cfg_file)
-        self.assertEquals(cfg['deploy'], {
+        self.assertEquals(dict(cfg['deploy']), {
+            'runtimeDir' : runtime_dir,
             'autoServices': {},
+            'user' : 'vagrant',
+            'group' : 'vagrant',
         })
+        
+        self._call_cid(['deploy', 'setup', '--deployDir=setupdir', '--runtimeDir=/tmp/someother'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals(dict(cfg['deploy']), {
+            'autoServices': {},
+            'runtimeDir' : '/tmp/someother',
+            'user' : 'vagrant',
+            'group' : 'vagrant',
+        })
+
+        self._call_cid(['deploy', 'setup', '--deployDir=setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals(dict(cfg['deploy']), {
+            'autoServices': {},
+            'runtimeDir' : '/tmp/someother',
+            'user' : 'vagrant',
+            'group' : 'vagrant',
+        })
+
+        self._call_cid(['deploy', 'setup', '--deployDir=setupdir', '--runtimeDir=auto'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals(dict(cfg['deploy']), {
+            'runtimeDir' : runtime_dir,
+            'autoServices': {},
+            'user' : 'vagrant',
+            'group' : 'vagrant',
+        })
+        
         
         self._call_cid(['deploy', 'setup',
                         '--deployDir', 'setupdir',
                         '--listen-addr=1.2.3.4'])
         cfg = self._readJSON(cfg_file)
-        self.assertEquals(cfg['deploy'], {
+        self.assertEquals(dict(cfg['deploy']), {
+            'runtimeDir' : runtime_dir,
             'autoServices': {},
             'listenAddress': '1.2.3.4',
+            'user' : 'vagrant',
+            'group' : 'vagrant',
         })
         
         self._call_cid(['deploy', 'setup',
                         '--deployDir', 'setupdir',
                         '--limit-cpus=3'])
         cfg = self._readJSON(cfg_file)
-        self.assertEquals(cfg['deploy'], {
+        self.assertEquals(dict(cfg['deploy']), {
+            'runtimeDir' : runtime_dir,
             'autoServices': {},
             'maxCpuCount': 3,
             'listenAddress': '1.2.3.4',
+            'user' : 'vagrant',
+            'group' : 'vagrant',
         })
         
         self._call_cid(['deploy', 'setup',
                         '--deployDir', 'setupdir',
                         '--limit-memory=18M'])
         cfg = self._readJSON(cfg_file)
-        self.assertEquals(cfg['deploy'], {
+        self.assertEquals(dict(cfg['deploy']), {
+            'runtimeDir' : runtime_dir,
             'autoServices': {},
             'maxTotalMemory' : '18M',
             'maxCpuCount': 3,
             'listenAddress': '1.2.3.4',
+            'user' : 'vagrant',
+            'group' : 'vagrant',
         })
 
         self._call_cid(['deploy', 'setup',
                         '--deployDir', 'setupdir',
                         '--limit-memory=auto'])
         cfg = self._readJSON(cfg_file)
-        self.assertEquals(cfg['deploy'], {
+        self.assertEquals(dict(cfg['deploy']), {
+            'runtimeDir' : runtime_dir,
             'autoServices': {},
             'maxCpuCount': 3,
             'listenAddress': '1.2.3.4',
+            'user' : 'vagrant',
+            'group' : 'vagrant',
         })
 
         self._call_cid(['deploy', 'setup',
                         '--deployDir', 'setupdir',
                         '--limit-cpus=auto'])
         cfg = self._readJSON(cfg_file)
-        self.assertEquals(cfg['deploy'], {
+        self.assertEquals(dict(cfg['deploy']), {
+            'runtimeDir' : runtime_dir,
             'autoServices': {},
             'listenAddress': '1.2.3.4',
+            'user' : 'vagrant',
+            'group' : 'vagrant',
         })
         
+        self._call_cid(['deploy', 'setup',
+                        '--deployDir', 'setupdir',
+                        '--user=someuser',
+                        '--group=somegroup'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals(dict(cfg['deploy']), {
+            'runtimeDir' : runtime_dir,
+            'autoServices': {},
+            'listenAddress': '1.2.3.4',
+            'user' : 'someuser',
+            'group' : 'somegroup',
+        })
+        
+        self._call_cid(['deploy', 'setup',
+                        '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals(dict(cfg['deploy']), {
+            'runtimeDir' : runtime_dir,
+            'autoServices': {},
+            'listenAddress': '1.2.3.4',
+            'user' : 'someuser',
+            'group' : 'somegroup',
+        })
+        
+        self._call_cid(['deploy', 'setup',
+                        '--deployDir', 'setupdir',
+                        '--user=auto',
+                        '--group=auto'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals(dict(cfg['deploy']), {
+            'runtimeDir' : runtime_dir,
+            'autoServices': {},
+            'listenAddress': '1.2.3.4',
+            'user' : 'vagrant',
+            'group' : 'vagrant',
+        })
+                
     def test_02_memdetect_system(self):
         sysmem = int(self._readFile('/proc/meminfo').split()[1])*1024
         ra = ResourceAlgo()
@@ -186,14 +272,16 @@ class cid_deploy_Test( cid_UTBase ) :
         for (sn, sl) in autoServices.items():
             service_mem[sn] = 0
             for s in sl:
-                total_mem += s['maxMemory']
-                service_mem[sn] += s['maxMemory']
+                mem = self._parseMemory(s['maxMemory'])
+                self._parseMemory(s['connMemory'])
+                total_mem += mem
+                service_mem[sn] += mem
                 
                 if sn == 'scalableMono':
                     self.assertEqual('unix', s['socketType'])
                 else:
                     self.assertEqual('tcp', s['socketType'])
-                    self.assertEqual('127.1.2.3', s['socketAddr'])
+                    self.assertEqual('127.1.2.3', s['socketAddress'])
             
         self.assertGreaterEqual(63*1024*1024*1024, total_mem)
         self.assertLessEqual(63*1024*1024*1024 - ra.pageSize(), total_mem)

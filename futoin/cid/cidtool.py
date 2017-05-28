@@ -414,7 +414,14 @@ class ConfigMixIn(object):
             del config['_deploy']
 
             for (dk, dv) in _deploy.items():
-                if dv is not None:
+                if dv is None:
+                    pass
+                elif dv == 'auto':
+                    try:
+                        del deploy[dk]
+                    except KeyError:
+                        pass
+                else:
                     deploy[dk] = dv
 
         self._sanitizeDeployConfig(config, errors)
@@ -508,18 +515,13 @@ class ConfigMixIn(object):
         if 'maxTotalMemory' in deploy:
             maxTotalMemory = deploy['maxTotalMemory']
 
-            if maxTotalMemory == 'auto':
-                del deploy['maxTotalMemory']
-            else:
-                self._sanitizeMemory('deploy/maxTotalMemory',
-                                     maxTotalMemory, errors)
+            self._sanitizeMemory('deploy/maxTotalMemory',
+                                 maxTotalMemory, errors)
 
         if 'maxCpuCount' in deploy:
             val = deploy['maxCpuCount']
 
-            if val == 'auto':
-                del deploy['maxCpuCount']
-            elif not isinstance(val, int) or val <= 0:
+            if not isinstance(val, int) or val <= 0:
                 errors.append(
                     '"deploy/maxCpuCount" must be a positive integer')
 
@@ -533,7 +535,7 @@ class ConfigMixIn(object):
                 .format(key))
 
     def _initEnv(self, env):
-        env.setdefault('type', 'dev')
+        env.setdefault('type', 'prod')
         env.setdefault('vars', {})
         env.setdefault('plugins', {})
         env.setdefault('pluginPacks', [])
@@ -978,6 +980,7 @@ class DeployMixIn(object):
         self._requireDeployLock()
 
         self._rebalanceServices()
+        self._configServices()
 
         config = self._config
         orig_config = self._deploy_config
@@ -989,8 +992,8 @@ class DeployMixIn(object):
             except KeyError:
                 pass
 
-        deploy = config.get('deploy', {}).copy()
-        new_config['deploy'] = deploy
+        new_config['deploy'] = config.get('deploy', {})
+        new_config['env'] = orig_config.get('env', {})
 
         self._writeJSONConfig(self._FUTOIN_JSON, new_config)
 
@@ -1007,6 +1010,42 @@ class DeployMixIn(object):
     def _rebalanceServices(self):
         from .details.resourcealgo import ResourceAlgo
         ResourceAlgo().configServices(self._config)
+
+    def _configServices(self):
+        self._requireDeployLock()
+
+        config = self._config
+        service_list = self._configServiceList(config)
+
+        if not service_list:
+            return
+
+        deploy = config['deploy']
+        runtimeDir = deploy['runtimeDir']
+
+        # DO NOT use realpath as it may point to "old current"
+        config['wcDir'] = ospath.join(config['deployDir'], 'current')
+
+        try:
+            os.mkdir(runtimeDir)
+        except OSError:
+            if not ospath.exists(runtimeDir):
+                raise
+
+        auto_services = config['deploy']['autoServices']
+
+        for svc in service_list:
+            tool = svc['tool']
+            t = self._tool_impl[tool]
+
+            if isinstance(t, RuntimeTool):
+                cfg_svc = auto_services[svc['name']][svc['instanceId']]
+                cfg_svc_tune = cfg_svc.setdefault('tune', {})
+                t.onPreConfigure(config, runtimeDir, svc, cfg_svc_tune)
+            else:
+                self._errorExit(
+                    'Tool "{0}" for "{1}" is not of RuntimeTool type'
+                    .format(tool, svc['name']))
 
     def _processDeployDir(self):
         deploy_dir = self._config['deployDir']
@@ -1039,6 +1078,16 @@ class DeployMixIn(object):
               file=sys.stderr)
         os.chdir(deploy_dir)
 
+        deploy = self._config['deploy']
+
+        if 'user' not in deploy:
+            import pwd
+            deploy['user'] = pwd.getpwuid(os.geteuid())[0]
+
+        if 'group' not in deploy:
+            import grp
+            deploy['group'] = grp.getgrgid(os.getegid())[0]
+
 
 #=============================================================================
 class ServiceMixIn(object):
@@ -1063,8 +1112,9 @@ class ServiceMixIn(object):
         finally:
             self._deployUnlock()
 
-        config = self._config
+        return self._configServiceList(self._config)
 
+    def _configServiceList(self, config):
         entry_points = config.get('entryPoints', {})
         auto_services = config.get('deploy', {}).get('autoServices', {})
         res = []
@@ -1079,8 +1129,8 @@ class ServiceMixIn(object):
             for svctune in auto_services[ep]:
                 r = copy.deepcopy(ei)
                 r['name'] = ep
-                r['instance_id'] = i
-                r['tune'].update(svctune)
+                r['instanceId'] = i
+                r.setdefault('tune', {}).update(svctune)
 
                 if r['tune'].get('socketAddress', None) == '0.0.0.0':
                     r['tune']['socketAddress'] = '127.0.0.1'
@@ -1101,7 +1151,7 @@ class ServiceMixIn(object):
                 internal = not bool(svc_tune.get('socketType', False))
 
             if internal:
-                print("{0}\t{1}".format(svc['name'], svc['instance_id']))
+                print("{0}\t{1}".format(svc['name'], svc['instanceId']))
                 continue
 
             #---
@@ -1115,7 +1165,7 @@ class ServiceMixIn(object):
                     svc_tune['socketPort']
                 )
 
-            print("\t".join([svc['name'], str(svc['instance_id']),
+            print("\t".join([svc['name'], str(svc['instanceId']),
                              socket_type, socket_addr]))
 
     def _serviceCommon(self, entry_point, instance_id):
@@ -1274,11 +1324,11 @@ class ServiceMixIn(object):
                             newsvc['toolImpl'] = t
                         else:
                             self._errorExit(
-                                'Tool "{0}" for "{1}" does not support "service run" command'
+                                'Tool "{0}" for "{1}" is not of RuntimeTool type'
                                 .format(tool, newsvc['name']))
 
                         self._info('Added "{0}:{1}"'.format(
-                            svc['name'], svc['instance_id']))
+                            svc['name'], svc['instanceId']))
 
                     svc['_remove'] = False
 
@@ -1296,7 +1346,7 @@ class ServiceMixIn(object):
                             del pid_to_svc[pid]
 
                         self._info('Removed "{0}:{1}" pid "{2}"'.format(
-                            svc['name'], svc['instance_id'], pid))
+                            svc['name'], svc['instanceId'], pid))
 
                 svc_list = list(filter(lambda v: not v['_remove'], svc_list))
 
@@ -1306,7 +1356,7 @@ class ServiceMixIn(object):
 
                     if svc['tune'].get('reloadable', False):
                         self._info('Reloading "{0}:{1}" pid "{2}"'.format(
-                            svc['name'], svc['instance_id'], pid))
+                            svc['name'], svc['instanceId'], pid))
                         try:
                             svc['toolImpl'].onReload(
                                 self._config, pid, svc['tune'])
@@ -1314,7 +1364,7 @@ class ServiceMixIn(object):
                             pass
                     else:
                         self._info('Stopping "{0}:{1}" pid "{2}"'.format(
-                            svc['name'], svc['instance_id'], pid))
+                            svc['name'], svc['instanceId'], pid))
                         self._serviceStop(svc, svc['toolImpl'], pid)
 
                         del pid_to_svc[pid]
@@ -1343,10 +1393,10 @@ class ServiceMixIn(object):
 
                     if delay:
                         self._warn('Delaying start "{0}:{1}" pid "{2}"'.format(
-                            svc['name'], svc['instance_id'], pid))
+                            svc['name'], svc['instanceId'], pid))
                     else:
                         self._info('Started "{0}:{1}" pid "{2}"'.format(
-                            svc['name'], svc['instance_id'], pid))
+                            svc['name'], svc['instanceId'], pid))
                 else:
                     try:
                         signal.signal(signal.SIGTERM, signal.SIG_DFL)
@@ -1363,8 +1413,7 @@ class ServiceMixIn(object):
 
                         os.chdir(self._config['wcDir'])
 
-                        svc['toolImpl'].onRun(
-                            self._config, svc['file'], [], svc['tune'])
+                        svc['toolImpl'].onRun(self._config, svc, [])
                     except Exception as e:
                         self._warn(e)
                     finally:
@@ -1401,7 +1450,7 @@ class ServiceMixIn(object):
                 svc['_lastExit1'] = times[4]
 
             self._warn('Exited "{0}:{1}" pid "{2}" exit code "{3}"'.format(
-                svc['name'], svc['instance_id'], pid, excode))
+                svc['name'], svc['instanceId'], pid, excode))
 
         # try terminate children
         #---
@@ -1413,12 +1462,12 @@ class ServiceMixIn(object):
             if pid:
                 try:
                     self._info('Terminating "{0}:{1}" pid "{2}"'.format(
-                        svc['name'], svc['instance_id'], pid))
+                        svc['name'], svc['instanceId'], pid))
                     os.kill(pid, signal.SIGTERM)
                 except OSError:
                     del pid_to_svc[pid]
                     self._info('Exited "{0}:{1}" pid "{2}"'.format(
-                        svc['name'], svc['instance_id'], pid))
+                        svc['name'], svc['instanceId'], pid))
 
         # try wait children
         #---
@@ -1434,7 +1483,7 @@ class ServiceMixIn(object):
                 svc = pid_to_svc[pid]
                 del pid_to_svc[pid]
                 self._info('Exited "{0}:{1}" pid "{2}"'.format(
-                    svc['name'], svc['instance_id'], pid))
+                    svc['name'], svc['instanceId'], pid))
         except TimeoutException:
             pass
         finally:
@@ -1447,7 +1496,7 @@ class ServiceMixIn(object):
             try:
                 svc = pid_to_svc[pid]
                 self._info('Killing "{0}:{1}" pid "{2}"'.format(
-                    svc['name'], svc['instance_id'], pid))
+                    svc['name'], svc['instanceId'], pid))
                 os.kill(pid, signal.SIGKILL)
                 os.waitpid(pid, 0)
             except OSError:
@@ -1794,7 +1843,16 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
                 t = self._tool_impl[tool]
 
                 if isinstance(t, RuntimeTool):
-                    t.onRun(config, ep['file'], args, ep.get('tune', {}))
+                    svc = copy.deepcopy(ep)
+                    svc['name'] = command
+                    svc['instanceId'] = 0
+                    svc.setdefault('tune', {})
+
+                    import tempfile
+                    runtime_dir = tempfile.mkdtemp(prefix='futoin-cid-run')
+
+                    t.onPreConfigure(config, runtime_dir, svc, svc['tune'])
+                    t.onRun(config, svc, args)
                 else:
                     self._errorExit(
                         'Tool "{0}" for "{1}" does not support "run" command'.format(tool, command))
@@ -2275,7 +2333,7 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
         t = self._tool_impl[tool]
 
         if isinstance(t, RuntimeTool):
-            t.onRun(config, svc['file'], [], svc['tune'])
+            t.onRun(config, svc, [])
         else:
             self._errorExit(
                 'Tool "{0}" for "{1}" does not support "service exec" command'.format(tool, entry_point))
@@ -2323,6 +2381,7 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
             self._deployUnlock()
 
             self._processDeployDir()
+            self._config['env']['type'] = 'dev'
             self._serviceAdapt()
             self._serviceListPrint()
             self._serviceMaster()

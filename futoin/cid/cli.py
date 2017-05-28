@@ -9,13 +9,13 @@ Usage:
     cid package
     cid check [--permissive]
     cid promote <rms_pool> <packages>... [--rmsRepo=<rms_repo>]
-    cid deploy setup [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]
-    cid deploy vcstag [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]
-    cid deploy vcsref <vcs_ref> [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]
-    cid deploy rms <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--build] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]
+    cid deploy setup [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--user=<user>] [--group=<group>]
+    cid deploy vcstag [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--user=<user>] [--group=<group>]
+    cid deploy vcsref <vcs_ref> [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--user=<user>] [--group=<group>]
+    cid deploy rms <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--build] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--user=<user>] [--group=<group>]
     cid migrate
     cid run
-    cid run <command> [<command_arg>...]
+    cid run <command> [--] [<command_arg>...]
     cid ci_build <vcs_ref> [<rms_pool>] [--vcsRepo=<vcs_repo>] [--rmsRepo=<rms_repo>] [--permissive] [--debug] [--wcDir=<wc_dir>]
     cid tool exec <tool_name> [<tool_version>] [-- <tool_arg>...]
     cid tool (install|uninstall|update|test|env) [<tool_name> [<tool_version>]]
@@ -38,8 +38,8 @@ Usage:
     cid rms pool create <rms_pool> [--rmsRepo=<rms_repo>]
     cid rms pool list [--rmsRepo=<rms_repo>]
     cid devserve [--wcDir=<wc_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]
-    cid service master [--deployDir=<deploy_dir>] [--adapt] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]
-    cid service list [--deployDir=<deploy_dir>] [--adapt] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>]
+    cid service master [--deployDir=<deploy_dir>] [--adapt] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--user=<user>] [--group=<group>]
+    cid service list [--deployDir=<deploy_dir>] [--adapt] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--user=<user>] [--group=<group>]
     cid service exec <entry_point> <instance_id> [--deployDir=<deploy_dir>]
     cid service stop <entry_point> <instance_id> <pid> [--deployDir=<deploy_dir>]
     cid service reload <entry_point> <instance_id> <pid> [--deployDir=<deploy_dir>]
@@ -60,7 +60,10 @@ Options:
     --adapt                         Re-balance available resources before execution.
     --limit-memory=<mem_limit>|auto Limit allocated memory (B, K, M or G postfix is required).
     --limit-cpus=<cpu_count>|auto   Limit CPU cores (affects instance count).
-    --listen-addr=<address>         Address to bind services, all by default.
+    --listen-addr=<address>|auto    Address to bind services, all by default.
+    --runtimeDir=<runtime_dir>|auto Directory for runtime data (sockets, configs, etc.).
+    --user=<user>|auto              User name to use for service execution.
+    --group=<group>|auto            Group name to use for service execution.
     <rms_pool>                      Either "dst_pool" or  "src_pool:dst_pool" for promotion.
     <packages>                      Either "local/file" or "remote_file" or "<package>@<hash>".
 """
@@ -179,6 +182,9 @@ def runInner():
         deploy['maxTotalMemory'] = args['--limit-memory']
         deploy['maxCpuCount'] = args['--limit-cpus']
         deploy['listenAddress'] = args['--listen-addr']
+        deploy['runtimeDir'] = args['--runtimeDir']
+        deploy['user'] = args['--user']
+        deploy['group'] = args['--group']
         overrides['adaptDeploy'] = args['--adapt'] or args['devserve']
 
         if deploy['maxCpuCount']:

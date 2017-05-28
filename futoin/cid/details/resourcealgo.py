@@ -89,7 +89,7 @@ class ResourceAlgo(UtilMixIn):
         if granularity is None:
             granularity = self.pageSize()
 
-        maxmem = int(maxmem / granularity)
+        maxmem = maxmem // granularity
         availMem = maxmem
         deploy = config.setdefault('deploy', {})
         autoServices = deploy.setdefault('autoServices', {})
@@ -107,12 +107,11 @@ class ResourceAlgo(UtilMixIn):
                 if f not in ei:
                     self._errorExit(
                         '"{0}" is missing from {1} entry point'.format(f, en))
-                ei[f] = int(math.ceil(self._parseMemory(ei[f]) / granularity))
+                ei[f] = self._parseMemory(ei[f]) // granularity
 
             for f in ('maxMemory', 'maxTotalMemory', 'debugOverhead', 'debugConnOverhead'):
                 if f in ei:
-                    ei[f] = int(
-                        math.ceil(self._parseMemory(ei[f]) / granularity))
+                    ei[f] = self._parseMemory(ei[f]) // granularity
 
             ei.setdefault('memWeight', 100)
             ei.setdefault('cpuWeight', 100)
@@ -153,8 +152,7 @@ class ResourceAlgo(UtilMixIn):
             for en in candidates:
                 ei = services[en]
                 memAlloc = ei['memAlloc']
-                addAlloc = int(math.floor(
-                    distMem * ei['memWeight'] / overall_weight))
+                addAlloc = distMem * ei['memWeight'] // overall_weight
 
                 if (memAlloc + addAlloc) > ei['maxTotalMemory']:
                     ei['memAlloc'] = ei['maxTotalMemory']
@@ -186,8 +184,7 @@ class ResourceAlgo(UtilMixIn):
                 else:
                     ei['maxCpuCount'] = maxcpu
             else:
-                possible_instances = int(math.floor(
-                    ei['memAlloc'] / reasonableMinMemory))
+                possible_instances = ei['memAlloc'] // reasonableMinMemory
 
                 if ei['reloadable'] or maxcpu > 1:
                     ei['instances'] = min(maxcpu, possible_instances)
@@ -209,17 +206,20 @@ class ResourceAlgo(UtilMixIn):
 
             for i in range(0, instance_count):
                 ic = {}
-                instance_mem = int(math.floor(ei['memAlloc'] / instance_count))
-                ic['maxMemory'] = instance_mem * granularity
+                instance_mem = ei['memAlloc'] // instance_count
+                ic['maxMemory'] = instance_mem
+                ic['connMemory'] = ei['connMemory']
                 service_mem += instance_mem
                 instances.append(ic)
 
-            instances[0]['maxMemory'] += (ei['memAlloc'] -
-                                          service_mem) * granularity
+            instances[0]['maxMemory'] += (ei['memAlloc'] - service_mem)
 
             for ic in instances:
-                ic['maxClients'] = (
-                    ic['maxMemory'] - ei['minMemory']) / ei['connMemory']
+                ic['maxClients'] = int(
+                    ic['maxMemory'] - ei['minMemory']) // ei['connMemory']
+
+                for m in ('maxMemory', 'connMemory'):
+                    ic[m] = self._toMemory(ic[m] * granularity)
 
             autoServices[en] = instances
 
@@ -231,8 +231,8 @@ class ResourceAlgo(UtilMixIn):
         entryPoints = config.get('entryPoints', {})
 
         base_dir = os.path.realpath(config['deployDir'])
-        run_dir = os.path.join(base_dir, 'run')
-        run_dir = config.get('env', {}).get('runDir', run_dir)
+        run_dir = os.path.join(base_dir, '.runtime')
+        run_dir = deploy.setdefault('runtimeDir', run_dir)
 
         for (en, instances) in autoServices.items():
             ei = entryPoints[en].get('tune', {})
@@ -257,7 +257,8 @@ class ResourceAlgo(UtilMixIn):
                     ic['socketPath'] = os.path.join(
                         run_dir, '{0}.{1}.sock'.format(en, i))
                 else:
-                    ic['socketAddr'] = deploy.get('listenAddress', '0.0.0.0')
+                    ic['socketAddress'] = deploy.get(
+                        'listenAddress', '0.0.0.0')
 
                     if 'socketPort' in ei:
                         sock_port = ei['socketPort'] + i

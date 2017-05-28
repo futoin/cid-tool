@@ -1,6 +1,7 @@
 
 import os
 import glob
+import copy
 
 from ..runtimetool import RuntimeTool
 
@@ -12,6 +13,20 @@ Home: http://php.net/
 
 This tool provides PHP-FPM based website entry point support.
 It means any PHP file in project can be executed with all consequences.
+
+Use .toolTune.phpfpm for php-fpm.conf tuning - dicts of dicts representing ini file.
+* 'global' -> FPM config
+* 'pool' -> pool config
+* 'cid' -> tune CID auto-logic
+    * 'client_files_multiplicator' = 16 - how many descriptors to reserve for each client
+    * 'extension' = [] - list of additional extensions to load
+    * 'zend_extension' - [] - list of additional zend extensions to load
+
+Use .toolTune.php for php.ini tuning - dict of dicts representing ini file.
+
+Note: system php.ini is ignored, but all extensions are automatically loaded from system scan dir.
+
+Note: file upload are OFF by default.
 """
 
     def getDeps(self):
@@ -89,3 +104,122 @@ It means any PHP file in project can be executed with all consequences.
             env['phpfpmBin'] = phpfpm_bin[0]
             self._have_tool = True
             return
+
+    def onPreConfigure(self, config, runtime_dir, svc, cfg_svc_tune):
+        env = config['env']
+        deploy = config['deploy']
+        name_id = '{0}-{1}'.format(svc['name'], svc['instanceId'])
+
+        svc_tune = svc['tune']
+        max_clients = svc_tune['maxClients']
+
+        # conf location
+        fpm_conf = "phpfpm-{0}.conf".format(name_id)
+        fpm_conf = os.path.join(runtime_dir, fpm_conf)
+
+        php_conf = "php-{0}.ini".format(name_id)
+        php_conf = os.path.join(runtime_dir, php_conf)
+
+        # Save location to deployment config
+        cfg_svc_tune.update({
+            'fpmConf': fpm_conf,
+            'phpConf': php_conf,
+        })
+
+        #
+        log_level = 'error'
+        error_log = 'syslog'
+        display_errors = 'Off'
+        error_reporting = 'E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED'
+
+        if config['env']['type'] != 'prod':
+            log_level = 'notice'
+            display_errors = 'On'
+            error_reporting = 'E_ALL | E_STRICT'
+
+        #
+        fpm_ini = config.get('toolTune', {}).get('phpfpm', {})
+        fpm_ini = copy.deepcopy(fpm_ini)
+
+        #
+        cid_tune = fpm_ini.setdefault('cid', {})
+        client_fmult = cid_tune.setdefault('client_files_multiplicator', 16)
+        del fpm_ini['cid']
+
+        #
+        global_ini = fpm_ini.setdefault('global', {})
+        global_ini.setdefault('error_log', error_log)
+        global_ini.setdefault('log_level', log_level)
+        global_ini.setdefault('syslog.ident', name_id)
+        global_ini['daemonize'] = 'no'
+        global_ini['systemd_interval'] = '0'
+        global_ini['rlimit_files'] = max_clients * client_fmult
+
+        #
+        pool_ini = fpm_ini.setdefault('pool', {})
+
+        socket_type = svc_tune['socketType']
+
+        if socket_type == 'unix':
+            pool_ini['listen'] = svc_tune['socketPath']
+        elif socket_type == 'tcp':
+            pool_ini['listen'] = '{0}:{1}'.format(
+                svc_tune['socketAddress'], svc_tune['socketPort'])
+        else:
+            self._errorExit(
+                'Unsupported socket type "{0}" for "{1}"'.format(socket_type, name_id))
+
+        pool_ini.setdefault('listen.backlog', -1)
+        pool_ini['user'] = deploy['user']
+        pool_ini['group'] = deploy['group']
+        pool_ini.setdefault('pm', 'static')
+        pool_ini['pm.max_children'] = max_clients
+        pool_ini['chdir'] = config['wcDir']
+        pool_ini.setdefault('clear_env', 'yes')
+
+        self._writeIni(fpm_conf, fpm_ini)
+
+        #
+        php_ini = config.get('toolTune', {}).get('php', {})
+        php_ini = php_ini.copy()
+
+        php_ini.setdefault(
+            'memory_limit', self._parseMemory(svc_tune['connMemory']))
+        php_ini.setdefault('expose_php', 'Off')
+        php_ini.setdefault('zend.multibyte', 'On')
+        php_ini.setdefault('zend.script_encoding', 'UTF-8')
+        php_ini.setdefault('default_charset', 'UTF-8')
+        php_ini.setdefault('register_globals', 'Off')
+        php_ini.setdefault('include_path', '.')
+        #php_ini.setdefault('open_basedir', config['deployDir'])
+        php_ini.setdefault('doc_root', config['deployDir'])
+        php_ini.setdefault('error_log', error_log)
+        php_ini.setdefault('display_errors', display_errors)
+        php_ini.setdefault('display_startup_errors', display_errors)
+        php_ini.setdefault('error_reporting', error_reporting)
+        php_ini.setdefault('file_uploads', 'Off')
+
+        # note: basic extensions are loaded from system (PHP_INI_SCAN_DIR)
+        for k in ('extension', 'zend_extension'):
+            if k in cid_tune:
+                php_ini[k] = cid_tune
+
+        self._writeIni(php_conf, {'php': php_ini})
+
+        # Validate
+        self._callExternal([
+            env['phpfpmBin'],
+            '-c', php_conf,
+            '--fpm-config', fpm_conf,
+            '--test',
+        ])
+
+    def onRun(self, config, svc, args):
+        env = config['env']
+        svc_tune = svc['tune']
+        self._callInteractive([
+            env['phpfpmBin'],
+            '-c', svc_tune['phpConf'],
+            '--fpm-config', svc_tune['fpmConf'],
+            '--nodaemonize',
+        ] + args)
