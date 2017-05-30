@@ -2,6 +2,7 @@
 === (next) ===
 * BREAKING CHANGE: dropped --rmsHash in favor of "{package}@{hash-type}:{hash}"
 * BREAKING CHANGE: "cid promote" format to support multiple packages
+* BREAKING CHANGE: fixed long standing deviation from spec for entry point "path"
 * FIXED: scpTool working with remote locations with extra configuration
 * FIXED: not to use pre-built Ruby on Ubuntu Zesty (1.9) & Debian Stretch (any)
 * FIXED: to properly handle cases when user/deploy/project configs overlap

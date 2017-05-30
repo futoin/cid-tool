@@ -15,7 +15,7 @@
   "entryPoints": {
     "main": {
       "tool": "exe",
-      "file": "bin/cid"
+      "path": "bin/cid"
     }
   },
   "actions" : {

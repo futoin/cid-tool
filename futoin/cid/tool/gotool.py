@@ -73,5 +73,5 @@ through CID, but you can install source releases through
     def onRun(self, config, svc, args):
         env = config['env']
         self._callInteractive([
-            env[self._name + 'Bin'], 'run', svc['file']
+            env[self._name + 'Bin'], 'run', svc['path']
         ] + args)

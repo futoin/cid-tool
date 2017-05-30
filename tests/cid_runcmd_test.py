@@ -88,35 +88,35 @@ object Hi {
             "entryPoints": {
                 'exe_ep' : {
                     'tool': 'exe',
-                    'file': 'exe_file.sh',
+                    'path': 'exe_file.sh',
                 },
                 'go_ep' : {
                     'tool': 'go',
-                    'file': 'go_file.go',
+                    'path': 'go_file.go',
                 },
                 'java_ep' : {
                     'tool': 'java',
-                    'file': 'build/libs/java_file.jar',
+                    'path': 'build/libs/java_file.jar',
                 },
                 'node_ep' : {
                     'tool': 'node',
-                    'file': 'node_file.js',
+                    'path': 'node_file.js',
                 },
                 'php_ep' : {
                     'tool': 'php',
-                    'file': 'php_file.php',
+                    'path': 'php_file.php',
                 },
                 'python_ep' : {
                     'tool': 'python',
-                    'file': 'python_file.py',
+                    'path': 'python_file.py',
                 },
                 'ruby_ep' : {
                     'tool': 'ruby',
-                    'file': 'ruby_file.rb',
+                    'path': 'ruby_file.rb',
                 },
                 'scala_ep' : {
                     'tool': 'scala',
-                    'file': 'scala_file.scala',
+                    'path': 'scala_file.scala',
                 },
             },
             "toolTune" : {

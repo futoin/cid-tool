@@ -110,7 +110,7 @@ javaVer supports:
     def onRun(self, config, svc, args):
         env = config['env']
         self._callInteractive([
-            env[self._name + 'Bin'], '-jar', svc['file']
+            env[self._name + 'Bin'], '-jar', svc['path']
         ] + args)
 
     _ZULU_GPG_KEY = '''

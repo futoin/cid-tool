@@ -475,7 +475,7 @@ class ConfigMixIn(object):
 
     def _sanitizeEntryPoints(self, entry_points, errors):
         for (en, ep) in entry_points.items():
-            for k in ['tool', 'file']:
+            for k in ['tool', 'path']:
                 if k not in ep:
                     errors.append(
                         'Entry point "{0}" is missing "{1}"'.format(en, k))

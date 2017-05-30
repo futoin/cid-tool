@@ -311,15 +311,15 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
             'entryPoints' : {
                 'longrun' : {
                     'tool' : 'exe',
-                    'file' : 'longrun.sh'
+                    'path' : 'longrun.sh'
                 },
                 'shortrun' : {
                     'tool' : 'exe',
-                    'file' : 'shortrun.sh'
+                    'path' : 'shortrun.sh'
                 },
                 'failing' : {
                     'tool' : 'exe',
-                    'file' : 'missing.sh'
+                    'path' : 'missing.sh'
                 },
             },
         })
@@ -352,14 +352,15 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
             'entryPoints' : {
                 'phpapp' : {
                     'tool' : 'phpfpm',
-                    'file' : 'app.php',
+                    'path' : 'app.php',
                     'tune' : {
+                        'internal': True,
                         'memoryWeight' : 70,
                     },
                 },
                 #'jsapp' : {
                     #'tool' : 'node',
-                    #'file' : 'app.js',
+                    #'path' : 'app.js',
                     #'tune' : {
                         #'socketType' : 'tcp',
                         #'memoryWeight' : 30,

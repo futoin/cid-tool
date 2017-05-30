@@ -130,7 +130,7 @@ Docker EE or other installation methods are out of scope for now.
 
     def onRun(self, config, svc, args):
         env = config['env']
-        cmd = [env['dockerBin'], 'run', svc['file']]
+        cmd = [env['dockerBin'], 'run', svc['path']]
 
         if self._haveGroup('docker'):
             self._callExternal(cmd)
