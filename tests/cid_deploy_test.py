@@ -449,17 +449,17 @@ def application(env, start_response):
         
         if not pid:
             os.dup2(os.open(os.devnull, os.O_RDONLY), 0)
-            #os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
-            #os.dup2(os.open(os.devnull, os.O_WRONLY), 2)
+            os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
+            os.dup2(os.open(os.devnull, os.O_WRONLY), 2)
             os.execv(self.CIDTEST_BIN, [self.CIDTEST_BIN, 'devserve'])
             
-        time.sleep(300)
+        time.sleep(1)
         
         try:
             import requests
             res = requests.get('http://localhost:1234/file.txt')
             self.assertTrue(res.ok)
-            self.assertEquals("TESTFILE", res.text)
+            self.assertEquals("TESTFILE\n", res.text)
             
             res = requests.get('http://localhost:1234')
             self.assertTrue(res.ok)

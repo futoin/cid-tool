@@ -38,62 +38,62 @@ Va3l3WuB+rgKjsQ=
 """
 
 FASTCGI_PARAMS = """
-        fastcgi_param  QUERY_STRING       $query_string;
-        fastcgi_param  REQUEST_METHOD     $request_method;
-        fastcgi_param  CONTENT_TYPE       $content_type;
-        fastcgi_param  CONTENT_LENGTH     $content_length;
+fastcgi_param  QUERY_STRING       $query_string;
+fastcgi_param  REQUEST_METHOD     $request_method;
+fastcgi_param  CONTENT_TYPE       $content_type;
+fastcgi_param  CONTENT_LENGTH     $content_length;
 
-        fastcgi_param  SCRIPT_NAME        $fastcgi_script_name;
-        fastcgi_param  REQUEST_URI        $request_uri;
-        fastcgi_param  DOCUMENT_URI       $document_uri;
-        fastcgi_param  DOCUMENT_ROOT      $document_root;
-        fastcgi_param  SERVER_PROTOCOL    $server_protocol;
-        fastcgi_param  REQUEST_SCHEME     $scheme;
-        fastcgi_param  HTTPS              $https if_not_empty;
+fastcgi_param  SCRIPT_NAME        $fastcgi_script_name;
+fastcgi_param  REQUEST_URI        $request_uri;
+fastcgi_param  DOCUMENT_URI       $document_uri;
+fastcgi_param  DOCUMENT_ROOT      $document_root;
+fastcgi_param  SERVER_PROTOCOL    $server_protocol;
+fastcgi_param  REQUEST_SCHEME     $scheme;
+fastcgi_param  HTTPS              $https if_not_empty;
 
-        fastcgi_param  GATEWAY_INTERFACE  CGI/1.1;
-        fastcgi_param  SERVER_SOFTWARE    nginx/$nginx_version;
+fastcgi_param  GATEWAY_INTERFACE  CGI/1.1;
+fastcgi_param  SERVER_SOFTWARE    nginx/$nginx_version;
 
-        fastcgi_param  SERVER_ADDR        $server_addr;
-        fastcgi_param  SERVER_PORT        $server_port;
-        fastcgi_param  SERVER_NAME        $server_name;
+fastcgi_param  SERVER_ADDR        $server_addr;
+fastcgi_param  SERVER_PORT        $server_port;
+fastcgi_param  SERVER_NAME        $server_name;
 
-        # PHP only, required if PHP was built with --enable-force-cgi-redirect
-        fastcgi_param  REDIRECT_STATUS    200;
+# PHP only, required if PHP was built with --enable-force-cgi-redirect
+fastcgi_param  REDIRECT_STATUS    200;
 """
 
 SCGI_PARAMS = """
-        scgi_param  REQUEST_METHOD     $request_method;
-        scgi_param  REQUEST_URI        $request_uri;
-        scgi_param  QUERY_STRING       $query_string;
-        scgi_param  CONTENT_TYPE       $content_type;
+scgi_param  REQUEST_METHOD     $request_method;
+scgi_param  REQUEST_URI        $request_uri;
+scgi_param  QUERY_STRING       $query_string;
+scgi_param  CONTENT_TYPE       $content_type;
 
-        scgi_param  DOCUMENT_URI       $document_uri;
-        scgi_param  DOCUMENT_ROOT      $document_root;
-        scgi_param  SCGI               1;
-        scgi_param  SERVER_PROTOCOL    $server_protocol;
-        scgi_param  REQUEST_SCHEME     $scheme;
-        scgi_param  HTTPS              $https if_not_empty;
+scgi_param  DOCUMENT_URI       $document_uri;
+scgi_param  DOCUMENT_ROOT      $document_root;
+scgi_param  SCGI               1;
+scgi_param  SERVER_PROTOCOL    $server_protocol;
+scgi_param  REQUEST_SCHEME     $scheme;
+scgi_param  HTTPS              $https if_not_empty;
 
-        scgi_param  SERVER_PORT        $server_port;
-        scgi_param  SERVER_NAME        $server_name;
+scgi_param  SERVER_PORT        $server_port;
+scgi_param  SERVER_NAME        $server_name;
 """
 
 UWSGI_PARAMS = """
-        uwsgi_param  QUERY_STRING       $query_string;
-        uwsgi_param  REQUEST_METHOD     $request_method;
-        uwsgi_param  CONTENT_TYPE       $content_type;
-        uwsgi_param  CONTENT_LENGTH     $content_length;
+uwsgi_param  QUERY_STRING       $query_string;
+uwsgi_param  REQUEST_METHOD     $request_method;
+uwsgi_param  CONTENT_TYPE       $content_type;
+uwsgi_param  CONTENT_LENGTH     $content_length;
 
-        uwsgi_param  REQUEST_URI        $request_uri;
-        uwsgi_param  PATH_INFO          $document_uri;
-        uwsgi_param  DOCUMENT_ROOT      $document_root;
-        uwsgi_param  SERVER_PROTOCOL    $server_protocol;
-        uwsgi_param  REQUEST_SCHEME     $scheme;
-        uwsgi_param  HTTPS              $https if_not_empty;
+uwsgi_param  REQUEST_URI        $request_uri;
+uwsgi_param  PATH_INFO          $document_uri;
+uwsgi_param  DOCUMENT_ROOT      $document_root;
+uwsgi_param  SERVER_PROTOCOL    $server_protocol;
+uwsgi_param  REQUEST_SCHEME     $scheme;
+uwsgi_param  HTTPS              $https if_not_empty;
 
-        uwsgi_param  SERVER_PORT        $server_port;
-        uwsgi_param  SERVER_NAME        $server_name;
+uwsgi_param  SERVER_PORT        $server_port;
+uwsgi_param  SERVER_NAME        $server_name;
 """
 
 
@@ -140,10 +140,17 @@ class ConfigBuilder(UtilMixIn):
         http.setdefault('access_log', 'off')
         http.setdefault('log_not_found', 'off')
 
+        #
         http.setdefault('proxy_buffering', 'off')
+        http.setdefault('proxy_request_buffering', 'off')
         http.setdefault('proxy_max_temp_file_size', '0')
         http.setdefault('proxy_next_upstream', 'error')
-        http.setdefault('proxy_request_buffering', 'off')
+        #
+        http.setdefault('fastcgi_buffering', 'off')
+        http.setdefault('fastcgi_request_buffering', 'off')
+        http.setdefault('fastcgi_max_temp_file_size', '0')
+        http.setdefault('fastcgi_next_upstream', 'error')
+        #
         http.setdefault('aio', 'threads')
         http.setdefault('aio_write', 'on')
         http.setdefault('server_tokens', 'off')
@@ -178,7 +185,7 @@ class ConfigBuilder(UtilMixIn):
 
         listen += ' '
         listen += cid_tune.get('listenOptions',
-                               'default_server http2 deferred')
+                               'default_server deferred')
 
         if cid_tune.get('proxyProtocol', False):
             listen += ' proxy_protocol'
@@ -203,6 +210,7 @@ class ConfigBuilder(UtilMixIn):
         for (prefix, app) in mounts.items():
             try:
                 instances = autoServices[app]
+                appsvc = config['entryPoints'][app]
             except KeyError:
                 self._errorExit(
                     'Missing "autoServices" for "{0}" entry point'.format(app))
@@ -214,13 +222,13 @@ class ConfigBuilder(UtilMixIn):
                     'Missing "socketProtocol" for "{0}" entry point'.format(app))
 
             if protocol == 'http':
-                upstream, location = self._proxyHttp(app, svc, instances)
+                upstream, location = self._proxyHttp(app, appsvc, instances)
             elif protocol == 'fcgi':
-                upstream, location = self._proxyFcgi(app, svc, instances)
+                upstream, location = self._proxyFcgi(app, appsvc, instances)
             elif protocol == 'scgi':
-                upstream, location = self._proxyScgi(app, svc, instances)
+                upstream, location = self._proxyScgi(app, appsvc, instances)
             elif protocol == 'uwsgi':
-                upstream, location = self._proxyUwsgi(app, svc, instances)
+                upstream, location = self._proxyUwsgi(app, appsvc, instances)
             else:
                 self._errorExit(
                     'Not supported protocol "{0}" for "{1}" entry point'.format(protocol, app))
@@ -268,16 +276,16 @@ class ConfigBuilder(UtilMixIn):
                 file_timeout
             )
 
-            socket_type = svc_tune['socketType']
+            socket_type = v['socketType']
 
             if socket_type == 'unix':
-                socket = 'unix:{0}'.format(svc_tune['socketPath'])
+                socket = 'unix:{0}'.format(v['socketPath'])
             elif socket_type == 'tcp':
                 socket = '{0}:{1}'.format(
-                    svc_tune['socketAddress'], svc_tune['socketPort'])
+                    v['socketAddress'], v['socketPort'])
             elif socket_type == 'tcp6':
                 socket = '[{0}]:{1}'.format(
-                    svc_tune['socketAddress'], svc_tune['socketPort'])
+                    v['socketAddress'], v['socketPort'])
             else:
                 self._errorExit(
                     'Unsupported socket type "{0}" for "{1}"'.format(socket_type, app))
@@ -286,8 +294,8 @@ class ConfigBuilder(UtilMixIn):
 
         return upstream
 
-    def _svcBodyLimit(self, svc):
-        return self._parseMemory(svc['tune']['maxRequestSize'])
+    def _svcBodyLimit(self, instances):
+        return self._parseMemory(instances[0]['maxRequestSize'])
 
     def _proxyHttp(self, app, svc, instances):
         upstream = self._upstreamCommon(app, svc, instances, True)
@@ -300,7 +308,7 @@ class ConfigBuilder(UtilMixIn):
         location['proxy_set_header X-Real-IP'] = self._remote_addr_var
         location['proxy_set_header X-Forwarded-For'] = self._x_forwarded_for_var
         location['proxy_next_upstream_tries'] = len(instances)
-        location['client_max_body_size'] = self._svcBodyLimit(svc)
+        location['client_max_body_size'] = self._svcBodyLimit(instances)
 
         return upstream, location
 
@@ -309,11 +317,14 @@ class ConfigBuilder(UtilMixIn):
         location = OrderedDict()
         location['fastcgi_pass'] = app
         location['fastcgi_keep_conn'] = 'on'
-        location['client_max_body_size'] = self._svcBodyLimit(svc)
+        location['fastcgi_next_upstream_tries'] = len(instances)
+        location['client_max_body_size'] = self._svcBodyLimit(instances)
 
         location['-fastcgi-params'] = FASTCGI_PARAMS
         location['fastcgi_param REMOTE_ADDR'] = self._remote_addr_var
         location['fastcgi_param REMOTE_PORT'] = self._remote_port_var
+        location['fastcgi_param SCRIPT_FILENAME'] = os.path.join(
+            self._config['deployDir'], 'current', svc['path'])
 
         return upstream, location
 
@@ -321,7 +332,7 @@ class ConfigBuilder(UtilMixIn):
         upstream = self._upstreamCommon(app, svc, instances)
         location = OrderedDict()
         location['scgi_pass'] = app
-        location['client_max_body_size'] = self._svcBodyLimit(svc)
+        location['client_max_body_size'] = self._svcBodyLimit(instances)
 
         location['-fastcgi-params'] = SCGI_PARAMS
         location['scgi_param REMOTE_ADDR'] = self._remote_addr_var
@@ -333,7 +344,7 @@ class ConfigBuilder(UtilMixIn):
         upstream = self._upstreamCommon(app, svc, instances)
         location = OrderedDict()
         location['uwsgi_pass'] = app
-        location['client_max_body_size'] = self._svcBodyLimit(svc)
+        location['client_max_body_size'] = self._svcBodyLimit(instances)
 
         location['-fastcgi-params'] = UWSGI_PARAMS
         location['uwsgi_param REMOTE_ADDR'] = self._remote_addr_var
@@ -352,6 +363,9 @@ class ConfigBuilder(UtilMixIn):
 
             for (k, v) in options:
                 if k[0] == '-':
+                    v = v.split("\n")
+                    v = ['{0}{1}'.format(prefix, x) for x in v]
+                    v = "\n".join(v)
                     content.append(v)
                 elif isinstance(v, list):
                     for lv in v:

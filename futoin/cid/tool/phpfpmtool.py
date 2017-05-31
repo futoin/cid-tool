@@ -191,8 +191,6 @@ Note: file upload is OFF by default.
         php_ini.setdefault('default_charset', 'UTF-8')
         php_ini.setdefault('register_globals', 'Off')
         php_ini.setdefault('include_path', '.')
-        #php_ini.setdefault('open_basedir', config['deployDir'])
-        php_ini.setdefault('doc_root', config['deployDir'])
         php_ini.setdefault('error_log', error_log)
         php_ini.setdefault('catch_workers_output', 'on')
         php_ini.setdefault('display_errors', display_errors)
@@ -202,6 +200,9 @@ Note: file upload is OFF by default.
         request_size_limit = self._parseMemory(svc_tune['maxRequestSize'])
         php_ini['upload_max_filesize'] = request_size_limit
         php_ini['post_max_size'] = request_size_limit
+
+        if config['env']['type'] != 'dev':
+            php_ini.setdefault('open_basedir', config['deployDir'])
 
         # note: basic extensions are loaded from system (PHP_INI_SCAN_DIR)
         for k in ('extension', 'zend_extension'):

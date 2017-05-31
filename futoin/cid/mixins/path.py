@@ -98,19 +98,21 @@ class PathMixIn(object):
 
             sys.stdout.flush()
             sys.stderr.flush()
-            
+
             # There is a problem of left FDs in Python 2
             #---
             import resource
-            
+
             maxfd = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
 
             if (maxfd == resource.RLIM_INFINITY):
                 maxfd = 10240
 
             for fd in range(3, maxfd):
-                try: os.close(fd)
-                except OSError: pass
+                try:
+                    os.close(fd)
+                except OSError:
+                    pass
             #---
 
             os.execv(cmd[0], cmd)

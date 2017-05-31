@@ -2376,6 +2376,9 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
             wc_dir = ospath.realpath(self._overrides['wcDir'])
             os.symlink(wc_dir, os.path.join(deploy_dir, 'current'))
 
+            self._overrides['devWcDir'] = wc_dir
+            self._config['devWcDir'] = wc_dir
+
             deploy_dir = os.path.realpath(deploy_dir)
             self._overrides['deployDir'] = deploy_dir
             self._config['deployDir'] = deploy_dir
@@ -2387,7 +2390,9 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
             self._serviceAdapt()
             self._serviceListPrint()
             self._serviceMaster()
-        except KeyboardInterrupt:
             self._rmTree(deploy_dir)
+            deploy_dir = None
         finally:
-            self._warn('Left "{0}" for inspection of error'.format(deploy_dir))
+            if deploy_dir:
+                self._warn(
+                    'Left "{0}" for inspection of error'.format(deploy_dir))
