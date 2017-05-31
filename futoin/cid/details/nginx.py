@@ -106,7 +106,7 @@ class ConfigBuilder(UtilMixIn):
         self._remote_port_var = '$remote_port'
         self._x_forwarded_for_var = '$proxy_add_x_forwarded_for'
 
-    def build(self, name_id, pid_file):
+    def build(self, name_id, pid_file, tmp_path):
         config = self._config
         deploy = config['deploy']
         svc = self._svc
@@ -140,6 +140,8 @@ class ConfigBuilder(UtilMixIn):
         http.setdefault('access_log', 'off')
         http.setdefault('log_not_found', 'off')
 
+        #
+        http.setdefault('client_body_temp_path', '{0} 1 2'.format(tmp_path))
         #
         http.setdefault('proxy_buffering', 'off')
         http.setdefault('proxy_request_buffering', 'off')

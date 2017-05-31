@@ -144,9 +144,13 @@ Additional notes:
                     self._parseMemory(s['maxRequestSize'])
                 )
         cfg_svc_tune['maxRequestSize'] = self._toMemory(max_request_size)
+        #
+        tmp_path = os.path.join(deploy['tmpDir'], 'nginx')
+        self._mkDir(tmp_path)
 
+        #
         conf_builder = ConfigBuilder(config, svc)
-        nginx_conf = conf_builder.build(name_id, pid_file)
+        nginx_conf = conf_builder.build(name_id, pid_file, tmp_path)
         self._writeTextFile(conf_file, nginx_conf)
 
         # Verify

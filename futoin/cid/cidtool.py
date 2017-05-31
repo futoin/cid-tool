@@ -1024,15 +1024,13 @@ class DeployMixIn(object):
 
         deploy = config['deploy']
         runtimeDir = deploy['runtimeDir']
+        tmpDir = deploy['tmpDir']
 
         # DO NOT use realpath as it may point to "old current"
         config['wcDir'] = ospath.join(config['deployDir'], 'current')
 
-        try:
-            os.mkdir(runtimeDir)
-        except OSError:
-            if not ospath.exists(runtimeDir):
-                raise
+        self._mkDir(runtimeDir)
+        self._mkDir(tmpDir)
 
         auto_services = config['deploy']['autoServices']
 

@@ -23,6 +23,8 @@ class RuntimeTool(SubTool):
             'scalable': False,
             'reloadable': False,
             'exitTimeoutMS': self.DEFAULT_EXIT_TIMEOUT,
+            'maxRequestSize': '1M',
+            'socketProtocol': 'custom',
         }
 
     def onStop(self, config, pid, tune):

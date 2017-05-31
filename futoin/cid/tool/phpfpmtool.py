@@ -180,9 +180,17 @@ Note: file upload is OFF by default.
         self._writeIni(fpm_conf, fpm_ini)
 
         #
+        tmp_dir = os.path.join(deploy['tmpDir'], 'php')
+        self._mkDir(tmp_dir)
+
+        upload_dir = os.path.join(deploy['tmpDir'], 'phpupload')
+        self._mkDir(upload_dir)
+
+        #
         php_ini = svc_tune.get('phpini', {})
         php_ini = php_ini.copy()
 
+        php_ini.setdefault('sys_temp_dir', tmp_dir)
         php_ini.setdefault(
             'memory_limit', self._parseMemory(svc_tune['connMemory']))
         php_ini.setdefault('expose_php', 'Off')
@@ -197,6 +205,7 @@ Note: file upload is OFF by default.
         php_ini.setdefault('display_startup_errors', display_errors)
         php_ini.setdefault('error_reporting', error_reporting)
         php_ini.setdefault('file_uploads', 'On')
+        php_ini.setdefault('upload_tmp_dir', upload_dir)
         request_size_limit = self._parseMemory(svc_tune['maxRequestSize'])
         php_ini['upload_max_filesize'] = request_size_limit
         php_ini['post_max_size'] = request_size_limit

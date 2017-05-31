@@ -127,6 +127,13 @@ class UtilMixIn(object):
     def _isExternalToolsSetup(self, env):
         return env['externalSetup'] != False
 
+    def _mkDir(self, dir):
+        try:
+            os.mkdir(dir)
+        except OSError:
+            if not os.path.exists(dir):
+                raise
+
     def _rmTree(self, dir):
         print(Coloring.infoLabel('Removing: ') + Coloring.info(dir),
               file=sys.stderr)

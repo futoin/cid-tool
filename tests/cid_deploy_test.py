@@ -19,11 +19,13 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
         cfg_file = os.path.join('setupdir', 'futoin.json')
         
         runtime_dir = os.path.join(self.TEST_DIR, 'setupdir', '.runtime')
+        tmp_dir = os.path.join(self.TEST_DIR, 'setupdir', '.tmp')
         
         self._call_cid(['deploy', 'setup', '--deployDir=setupdir'])
         cfg = self._readJSON(cfg_file)
         self.assertEquals(dict(cfg['deploy']), {
             'runtimeDir' : runtime_dir,
+            'tmpDir' : tmp_dir,
             'autoServices': {},
             'user' : 'vagrant',
             'group' : 'vagrant',
@@ -34,6 +36,7 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
         self.assertEquals(dict(cfg['deploy']), {
             'autoServices': {},
             'runtimeDir' : '/tmp/someother',
+            'tmpDir' : tmp_dir,
             'user' : 'vagrant',
             'group' : 'vagrant',
         })
@@ -43,6 +46,7 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
         self.assertEquals(dict(cfg['deploy']), {
             'autoServices': {},
             'runtimeDir' : '/tmp/someother',
+            'tmpDir' : tmp_dir,
             'user' : 'vagrant',
             'group' : 'vagrant',
         })
@@ -51,6 +55,7 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
         cfg = self._readJSON(cfg_file)
         self.assertEquals(dict(cfg['deploy']), {
             'runtimeDir' : runtime_dir,
+            'tmpDir' : tmp_dir,
             'autoServices': {},
             'user' : 'vagrant',
             'group' : 'vagrant',
@@ -63,6 +68,7 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
         cfg = self._readJSON(cfg_file)
         self.assertEquals(dict(cfg['deploy']), {
             'runtimeDir' : runtime_dir,
+            'tmpDir' : tmp_dir,
             'autoServices': {},
             'listenAddress': '1.2.3.4',
             'user' : 'vagrant',
@@ -75,6 +81,7 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
         cfg = self._readJSON(cfg_file)
         self.assertEquals(dict(cfg['deploy']), {
             'runtimeDir' : runtime_dir,
+            'tmpDir' : tmp_dir,
             'autoServices': {},
             'maxCpuCount': 3,
             'listenAddress': '1.2.3.4',
@@ -88,6 +95,7 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
         cfg = self._readJSON(cfg_file)
         self.assertEquals(dict(cfg['deploy']), {
             'runtimeDir' : runtime_dir,
+            'tmpDir' : tmp_dir,
             'autoServices': {},
             'maxTotalMemory' : '18M',
             'maxCpuCount': 3,
@@ -102,6 +110,7 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
         cfg = self._readJSON(cfg_file)
         self.assertEquals(dict(cfg['deploy']), {
             'runtimeDir' : runtime_dir,
+            'tmpDir' : tmp_dir,
             'autoServices': {},
             'maxCpuCount': 3,
             'listenAddress': '1.2.3.4',
@@ -115,6 +124,7 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
         cfg = self._readJSON(cfg_file)
         self.assertEquals(dict(cfg['deploy']), {
             'runtimeDir' : runtime_dir,
+            'tmpDir' : tmp_dir,
             'autoServices': {},
             'listenAddress': '1.2.3.4',
             'user' : 'vagrant',
@@ -128,6 +138,7 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
         cfg = self._readJSON(cfg_file)
         self.assertEquals(dict(cfg['deploy']), {
             'runtimeDir' : runtime_dir,
+            'tmpDir' : tmp_dir,
             'autoServices': {},
             'listenAddress': '1.2.3.4',
             'user' : 'someuser',
@@ -139,6 +150,7 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
         cfg = self._readJSON(cfg_file)
         self.assertEquals(dict(cfg['deploy']), {
             'runtimeDir' : runtime_dir,
+            'tmpDir' : tmp_dir,
             'autoServices': {},
             'listenAddress': '1.2.3.4',
             'user' : 'someuser',
@@ -152,11 +164,40 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
         cfg = self._readJSON(cfg_file)
         self.assertEquals(dict(cfg['deploy']), {
             'runtimeDir' : runtime_dir,
+            'tmpDir' : tmp_dir,
             'autoServices': {},
             'listenAddress': '1.2.3.4',
             'user' : 'vagrant',
             'group' : 'vagrant',
         })
+        
+        self._call_cid(['deploy', 'setup',
+                        '--deployDir', 'setupdir',
+                        '--tmpDir=/other/tmp'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals(dict(cfg['deploy']), {
+            'runtimeDir' : runtime_dir,
+            'tmpDir' : tmp_dir,
+            'tmpDir' : '/other/tmp',
+            'autoServices': {},
+            'listenAddress': '1.2.3.4',
+            'user' : 'vagrant',
+            'group' : 'vagrant',
+        })
+
+        self._call_cid(['deploy', 'setup',
+                        '--deployDir', 'setupdir',
+                        '--tmpDir=auto'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals(dict(cfg['deploy']), {
+            'runtimeDir' : runtime_dir,
+            'tmpDir' : tmp_dir,
+            'autoServices': {},
+            'listenAddress': '1.2.3.4',
+            'user' : 'vagrant',
+            'group' : 'vagrant',
+        })
+        
                 
     def test_02_memdetect_system(self):
         sysmem = int(self._readFile('/proc/meminfo').split()[1])*1024
@@ -225,6 +266,8 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
                         'memWeight' : 50,
                         'multiCore' : False,
                         'socketTypes' : ['unix'],
+                        'maxRequestSize' : '1M',
+                        'socketProtocol': 'http',
                     },
                 },
                 'scalableMulti': {
@@ -236,6 +279,8 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
                         'socketTypes' : ['unix', 'tcp'],
                         'socketType' : 'tcp',
                         'socketPort' : 8080,
+                        'maxRequestSize' : '1M',
+                        'socketProtocol': 'http',
                     },
                 },
                 'nonScalable' : {
@@ -246,6 +291,8 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
                         'scalable' : False,
                         'socketTypes' : ['unix', 'tcp', 'tcp6'],
                         'socketType' : 'tcp',
+                        'maxRequestSize' : '1M',
+                        'socketProtocol': 'http',
                     },
                 },
             },

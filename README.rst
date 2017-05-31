@@ -303,6 +303,8 @@ Please see details in the FTN16 spec: ::
         [--deployDir=<deploy_dir>] - target folder, CWD by default.
         [--runtimeDir=<runtime_dir>] - target runtime data folder,
           <deploy_dir>/.runtime by default.
+        [--tmpDir=<tmp_dir>] - target temporary data folder,
+          <deploy_dir>/.tmp by default.
         [--limit-memory=<mem_limit>] - memory limit with B, K, M or G postfix.
         [--limit-cpus=<cpu_count>] - max number of CPU cores to use.
         [--listen-addr=<address>] - address to use for IP services

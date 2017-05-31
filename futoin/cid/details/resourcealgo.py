@@ -247,6 +247,8 @@ class ResourceAlgo(UtilMixIn):
         base_dir = os.path.realpath(config['deployDir'])
         run_dir = os.path.join(base_dir, '.runtime')
         run_dir = deploy.setdefault('runtimeDir', run_dir)
+        tmp_dir = os.path.join(base_dir, '.tmp')
+        tmp_dir = deploy.setdefault('tmpDir', tmp_dir)
 
         for (en, instances) in autoServices.items():
             ei = entryPoints[en].get('tune', {})

@@ -9,10 +9,10 @@ Usage:
     cid package
     cid check [--permissive]
     cid promote <rms_pool> <packages>... [--rmsRepo=<rms_repo>]
-    cid deploy setup [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--user=<user>] [--group=<group>]
-    cid deploy vcstag [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--user=<user>] [--group=<group>]
-    cid deploy vcsref <vcs_ref> [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--user=<user>] [--group=<group>]
-    cid deploy rms <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--build] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--user=<user>] [--group=<group>]
+    cid deploy setup [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--tmpDir=<tmp_dir>] [--user=<user>] [--group=<group>]
+    cid deploy vcstag [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--tmpDir=<tmp_dir>] [--user=<user>] [--group=<group>]
+    cid deploy vcsref <vcs_ref> [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--tmpDir=<tmp_dir>] [--user=<user>] [--group=<group>]
+    cid deploy rms <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--build] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--tmpDir=<tmp_dir>] [--user=<user>] [--group=<group>]
     cid migrate
     cid run
     cid run <command> [--] [<command_arg>...]
@@ -62,6 +62,7 @@ Options:
     --limit-cpus=<cpu_count>|auto   Limit CPU cores (affects instance count).
     --listen-addr=<address>|auto    Address to bind services, all by default.
     --runtimeDir=<runtime_dir>|auto Directory for runtime data (sockets, configs, etc.).
+    --tmpDir=<tmp_dir>|auto         Directory for temporary data.
     --user=<user>|auto              User name to use for service execution.
     --group=<group>|auto            Group name to use for service execution.
     <rms_pool>                      Either "dst_pool" or  "src_pool:dst_pool" for promotion.
@@ -183,6 +184,7 @@ def runInner():
         deploy['maxCpuCount'] = args['--limit-cpus']
         deploy['listenAddress'] = args['--listen-addr']
         deploy['runtimeDir'] = args['--runtimeDir']
+        deploy['tmpDir'] = args['--tmpDir']
         deploy['user'] = args['--user']
         deploy['group'] = args['--group']
         overrides['adaptDeploy'] = args['--adapt'] or args['devserve']
