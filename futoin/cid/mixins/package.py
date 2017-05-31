@@ -211,11 +211,28 @@ class PackageMixIn(object):
 
         os.remove(tf)
 
-    def _addYumRepo(self, name, url, gpg_key=None, releasevermax=None):
+    def _addYumRepo(self, name, url, gpg_key=None, releasevermax=None, repo_url=False):
         self._addRpmKey(gpg_key)
 
         dnf = self._which('dnf')
         yum = self._which('yum')
+
+        if repo_url:
+            tmp_dir = self._tmpCacheDir(prefix='cidrepo')
+            repo_file = '{0}.repo'.format(name)
+            repo_file = os.path.join(tmp_dir, repo_file)
+
+            with open(repo_file, 'w') as f:
+                f.write("\n".join([
+                    '[nginx]',
+                    'name={0} repo'.format(name),
+                    'baseurl={0}'.format(url),
+                    'gpgcheck=1',
+                    'enabled=1',
+                    ''
+                ]))
+
+            url = repo_file
 
         if dnf:
             self._requireYum(['dnf-plugins-core'])

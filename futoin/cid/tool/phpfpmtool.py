@@ -14,19 +14,18 @@ Home: http://php.net/
 This tool provides PHP-FPM based website entry point support.
 It means any PHP file in project can be executed with all consequences.
 
-Use .toolTune.phpfpm for php-fpm.conf tuning - dicts of dicts representing ini file.
+Use .tune.config for php-fpm.conf tuning - dicts of dicts representing ini file.
 * 'global' -> FPM config
 * 'pool' -> pool config
-* 'cid' -> tune CID auto-logic
-    * 'client_files_multiplicator' = 16 - how many descriptors to reserve for each client
-    * 'extension' = [] - list of additional extensions to load
-    * 'zend_extension' - [] - list of additional zend extensions to load
 
-Use .toolTune.php for php.ini tuning - dict of dicts representing ini file.
+Use .tune.cid for default algorithm tuning
+* 'extension' = [] - list of additional extensions to load
+* 'zend_extension' - [] - list of additional zend extensions to load
+
+Use .tune.phpini for php.ini tuning - dict representing ini file options.
 
 Note: system php.ini is ignored, but all extensions are automatically loaded from system scan dir.
-
-Note: file upload are OFF by default.
+Note: file upload is OFF by default.
 """
 
     def getDeps(self):
@@ -39,8 +38,11 @@ Note: file upload are OFF by default.
             'debugConnOverhead': '24M',
             'socketTypes': ['unix', 'tcp'],
             'socketType': 'unix',
+            'socketProtocol': 'fcgi',
             'scalable': True,
+            'multiCore': True,
             'maxInstances': 2,
+            'maxRequestSize': '1M',
         }
 
     def _installTool(self, env):
@@ -111,7 +113,7 @@ Note: file upload are OFF by default.
         name_id = '{0}-{1}'.format(svc['name'], svc['instanceId'])
 
         svc_tune = svc['tune']
-        max_clients = svc_tune['maxClients']
+        max_clients = svc_tune['maxConnections']
 
         # conf location
         fpm_conf = "phpfpm-{0}.conf".format(name_id)
@@ -128,7 +130,7 @@ Note: file upload are OFF by default.
 
         #
         log_level = 'error'
-        error_log = 'syslog'
+        error_log = '/proc/self/fd/2'
         display_errors = 'Off'
         error_reporting = 'E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED'
 
@@ -138,13 +140,11 @@ Note: file upload are OFF by default.
             error_reporting = 'E_ALL | E_STRICT'
 
         #
-        fpm_ini = config.get('toolTune', {}).get('phpfpm', {})
+        fpm_ini = svc_tune.get('config', {})
         fpm_ini = copy.deepcopy(fpm_ini)
 
         #
-        cid_tune = fpm_ini.setdefault('cid', {})
-        client_fmult = cid_tune.setdefault('client_files_multiplicator', 16)
-        del fpm_ini['cid']
+        cid_tune = svc_tune.get('cid', {})
 
         #
         global_ini = fpm_ini.setdefault('global', {})
@@ -153,7 +153,7 @@ Note: file upload are OFF by default.
         global_ini.setdefault('syslog.ident', name_id)
         global_ini['daemonize'] = 'no'
         global_ini['systemd_interval'] = '0'
-        global_ini['rlimit_files'] = max_clients * client_fmult
+        global_ini['rlimit_files'] = svc_tune['maxFD']
 
         #
         pool_ini = fpm_ini.setdefault('pool', {})
@@ -180,7 +180,7 @@ Note: file upload are OFF by default.
         self._writeIni(fpm_conf, fpm_ini)
 
         #
-        php_ini = config.get('toolTune', {}).get('php', {})
+        php_ini = svc_tune.get('phpini', {})
         php_ini = php_ini.copy()
 
         php_ini.setdefault(
@@ -194,10 +194,14 @@ Note: file upload are OFF by default.
         #php_ini.setdefault('open_basedir', config['deployDir'])
         php_ini.setdefault('doc_root', config['deployDir'])
         php_ini.setdefault('error_log', error_log)
+        php_ini.setdefault('catch_workers_output', 'on')
         php_ini.setdefault('display_errors', display_errors)
         php_ini.setdefault('display_startup_errors', display_errors)
         php_ini.setdefault('error_reporting', error_reporting)
-        php_ini.setdefault('file_uploads', 'Off')
+        php_ini.setdefault('file_uploads', 'On')
+        request_size_limit = self._parseMemory(svc_tune['maxRequestSize'])
+        php_ini['upload_max_filesize'] = request_size_limit
+        php_ini['post_max_size'] = request_size_limit
 
         # note: basic extensions are loaded from system (PHP_INI_SCAN_DIR)
         for k in ('extension', 'zend_extension'):

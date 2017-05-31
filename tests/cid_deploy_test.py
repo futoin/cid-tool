@@ -13,13 +13,7 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
     __test__ = True
     
     TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'deploycmd')
-    
-    @classmethod
-    def setUpClass( cls ):
-        super(cid_deploy_Test, cls).setUpClass()
-        
-        os.mkdir(cls.TEST_DIR)
-        os.chdir(cls.TEST_DIR)
+    _create_test_dir = True
         
     def test_01_setup(self):
         cfg_file = os.path.join('setupdir', 'futoin.json')
@@ -298,6 +292,12 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
         self.assertAlmostEqual(int(base * 300 / 350 + 3*1024) * mb, service_mem['scalableMulti'], delta=mb)
         self.assertEqual(4 * 1024 * mb, service_mem['nonScalable'])
 
+class cid_devserve_Test( cid_UTBase, UtilMixIn ) :
+    __test__ = True
+    
+    TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'deploycmd')
+    _create_test_dir = True
+        
     def test_04_devserve(self):
         os.mkdir('devserve')
         os.chdir('devserve')
@@ -342,6 +342,12 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
         self.assertEqual(3, len(self._readFile('shortrun.txt')))
 
         
+class cid_multiapp_Test( cid_UTBase, UtilMixIn ) :
+    __test__ = True
+    
+    TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'deploycmd')
+    _create_test_dir = True
+        
     def test_05_multiapp(self):
         os.mkdir('multiapp')
         os.chdir('multiapp')
@@ -358,6 +364,14 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
                         'memoryWeight' : 70,
                     },
                 },
+                'phpadminapp' : {
+                    'tool' : 'phpfpm',
+                    'path' : 'admin.php',
+                    'tune' : {
+                        'internal': True,
+                        'memoryWeight' : 5,
+                    },
+                },
                 #'jsapp' : {
                     #'tool' : 'node',
                     #'path' : 'app.js',
@@ -372,26 +386,35 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
                 #'pythonapp' : {
                     #'tool' : 'uwsgi',
                 #},
-                #'web' : {
-                    #'tool' : 'nginx',
-                    #'tune' : {
-                        #'maxMemory' : '32M',
-                    #},
-                #}
+                'web' : {
+                    'tool' : 'nginx',
+                    "path" : "webroot",
+                    'tune' : {
+                        'maxMemory' : '32M',
+                        'socketType' : 'tcp',
+                        'socketPort' : '1234',
+                    },
+                },
             },
             'webcfg' : {
                 'root' : 'webroot',
                 'main' : 'phpapp',
                 'mounts' : {
-                    '/jsapp/' : 'jsapp',
-                    '/rubyapp/' : 'rubyapp',
-                    '/pythonapp/' : 'pythonapp',
+                    '/admin/' : 'phpadminapp',
+                    #'/jsapp/' : 'jsapp',
+                    #'/rubyapp/' : 'rubyapp',
+                    #'/pythonapp/' : 'pythonapp',
                 }
             },
         })
+
+        self._writeFile(os.path.join('webroot', 'file.txt'), 'TESTFILE')
         
         self._writeFile('app.php', """<?php
 echo "PHP\\n";
+""")
+        self._writeFile('admin.php', """<?php
+echo "ADMINPHP\\n";
 """)
         self._writeFile('app.js', """
 var http = require('http');
@@ -430,7 +453,23 @@ def application(env, start_response):
             #os.dup2(os.open(os.devnull, os.O_WRONLY), 2)
             os.execv(self.CIDTEST_BIN, [self.CIDTEST_BIN, 'devserve'])
             
-        time.sleep(3)
-        os.kill(pid, signal.SIGTERM)
-        try: os.waitpid(pid, 0)
-        except OSError: pass
+        time.sleep(300)
+        
+        try:
+            import requests
+            res = requests.get('http://localhost:1234/file.txt')
+            self.assertTrue(res.ok)
+            self.assertEquals("TESTFILE", res.text)
+            
+            res = requests.get('http://localhost:1234')
+            self.assertTrue(res.ok)
+            self.assertEquals("PHP\n", res.text)
+
+            res = requests.get('http://localhost:1234/admin')
+            self.assertTrue(res.ok)
+            self.assertEquals("ADMINPHP\n", res.text)
+        
+        finally:
+            os.kill(pid, signal.SIGTERM)
+            try: os.waitpid(pid, 0)
+            except OSError: pass

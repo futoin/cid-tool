@@ -30,6 +30,7 @@
 * NEW: "cid deploy setup" command
 * NEW: "cid service" commands
 * NEW: "cid devserve" command
+* NEW: added nginxTool
 
 === 0.7.3 (2017-04-20) ===
 * FIXED: merge failed message to distinguish aborted/left as-is cases

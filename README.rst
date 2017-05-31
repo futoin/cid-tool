@@ -42,6 +42,7 @@ Supported technologies & tools (so far):
 * **jfrog** - JFrog CLI
     
 * **make**
+* **nginx** - true web server for development, testing & production
 * **node**
 
   - **npm**

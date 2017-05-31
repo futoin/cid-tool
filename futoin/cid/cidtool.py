@@ -262,6 +262,7 @@ class ConfigMixIn(object):
         ('maxMemory', 'memory'),
         ('maxTotalMemory', 'memory'),
         ('connMemory', 'memory'),
+        ('connFD', int),
         ('debugOverhead', 'memory'),
         ('debugConnOverhead', 'memory'),
         ('scalable', bool),
@@ -274,6 +275,7 @@ class ConfigMixIn(object):
         ('maxInstances', int),
         ('socketTypes', list),
         ('socketProtocols', list),
+        ('maxRequestSize', 'memory'),
     ])
 
     FUTOIN_ENV_VARS = OrderedDict([
@@ -1040,8 +1042,7 @@ class DeployMixIn(object):
 
             if isinstance(t, RuntimeTool):
                 cfg_svc = auto_services[svc['name']][svc['instanceId']]
-                cfg_svc_tune = cfg_svc.setdefault('tune', {})
-                t.onPreConfigure(config, runtimeDir, svc, cfg_svc_tune)
+                t.onPreConfigure(config, runtimeDir, svc, cfg_svc)
             else:
                 self._errorExit(
                     'Tool "{0}" for "{1}" is not of RuntimeTool type'
@@ -2375,8 +2376,9 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
             wc_dir = ospath.realpath(self._overrides['wcDir'])
             os.symlink(wc_dir, os.path.join(deploy_dir, 'current'))
 
-            self._overrides['deployDir'] = os.path.realpath(deploy_dir)
-            self._config['deployDir'] = self._overrides['deployDir']
+            deploy_dir = os.path.realpath(deploy_dir)
+            self._overrides['deployDir'] = deploy_dir
+            self._config['deployDir'] = deploy_dir
             self._deployLock()
             self._deployUnlock()
 
@@ -2385,5 +2387,7 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
             self._serviceAdapt()
             self._serviceListPrint()
             self._serviceMaster()
-        finally:
+        except KeyboardInterrupt:
             self._rmTree(deploy_dir)
+        finally:
+            self._warn('Left "{0}" for inspection of error'.format(deploy_dir))

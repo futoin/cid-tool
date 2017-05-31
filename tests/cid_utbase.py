@@ -23,6 +23,7 @@ class cid_UTBase ( unittest.TestCase ) :
     TEST_RUN_DIR = os.environ.get('CIDTEST_RUN_DIR', os.path.realpath(
         os.path.join(os.path.dirname(__file__), '..', 'testrun')
     ))
+    _create_test_dir = False
     __test__ = False
     _dev_null = open(os.devnull, 'w')
 
@@ -45,6 +46,10 @@ class cid_UTBase ( unittest.TestCase ) :
                     for id in dirs + files :
                         os.chmod( os.path.join( path, id ), stat.S_IRWXU )
                 shutil.rmtree( cleanup_dir )
+                
+        if cls._create_test_dir:
+            os.mkdir(cls.TEST_DIR)
+            os.chdir(cls.TEST_DIR)            
             
     def _goToBase( self ):
         os.chdir( self.TEST_DIR )

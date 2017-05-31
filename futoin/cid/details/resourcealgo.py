@@ -103,7 +103,7 @@ class ResourceAlgo(UtilMixIn):
         for (en, ei) in entryPoints.items():
             ei = ei.get('tune', {}).copy()
 
-            for f in ('minMemory', 'connMemory'):
+            for f in ('minMemory', 'connMemory', 'maxRequestSize'):
                 if f not in ei:
                     self._errorExit(
                         '"{0}" is missing from {1} entry point'.format(f, en))
@@ -113,6 +113,12 @@ class ResourceAlgo(UtilMixIn):
                 if f in ei:
                     ei[f] = self._parseMemory(ei[f]) // granularity
 
+            for f in ('socketProtocol',):
+                if f not in ei:
+                    self._errorExit(
+                        '"{0}" is missing from {1} entry point'.format(f, en))
+
+            ei.setdefault('connFD', 16)
             ei.setdefault('memWeight', 100)
             ei.setdefault('cpuWeight', 100)
             ei.setdefault('maxMemory', maxmem)
@@ -173,6 +179,7 @@ class ResourceAlgo(UtilMixIn):
 
         for (en, ei) in services.items():
             if not ei['scalable']:
+                ei['maxCpuCount'] = maxcpu
                 continue
 
             reasonableMinMemory = ei['minMemory'] * min_mem_coeff
@@ -190,6 +197,8 @@ class ResourceAlgo(UtilMixIn):
                     ei['instances'] = min(maxcpu, possible_instances)
                 else:
                     ei['instances'] = min(2, possible_instances)
+
+                ei['maxCpuCount'] = 1
 
             ei['instances'] = min(ei['instances'], ei.get(
                 'maxInstances', ei['instances']))
@@ -215,10 +224,15 @@ class ResourceAlgo(UtilMixIn):
             instances[0]['maxMemory'] += (ei['memAlloc'] - service_mem)
 
             for ic in instances:
-                ic['maxClients'] = int(
+                ic['maxConnections'] = int(
                     ic['maxMemory'] - ei['minMemory']) // ei['connMemory']
 
-                for m in ('maxMemory', 'connMemory'):
+                ic['maxFD'] = int(ei['connFD'] * ic['maxConnections'])
+                ic['maxCpuCount'] = ei['maxCpuCount']
+                ic['maxRequestSize'] = ei['maxRequestSize']
+                ic['socketProtocol'] = ei['socketProtocol']
+
+                for m in ('maxMemory', 'connMemory', 'maxRequestSize'):
                     ic[m] = self._toMemory(ic[m] * granularity)
 
             autoServices[en] = instances
@@ -261,7 +275,7 @@ class ResourceAlgo(UtilMixIn):
                         'listenAddress', '0.0.0.0')
 
                     if 'socketPort' in ei:
-                        sock_port = ei['socketPort'] + i
+                        sock_port = int(ei['socketPort']) + i
                     else:
                         sock_port = port
                         port += 1
