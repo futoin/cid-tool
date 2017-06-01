@@ -8,7 +8,11 @@ from .bashtoolmixin import BashToolMixIn
 class nodeTool(BashToolMixIn, RuntimeTool):
     """Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine.
 
-Home: https://nodejs.org/en/    
+Home: https://nodejs.org/en/
+
+Notes on tuning:
+* .tune.nodeArgs
+
 """
 
     def getDeps(self):
@@ -52,9 +56,51 @@ Home: https://nodejs.org/en/
     def tuneDefaults(self):
         return {
             'minMemory': '64M',
-            'debugOverhead': '128M',
-            'connMemory': '100K',
-            'debugConnOverhead': '1M',
+            'debugOverhead': '32M',
+            'connMemory': '32K',
+            'debugConnOverhead': '64K',
+            'socketTypes': ['unix', 'tcp', 'tcp6'],
             'socketType': 'unix',
             'scalable': True,
+            'multiCore': False,
+            'maxRequestSize': '1M',
+            'socketProtocol': 'http',
         }
+
+    def onRun(self, config, svc, args):
+        svc_tune = svc['tune']
+
+        #---
+        node_env = {}
+
+        if svc_tune['socketType'] == 'unix':
+            node_env['PORT'] = svc_tune['socketPath']
+        else:
+            node_env['PORT'] = svc_tune['socketPort']
+            node_env['HOST'] = svc_tune['socketAddress']
+
+        if config['env']['type'] == 'dev':
+            node_env['NODE_ENV'] = 'development'
+        else:
+            node_env['NODE_ENV'] = 'production'
+
+        os.environ.update(node_env)
+
+        #---
+        heap_limit = self._parseMemory(svc_tune['maxMemory'])
+        heap_limit = int(heap_limit * 0.9)
+        heap_limit = int(heap_limit // 1024 // 1024)
+
+        node_args = [
+            '--max_old_space_size={0}'.format(heap_limit)
+        ]
+
+        #---
+
+        cmd = [
+            config['env']['nodeBin'],
+            svc['path']
+        ] + node_args + args
+
+        env = config['env']
+        self._callInteractive([env['nodeBin'], svc['path']] + node_args + args)

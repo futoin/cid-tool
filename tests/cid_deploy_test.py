@@ -388,12 +388,16 @@ class cid_devserve_Test( cid_UTBase, UtilMixIn ) :
         # 1,2,delay,3,delay
         self.assertEqual(3, len(self._readFile('shortrun.txt')))
 
-        
-class cid_multiapp_Test( cid_UTBase, UtilMixIn ) :
-    __test__ = True
-    
+
+class cid_multiapp_Base( cid_UTBase, UtilMixIn ) :
     TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'deploycmd')
     _create_test_dir = True
+    
+    def _writeFiles(self):
+        pass
+    
+    def _testApps(self):
+        pass
         
     def test_05_multiapp(self):
         os.mkdir('multiapp')
@@ -401,6 +405,33 @@ class cid_multiapp_Test( cid_UTBase, UtilMixIn ) :
         
         os.mkdir('webroot')
         
+        self._writeFiles()
+        
+        self._call_cid(['prepare'])
+        self._call_cid(['build'])
+
+        pid = os.fork()
+        
+        if not pid:
+            os.dup2(os.open(os.devnull, os.O_RDONLY), 0)
+            #os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
+            #os.dup2(os.open(os.devnull, os.O_WRONLY), 2)
+            os.execv(self.CIDTEST_BIN, [self.CIDTEST_BIN, 'devserve'])
+            
+        time.sleep(1)
+        
+        try:
+            self._testApps()
+        
+        finally:
+            os.kill(pid, signal.SIGTERM)
+            try: os.waitpid(pid, 0)
+            except OSError: pass        
+        
+class cid_multiphp_Test( cid_multiapp_Base ) :
+    __test__ = True
+    
+    def _writeFiles(self):
         self._writeJSON('futoin.json', {
             'entryPoints' : {
                 'phpapp' : {
@@ -416,17 +447,10 @@ class cid_multiapp_Test( cid_UTBase, UtilMixIn ) :
                     'path' : 'admin.php',
                     'tune' : {
                         'internal': True,
+                        'socketType' : 'tcp',
                         'memoryWeight' : 5,
                     },
                 },
-                #'jsapp' : {
-                    #'tool' : 'node',
-                    #'path' : 'app.js',
-                    #'tune' : {
-                        #'socketType' : 'tcp',
-                        #'memoryWeight' : 30,
-                    #},
-                #},
                 #'rubyapp' : {
                     #'tool' : 'rack',
                 #},
@@ -448,7 +472,6 @@ class cid_multiapp_Test( cid_UTBase, UtilMixIn ) :
                 'main' : 'phpapp',
                 'mounts' : {
                     '/admin/' : 'phpadminapp',
-                    #'/jsapp/' : 'jsapp',
                     #'/rubyapp/' : 'rubyapp',
                     #'/pythonapp/' : 'pythonapp',
                 }
@@ -463,16 +486,7 @@ echo "PHP\\n";
         self._writeFile('admin.php', """<?php
 echo "ADMINPHP\\n";
 """)
-        self._writeFile('app.js', """
-var http = require('http');
-
-var server = http.createServer(function (request, response) {
-  response.writeHead(200, {"Content-Type": "text/plain"});
-  response.end("Node.js\\n");
-});
-
-server.listen(process.env.PORT || process.env.HTTP_PORT);
-""")
+        
         self._writeFile('config.ru', """
 class RubyApp
   def call(env)
@@ -492,31 +506,105 @@ def application(env, start_response):
     start_response('200 OK', [('Content-Type','text/html')])
     return [b"Python\n"]
 """)
-        pid = os.fork()
         
-        if not pid:
-            os.dup2(os.open(os.devnull, os.O_RDONLY), 0)
-            os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
-            os.dup2(os.open(os.devnull, os.O_WRONLY), 2)
-            os.execv(self.CIDTEST_BIN, [self.CIDTEST_BIN, 'devserve'])
-            
-        time.sleep(1)
+    def _testApps(self):
+        import requests
+        res = requests.get('http://localhost:1234/file.txt', timeout=3)
+        self.assertTrue(res.ok)
+        self.assertEquals("TESTFILE\n", res.text)
         
-        try:
-            import requests
-            res = requests.get('http://localhost:1234/file.txt')
-            self.assertTrue(res.ok)
-            self.assertEquals("TESTFILE\n", res.text)
-            
-            res = requests.get('http://localhost:1234')
-            self.assertTrue(res.ok)
-            self.assertEquals("PHP\n", res.text)
+        res = requests.get('http://localhost:1234', timeout=3)
+        self.assertTrue(res.ok)
+        self.assertEquals("PHP\n", res.text)
 
-            res = requests.get('http://localhost:1234/admin')
-            self.assertTrue(res.ok)
-            self.assertEquals("ADMINPHP\n", res.text)
+        res = requests.get('http://localhost:1234/admin/', timeout=3)
+        self.assertTrue(res.ok)
+        self.assertEquals("ADMINPHP\n", res.text)
+
         
-        finally:
-            os.kill(pid, signal.SIGTERM)
-            try: os.waitpid(pid, 0)
-            except OSError: pass
+class cid_multijs_Test( cid_multiapp_Base ) :
+    __test__ = True
+        
+    def _writeFiles(self):
+        os.mkdir('multiapp')
+        os.chdir('multiapp')
+        
+        os.mkdir('webroot')
+        
+        self._writeJSON('futoin.json', {
+            'entryPoints' : {
+                'jsapp' : {
+                    'tool' : 'node',
+                    'path' : 'app.js',
+                    'tune' : {
+                        'internal': True,
+                        'memoryWeight' : 30,
+                    },
+                },
+                'jstcpapp' : {
+                    'tool' : 'node',
+                    'path' : 'apptcp.js',
+                    'tune' : {
+                        'internal': True,
+                        'socketType' : 'tcp',
+                        'memoryWeight' : 5,
+                    },
+                },
+                'web' : {
+                    'tool' : 'nginx',
+                    "path" : "webroot",
+                    'tune' : {
+                        'maxMemory' : '32M',
+                        'socketType' : 'tcp',
+                        'socketPort' : '1234',
+                    },
+                },
+            },
+            'webcfg' : {
+                'root' : 'webroot',
+                'main' : 'jsapp',
+                'mounts' : {
+                    '/jstcpapp/' : 'jstcpapp',
+                    #'/rubyapp/' : 'rubyapp',
+                    #'/pythonapp/' : 'pythonapp',
+                }
+            },
+        })
+
+        self._writeFile(os.path.join('webroot', 'file.txt'), 'TESTFILE')
+        self._writeFile('app.js', """
+var http = require('http');
+
+var server = http.createServer(function (request, response) {
+  response.writeHead(200, {"Content-Type": "text/plain"});
+  response.end("NODEJS\\n");
+});
+
+server.listen(process.env.PORT);
+""")
+        self._writeFile('apptcp.js', """
+var http = require('http');
+
+var server = http.createServer(function (request, response) {
+  response.writeHead(200, {"Content-Type": "text/plain"});
+  response.end("NODEJS-TCP\\n");
+});
+
+server.listen(process.env.PORT);
+""")
+
+    def _testApps(self):
+        import requests
+        res = requests.get('http://localhost:1234/file.txt', timeout=3)
+        self.assertTrue(res.ok)
+        self.assertEquals("TESTFILE\n", res.text)
+        
+
+        res = requests.get('http://localhost:1234/jsapp/', timeout=3)
+        self.assertTrue(res.ok)
+        self.assertEquals("NODEJS\n", res.text)
+
+        res = requests.get('http://localhost:1234/jsapp/', timeout=3)
+        self.assertTrue(res.ok)
+        self.assertEquals("NODEJS-TCP\n", res.text)
+
