@@ -1173,6 +1173,11 @@ class ServiceMixIn(object):
         auto_services = config.get('deploy', {}).get('autoServices', {})
 
         try:
+            instance_id = int(instance_id)
+        except ValueError:
+            self._errorExit('Invalid instance ID "{0}"'.format(instance_id))
+
+        try:
             ep = entry_points[entry_point]
         except KeyError:
             self._errorExit('Unknown entry point "{0}"'.format(entry_point))
@@ -1186,7 +1191,7 @@ class ServiceMixIn(object):
             self._errorExit('Unknown service entry point "{0}" instance "{1}"'.format(
                 entry_point, instance_id))
 
-        res = ep.deepcopy()
+        res = copy.deepcopy(ep)
         res.setdefault('tune', {}).update(dep)
         return res
 
@@ -2332,6 +2337,7 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
         t = self._tool_impl[tool]
 
         if isinstance(t, RuntimeTool):
+            os.chdir(config['wcDir'])
             t.onRun(config, svc, [])
         else:
             self._errorExit(

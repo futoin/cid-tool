@@ -193,6 +193,9 @@ class ResourceAlgo(UtilMixIn):
             else:
                 possible_instances = ei['memAlloc'] // reasonableMinMemory
 
+                if possible_instances == 0 and ei['memAlloc'] > ei['minMemory']:
+                    possible_instances = 1
+
                 if ei['reloadable'] or maxcpu > 1:
                     ei['instances'] = min(maxcpu, possible_instances)
                 else:

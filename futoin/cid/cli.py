@@ -280,13 +280,13 @@ def runInner():
             elif args['list']:
                 cit.service_list()
             elif args['exec']:
-                cit.service_exec(args['entry_point'], args['instance_id'])
+                cit.service_exec(args['<entry_point>'], args['<instance_id>'])
             elif args['stop']:
-                cit.service_stop(args['entry_point'],
-                                 args['instance_id'], args['pid'])
+                cit.service_stop(args['<entry_point>'],
+                                 args['<instance_id>'], args['<pid>'])
             elif args['reload']:
-                cit.service_reload(args['entry_point'],
-                                   args['instance_id'], args['pid'])
+                cit.service_reload(args['<entry_point>'],
+                                   args['<instance_id>'], args['<pid>'])
             else:
                 raise RuntimeError("Not implemented yet.")
         elif args['init']:
