@@ -1419,7 +1419,9 @@ class ServiceMixIn(object):
 
                         svc['toolImpl'].onRun(self._config, svc, [])
                     except Exception as e:
-                        self._warn(e)
+                        self._warn(str(e))
+                        import traceback
+                        self._warn(str(traceback.format_exc()))
                     finally:
                         sys.stdout.flush()
                         sys.stderr.flush()

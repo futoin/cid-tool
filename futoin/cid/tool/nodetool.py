@@ -76,7 +76,7 @@ Notes on tuning:
         if svc_tune['socketType'] == 'unix':
             node_env['PORT'] = svc_tune['socketPath']
         else:
-            node_env['PORT'] = svc_tune['socketPort']
+            node_env['PORT'] = str(svc_tune['socketPort'])
             node_env['HOST'] = svc_tune['socketAddress']
 
         if config['env']['type'] == 'dev':

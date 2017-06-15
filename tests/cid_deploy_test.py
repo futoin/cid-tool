@@ -414,11 +414,9 @@ class cid_multiapp_Base( cid_UTBase, UtilMixIn ) :
         
         if not pid:
             os.dup2(os.open(os.devnull, os.O_RDONLY), 0)
-            #os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
-            #os.dup2(os.open(os.devnull, os.O_WRONLY), 2)
+            os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
+            os.dup2(os.open(os.devnull, os.O_WRONLY), 2)
             os.execv(self.CIDTEST_BIN, [self.CIDTEST_BIN, 'devserve'])
-            
-        time.sleep(1)
         
         try:
             self._testApps()
@@ -509,7 +507,14 @@ def application(env, start_response):
         
     def _testApps(self):
         import requests
-        res = requests.get('http://localhost:1234/file.txt', timeout=3)
+
+        for i in range(3):
+            try:
+                res = requests.get('http://localhost:1234/file.txt', timeout=3)
+                break
+            except:
+                time.sleep(1)
+            
         self.assertTrue(res.ok)
         self.assertEquals("TESTFILE\n", res.text)
         
@@ -565,8 +570,6 @@ class cid_multijs_Test( cid_multiapp_Base ) :
                 'main' : 'jsapp',
                 'mounts' : {
                     '/jstcpapp/' : 'jstcpapp',
-                    #'/rubyapp/' : 'rubyapp',
-                    #'/pythonapp/' : 'pythonapp',
                 }
             },
         })
@@ -595,7 +598,13 @@ server.listen(process.env.PORT);
 
     def _testApps(self):
         import requests
-        res = requests.get('http://localhost:1234/file.txt', timeout=3)
+        for i in range(3):
+            try:
+                res = requests.get('http://localhost:1234/file.txt', timeout=3)
+                break
+            except:
+                time.sleep(1)
+            
         self.assertTrue(res.ok)
         self.assertEquals("TESTFILE\n", res.text)
         
@@ -604,7 +613,7 @@ server.listen(process.env.PORT);
         self.assertTrue(res.ok)
         self.assertEquals("NODEJS\n", res.text)
 
-        res = requests.get('http://localhost:1234/jsapp/', timeout=3)
+        res = requests.get('http://localhost:1234/jstcpapp/', timeout=3)
         self.assertTrue(res.ok)
         self.assertEquals("NODEJS-TCP\n", res.text)
 

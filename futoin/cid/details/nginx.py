@@ -283,11 +283,19 @@ class ConfigBuilder(UtilMixIn):
             if socket_type == 'unix':
                 socket = 'unix:{0}'.format(v['socketPath'])
             elif socket_type == 'tcp':
-                socket = '{0}:{1}'.format(
-                    v['socketAddress'], v['socketPort'])
+                sock_addr = v['socketAddress']
+
+                if sock_addr == '0.0.0.0':
+                    sock_addr = '127.0.0.1'
+
+                socket = '{0}:{1}'.format(sock_addr, v['socketPort'])
             elif socket_type == 'tcp6':
-                socket = '[{0}]:{1}'.format(
-                    v['socketAddress'], v['socketPort'])
+                sock_addr = v['socketAddress']
+
+                if sock_addr == '::':
+                    sock_addr = '::1'
+
+                socket = '[{0}]:{1}'.format(sock_addr, v['socketPort'])
             else:
                 self._errorExit(
                     'Unsupported socket type "{0}" for "{1}"'.format(socket_type, app))
