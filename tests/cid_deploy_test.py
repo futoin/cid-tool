@@ -342,7 +342,7 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
 class cid_devserve_Test( cid_UTBase, UtilMixIn ) :
     __test__ = True
     
-    TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'deploycmd')
+    TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'devserve')
     _create_test_dir = True
         
     def test_04_devserve(self):
@@ -390,7 +390,6 @@ class cid_devserve_Test( cid_UTBase, UtilMixIn ) :
 
 
 class cid_multiapp_Base( cid_UTBase, UtilMixIn ) :
-    TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'deploycmd')
     _create_test_dir = True
     
     def _writeFiles(self):
@@ -400,9 +399,6 @@ class cid_multiapp_Base( cid_UTBase, UtilMixIn ) :
         pass
         
     def test_05_multiapp(self):
-        os.mkdir('multiapp')
-        os.chdir('multiapp')
-        
         os.mkdir('webroot')
         
         self._writeFiles()
@@ -428,6 +424,7 @@ class cid_multiapp_Base( cid_UTBase, UtilMixIn ) :
         
 class cid_multiphp_Test( cid_multiapp_Base ) :
     __test__ = True
+    TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'deploy_php')
     
     def _writeFiles(self):
         self._writeJSON('futoin.json', {
@@ -449,12 +446,6 @@ class cid_multiphp_Test( cid_multiapp_Base ) :
                         'memoryWeight' : 5,
                     },
                 },
-                #'rubyapp' : {
-                    #'tool' : 'rack',
-                #},
-                #'pythonapp' : {
-                    #'tool' : 'uwsgi',
-                #},
                 'web' : {
                     'tool' : 'nginx',
                     "path" : "webroot",
@@ -470,8 +461,6 @@ class cid_multiphp_Test( cid_multiapp_Base ) :
                 'main' : 'phpapp',
                 'mounts' : {
                     '/admin/' : 'phpadminapp',
-                    #'/rubyapp/' : 'rubyapp',
-                    #'/pythonapp/' : 'pythonapp',
                 }
             },
         })
@@ -499,12 +488,6 @@ end
 run RubyApp.new()                        
 """)
         
-        self._writeFile('app.py', """
-def application(env, start_response):
-    start_response('200 OK', [('Content-Type','text/html')])
-    return [b"Python\n"]
-""")
-        
     def _testApps(self):
         import requests
 
@@ -529,6 +512,7 @@ def application(env, start_response):
         
 class cid_multijs_Test( cid_multiapp_Base ) :
     __test__ = True
+    TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'deploy_js')
         
     def _writeFiles(self):
         os.mkdir('multiapp')
@@ -617,3 +601,82 @@ server.listen(process.env.PORT);
         self.assertTrue(res.ok)
         self.assertEquals("NODEJS-TCP\n", res.text)
 
+
+class cid_multipy_Test( cid_multiapp_Base ) :
+    __test__ = True
+    TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'deploy_py')
+    
+    def _writeFiles(self):
+        self._writeJSON('futoin.json', {
+            'entryPoints' : {
+                'pyapp' : {
+                    'tool' : 'uwsgi',
+                    'path' : 'app.py',
+                    'tune' : {
+                        'internal': True,
+                        'memoryWeight' : 70,
+                    },
+                },
+                'pytcpapp' : {
+                    'tool' : 'uwsgi',
+                    'path' : 'apptcp.py',
+                    'tune' : {
+                        'internal': True,
+                        'socketType' : 'tcp',
+                        'memoryWeight' : 70,
+                    },
+                },
+                'web' : {
+                    'tool' : 'nginx',
+                    "path" : "webroot",
+                    'tune' : {
+                        'maxMemory' : '32M',
+                        'socketType' : 'tcp',
+                        'socketPort' : '1234',
+                    },
+                },
+            },
+            'webcfg' : {
+                'root' : 'webroot',
+                'main' : 'pyapp',
+                'mounts' : {
+                    '/pytcpapp/' : 'pytcpapp',
+                }
+            },
+        })
+
+        self._writeFile(os.path.join('webroot', 'file.txt'), 'TESTFILE')
+        
+        self._writeFile('app.py', """
+def application(env, start_response):
+    start_response('200 OK', [('Content-Type','text/html')])
+    return [b"PYTHON\\n"]
+""")
+        
+        self._writeFile('apptcp.py', """
+def application(env, start_response):
+    start_response('200 OK', [('Content-Type','text/html')])
+    return [b"PYTHON-TCP\\n"]
+""")
+        
+        
+    def _testApps(self):
+        import requests
+
+        for i in range(3):
+            try:
+                res = requests.get('http://localhost:1234/file.txt', timeout=3)
+                break
+            except:
+                time.sleep(1)
+            
+        self.assertTrue(res.ok)
+        self.assertEquals("TESTFILE\n", res.text)
+        
+        res = requests.get('http://localhost:1234', timeout=3)
+        self.assertTrue(res.ok)
+        self.assertEquals("PYTHON\n", res.text)
+
+        res = requests.get('http://localhost:1234/pytcpapp/', timeout=3)
+        self.assertTrue(res.ok)
+        self.assertEquals("PYTHON-TCP\n", res.text)

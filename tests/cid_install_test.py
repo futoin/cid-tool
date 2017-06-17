@@ -208,7 +208,7 @@ for t in ['npm', 'gem', 'setuptools']:
 
 # 50 - managed
 #-----
-for t in ['composer', 'bundler', 'dockercompose', 'twine']:
+for t in ['composer', 'bundler', 'dockercompose', 'twine', 'uwsgi']:
     cls = 'cid_Tool_50_' + t
     globals()[cls] = type(cls, (cid_Tool_UTCommon, ), {
         '__test__' : True,

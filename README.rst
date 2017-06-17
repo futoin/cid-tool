@@ -61,6 +61,7 @@ Supported technologies & tools (so far):
   - **virtualenv**, venv is ignored due to issues with *ensurepip* package
   - **pip**
   - **twine** - as limited RMS tool
+  - **uwsgi** - to run application behind nginx (or other web server)
     
 * **ruby** - system, rvm supported and binary builds (Brightbox, SCL)
 
