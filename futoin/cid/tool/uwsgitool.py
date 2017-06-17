@@ -1,7 +1,4 @@
 
-import os
-import signal
-
 from ..runtimetool import RuntimeTool
 from .piptoolmixin import PipToolMixIn
 

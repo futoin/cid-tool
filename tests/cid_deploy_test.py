@@ -410,8 +410,8 @@ class cid_multiapp_Base( cid_UTBase, UtilMixIn ) :
         
         if not pid:
             os.dup2(os.open(os.devnull, os.O_RDONLY), 0)
-            os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
-            os.dup2(os.open(os.devnull, os.O_WRONLY), 2)
+            #os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
+            #os.dup2(os.open(os.devnull, os.O_WRONLY), 2)
             os.execv(self.CIDTEST_BIN, [self.CIDTEST_BIN, 'devserve'])
         
         try:
@@ -472,20 +472,6 @@ echo "PHP\\n";
 """)
         self._writeFile('admin.php', """<?php
 echo "ADMINPHP\\n";
-""")
-        
-        self._writeFile('config.ru', """
-class RubyApp
-  def call(env)
-    return [
-      200,
-      {"Content-Type" => "text/plain"},
-      ["Ruby\\n"]
-    ]
-  end
-end
-
-run RubyApp.new()                        
 """)
         
     def _testApps(self):
@@ -680,3 +666,98 @@ def application(env, start_response):
         res = requests.get('http://localhost:1234/pytcpapp/', timeout=3)
         self.assertTrue(res.ok)
         self.assertEquals("PYTHON-TCP\n", res.text)
+        
+        
+class cid_multirb_Test( cid_multiapp_Base ) :
+    __test__ = True
+    TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'deploy_rb')
+    
+    def _writeFiles(self):
+        self._writeJSON('futoin.json', {
+            'entryPoints' : {
+                'rbapp' : {
+                    'tool' : 'puma',
+                    'path' : 'app.ru',
+                    'tune' : {
+                        'internal': True,
+                    },
+                },
+                'rbtcpapp' : {
+                    'tool' : 'puma',
+                    'path' : 'apptcp.ru',
+                    'tune' : {
+                        'internal': True,
+                        'socketType' : 'tcp',
+                    },
+                },
+                'web' : {
+                    'tool' : 'nginx',
+                    "path" : "webroot",
+                    'tune' : {
+                        'maxMemory' : '32M',
+                        'socketType' : 'tcp',
+                        'socketPort' : '1234',
+                    },
+                },
+            },
+            'webcfg' : {
+                'root' : 'webroot',
+                'main' : 'rbapp',
+                'mounts' : {
+                    '/rbtcpapp/' : 'rbtcpapp',
+                }
+            },
+        })
+
+        self._writeFile(os.path.join('webroot', 'file.txt'), 'TESTFILE')
+        
+        self._writeFile('app.ru', """
+class RubyApp
+  def call(env)
+    return [
+      200,
+      {"Content-Type" => "text/plain"},
+      ["RUBY\\n"]
+    ]
+  end
+end
+
+run RubyApp.new()                        
+""")
+        
+        self._writeFile('apptcp.ru', """
+class RubyApp
+  def call(env)
+    return [
+      200,
+      {"Content-Type" => "text/plain"},
+      ["RUBY-TCP\\n"]
+    ]
+  end
+end
+
+run RubyApp.new()                        
+""")
+        
+        
+    def _testApps(self):
+        import requests
+
+        for i in range(3):
+            try:
+                res = requests.get('http://localhost:1234/file.txt', timeout=3)
+                break
+            except:
+                time.sleep(1)
+            
+        self.assertTrue(res.ok)
+        self.assertEquals("TESTFILE\n", res.text)
+        
+        res = requests.get('http://localhost:1234', timeout=3)
+        self.assertTrue(res.ok)
+        self.assertEquals("RUBY\n", res.text)
+
+        res = requests.get('http://localhost:1234/rbtcpapp/', timeout=3)
+        self.assertTrue(res.ok)
+        self.assertEquals("RUBY-TCP\n", res.text)
+

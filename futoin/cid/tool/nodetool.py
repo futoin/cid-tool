@@ -102,5 +102,4 @@ Notes on tuning:
             svc['path']
         ] + node_args + args
 
-        env = config['env']
-        self._callInteractive([env['nodeBin'], svc['path']] + node_args + args)
+        self._callInteractive(cmd)

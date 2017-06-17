@@ -9,6 +9,8 @@ __all__ = ['RuntimeTool']
 
 class RuntimeTool(SubTool):
     DEFAULT_EXIT_TIMEOUT = 5000
+    _SIG_STOP = signal.SIGTERM
+    _SIG_RELOAD = signal.SIGHUP
 
     def onRun(self, config, svc, args):
         env = config['env']
@@ -28,11 +30,11 @@ class RuntimeTool(SubTool):
         }
 
     def onStop(self, config, pid, tune):
-        self._signalPID(pid, signal.SIGTERM)
+        self._signalPID(pid, self._SIG_STOP)
 
     def onReload(self, config, pid, tune):
         if tune['reloadable']:
-            self._signalPID(pid, signal.SIGHUP)
+            self._signalPID(pid, self._SIG_RELOAD)
         else:
             self.onStop(config, pid, tune)
 
