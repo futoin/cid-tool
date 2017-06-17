@@ -410,8 +410,8 @@ class cid_multiapp_Base( cid_UTBase, UtilMixIn ) :
         
         if not pid:
             os.dup2(os.open(os.devnull, os.O_RDONLY), 0)
-            #os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
-            #os.dup2(os.open(os.devnull, os.O_WRONLY), 2)
+            os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
+            os.dup2(os.open(os.devnull, os.O_WRONLY), 2)
             os.execv(self.CIDTEST_BIN, [self.CIDTEST_BIN, 'devserve'])
         
         try:
@@ -483,7 +483,9 @@ echo "ADMINPHP\\n";
                 break
             except:
                 time.sleep(1)
-            
+        else:
+            self.assertTrue(False)
+             
         self.assertTrue(res.ok)
         self.assertEquals("TESTFILE\n", res.text)
         
@@ -574,7 +576,9 @@ server.listen(process.env.PORT);
                 break
             except:
                 time.sleep(1)
-            
+        else:
+            self.assertTrue(False)
+             
         self.assertTrue(res.ok)
         self.assertEquals("TESTFILE\n", res.text)
         
@@ -655,6 +659,8 @@ def application(env, start_response):
                 break
             except:
                 time.sleep(1)
+        else:
+            self.assertTrue(False)
             
         self.assertTrue(res.ok)
         self.assertEquals("TESTFILE\n", res.text)
@@ -749,7 +755,9 @@ run RubyApp.new()
                 break
             except:
                 time.sleep(1)
-            
+        else:
+            self.assertTrue(False)
+             
         self.assertTrue(res.ok)
         self.assertEquals("TESTFILE\n", res.text)
         
