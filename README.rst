@@ -1,5 +1,5 @@
 
-CID - The Manager of Managers - FutoIn Continuous Integration & Delivery Tool
+CID - FutoIn Continuous Integration & Delivery Tool
 ==============================================================================
 
 Intro
@@ -11,8 +11,7 @@ many operations of different technologies like npm, composer, bundler, nvm,
 rvm, php-build and others under a single tool for runtime setup, project
 development, build, deployment and running.
 
-*NOTE: current focus is on web projects, but support of other types is a far
-target.*
+*NOTE: current focus is on web projects, but other types are supported as well.*
 
 Full theoretical details are defined as FutoIn Spec FTN16 available at:
 https://github.com/futoin/specs/blob/master/draft/ftn16_cid_tool.md
