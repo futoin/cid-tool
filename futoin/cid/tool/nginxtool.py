@@ -15,7 +15,8 @@ nginx support is targeted only cases when server is run behind
 reverse proxy or level 7 load balancer. It's NOT configured
 for frontend cases !!!
 
-Note: nginxVer supports only "stable" or "mainline"
+Note: nginxVer supports only "stable" or "mainline" trying to setup from nginx.org
+repos as far as possible. Please remove OS-supplied nginx, if installed.
 
 Tune possibilities through .tune.config - representing dict-based tree structure:
 * global directives
@@ -94,6 +95,13 @@ Additional notes:
                 self._GPG_KEY,
                 repo_url=True)
 
+        elif self._isFedora():
+            self._addYumRepo(
+                'nginx',
+                '{0}/centos/7/$basearch/'.format(base_url),
+                self._GPG_KEY,
+                repo_url=True)
+
         elif self._isRHEL():
             self._addYumRepo(
                 'nginx',
@@ -107,6 +115,13 @@ Additional notes:
                 '{0}/sles/$releasever/$basearch/'.format(base_url),
                 self._GPG_KEY,
                 yum=True)
+
+        elif self._isArchLinux():
+            if env['nginxVer'] == 'mainline':
+                self._requirePacman('nginx-mainline')
+            else:
+                self._requirePacman('nginx')
+            return
 
         self._requirePackages('nginx')
 

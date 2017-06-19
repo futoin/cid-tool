@@ -39,10 +39,10 @@ class PackageMixIn(object):
     def _isRHEL(self):
         return platform.linux_distribution()[0].startswith('Red Hat Enterprise Linux')
 
-    def isOpenSUSE(self):
+    def _isOpenSUSE(self):
         return platform.linux_distribution()[0].startswith('openSUSE')
 
-    def isSLES(self):
+    def _isSLES(self):
         return platform.linux_distribution()[0].startswith('SUSE Linux Enterprise')
 
     def _isMacOS(self):
@@ -400,3 +400,20 @@ class PackageMixIn(object):
             self._trySudoCall([installer, '-package', pkg, '-target', '/'])
 
             self._trySudoCall([hdiutil, 'dettach', local_name])
+
+    def _requireBuildEssential(self):
+        self._requireDeb([
+            'build-essential',
+            'libssl-dev',
+        ])
+        self._requireRpm([
+            'binutils',
+            'gcc',
+            'gcc-c++',
+            'glibc-devel',
+            'libtool',
+            'make',
+            'openssl-devel',
+        ])
+
+        self._requireYum('redhat-rpm-config')

@@ -4,6 +4,10 @@ import sys
 import time
 import signal
 import stat
+import pwd
+import grp
+
+import requests
 
 from .cid_utbase import cid_UTBase
 from futoin.cid.details.resourcealgo import ResourceAlgo
@@ -21,14 +25,17 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
         runtime_dir = os.path.join(self.TEST_DIR, 'setupdir', '.runtime')
         tmp_dir = os.path.join(self.TEST_DIR, 'setupdir', '.tmp')
         
+        user = pwd.getpwuid(os.geteuid())[0]
+        group = grp.getgrgid(os.getegid())[0]
+        
         self._call_cid(['deploy', 'setup', '--deployDir=setupdir'])
         cfg = self._readJSON(cfg_file)
         self.assertEquals(dict(cfg['deploy']), {
             'runtimeDir' : runtime_dir,
             'tmpDir' : tmp_dir,
             'autoServices': {},
-            'user' : 'vagrant',
-            'group' : 'vagrant',
+            'user' : user,
+            'group' : group,
         })
         
         self._call_cid(['deploy', 'setup', '--deployDir=setupdir', '--runtimeDir=/tmp/someother'])
@@ -37,8 +44,8 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
             'autoServices': {},
             'runtimeDir' : '/tmp/someother',
             'tmpDir' : tmp_dir,
-            'user' : 'vagrant',
-            'group' : 'vagrant',
+            'user' : user,
+            'group' : group,
         })
 
         self._call_cid(['deploy', 'setup', '--deployDir=setupdir'])
@@ -47,8 +54,8 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
             'autoServices': {},
             'runtimeDir' : '/tmp/someother',
             'tmpDir' : tmp_dir,
-            'user' : 'vagrant',
-            'group' : 'vagrant',
+            'user' : user,
+            'group' : group,
         })
 
         self._call_cid(['deploy', 'setup', '--deployDir=setupdir', '--runtimeDir=auto'])
@@ -57,8 +64,8 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
             'runtimeDir' : runtime_dir,
             'tmpDir' : tmp_dir,
             'autoServices': {},
-            'user' : 'vagrant',
-            'group' : 'vagrant',
+            'user' : user,
+            'group' : group,
         })
         
         
@@ -71,8 +78,8 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
             'tmpDir' : tmp_dir,
             'autoServices': {},
             'listenAddress': '1.2.3.4',
-            'user' : 'vagrant',
-            'group' : 'vagrant',
+            'user' : user,
+            'group' : group,
         })
         
         self._call_cid(['deploy', 'setup',
@@ -85,8 +92,8 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
             'autoServices': {},
             'maxCpuCount': 3,
             'listenAddress': '1.2.3.4',
-            'user' : 'vagrant',
-            'group' : 'vagrant',
+            'user' : user,
+            'group' : group,
         })
         
         self._call_cid(['deploy', 'setup',
@@ -100,8 +107,8 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
             'maxTotalMemory' : '18M',
             'maxCpuCount': 3,
             'listenAddress': '1.2.3.4',
-            'user' : 'vagrant',
-            'group' : 'vagrant',
+            'user' : user,
+            'group' : group,
         })
 
         self._call_cid(['deploy', 'setup',
@@ -114,8 +121,8 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
             'autoServices': {},
             'maxCpuCount': 3,
             'listenAddress': '1.2.3.4',
-            'user' : 'vagrant',
-            'group' : 'vagrant',
+            'user' : user,
+            'group' : group,
         })
 
         self._call_cid(['deploy', 'setup',
@@ -127,8 +134,8 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
             'tmpDir' : tmp_dir,
             'autoServices': {},
             'listenAddress': '1.2.3.4',
-            'user' : 'vagrant',
-            'group' : 'vagrant',
+            'user' : user,
+            'group' : group,
         })
         
         self._call_cid(['deploy', 'setup',
@@ -167,8 +174,8 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
             'tmpDir' : tmp_dir,
             'autoServices': {},
             'listenAddress': '1.2.3.4',
-            'user' : 'vagrant',
-            'group' : 'vagrant',
+            'user' : user,
+            'group' : group,
         })
         
         self._call_cid(['deploy', 'setup',
@@ -181,8 +188,8 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
             'tmpDir' : '/other/tmp',
             'autoServices': {},
             'listenAddress': '1.2.3.4',
-            'user' : 'vagrant',
-            'group' : 'vagrant',
+            'user' : user,
+            'group' : group,
         })
 
         self._call_cid(['deploy', 'setup',
@@ -194,8 +201,8 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
             'tmpDir' : tmp_dir,
             'autoServices': {},
             'listenAddress': '1.2.3.4',
-            'user' : 'vagrant',
-            'group' : 'vagrant',
+            'user' : user,
+            'group' : group,
         })
         
                 
@@ -210,7 +217,9 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
         ra = ResourceAlgo()
         
         if os.path.exists('/sys/fs/cgroup/memory/memory.limit_in_bytes'):
-            self.assertEqual(sys.maxint, ra.cgroupMemory())
+            limit_in_bytes = self._readFile('/sys/fs/cgroup/memory/memory.limit_in_bytes')
+            limit_in_bytes = int(limit_in_bytes.strip())
+            self.assertEqual(limit_in_bytes, ra.cgroupMemory())
         else:
             self.assertEqual(None, ra.cgroupMemory())
         
@@ -387,6 +396,12 @@ class cid_devserve_Test( cid_UTBase, UtilMixIn ) :
         self.assertEqual(1, len(self._readFile('longrun.txt')))
         # 1,2,delay,3,delay
         self.assertEqual(3, len(self._readFile('shortrun.txt')))
+        
+class cid_service_Test( cid_UTBase, UtilMixIn ) :
+    #__test__ = True
+    
+    TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'service')
+    _create_test_dir = True
 
 
 class cid_multiapp_Base( cid_UTBase, UtilMixIn ) :
@@ -420,7 +435,22 @@ class cid_multiapp_Base( cid_UTBase, UtilMixIn ) :
         finally:
             os.kill(pid, signal.SIGTERM)
             try: os.waitpid(pid, 0)
-            except OSError: pass        
+            except OSError: pass
+        
+    def _firstGet(self, url):
+        for i in range(5):
+            try:
+                res = requests.get(url, timeout=3)
+                
+                if res.ok:
+                    return res
+                else:
+                    time.sleep(1)
+            except:
+                time.sleep(1)
+        else:
+            self.assertTrue(False)
+
         
 class cid_multiphp_Test( cid_multiapp_Base ) :
     __test__ = True
@@ -475,25 +505,15 @@ echo "ADMINPHP\\n";
 """)
         
     def _testApps(self):
-        import requests
-
-        for i in range(3):
-            try:
-                res = requests.get('http://localhost:1234/file.txt', timeout=3)
-                break
-            except:
-                time.sleep(1)
-        else:
-            self.assertTrue(False)
-             
+        res = self._firstGet('http://localhost:1234/file.txt')
         self.assertTrue(res.ok)
         self.assertEquals("TESTFILE\n", res.text)
         
-        res = requests.get('http://localhost:1234', timeout=3)
+        res = self._firstGet('http://localhost:1234')
         self.assertTrue(res.ok)
         self.assertEquals("PHP\n", res.text)
 
-        res = requests.get('http://localhost:1234/admin/', timeout=3)
+        res = self._firstGet('http://localhost:1234/admin/')
         self.assertTrue(res.ok)
         self.assertEquals("ADMINPHP\n", res.text)
 
@@ -569,25 +589,16 @@ server.listen(process.env.PORT);
 """)
 
     def _testApps(self):
-        import requests
-        for i in range(3):
-            try:
-                res = requests.get('http://localhost:1234/file.txt', timeout=3)
-                break
-            except:
-                time.sleep(1)
-        else:
-            self.assertTrue(False)
-             
+        res = self._firstGet('http://localhost:1234/file.txt')     
         self.assertTrue(res.ok)
         self.assertEquals("TESTFILE\n", res.text)
         
 
-        res = requests.get('http://localhost:1234/jsapp/', timeout=3)
+        res = self._firstGet('http://localhost:1234/jsapp/')
         self.assertTrue(res.ok)
         self.assertEquals("NODEJS\n", res.text)
 
-        res = requests.get('http://localhost:1234/jstcpapp/', timeout=3)
+        res = self._firstGet('http://localhost:1234/jstcpapp/')
         self.assertTrue(res.ok)
         self.assertEquals("NODEJS-TCP\n", res.text)
 
@@ -651,25 +662,15 @@ def application(env, start_response):
         
         
     def _testApps(self):
-        import requests
-
-        for i in range(3):
-            try:
-                res = requests.get('http://localhost:1234/file.txt', timeout=3)
-                break
-            except:
-                time.sleep(1)
-        else:
-            self.assertTrue(False)
-            
+        res = self._firstGet('http://localhost:1234/file.txt')
         self.assertTrue(res.ok)
         self.assertEquals("TESTFILE\n", res.text)
         
-        res = requests.get('http://localhost:1234', timeout=3)
+        res = self._firstGet('http://localhost:1234')
         self.assertTrue(res.ok)
         self.assertEquals("PYTHON\n", res.text)
 
-        res = requests.get('http://localhost:1234/pytcpapp/', timeout=3)
+        res = self._firstGet('http://localhost:1234/pytcpapp/')
         self.assertTrue(res.ok)
         self.assertEquals("PYTHON-TCP\n", res.text)
         
@@ -747,25 +748,15 @@ run RubyApp.new()
         
         
     def _testApps(self):
-        import requests
-
-        for i in range(3):
-            try:
-                res = requests.get('http://localhost:1234/file.txt', timeout=3)
-                break
-            except:
-                time.sleep(1)
-        else:
-            self.assertTrue(False)
-             
+        res = self._firstGet('http://localhost:1234/file.txt')
         self.assertTrue(res.ok)
         self.assertEquals("TESTFILE\n", res.text)
         
-        res = requests.get('http://localhost:1234', timeout=3)
+        res = self._firstGet('http://localhost:1234')
         self.assertTrue(res.ok)
         self.assertEquals("RUBY\n", res.text)
 
-        res = requests.get('http://localhost:1234/rbtcpapp/', timeout=3)
+        res = self._firstGet('http://localhost:1234/rbtcpapp/')
         self.assertTrue(res.ok)
         self.assertEquals("RUBY-TCP\n", res.text)
 

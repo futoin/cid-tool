@@ -11,7 +11,7 @@ from ..coloring import Coloring
 class PathMixIn(object):
     _dev_null = None
 
-    def _callExternal(self, cmd, suppress_fail=False, verbose=True, output_handler=None, input=False):
+    def _callExternal(self, cmd, suppress_fail=False, verbose=True, output_handler=None, input=False, merge_stderr=False):
         try:
             if not PathMixIn._dev_null:
                 PathMixIn._dev_null = open(os.devnull, 'w')
@@ -21,7 +21,9 @@ class PathMixIn(object):
             else:
                 stdin = PathMixIn._dev_null
 
-            if verbose and not suppress_fail:
+            if merge_stderr:
+                stderr = subprocess.STDOUT
+            elif verbose and not suppress_fail:
                 print(Coloring.infoLabel('Call: ') +
                       Coloring.info(subprocess.list2cmdline(cmd)),
                       file=sys.stderr)

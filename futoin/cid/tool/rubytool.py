@@ -149,7 +149,7 @@ if binary versions are not found for specific system.
                 ruby_binaries = ['1.9', '2.0', '2.1', '2.2', '2.3']
 
         elif self._isSCLSupported():
-            ruby_binaries = ['1.9', '2.0', '2.2', '2.3']
+            ruby_binaries = ['1.9', '2.0', '2.2', '2.3', '2.4']
         else:
             ruby_binaries = None
 

@@ -16,10 +16,13 @@ class PipToolMixIn(object):
             if int(env['pythonVer'].split('.')[0]) == 3:
                 self._requireDeb(['python3-dev'])
                 self._requireZypper(['python3-devel'])
+                self._requireYum(['python3-devel'])
                 self._requireYum(['python34-devel'])
             else:
                 self._requireDeb(['python-dev'])
                 self._requireRpm(['python-devel'])
+
+            self._requireBuildEssential()
 
         self._callExternal([env['pipBin'], 'install', '-q', self._pipName()])
 

@@ -17,23 +17,26 @@ which apt-get && apt-get update || true
     
     vms = {
         'rmshost' => 'debian/jessie64',
-        'debian_jessie' => 'debian/jessie64',
+        'debian_stretch' => 'debian/stretch64',
         'ubuntu_xenial' => 'bento/ubuntu-16.04',
         'centos_7' => 'centos/7',
         'opensuse_leap' => 'bento/opensuse-leap-42.1',
         'fedora_25' => 'bento/fedora-25',
-        #'funtoo' => 'tonyczeh/funtoo-generic64-pure64',
-        #'gentoo' => 'cmiles/gentoo-amd64-minimal',
         'archlinux' => 'ogarcia/archlinux-x64',
+
         # behaves similar to CentOS, but limited
         #'ol_7' => 'boxcutter/ol73',
         #'rhel_7' => 'iamseth/rhel-7.3',
         #'sles_12' => 'suse/sles12sp1',
+
         # not part of standard test cycle
         #'macos' => 'jhcook/macos-sierra',
         #'macos' => 'http://files.dryga.com/boxes/osx-sierra-0.3.1.box',
-        
-        'debian_stretch' => 'fujimakishouten/debian-stretch64',
+        #'funtoo' => 'tonyczeh/funtoo-generic64-pure64',
+        #'gentoo' => 'cmiles/gentoo-amd64-minimal',
+
+        # older versions
+        'debian_jessie' => 'debian/jessie64',
         'ubuntu_trusty' => 'bento/ubuntu-14.04',
         #'ubuntu_yakkety' => 'bento/ubuntu-16.10', # non-LTS
         'ubuntu_zesty' => 'wholebits/ubuntu17.04-64', # non-LTS
@@ -62,7 +65,7 @@ which apt-get && apt-get update || true
                 dist_controller = 'SATA Controller'
             end
             
-            if name == 'ubuntu_trusty'
+            if name == 'ubuntu_trusty' or name == 'centos_7'
                 nic_type = '82540EM'
             else
                 nic_type = 'virtio'

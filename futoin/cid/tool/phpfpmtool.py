@@ -63,27 +63,36 @@ Note: file upload is OFF by default.
             self._requireDeb('php{0}-fpm'.format(ver))
 
         elif self._isSCLSupported():
-            pass
+            if self._isPHPSCL(env):
+                ver = ver.replace('.', '')
 
+                self._requireSCL()
+
+                self._requireYum([
+                    'rh-php{0}-php-fpm'.format(ver),
+                ])
+            else:
+                self._errorExit('Only SCL packages are supported so far')
         else:
             self._systemDeps()
+
+    def _isPHPSCL(self, env):
+        return env['phpVer'] in ('5.6', '7.0')
 
     def _systemDeps(self):
         self._requireDeb(['php.*-fpm'])
         self._requireZypper(['php*-fpm'])
         self._requireYum(['php-fpm'])
+        self._requirePacman(['php-fpm'])
 
     def initEnv(self, env):
         php_bin = env['phpBin']
 
-        if env['phpVer'] == self.SYSTEM_VER:
-            pass
-        elif env['phpBinOnly']:
+        if env['phpBinOnly']:
+            bin_name = 'php-fpm'
+
             if self._isDebian() or self._isUbuntu():
                 bin_name = 'php-fpm' + env['phpVer']
-
-            elif self._isSCLSupported():
-                bin_name = 'php-fpm'
 
         else:
             bin_name = '{0}-fpm'.format(os.path.basename(php_bin))

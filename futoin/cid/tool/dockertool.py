@@ -64,14 +64,14 @@ Docker EE or other installation methods are out of scope for now.
         elif self._isOracleLinux() or self._isRHEL():
             self._addYumRepo('docker', repo + '/linux/centos/docker-ce.repo')
 
-        # elif self.isOpenSUSE() or self.isSLES():
+        # elif self._isOpenSUSE() or self._isSLES():
         #    virt_repo = 'https://download.opensuse.org/repositories/Virtualization'
         #
         #    with open('/etc/os-release', 'r') as rf:
         #        releasever = re.search('VERSION="([0-9.]+)"', rf.read()).group(1)
         #
         #
-        #    if self.isOpenSUSE():
+        #    if self._isOpenSUSE():
         #        virt_repo += '/openSUSE_Leap_'+releasever
         #    else:
         #        virt_repo += '/SLE_'+releasever

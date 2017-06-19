@@ -4,6 +4,7 @@ import copy
 from collections import OrderedDict
 
 from ..mixins.util import UtilMixIn
+from ..mixins.path import PathMixIn
 
 
 GPG_KEY = """
@@ -34,7 +35,8 @@ cflirUIExgZdUJqoogCeNPVwXiHEIVqithAM1pdY/gcaQZmIRgQQEQIABgUCTk5f
 YQAKCRCpN2E5pSTFPnNWAJ9gUozyiS+9jf2rJvqmJSeWuCgVRwCcCUFhXRCpQO2Y
 Va3l3WuB+rgKjsQ=
 =EWWI
------END PGP PUBLIC KEY BLOCK-----    
+-----END PGP PUBLIC KEY BLOCK-----
+
 """
 
 FASTCGI_PARAMS = """
@@ -97,7 +99,7 @@ uwsgi_param  SERVER_NAME        $server_name;
 """
 
 
-class ConfigBuilder(UtilMixIn):
+class ConfigBuilder(UtilMixIn, PathMixIn):
     def __init__(self, config, svc):
         self._config = config
         self._nginx_conf = copy.deepcopy(svc['tune'].get('config', {}))
@@ -105,6 +107,14 @@ class ConfigBuilder(UtilMixIn):
         self._remote_addr_var = '$remote_addr'
         self._remote_port_var = '$remote_port'
         self._x_forwarded_for_var = '$proxy_add_x_forwarded_for'
+
+        #---
+        ver = self._callExternal(
+            [config['env']['nginxBin'], '-v'],
+            verbose=False, merge_stderr=True)
+        ver = ver.split('/')[1].strip().split('.')
+        ver = [int(v) for v in ver]
+        self._version = tuple(ver)
 
     def build(self, name_id, pid_file, tmp_path):
         config = self._config
@@ -116,7 +126,7 @@ class ConfigBuilder(UtilMixIn):
 
         # Global
         #---
-        conf['user'] = '{0} {1}'.format(deploy['user'], deploy['group'])
+        #conf['user'] = '{0} {1}'.format(deploy['user'], deploy['group'])
         conf['worker_processes'] = svc_tune['maxCpuCount']
         conf.setdefault('error_log', 'stderr error')
         conf['worker_rlimit_nofile'] = svc_tune['maxFD']
@@ -141,7 +151,12 @@ class ConfigBuilder(UtilMixIn):
         http.setdefault('log_not_found', 'off')
 
         #
-        http.setdefault('client_body_temp_path', '{0} 1 2'.format(tmp_path))
+        temp_path_opt = http.setdefault(
+            'client_body_temp_path', '{0} 1 2'.format(tmp_path))
+        http.setdefault('proxy_temp_path', temp_path_opt)
+        http.setdefault('fastcgi_temp_path', temp_path_opt)
+        http.setdefault('uwsgi_temp_path', temp_path_opt)
+        http.setdefault('scgi_temp_path', temp_path_opt)
         #
         http.setdefault('proxy_buffering', 'off')
         http.setdefault('proxy_request_buffering', 'off')
@@ -154,7 +169,9 @@ class ConfigBuilder(UtilMixIn):
         http.setdefault('fastcgi_next_upstream', 'error')
         #
         http.setdefault('aio', 'threads')
-        http.setdefault('aio_write', 'on')
+        if self._version >= (1, 9, 13):
+            http.setdefault('aio_write', 'on')
+        #
         http.setdefault('server_tokens', 'off')
 
         http['map $http_upgrade $connection_upgrade'] = {
@@ -257,8 +274,10 @@ class ConfigBuilder(UtilMixIn):
         queue = cid_tune.get('upstreamQueue', None)
 
         upstream = OrderedDict()
-        upstream['zone'] = 'upstreams {0}'.format(zone_size)
-        upstream['hash'] = '$binary_remote_addr consistent'
+
+        if self._version >= (1, 9, 0):
+            upstream['zone'] = 'upstreams {0}'.format(zone_size)
+            upstream['hash'] = '$binary_remote_addr consistent'
 
         if queue:
             upstream['queue'] = queue
@@ -273,10 +292,12 @@ class ConfigBuilder(UtilMixIn):
                 upstream['keepalive'] = ka_conn
 
         for v in instances:
-            options = 'max_conns={0} max_fails=1 fail_timeout={1}'.format(
-                v['maxConnections'],
-                file_timeout
-            )
+            options = []
+            if self._version >= (1, 9, 0):
+                options.append('max_conns={0}'.format(v['maxConnections']))
+
+            options.append('max_fails=0')
+            options.append('fail_timeout={0}'.format(file_timeout))
 
             socket_type = v['socketType']
 
@@ -300,7 +321,7 @@ class ConfigBuilder(UtilMixIn):
                 self._errorExit(
                     'Unsupported socket type "{0}" for "{1}"'.format(socket_type, app))
 
-            upstream['server {0}'.format(socket)] = options
+            upstream['server {0}'.format(socket)] = ' '.join(options)
 
         return upstream
 
