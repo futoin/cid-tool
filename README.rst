@@ -184,66 +184,17 @@ If pip is not available then it's strongly suggested to install one first: ::
 
     easy_install pip
 
-To allow cid automatically install system packages, please allow execution
-of apt-get, dnf, zypper or yum in sudoers. Example: ::
+For best user experience, it's suggested to allow system package installation (only)
+through sudo without password. It should minimize impact on security.
 
-    # Debian / Ununtu
-    username ALL=(ALL) NOPASSWD: /usr/bin/apt-get install
-    username ALL=(ALL) NOPASSWD: /usr/bin/apt-get install *
-    username ALL=(ALL) NOPASSWD: /usr/bin/apt-get update
-    username ALL=(ALL) NOPASSWD: /usr/bin/apt-add-repository
-    username ALL=(ALL) NOPASSWD: /usr/bin/apt-add-repository *
-    # Potential security issue, you may want to install GPG keys manually
-    username ALL=(ALL) NOPASSWD: /usr/bin/apt-key add
-    username ALL=(ALL) NOPASSWD: /usr/bin/apt-key add *
-    
-    # Fedora and future RedHat-based
-    username ALL=(ALL) NOPASSWD: /usr/bin/dnf install
-    username ALL=(ALL) NOPASSWD: /usr/bin/dnf install *
+A convenient OS-agnostic way is to do it this way: ::
 
-    # Gentoo Linux
-    username ALL=(ALL) NOPASSWD: /usr/bin/emerge
-    username ALL=(ALL) NOPASSWD: /usr/bin/emerge *
-    
-    # ArchLinux
-    username ALL=(ALL) NOPASSWD: /usr/bin/pacman
-    username ALL=(ALL) NOPASSWD: /usr/bin/pacman *
+    cid sudoers | sudo sh -c 'cat >> /etc/sudoers'
 
-    # OpenSuSe and possibly SLES
-    username ALL=(ALL) NOPASSWD: /usr/bin/zypper install
-    username ALL=(ALL) NOPASSWD: /usr/bin/zypper install *
-    username ALL=(ALL) NOPASSWD: /usr/bin/zypper addrepo
-    username ALL=(ALL) NOPASSWD: /usr/bin/zypper addrepo *
-    
-    # Other RedHat-based
-    username ALL=(ALL) NOPASSWD: /usr/bin/yum install
-    username ALL=(ALL) NOPASSWD: /usr/bin/yum install *
-    username ALL=(ALL) NOPASSWD: /usr/bin/yum-config-manager --add-repo
-    username ALL=(ALL) NOPASSWD: /usr/bin/yum-config-manager --add-repo *
-    
-    # For RedHat family
-    # For dnf, yum and zypper
-    # Potential security issue, you may want to install GPG keys manually
-    username ALL=(ALL) NOPASSWD: /usr/bin/rpm --import
-    username ALL=(ALL) NOPASSWD: /usr/bin/rpm --import *
-    
-    # Mostly Docker-specific
-    # to launch some newly installed services (e.g. Docker)
-    username ALL=(ALL) NOPASSWD: /bin/systemctl start
-    username ALL=(ALL) NOPASSWD: /bin/systemctl start *
-    
-    # or add username as member of docker group
-    username ALL=(ALL) NOPASSWD: /usr/bin/docker
-    username ALL=(ALL) NOPASSWD: /usr/bin/docker *
-    
-    # Mac OS X
-    # Not fully tested
-    username ALL=(ALL) NOPASSWD: /usr/bin/installer
-    username ALL=(ALL) NOPASSWD: /usr/bin/hdiutil
-    
-    
+One obvious drawback is management of package trusted signing keys. It can be disabled.
+Then please run the following command instead: ::
 
-*Note: there are duplications with asterisk as some OSes have patched sudo*
+    cid sudoers --skip-key-management | sudo sh -c 'cat >> /etc/sudoers'
 
 Usage
 -----
@@ -473,6 +424,13 @@ Please see details in the FTN16 spec: ::
     cid service reload <entry_point> <instance_id> <pid> [--deployDir=<deploy_dir>]
         Helper for system init to gracefully reload pre-configured service.
         Note: if reload is not supported then reload acts as "stop" to force restart.
+        
+    cid sudoers [<sudo_entity>] [--skip-key-management]
+        Output ready sudoers entries specific to current OS.
+        Current user is used by default, unless overridden.
+        Only repository adding and package installation is allowed.
+        For better security, it's possible to disable trusted signing key management
+        with --skip-key-management.
 
 Excplicit futoin.json example
 -----------------------------

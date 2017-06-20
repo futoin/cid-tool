@@ -5,6 +5,8 @@ if ! test -e bin/cid; then
     exit 1
 fi
 
+CID_BOOT=$(pwd)/bin/cid
+
 # ArchLinux images comes without python
 if ! which python >/dev/null; then
     which pacman && sudo pacman -S --noconfirm --needed python
@@ -13,17 +15,28 @@ if ! which python >/dev/null; then
 fi
 
 # Run test out of sync folder
-if [ "$(id -un)" = "vagrant" ]; then
+export CIDTEST_USER=$(id -un)
+
+if [ "$CIDTEST_USER" = "vagrant" ]; then
     export CIDTEST_RUN_DIR=/testrun
+    CIDTEST_USER=cidtest
     sudo mkdir -p $CIDTEST_RUN_DIR
-    sudo chown vagrant:$(id -gn) $CIDTEST_RUN_DIR
+    id $CIDTEST_USER >/dev/null 2>&1 || \
+        sudo useradd -U -s /bin/bash -d $CIDTEST_RUN_DIR $CIDTEST_USER
+    sudo chown $CIDTEST_USER:$CIDTEST_USER $CIDTEST_RUN_DIR
+    HOME=$HOME/fake
+    mkdir -p $HOME
+    sudo chmod go+rwx $HOME
+    umask 0000
+    
+    sudo grep -q $CIDTEST_USER /etc/sudoers || \
+        $CID_BOOT sudoers $CIDTEST_USER | sudo sh -c 'cat >> /etc/sudoers'
 fi
 
 if ! grep -q "$(hostname)" /etc/hosts; then
     echo "127.0.0.1 $(hostname)" | sudo tee /etc/hosts
 fi
 
-CID_BOOT=$(pwd)/bin/cid
 fast=
 rmshost=
 tests=
@@ -83,13 +96,19 @@ function run_common() {
     (
         export pythonVer=$1
         echo "Python $pythonVer"
-        
+
         $CID_BOOT tool exec pip -- install $pip_install_opts
         eval $($CID_BOOT tool env virtualenv)
         export CIDTEST_BIN=$(which cid)
-        
         $CIDTEST_BIN tool exec pip -- install nose
-        $CIDTEST_BIN tool exec python -- -m nose $tests
+
+        sudo su $CIDTEST_USER -c bash <<EOF
+        export HOME=$HOME
+        export CIDTEST_RUN_DIR=$CIDTEST_RUN_DIR
+        export CIDTEST_BIN=$CIDTEST_BIN
+        export CIDTEST_NO_COMPILE=$CIDTEST_NO_COMPILE
+        \$CIDTEST_BIN tool exec python -- -m nose $tests
+EOF
     )   
 }
 

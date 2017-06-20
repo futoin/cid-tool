@@ -45,6 +45,9 @@ class PackageMixIn(object):
     def _isSLES(self):
         return platform.linux_distribution()[0].startswith('SUSE Linux Enterprise')
 
+    def _isLinux(self):
+        return platform.system() == 'Linux'
+
     def _isMacOS(self):
         return platform.system() == 'Darwin'
 

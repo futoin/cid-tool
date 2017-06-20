@@ -43,6 +43,7 @@ Usage:
     cid service exec <entry_point> <instance_id> [--deployDir=<deploy_dir>]
     cid service stop <entry_point> <instance_id> <pid> [--deployDir=<deploy_dir>]
     cid service reload <entry_point> <instance_id> <pid> [--deployDir=<deploy_dir>]
+    cid sudoers [<sudo_entity>] [--skip-key-management]
     
 
 Options:
@@ -65,8 +66,10 @@ Options:
     --tmpDir=<tmp_dir>|auto         Directory for temporary data.
     --user=<user>|auto              User name to use for service execution.
     --group=<group>|auto            Group name to use for service execution.
+    --skip-key-management           Enforce better security forbidding signing key management.
     <rms_pool>                      Either "dst_pool" or  "src_pool:dst_pool" for promotion.
     <packages>                      Either "local/file" or "remote_file" or "<package>@<hash>".
+    <sudo_entity>                   Username or group to be put in generated sudoers as is.
 """
 
 from __future__ import print_function, absolute_import
@@ -311,6 +314,8 @@ def runInner():
             cit.ci_build(args['<vcs_ref>'], args['<rms_pool>'])
         elif args['devserve']:
             cit.devserve()
+        elif args['sudoers']:
+            cit.sudoers(args['<sudo_entity>'], args['--skip-key-management'])
         else:
             raise RuntimeError("Unknown Command")
 

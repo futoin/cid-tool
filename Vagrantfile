@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
     end
     
     config.vm.provision "shell", inline: <<-SHELL
-which apt-get && apt-get update || true
+which apt-get 2>/dev/null && apt-get update || true
     SHELL
     
     vms = {
@@ -65,7 +65,7 @@ which apt-get && apt-get update || true
                 dist_controller = 'SATA Controller'
             end
             
-            if name == 'ubuntu_trusty' or name == 'centos_7'
+            if ['ubuntu_trusty', 'centos_7', 'debian_stretch'].include? name
                 nic_type = '82540EM'
             else
                 nic_type = 'virtio'

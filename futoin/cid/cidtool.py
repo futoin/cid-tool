@@ -21,6 +21,7 @@ from collections import OrderedDict
 
 from .mixins.path import PathMixIn
 from .mixins.util import UtilMixIn
+from .mixins.package import PackageMixIn
 from .coloring import Coloring
 
 from .vcstool import VcsTool
@@ -1513,7 +1514,7 @@ class ServiceMixIn(object):
 
 
 #=============================================================================
-class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, PathMixIn, UtilMixIn):
+class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, PathMixIn, UtilMixIn, PackageMixIn):
     TO_GZIP = '\.(js|json|css|svg|txt)$'
 
     def __init__(self, overrides):
@@ -2402,3 +2403,124 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
             if deploy_dir:
                 self._warn(
                     'Left "{0}" for inspection of error'.format(deploy_dir))
+
+    def sudoers(self, entity, skip_key_mgmt):
+        if not entity:
+            import pwd
+            entity = pwd.getpwuid(os.geteuid())[0]
+
+        lines = ['']
+
+        if self._isDebian() or self._isUbuntu():
+            lines += [
+                '# package installation only',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/apt-get install',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/apt-get install *',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/apt-get update',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/apt-add-repository',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/apt-add-repository *',
+            ]
+
+            if not skip_key_mgmt:
+                lines += [
+                    '',
+                    '# signing key setup',
+                    '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/apt-key add',
+                    '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/apt-key add *',
+                ]
+
+        elif self._isFedora():
+            lines += [
+                '# package installation only',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/dnf install',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/dnf install *',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/dnf config-manager --add-repo',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/dnf config-manager --add-repo *',
+            ]
+
+            if not skip_key_mgmt:
+                lines += [
+                    '',
+                    '# signing key setup',
+                    '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/rpm --import',
+                    '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/rpm --import *',
+                ]
+
+        elif self._isCentOS() or self._isOracleLinux() or self._isRHEL():
+            lines += [
+                '# package installation only',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/yum install',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/yum install *',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/yum-config-manager --add-repo',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/yum-config-manager --add-repo *',
+            ]
+
+            if not skip_key_mgmt:
+                lines += [
+                    '',
+                    '# signing key setup',
+                    '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/rpm --import',
+                    '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/rpm --import *',
+                ]
+
+        elif self._isOpenSUSE() or self._isSLES():
+            lines += [
+                '# package installation only',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/zypper install',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/zypper install *',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/zypper addrepo',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/zypper addrepo *',
+            ]
+
+            if not skip_key_mgmt:
+                lines += [
+                    '',
+                    '# signing key setup',
+                    '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/rpm --import',
+                    '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/rpm --import *',
+                ]
+
+        elif self._isArchLinux():
+            lines += [
+                '# package installation only',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/pacman',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/pacman *',
+            ]
+
+        elif self._isGentoo():
+            lines += [
+                '# package installation only',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/emerge',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/emerge *',
+            ]
+
+        elif self._isMacOS():
+            lines += [
+                '# aid package installation',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/installer',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/hdiutil',
+            ]
+
+        else:
+            self._errorExit('Unfortunately this OS is not fully supported yet')
+
+        if ospath.exists('/bin/systemctl'):
+            lines += [
+                '',
+                '# start of services',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /bin/systemctl start',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /bin/systemctl start *',
+            ]
+
+        if self._isLinux():
+            lines += [
+                '',
+                '# allow access to Docker (may have no sense)',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/docker',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/docker *',
+            ]
+
+        lines.append('')
+        lines = "\n".join(lines)
+        lines = lines.replace('{{sudo_entity}}', entity)
+        print(lines)

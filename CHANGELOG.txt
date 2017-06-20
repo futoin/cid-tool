@@ -34,6 +34,7 @@
 * NEW: added nginxTool
 * NEW: added uwsgiTool
 * NEW: added pumaTool
+* NEW:"cid sudoers" command
 
 === 0.7.3 (2017-04-20) ===
 * FIXED: merge failed message to distinguish aborted/left as-is cases
