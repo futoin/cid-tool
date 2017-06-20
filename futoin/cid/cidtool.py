@@ -2419,6 +2419,8 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
                 '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/apt-get update',
                 '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/apt-add-repository',
                 '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/apt-add-repository *',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/dpkg -i',
+                '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/dpkg -i *',
             ]
 
             if not skip_key_mgmt:
@@ -2476,8 +2478,8 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
                 lines += [
                     '',
                     '# signing key setup',
-                    '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/rpm --import',
-                    '{{sudo_entity}} ALL=(ALL) NOPASSWD: /usr/bin/rpm --import *',
+                    '{{sudo_entity}} ALL=(ALL) NOPASSWD: /bin/rpm --import',
+                    '{{sudo_entity}} ALL=(ALL) NOPASSWD: /bin/rpm --import *',
                 ]
 
         elif self._isArchLinux():

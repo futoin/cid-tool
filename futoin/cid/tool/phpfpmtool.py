@@ -77,7 +77,7 @@ Note: file upload is OFF by default.
             self._systemDeps()
 
     def _isPHPSCL(self, env):
-        return env['phpVer'] in ('5.6', '7.0')
+        return env['phpfpmVer'] in ('5.6', '7.0')
 
     def _systemDeps(self):
         self._requireDeb(['php.*-fpm'])
@@ -85,14 +85,27 @@ Note: file upload is OFF by default.
         self._requireYum(['php-fpm'])
         self._requirePacman(['php-fpm'])
 
+    def envNames(self):
+        return ['phpfpmBin', 'phpfpmVer']
+
     def initEnv(self, env):
+        php_ver = env['phpVer']
+        phpfpm_ver = env.setdefault('phpfpmVer', php_ver)
+
+        if php_ver != phpfpm_ver:
+            self._errorExit(
+                'PHP mismatch FPM version {0} != {1}'.format(php_ver, phpfpm_ver))
+
+        if 'phpBin' not in env:
+            return
+
         php_bin = env['phpBin']
 
         if env['phpBinOnly']:
             bin_name = 'php-fpm'
 
             if self._isDebian() or self._isUbuntu():
-                bin_name = 'php-fpm' + env['phpVer']
+                bin_name = 'php-fpm' + php_ver
 
         else:
             bin_name = '{0}-fpm'.format(os.path.basename(php_bin))

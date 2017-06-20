@@ -1,6 +1,7 @@
 
 import glob
 import subprocess
+import os
 
 from ..runtimetool import RuntimeTool
 from .bashtoolmixin import BashToolMixIn
@@ -51,6 +52,21 @@ if binary versions are not found for specific system.
         pkgver = ver
 
         if self._isDebian() or self._isUbuntu():
+            if self._osCodeName() == 'stretch':
+                self._requireDeb(['equivs', 'libssl1.0.2'])
+                cwd = os.getcwd()
+                try:
+                    tmpdir = self._tmpCacheDir(prefix='equivs-')
+                    self._writeTextFile(
+                        'libssl1.0.0', self._FAKE_LIBSSL100_DEB)
+                    equivsbuild = self._which('equivs-build')
+                    dpkg = self._which('dpkg')
+                    self._callExternal([equivsbuild, 'libssl1.0.0'])
+                    self._trySudoCall(
+                        [dpkg, '-i', 'libssl1.0.0_1.0.2l_all.deb'])
+                finally:
+                    os.chdir(cwd)
+
             repo = env['rubyBrightboxRepo']
 
             self._addAptRepo(
@@ -135,18 +151,18 @@ if binary versions are not found for specific system.
     def initEnv(self, env):
         #---
         if self._isDebian() or self._isUbuntu():
-            env.setdefault('rubyBrightboxRepo',
-                           'http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu')
+            bb_repo = 'http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu'
+            ruby_binaries = ['1.9', '2.0', '2.1', '2.2', '2.3']
 
             code_name = self._osCodeName()
 
             if code_name == 'zesty':
                 # 1.9 build is broken on LaunchPad
-                ruby_binaries = ['2.0', '2.1', '2.2', '2.3']
-            elif code_name in ['stretch', 'sid', 'testing']:
+                bb_repo = 'http://ppa.launchpad.net/brightbox/ruby-ng-experimental/ubuntu'
+            elif code_name == 'stretch':
                 ruby_binaries = None
-            else:
-                ruby_binaries = ['1.9', '2.0', '2.1', '2.2', '2.3']
+
+            env.setdefault('rubyBrightboxRepo', bb_repo)
 
         elif self._isSCLSupported():
             ruby_binaries = ['1.9', '2.0', '2.2', '2.3', '2.4']
@@ -273,6 +289,19 @@ CRD12l8Jwxc6pl2BA/4p5DFEpGVvkgLj7/YLYCtYmZDw8i/drGbkWfIQiOgPWIf8QgpJXVME
 =G8vE
 -----END PGP PUBLIC KEY BLOCK-----
 '''
+
+    _FAKE_LIBSSL100_DEB = """
+Section: misc
+Priority: optional
+Standards-Version: 3.9.2
+
+Package: libssl1.0.0
+Version: 1.0.2l
+Depends: libssl1.0.2 (>= 1.0.2l)
+Architecture: all
+Description: Dummy libssl1.0.0 package for dep resolution.
+ Required due to lack of libssl1.0.0 on Stretch
+"""
 
     def tuneDefaults(self):
         return {

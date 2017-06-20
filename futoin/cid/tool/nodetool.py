@@ -73,11 +73,14 @@ Notes on tuning:
         #---
         node_env = {}
 
-        if svc_tune['socketType'] == 'unix':
-            node_env['PORT'] = svc_tune['socketPath']
-        else:
-            node_env['PORT'] = str(svc_tune['socketPort'])
-            node_env['HOST'] = svc_tune['socketAddress']
+        try:
+            if svc_tune['socketType'] == 'unix':
+                node_env['PORT'] = svc_tune['socketPath']
+            else:
+                node_env['PORT'] = str(svc_tune['socketPort'])
+                node_env['HOST'] = svc_tune['socketAddress']
+        except KeyError:
+            pass
 
         if config['env']['type'] == 'dev':
             node_env['NODE_ENV'] = 'development'
@@ -87,13 +90,16 @@ Notes on tuning:
         os.environ.update(node_env)
 
         #---
-        heap_limit = self._parseMemory(svc_tune['maxMemory'])
-        heap_limit = int(heap_limit * 0.9)
-        heap_limit = int(heap_limit // 1024 // 1024)
+        node_args = []
 
-        node_args = [
-            '--max_old_space_size={0}'.format(heap_limit)
-        ]
+        if 'maxMemory' in svc_tune:
+            heap_limit = self._parseMemory(svc_tune['maxMemory'])
+            heap_limit = int(heap_limit * 0.9)
+            heap_limit = int(heap_limit // 1024 // 1024)
+
+            node_args.append(
+                '--max_old_space_size={0}'.format(heap_limit)
+            )
 
         #---
 

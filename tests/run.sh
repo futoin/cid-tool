@@ -24,11 +24,16 @@ if [ "$CIDTEST_USER" = "vagrant" ]; then
     id $CIDTEST_USER >/dev/null 2>&1 || \
         sudo useradd -U -s /bin/bash -d $CIDTEST_RUN_DIR $CIDTEST_USER
     sudo chown $CIDTEST_USER:$CIDTEST_USER $CIDTEST_RUN_DIR
+    
+    sudo chmod go+rx $HOME
+    
     HOME=$HOME/fake
     mkdir -p $HOME
     sudo chmod go+rwx $HOME
     umask 0000
     
+    sudo mkdir -p /etc/futoin && sudo chmod 777 /etc/futoin
+
     sudo grep -q $CIDTEST_USER /etc/sudoers || \
         $CID_BOOT sudoers $CIDTEST_USER | sudo sh -c 'cat >> /etc/sudoers'
 fi
@@ -67,7 +72,7 @@ if [ "$1" = 'nocompile' ]; then
     export CIDTEST_NO_COMPILE=1
     shift 1
 else
-    unset CIDTEST_NO_COMPILE
+    export CIDTEST_NO_COMPILE=0
 fi
 
 
@@ -102,11 +107,12 @@ function run_common() {
         export CIDTEST_BIN=$(which cid)
         $CIDTEST_BIN tool exec pip -- install nose
 
-        sudo su $CIDTEST_USER -c bash <<EOF
+        sudo sudo -u $CIDTEST_USER bash <<EOF
         export HOME=$HOME
         export CIDTEST_RUN_DIR=$CIDTEST_RUN_DIR
         export CIDTEST_BIN=$CIDTEST_BIN
         export CIDTEST_NO_COMPILE=$CIDTEST_NO_COMPILE
+        export pythonVer=$pythonVer
         \$CIDTEST_BIN tool exec python -- -m nose $tests
 EOF
     )   

@@ -21,7 +21,8 @@ class cid_misc_Test ( cid_UTBase ) :
         os.mkdir(self.TEST_DIR)
         os.chdir(self.TEST_DIR)
         
-        subprocess.check_call('sudo mkdir -p /etc/futoin && sudo chmod 777 /etc/futoin', shell=True)
+        # Done in run.sh
+        #subprocess.check_call('sudo mkdir -p /etc/futoin && sudo chmod 777 /etc/futoin', shell=True)
         
         home = os.path.join(self.TEST_DIR, 'home')
         os.mkdir(home)
@@ -29,7 +30,8 @@ class cid_misc_Test ( cid_UTBase ) :
         
     def tearDown(self):
         os.environ['HOME'] = self.ORIG_HOME
-        subprocess.call('sudo rm /etc/futoin -rf', shell=True)
+        #subprocess.call('sudo rm /etc/futoin -rf', shell=True)
+        subprocess.call('rm /etc/futoin/* -rf', shell=True)
             
     def test_global_config(self):
         self._writeJSON('/etc/futoin/futoin.json', {

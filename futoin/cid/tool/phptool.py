@@ -109,7 +109,7 @@ resources due to lack of trusted binary builds.
         self._have_tool = False
 
     def envNames(self):
-        return ['phpDir', 'phpBin', 'phpVer', 'phpBinOnly', 'phpSuryRepo']
+        return ['phpDir', 'phpBin', 'phpVer', 'phpfpmVer', 'phpBinOnly', 'phpSuryRepo']
 
     def initEnv(self, env):
         #---
@@ -121,7 +121,10 @@ resources due to lack of trusted binary builds.
             php_latest = None
 
         #---
-        if php_latest:
+        if 'phpfpmVer' in env:
+            php_ver = env.setdefault('phpVer', env['phpfpmVer'])
+            phpBinOnly = php_latest is not None
+        elif php_latest:
             php_ver = env.setdefault('phpVer', php_latest)
             phpBinOnly = True
 
@@ -233,7 +236,6 @@ resources due to lack of trusted binary builds.
             'libldap2-dev',
             'libmagic-dev',
             'libmhash-dev',
-            'libmysqlclient-dev',
             'libonig-dev',
             'libpam0g-dev',
             'libpcre3-dev',
@@ -254,6 +256,9 @@ resources due to lack of trusted binary builds.
             'unixodbc-dev',
             'zlib1g-dev',
         ])
+
+        self._requireDeb('libmysqlclient-dev')
+        self._requireDeb('default-libmysqlclient-dev')
 
         # Extra repo before the rest
         #---

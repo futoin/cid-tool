@@ -185,7 +185,7 @@ Additional notes:
             env['nginxBin'],
             '-p', deploy['runtimeDir'],
             '-c', svc['tune']['nginxConf'],
-        ])
+        ] + args)
 
     def onStop(self, config, pid, tune):
         env = config['env']

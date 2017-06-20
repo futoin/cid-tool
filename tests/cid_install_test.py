@@ -126,10 +126,14 @@ mixed_tools = {
     }
 }
         
-if os.environ.get('CIDTEST_NO_COMPILE', '0') != '1':
+if os.environ.get('CIDTEST_NO_COMPILE', '0') == '1':
+    # Workaround for birghtbox issues on Stretch
+    if platform.linux_distribution()[1][0] == '9':
+        del mixed_tools['ruby']['binver']
+else:
     mixed_tools.update({
         'php' : {
-            'ver': '7.1',
+            'ver': '7',
             'env': {
                 'phpBinOnly': '',
             }
