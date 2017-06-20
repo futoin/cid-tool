@@ -2,12 +2,17 @@
 import os
 
 from ..buildtool import BuildTool
+from ..rmstool import RmsTool
 
 
-class npmTool(BuildTool):
+class npmTool(BuildTool, RmsTool):
     """npm is the package manager for JavaScript.
 
-Home: https://www.npmjs.com/    
+Home: https://www.npmjs.com/
+
+In RMS mode support tuning through .toolTune.npm:
+    .tag - npm publish --tag
+    .access - npm publish --access
 """
     PACKAGE_JSON = 'package.json'
 
@@ -49,3 +54,22 @@ Home: https://www.npmjs.com/
         if os.path.exists(self.PACKAGE_JSON):
             npmBin = config['env']['npmBin']
             self._callExternal([npmBin, 'prune', '--production'])
+
+    def rmsUpload(self, config, rms_pool, package_list):
+        npmBin = config['env']['npmBin']
+        cmd = [npmBin, 'publish']
+
+        tune = config.get('toolTune', {}).get('npm', {})
+
+        if 'tag' in tune:
+            cmd += ['--tag', tune['tag']]
+
+        if 'access' in tune:
+            cmd += ['--access', tune['access']]
+
+        self._callExternal(cmd)
+
+    def rmsPoolList(self, config):
+        return [
+            'registry',
+        ]

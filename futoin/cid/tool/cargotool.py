@@ -3,9 +3,10 @@ import os
 
 from ..buildtool import BuildTool
 from ..testtool import TestTool
+from ..rmstool import RmsTool
 
 
-class cargoTool(BuildTool, TestTool):
+class cargoTool(BuildTool, TestTool, RmsTool):
     """Cargo, Rust;s Package Manager.
 
 Home: http://doc.crates.io/
@@ -50,3 +51,6 @@ Override targets with .config.toolTune.
 
     def onRunDev(self, config):
         self._callExternal([config['env']['cargoBin'], 'run'])
+
+    def rmsUpload(self, config, rms_pool, package_list):
+        self._callExternal([config['env']['cargoBin'], 'publish'])
