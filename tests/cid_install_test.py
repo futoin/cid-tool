@@ -190,7 +190,7 @@ for t, ti in mixed_tools.items():
             linux_distro[0].startswith('Red Hat') or
             linux_distro[0].startswith('SUSE')
             ):
-            for bv in binver['deb']:
+            for bv in binver['scl']:
                 cls = "cid_Tool_32_{0}_scl_{1}".format(t, bv.replace('.', ''))
                 tenv = {}
                 tenv[ "{0}Ver".format(t) ] = bv
