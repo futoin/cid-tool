@@ -10,3 +10,4 @@ class zipTool(RunEnvTool):
         self._requirePackages(['zip'])
         self._requireEmerge(['app-arch/zip'])
         self._requirePacman(['zip'])
+        self._requireApk(['zip'])

@@ -40,6 +40,11 @@ javaVer supports:
                     'https://cdn.azul.com/zulu/bin/zulu7.17.0.5-jdk7.0.131-macosx_x64.dmg')
             return
 
+        if self._isAlpineLinux():
+            self._requireApkCommunity()
+            self._requireApk('openjdk{0}-jre'.format(ver))
+            return
+
         self._addAptRepo(
             'zulu', 'deb http://repos.azulsystems.com/debian stable main', self._ZULU_GPG_KEY)
         self._addYumRepo('zulu', 'http://repos.azulsystems.com/rhel/zulu.repo',
@@ -90,6 +95,10 @@ javaVer supports:
         if self._isGentoo() or self._isArchLinux():
             candidates += [
                 "/usr/lib/jvm/java-{0}-openjdk*/jre/bin/java".format(ver),
+            ]
+        elif self._isAlpineLinux():
+            candidates += [
+                "/usr/lib/jvm/java-1.{0}-openjdk/jre/bin/java".format(ver),
             ]
 
         for c in candidates:

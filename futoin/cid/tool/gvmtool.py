@@ -27,6 +27,8 @@ Home: https://github.com/moovweb/gvm
         self._requireRpm(['bison', 'gcc', 'glibc-devel'])
         self._requireEmergeDepsOnly(['dev-lang/go'])
         self._requirePacman(['bison', 'gcc', 'glibc', ])
+        self._requireApk('bison')
+        self._requireBuildEssential()
 
         gvm_installer = self._callCurl(env, [env['gvmInstaller']])
         self._callBash(

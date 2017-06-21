@@ -22,6 +22,9 @@ Home: https://www.rustup.rs/
             CurlToolMixIn.getDeps(self))
 
     def _installTool(self, env):
+        if self._isAlpineLinux():
+            self._warn('Unfortunately, rustup does not support musl libc yet')
+
         installer = self._callCurl(env, [env['rustupInstaller']])
 
         self._callBash(

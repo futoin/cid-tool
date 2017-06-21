@@ -17,6 +17,7 @@ gpgKeyServer is hkp://keyserver.ubuntu.com:80 by default
         self._requirePackages(['gnupg', 'gnupg2'])
         self._requireEmerge(['app-crypt/gnupg'])
         self._requirePacman(['gnupg'])
+        self._requireApk(['gnupg'])
         self._requireHomebrew('gnupg')
 
     def initEnv(self, env):

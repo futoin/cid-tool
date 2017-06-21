@@ -20,6 +20,7 @@ If binutilsDir is set it must point to bin folder.
         self._requireRpm(['binutils'])
         self._requireEmerge(['sys-devel/binutils'])
         self._requirePacman(['binutils'])
+        self._requireApk(['binutils'])
 
     def initEnv(self, env):
         pref = env.setdefault('binutilsPrefix', '')

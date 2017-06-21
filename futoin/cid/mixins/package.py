@@ -144,6 +144,18 @@ class PackageMixIn(object):
                 errmsg='you may need to install the build deps manually !'
             )
 
+    def _requireApk(self, packages):
+        if self._isAlpineLinux():
+            if not isinstance(packages, list):
+                packages = [packages]
+
+            apk = '/sbin/apk'
+
+            self._trySudoCall(
+                [apk, 'add'] + packages,
+                errmsg='you may need to install the build deps manually !'
+            )
+
     def _addAptRepo(self, name, entry, gpg_key=None, codename_map=None, repo_base=None):
         self._requireDeb([
             'software-properties-common',
@@ -303,6 +315,41 @@ class PackageMixIn(object):
                 cmd,
                 errmsg='you may need to add the repo manually!'
             )
+
+    def _addApkRepo(self, url, tag=None):
+        if not self._isAlpineLinux():
+            return
+
+        apk = '/sbin/apk'
+        repo_file = '/etc/apk/repositories'
+
+        # version
+        releasever = self._readTextFile('/etc/alpine-release')
+        releasever = releasever.strip().split('.')
+        releasever = '.'.join(releasever[:2])
+        repoline = url.replace('$releasever', releasever)
+
+        # tag
+        if tag:
+            repoline = '@{0} {1}'.format(tag, repoline)
+
+        repos = self._readTextFile(repo_file).split("\n")
+        repos = [r.strip() for r in repos]
+
+        if repoline not in repos:
+            self._trySudoCall(
+                ['/usr/bin/tee', '-a', repo_file],
+                errmsg='you may need to add the repo manually!',
+                input=repoline
+            )
+            self._trySudoCall(
+                [apk, 'update'],
+                errmsg='you may need to update manually!'
+            )
+
+    def _requireApkCommunity(self):
+        self._addApkRepo(
+            'http://dl-cdn.alpinelinux.org/alpine/v$releasever/community')
 
     def _requireYumEPEL(self):
         if self._isOracleLinux() or self._isRHEL():

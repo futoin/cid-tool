@@ -13,6 +13,7 @@ Vagrant.configure("2") do |config|
     
     config.vm.provision "shell", inline: <<-SHELL
 which apt-get 2>/dev/null && apt-get update || true
+which apk 2>/dev/null && apk update || true
     SHELL
     
     vms = {
@@ -23,6 +24,7 @@ which apt-get 2>/dev/null && apt-get update || true
         'opensuse_leap' => 'bento/opensuse-leap-42.1',
         'fedora_25' => 'bento/fedora-25',
         'archlinux' => 'ogarcia/archlinux-x64',
+        'alpinelinux' => 'maier/alpine-3.6-x86_64',
 
         # behaves similar to CentOS, but limited
         #'ol_7' => 'boxcutter/ol73',
@@ -65,7 +67,7 @@ which apt-get 2>/dev/null && apt-get update || true
                 dist_controller = 'SATA Controller'
             end
             
-            if ['ubuntu_trusty', 'centos_7', 'debian_stretch'].include? name
+            if ['ubuntu_trusty', 'centos_7', 'debian_stretch', 'alpinelinux'].include? name
                 nic_type = '82540EM'
             else
                 nic_type = 'virtio'

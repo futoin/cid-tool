@@ -25,6 +25,7 @@ Home: https://subversion.apache.org/
         self._requirePackages(['subversion'])
         self._requireEmerge(['dev-vcs/subversion'])
         self._requirePacman(['subversion'])
+        self._requireApk(['subversion'])
         self._requireHomebrew('subversion')
 
     def autoDetectFiles(self):

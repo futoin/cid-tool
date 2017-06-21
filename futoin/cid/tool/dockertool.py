@@ -88,6 +88,8 @@ Docker EE or other installation methods are out of scope for now.
             self._requirePackages(['docker-engine'])
             self._requireEmerge(['app-emulation/docker'])
             self._requirePacman(['docker'])
+            self._requireApkCommunity()
+            self._requireApk(['docker'])
 
             self._startService('docker')
 

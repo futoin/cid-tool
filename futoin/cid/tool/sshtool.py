@@ -22,6 +22,7 @@ Note:
         self._requireRpm(['openssh'])
         self._requireEmerge(['virtual/ssh'])
         self._requirePacman(['openssh'])
+        self._requireApk('openssh-client')
 
     def initEnv(self, env):
         env.setdefault('sshStrictHostKeyChecking', 'yes')

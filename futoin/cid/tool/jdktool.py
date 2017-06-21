@@ -43,6 +43,11 @@ jdkVer supports:
         self._requirePacman(['jdk{0}-openjdk'.format(ver)])
         self._requireEmerge(['=dev-java/oracle-jdk-bin-1.{0}*'.format(ver)])
 
+        if self._isAlpineLinux():
+            self._requireApkCommunity()
+            self._requireApk('openjdk{0}'.format(ver))
+            return
+
     def uninstallTool(self, env):
         pass
 
@@ -78,6 +83,10 @@ jdkVer supports:
         if self._isGentoo() or self._isArchLinux():
             candidates += [
                 "/usr/lib/jvm/java-{0}-openjdk*/bin/javac".format(ver),
+            ]
+        elif self._isAlpineLinux():
+            candidates += [
+                "/usr/lib/jvm/java-1.{0}-openjdk/bin/javac".format(ver),
             ]
 
         for c in candidates:

@@ -22,6 +22,7 @@ Build uses the default target.
         self._requirePackages(['make'])
         self._requireEmerge(['sys-devel/make'])
         self._requirePacman(['make'])
+        self._requireApk(['make'])
 
     def onPrepare(self, config):
         self._callExternal([config['env']['makeBin'], 'clean'])

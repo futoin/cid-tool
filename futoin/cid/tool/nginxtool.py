@@ -124,6 +124,7 @@ Additional notes:
             return
 
         self._requirePackages('nginx')
+        self._requireApk('nginx')
 
     def initEnv(self, env, bin_name=None):
         env.setdefault('nginxBaseUrl', 'http://nginx.org/packages')

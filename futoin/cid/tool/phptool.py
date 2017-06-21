@@ -117,6 +117,8 @@ resources due to lack of trusted binary builds.
             php_latest = '7.1'
         elif self._isSCLSupported():
             php_latest = '7.0'
+        elif self._isAlpineLinux():
+            php_latest = '7.0'
         else:
             php_latest = None
 
@@ -342,6 +344,8 @@ resources due to lack of trusted binary builds.
             'pcre',
         ])
 
+        self._requireApk(['build-base'])
+
         #---
         systemctl = self._which('systemctl')
 
@@ -512,6 +516,43 @@ resources due to lack of trusted binary builds.
 
         self._requireEmerge(['dev-lang/php'])
         self._requirePacman(['php'])
+
+        self._requireApkCommunity()
+        self._requireApk([
+            'php7',
+            'php7-xml',
+            'php7-xmlreader',
+            'php7-xmlrpc',
+            'php7-zip',
+            'php7-zlib',
+            'php7-phar',
+            'php7-posix',
+            'php7-session',
+            'php7-soap',
+            'php7-sockets',
+            'php7-json',
+            'php7-mbstring',
+            'php7-mcrypt',
+            'php7-opcache',
+            'php7-openssl',
+            'php7-pdo',
+            'php7-bz2',
+            'php7-ctype',
+            'php7-curl',
+            'php7-dom',
+            'php7-enchant',
+            'php7-exif',
+            'php7-gd',
+            'php7-gettext',
+            'php7-gmp',
+            'php7-iconv',
+            'php7-imap',
+            'php7-intl',
+            'php7-bcmath',
+            'php7-fpm',
+            'php7-pear',
+            'php7-apcu',
+        ])
 
     def tuneDefaults(self):
         return {

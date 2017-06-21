@@ -146,11 +146,14 @@ mixed_tools = {
         'ver': '1.8.0',
     }
 }
+    
+if is_alpinelinux:
+    del mixed_tools['rust']
         
 if os.environ.get('CIDTEST_NO_COMPILE', '0') == '1':
     # Workaround for birghtbox issues on Stretch
     if platform.linux_distribution()[1][0] == '9':
-        del mixed_tools['ruby']['binver']
+        del mixed_tools['ruby']['binver']['deb']
 else:
     mixed_tools.update({
         'php' : {

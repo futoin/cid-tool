@@ -121,6 +121,10 @@ Supported Release Management Systems (RMS):
 Tested on the following OSes:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+* **AlpineLinux**
+
+  - There are known incompatibilities with glibc-based binaries.
+
 * **ArchLinux**
 
   - latest
@@ -189,12 +193,12 @@ through sudo without password. It should minimize impact on security.
 
 A convenient OS-agnostic way is to do it this way: ::
 
-    cid sudoers | sudo sh -c 'cat >> /etc/sudoers'
+    cid sudoers | sudo tee -a /etc/sudoers
 
 One obvious drawback is management of package trusted signing keys. It can be disabled.
 Then please run the following command instead: ::
 
-    cid sudoers --skip-key-management | sudo sh -c 'cat >> /etc/sudoers'
+    cid sudoers --skip-key-management | sudo tee -a /etc/sudoers
 
 Usage
 -----

@@ -23,7 +23,9 @@ through CID, but you can install source releases through
         self._requireRpm(['bison', 'glibc-devel'])
         self._requireEmergeDepsOnly(['dev-lang/go'])
         self._requirePacman(['bison', 'glibc', ])
+        self._requireApk('bison')
         self._requireHomebrew('bison')
+        self._requireBuildEssential()
 
         self._callBash(env,
                        'source {0} && gvm install {1} --binary'

@@ -12,6 +12,7 @@ if ! which python >/dev/null; then
     which pacman && sudo pacman -S --noconfirm --needed python
     which dnf && sudo dnf install -y python
     which apt-get && sudo apt-get install -y python
+    which apk && sudo apk add python2
 fi
 
 # Run test out of sync folder
@@ -22,7 +23,10 @@ if [ "$CIDTEST_USER" = "vagrant" ]; then
     CIDTEST_USER=cidtest
     sudo mkdir -p $CIDTEST_RUN_DIR
     id $CIDTEST_USER >/dev/null 2>&1 || \
-        sudo useradd -U -s /bin/bash -d $CIDTEST_RUN_DIR $CIDTEST_USER
+        sudo useradd -U -s /bin/bash -d $CIDTEST_RUN_DIR $CIDTEST_USER || \
+        (sudo addgroup cidtest;
+         sudo adduser -DH -s /bin/bash -h $CIDTEST_RUN_DIR -G cidtest cidtest
+        )
     sudo chown $CIDTEST_USER:$CIDTEST_USER $CIDTEST_RUN_DIR
     
     sudo chmod go+rx $HOME
@@ -35,7 +39,11 @@ if [ "$CIDTEST_USER" = "vagrant" ]; then
     sudo mkdir -p /etc/futoin && sudo chmod 777 /etc/futoin
 
     sudo grep -q $CIDTEST_USER /etc/sudoers || \
-        $CID_BOOT sudoers $CIDTEST_USER | sudo sh -c 'cat >> /etc/sudoers'
+        $CID_BOOT sudoers $CIDTEST_USER | sudo tee -a /etc/sudoers
+    
+    # Alpine Linux, etc.
+    sudo grep -q root /etc/sudoers || \
+        sudo sh -c 'echo "root    ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers'
 fi
 
 if ! grep -q "$(hostname)" /etc/hosts; then
@@ -96,7 +104,10 @@ fi
 [ -e /opt/rh/python27/enable ] && source /opt/rh/python27/enable 
 
 # Workaround, if docker is not enabled by default
-which docker >/dev/null 2>&1 && sudo systemctl start docker
+which docker >/dev/null 2>&1 && (
+    sudo systemctl start docker ||
+    sudo rc-service docker start
+)
 
 function run_common() {
     (

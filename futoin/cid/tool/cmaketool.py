@@ -26,10 +26,12 @@ Build folder is configurable through cmakeBuildDir env.
         self._requireDeb(['build-essential'])
         self._requireRpm(['gcc', 'gcc-c++'])
         self._requirePacman(['gcc'])
+        self._requireBuildEssential()
 
         self._requirePackages(['cmake'])
         self._requireEmerge(['dev-util/cmake'])
         self._requirePacman(['cmake'])
+        self._requireApk(['cmake'])
         self._requireHomebrew('cmake')
 
     def initEnv(self, env):

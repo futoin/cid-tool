@@ -20,6 +20,7 @@ Home: https://www.mercurial-scm.org/
         self._requirePackages(['mercurial'])
         self._requireEmerge(['dev-vcs/mercurial'])
         self._requirePacman(['mercurial'])
+        self._requireApk(['mercurial'])
         self._requireHomebrew('mercurial')
 
     def autoDetectFiles(self):

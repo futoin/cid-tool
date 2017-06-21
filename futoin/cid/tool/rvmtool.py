@@ -40,6 +40,9 @@ Stable RVM is used by default.
 
         installer = self._callCurl(env, [rvm_get])
 
+        # AlpineLinux - required for uninstall
+        self._requireApk('procps')
+
         self._callBash(
             env,
             bash_args=['--', env['rvmVer'], '--path', rvm_dir],

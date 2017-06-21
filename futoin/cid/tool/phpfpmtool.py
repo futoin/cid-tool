@@ -84,6 +84,8 @@ Note: file upload is OFF by default.
         self._requireZypper(['php*-fpm'])
         self._requireYum(['php-fpm'])
         self._requirePacman(['php-fpm'])
+        self._requireApkCommunity()
+        self._requireApk(['php7-fpm'])
 
     def envNames(self):
         return ['phpfpmBin', 'phpfpmVer']

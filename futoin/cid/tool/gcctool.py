@@ -20,6 +20,7 @@ If gccBin is set it must point to bin folder.
         self._requireRpm(['gcc'])
         self._requireEmerge(['sys-devel/gcc'])
         self._requirePacman(['gcc'])
+        self._requireApk(['gcc'])
 
     def initEnv(self, env):
         gcc_bin = env.get('gccBin', None)

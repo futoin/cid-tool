@@ -58,12 +58,14 @@ class PipToolMixIn(object):
             self._requireYumEPEL()
             self._requireYum(['python34-devel'])
             self._requirePacman(['python'])
+            self._requireApk('python3-dev')
         else:
             self._requireDeb(['python-dev'])
             self._requireZypper(['python-devel'])
             self._requireYumEPEL()
             self._requireYum(['python-devel'])
             self._requirePacman(['python2'])
+            self._requireApk('python2-dev')
 
         self._requireEmergeDepsOnly(['dev-lang/python'])
 

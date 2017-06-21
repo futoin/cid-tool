@@ -48,11 +48,13 @@ Home: https://pypi.python.org/pypi/virtualenv
                 self._requirePackages(['python-virtualenv'])
                 self._requireEmerge(['dev-python/virtualenv'])
                 self._requirePacman(['python-virtualenv'])
+                self._requireApk(['py-virtualenv'])
 
                 self._requireDeb(['python-pip'])
                 self._requireYum(['python2-pip'])
                 self._requireEmerge(['dev-python/pip'])
                 self._requirePacman(['python-pip'])
+                self._requireApk('py2-pip')
 
                 if self._isMacOS():
                     self._trySudoCall(['easy_install', 'pip'])

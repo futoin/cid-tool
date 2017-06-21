@@ -266,13 +266,16 @@ if binary versions are not found for specific system.
             'sqlite3-devel',
         ])
 
+        #---
         self._requireEmergeDepsOnly(['dev-lang/ruby'])
         self._requirePacman(['ruby'])
+        self._requireApk('build-base')
 
     def _systemDeps(self):
         self._requirePackages(['ruby'])
         self._requireEmerge(['dev-lang/ruby'])
         self._requirePacman(['ruby'])
+        self._requireApk(['ruby'])
 
     _GPG_BIRGHTBOX_REPO = '''
 -----BEGIN PGP PUBLIC KEY BLOCK-----
