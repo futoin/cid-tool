@@ -48,12 +48,19 @@ through CID, but you can install source releases through
     def initEnv(self, env):
         if not env.get('goVer', None):
             try:
-                env['goVer'] = self._callBash(env,
-                                              'source {0} && gvm listall | egrep "go[0-9]\.[0-9]+(\.[0-9]+)?$" | sort -rV'
-                                              .format(env['gvmInit']),
-                                              verbose=False
-                                              ).split("\n")[0].strip()
-            except:
+                cmd = 'source {0} && gvm listall'.format(env['gvmInit'])
+                ver_list = self._callBash(env, cmd, verbose=False)
+                ver_list = ver_list.split("\n")
+
+                import re
+                rex = re.compile('^go[0-9]+\.[0-9]+(\.[0-9]+)?$')
+
+                ver_list = [v.strip() for v in ver_list]
+                ver_list = filter(lambda x: x and rex.match(x), ver_list)
+
+                env['goVer'] = self._getLatest(ver_list)
+            except Exception as e:
+                self._warn(str(e))
                 return
 
         ver = env['goVer']
