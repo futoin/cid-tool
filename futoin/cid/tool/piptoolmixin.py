@@ -18,9 +18,11 @@ class PipToolMixIn(object):
                 self._requireZypper(['python3-devel'])
                 self._requireYum(['python3-devel'])
                 self._requireYum(['python34-devel'])
+                self._requireApk(['python3-dev'])
             else:
                 self._requireDeb(['python-dev'])
                 self._requireRpm(['python-devel'])
+                self._requireApk(['python2-dev'])
 
             self._requireBuildEssential()
 

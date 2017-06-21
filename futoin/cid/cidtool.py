@@ -2507,6 +2507,7 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
                 '# package installation only',
                 '/sbin/apk add *',
                 '/sbin/apk update',
+                '/usr/bin/npm *',
                 '/usr/bin/tee -a /etc/apk/repositories',
             ]
 

@@ -471,7 +471,10 @@ class PackageMixIn(object):
 
         self._requireYum('redhat-rpm-config')
 
-        self._requireApk(['build-base'])
+        self._requireApk([
+            'build-base',
+            'linux-headers',
+        ])
 
     def _startService(self, name):
         openrc = '/sbin/rc-service'

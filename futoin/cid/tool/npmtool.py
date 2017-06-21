@@ -22,6 +22,14 @@ In RMS mode support tuning through .toolTune.npm:
     def getDeps(self):
         return ['node']
 
+    def _installTool(self, env):
+        if self._isAlpineLinux():
+            if env['nodeVer'] == 'current':
+                self._requireApk('nodejs-npm-current')
+            else:
+                self._requireApk('nodejs-npm')
+            return
+
     def updateTool(self, env):
         self._callExternal([env['npmBin'], 'update', '-g', 'npm'])
 

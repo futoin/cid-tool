@@ -25,6 +25,10 @@ Override targets with .config.toolTune.
     def getDeps(self):
         return ['rust']
 
+    def _installTool(self, env):
+        if self._isAlpineLinux():
+            self._requireApk('cargo')
+
     def uninstallTool(self, env):
         pass
 

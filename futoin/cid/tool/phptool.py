@@ -170,6 +170,10 @@ resources due to lack of trusted binary builds.
                 else:
                     pass
 
+            elif self._isAlpineLinux():
+                bin_name = 'php' + php_ver[0]
+                super(phpTool, self).initEnv(env, bin_name)
+
             return
         else:
             def_dir = os.path.join(

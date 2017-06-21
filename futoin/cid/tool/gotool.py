@@ -18,6 +18,11 @@ through CID, but you can install source releases through
         return ['gvm', 'bash', 'binutils', 'gcc']
 
     def _installTool(self, env):
+        if self._isAlpineLinux():
+            self._requireApkCommunity()
+            self._requireApk('go')
+            return
+
         # in case GVM is already installed without these deps
         self._requireDeb(['bison', 'build-essential'])
         self._requireRpm(['bison', 'glibc-devel'])
@@ -46,6 +51,10 @@ through CID, but you can install source releases through
         return ['goVer', 'goBin']
 
     def initEnv(self, env):
+        if self._isAlpineLinux():
+            super(goTool, self).initEnv(env)
+            return
+
         if not env.get('goVer', None):
             try:
                 cmd = 'source {0} && gvm listall'.format(env['gvmInit'])

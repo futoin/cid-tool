@@ -54,9 +54,34 @@ class cid_Tool_UTCommon ( cid_Tool_UTBase ) :
 
 # 10
 #-----
-for t in ['bash', 'curl', 'git', 'hg', 'svn', 'gpg', 'scp', 'ssh',
-          'make', 'cmake', 'tar', 'unzip', 'gcc', 'binutils', 'docker', 'nginx',
-          'bzip2', 'gzip', 'xz']:
+system_tools = [
+    'bash',
+    'curl',
+    'git',
+    'hg',
+    'svn',
+    'gpg',
+    'scp',
+    'ssh',
+    'make',
+    'cmake',
+    'tar',
+    'unzip',
+    'gcc',
+    'binutils',
+    'docker',
+    'nginx',
+    'bzip2',
+    'gzip',
+    'xz',
+]
+
+if not is_alpinelinux:
+    system_tools += [
+        'rust'
+    ]
+
+for t in system_tools:
     cls = 'cid_Tool_10_' + t
     globals()[cls] = type(cls, (cid_Tool_UTCommon, ), {
         '__test__' : True,
@@ -67,7 +92,7 @@ for t in ['bash', 'curl', 'git', 'hg', 'svn', 'gpg', 'scp', 'ssh',
     
 # 20
 #-----
-level_20 = [
+managed_tools = [
     'nvm',
     'rvm',
     'phpbuild',
@@ -82,11 +107,11 @@ level_20 = [
 ]
 
 if not is_alpinelinux:
-    level_20 += [
+    managed_tools += [
         'rustup'
     ]
 
-for t in level_20:
+for t in managed_tools:
     cls = 'cid_Tool_20_' + t
     globals()[cls] = type(cls, (cid_Tool_UTCommon, ), {
         '__test__' : True,
@@ -151,8 +176,10 @@ if is_alpinelinux:
     del mixed_tools['rust']
         
 if os.environ.get('CIDTEST_NO_COMPILE', '0') == '1':
+    linux_distro = platform.linux_distribution()
+    
     # Workaround for birghtbox issues on Stretch
-    if platform.linux_distribution()[1][0] == '9':
+    if linux_distro[0].startswith('debian') and linux_distro[1][0] == '9':
         del mixed_tools['ruby']['binver']['deb']
 else:
     mixed_tools.update({

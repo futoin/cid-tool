@@ -13,6 +13,7 @@ class GemToolMixIn(object):
             if env['rubyVer'] == self.SYSTEM_VER:
                 self._requireDeb(['ruby-dev'])
                 self._requireRpm(['ruby-devel'])
+                self._requireApk(['ruby-dev'])
             elif self._isSCLSupported():
                 devver = env['rubyVer'].replace('.', '')
 

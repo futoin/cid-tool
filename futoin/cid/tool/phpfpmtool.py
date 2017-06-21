@@ -176,8 +176,10 @@ Note: file upload is OFF by default.
         global_ini.setdefault('log_level', log_level)
         global_ini.setdefault('syslog.ident', name_id)
         global_ini['daemonize'] = 'no'
-        global_ini['systemd_interval'] = '0'
         global_ini['rlimit_files'] = svc_tune['maxFD']
+
+        if os.path.exists('/bin/systemctl'):
+            global_ini['systemd_interval'] = '0'
 
         #
         pool_ini = fpm_ini.setdefault('pool', {})

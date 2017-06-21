@@ -275,7 +275,7 @@ if binary versions are not found for specific system.
         self._requirePackages(['ruby'])
         self._requireEmerge(['dev-lang/ruby'])
         self._requirePacman(['ruby'])
-        self._requireApk(['ruby'])
+        self._requireApk(['ruby', 'ruby-io-console'])
 
     _GPG_BIRGHTBOX_REPO = '''
 -----BEGIN PGP PUBLIC KEY BLOCK-----

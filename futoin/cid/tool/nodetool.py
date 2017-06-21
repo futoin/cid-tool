@@ -16,9 +16,19 @@ Notes on tuning:
 """
 
     def getDeps(self):
-        return ['nvm', 'bash']
+        if self._isAlpineLinux():
+            return ['nvm', 'bash']
+
+        return []
 
     def _installTool(self, env):
+        if self._isAlpineLinux():
+            if env['nodeVer'] == 'current':
+                self._requireApk('nodejs-current')
+            else:
+                self._requireApk('nodejs')
+            return
+
         self._callBash(env,
                        'source {0} --no-use && nvm install {1}'
                        .format(env['nvmInit'], env['nodeVer']))
@@ -37,6 +47,10 @@ Notes on tuning:
 
     def initEnv(self, env):
         node_version = env.setdefault('nodeVer', 'stable')
+
+        if self._isAlpineLinux():
+            super(nodeTool, self).initEnv(env)
+            return
 
         try:
             env_to_set = self._callBash(env,
