@@ -39,14 +39,15 @@ class cid_Tool_UTCommon ( cid_Tool_UTBase ) :
         
         if ver_var in self.TOOL_ENV:
             tool_ver = self.TOOL_ENV[ver_var]
-            self.assertEqual(vars[ver_var], "'{0}'".format(tool_ver))
+            
+            if not vars[ver_var].startswith("'{0}".format(tool_ver)):
+                self.assertEqual(vars[ver_var], "'{0}'".format(tool_ver))
             
             del os.environ[ver_var]
             
             res2 = self._call_cid( [ 'tool', 'env', self.TOOL_NAME, tool_ver ], retout=True )
             
             os.environ[ver_var] = tool_ver
-            
             self.assertEqual(res, res2)
 
 # 10

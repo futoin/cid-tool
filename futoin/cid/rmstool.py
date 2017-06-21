@@ -16,7 +16,10 @@ class RmsTool(SubTool):
     ]
 
     def autoDetect(self, config):
-        return self._autoDetectRMS(config)
+        if self._autoDetectRMS(config):
+            return True
+
+        return super(RmsTool, self).autoDetect(config)
 
     def rmsUpload(self, config, rms_pool, package_list):
         raise NotImplementedError(self._name)
