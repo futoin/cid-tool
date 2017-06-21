@@ -127,9 +127,13 @@ class PathMixIn(object):
 
             return subprocess.check_call(cmd)
 
-    def _trySudoCall(self, cmd, errmsg=None):
+    def _trySudoCall(self, cmd, errmsg=None, **kwargs):
         try:
-            self._callExternal(['sudo', '-n'] + cmd)
+            if self._isAdmin():
+                self._callExternal(cmd, **kwargs)
+                return
+
+            self._callExternal(['sudo', '-n'] + cmd, **kwargs)
         except subprocess.CalledProcessError:
             if not errmsg:
                 errmsg = 'you may need to call the the failed command manually !'

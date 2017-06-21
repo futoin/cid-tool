@@ -62,8 +62,7 @@ Home: https://github.com/moovweb/gvm
 
         self._have_tool = os.path.exists(env_init)
 
-    def onExec(self, env, args):
-        self._callBashInteractive(env,
-                                  '. {0} && gvm {1}'
-                                  .format(env['gvmInit'], subprocess.list2cmdline(args))
-                                  )
+    def onExec(self, env, args, replace=True):
+        cmd = '. {0} && gvm {1}'.format(
+            env['gvmInit'], subprocess.list2cmdline(args))
+        self._callBashInteractive(env, cmd, replace=replace)

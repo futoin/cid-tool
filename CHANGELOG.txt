@@ -7,6 +7,7 @@
 * FIXED: not to use pre-built Ruby on Ubuntu Zesty (1.9) & Debian Stretch (any)
 * FIXED: to properly handle cases when user/deploy/project configs overlap
 * FIXED: to close all FDs before exec (affects Python 2)
+* FIXED: to use tarTool instead of direct call on package/deploy
 * CHANGED: "cid promote" rms_pool to support "src_pool:dst_pool" format
 * CHANGED: internally cid promote is split into rmsUpload & rmsPromote
 * CHANGED: update scpTool to fully support RMS requirements & misc. optimizations
@@ -34,7 +35,8 @@
 * NEW: added nginxTool
 * NEW: added uwsgiTool
 * NEW: added pumaTool
-* NEW:"cid sudoers" command
+* NEW: "cid sudoers" command
+* NEW: added bzip2Tool, gzipTool & xzTool
 
 === 0.7.3 (2017-04-20) ===
 * FIXED: merge failed message to distinguish aborted/left as-is cases

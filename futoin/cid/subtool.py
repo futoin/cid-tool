@@ -116,11 +116,11 @@ updates = {
 """
         return []
 
-    def onExec(self, env, args):
+    def onExec(self, env, args, replace=True):
         bin = env.get(self._name + 'Bin', None)
 
         if bin:
-            self._callInteractive([bin] + args)
+            self._callInteractive([bin] + args, replace=replace)
         else:
             self._errorExit(
                 'Exec command has not been implemented for "{0}"'.format(self._name))

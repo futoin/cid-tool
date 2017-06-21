@@ -21,7 +21,7 @@ Stable RVM is used by default.
 
     def getDeps(self):
         return (
-            ['gpg'] +
+            ['gpg', 'tar', 'gzip'] +
             BashToolMixIn.getDeps(self) +
             CurlToolMixIn.getDeps(self))
 

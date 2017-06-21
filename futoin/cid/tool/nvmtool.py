@@ -52,8 +52,7 @@ Home: https://github.com/creationix/nvm
         env['nvmInit'] = env_init
         self._have_tool = os.path.exists(env_init)
 
-    def onExec(self, env, args):
-        self._callBashInteractive(env,
-                                  '. {0} && nvm {1}'
-                                  .format(env['nvmInit'], subprocess.list2cmdline(args))
-                                  )
+    def onExec(self, env, args, replace=True):
+        cmd = '. {0} && nvm {1}'.format(
+            env['nvmInit'], subprocess.list2cmdline(args))
+        self._callBashInteractive(env, cmd, replace=replace)

@@ -89,7 +89,12 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         
         self._goToBase()
         os.chdir( 'ci_build_branch_A' )
-        subprocess.check_output( 'sha512sum -c .package.checksums', shell=True )
+
+        try:
+            subprocess.check_output( 'sha512sum -c .package.checksums', shell=True )
+        except:
+            if os.path.exists('/usr/bin/sha512sum'):
+                raise
         
         package = sorted(os.listdir(os.path.join(rms_dir, 'Builds')))[0]
             

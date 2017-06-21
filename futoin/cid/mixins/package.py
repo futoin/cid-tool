@@ -45,6 +45,9 @@ class PackageMixIn(object):
     def _isSLES(self):
         return platform.linux_distribution()[0].startswith('SUSE Linux Enterprise')
 
+    def _isAlpineLinux(self):
+        return os.path.exists('/etc/alpine-release')
+
     def _isLinux(self):
         return platform.system() == 'Linux'
 
@@ -420,3 +423,18 @@ class PackageMixIn(object):
         ])
 
         self._requireYum('redhat-rpm-config')
+
+        self._requireApk(['build-base'])
+
+    def _startService(self, name):
+        openrc = '/sbin/rc-service'
+        systemctl = '/bin/systemctl'
+
+        if os.path.exists(systemctl):
+            self._trySudoCall(
+                [systemctl, 'start', name],
+                errmsg='you may need to start the service manually')
+        elif os.path.exists(openrc):
+            self._trySudoCall(
+                [openrc, name, 'start'],
+                errmsg='you may need to start the service manually')

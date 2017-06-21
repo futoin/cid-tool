@@ -89,10 +89,7 @@ Docker EE or other installation methods are out of scope for now.
             self._requireEmerge(['app-emulation/docker'])
             self._requirePacman(['docker'])
 
-            self._trySudoCall(
-                ['/bin/systemctl', 'start', 'docker'],
-                errmsg='you may need to start Docker manually !'
-            )
+            self._startService('docker')
 
             return
 
@@ -103,36 +100,35 @@ Docker EE or other installation methods are out of scope for now.
         else:
             self._requirePackages(['docker-ce'])
 
-        self._trySudoCall(
-            ['/bin/systemctl', 'start', 'docker'],
-            errmsg='you may need to start Docker manually !'
-        )
+        self._startService('docker')
 
     def onBuild(self, config):
         env = config['env']
         tag = env.get('dockerTag', os.path.basename(os.path.realpath('.')))
         cmd = [env['dockerBin'], 'build', '-t', tag, '.']
 
-        if self._haveGroup('docker'):
+        if self._haveGroup('docker') or self._isAdmin():
             self._callExternal(cmd)
         else:
             sudo = self._which('sudo')
             self._callExternal([sudo] + cmd)
 
-    def onExec(self, env, args):
+    def onExec(self, env, args, replace=True):
         bin = env['dockerBin']
 
-        if self._haveGroup('docker'):
-            self._callInteractive([bin] + args)
+        if self._haveGroup('docker') or self._isAdmin():
+            cmd = [bin] + args
         else:
             sudo = self._which('sudo')
-            self._callInteractive([sudo, bin] + args)
+            cmd = [sudo, bin] + args
+
+        self._callInteractive(cmd, replace=replace)
 
     def onRun(self, config, svc, args):
         env = config['env']
         cmd = [env['dockerBin'], 'run', svc['path']]
 
-        if self._haveGroup('docker'):
+        if self._haveGroup('docker') or self._isAdmin():
             self._callExternal(cmd)
         else:
             sudo = self._which('sudo')

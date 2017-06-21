@@ -156,6 +156,9 @@ class UtilMixIn(object):
     def _errorExit(self, msg):
         raise RuntimeError(msg)
 
+    def _isAdmin(self):
+        return os.geteuid() == 0
+
     def _haveGroup(self, grpname):
         gid = grp.getgrnam(grpname)[2]
         return gid in os.getgroups()

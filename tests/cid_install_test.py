@@ -3,6 +3,8 @@ from .cid_utbase import cid_Tool_UTBase
 import os, subprocess, sys
 import platform
 
+is_alpinelinux = os.path.exists('/etc/alpine-release')
+
 class cid_Tool_UTCommon ( cid_Tool_UTBase ) :
     TOOL_MANAGED = True
     
@@ -53,7 +55,8 @@ class cid_Tool_UTCommon ( cid_Tool_UTBase ) :
 # 10
 #-----
 for t in ['bash', 'curl', 'git', 'hg', 'svn', 'gpg', 'scp', 'ssh',
-          'make', 'cmake', 'tar', 'unzip', 'gcc', 'binutils', 'docker', 'nginx']:
+          'make', 'cmake', 'tar', 'unzip', 'gcc', 'binutils', 'docker', 'nginx',
+          'bzip2', 'gzip', 'xz']:
     cls = 'cid_Tool_10_' + t
     globals()[cls] = type(cls, (cid_Tool_UTCommon, ), {
         '__test__' : True,
@@ -64,9 +67,26 @@ for t in ['bash', 'curl', 'git', 'hg', 'svn', 'gpg', 'scp', 'ssh',
     
 # 20
 #-----
-for t in ['nvm', 'rvm', 'phpbuild', 'sdkman', 'ant',
-          'gradle', 'maven', 'sbt', 'scala', 'gvm', 'rustup',
-          'jfrog']:
+level_20 = [
+    'nvm',
+    'rvm',
+    'phpbuild',
+    'sdkman',
+    'ant',
+    'gradle',
+    'maven',
+    'sbt',
+    'scala',
+    'gvm',
+    'jfrog'
+]
+
+if not is_alpinelinux:
+    level_20 += [
+        'rustup'
+    ]
+
+for t in level_20:
     cls = 'cid_Tool_20_' + t
     globals()[cls] = type(cls, (cid_Tool_UTCommon, ), {
         '__test__' : True,

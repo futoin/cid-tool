@@ -146,6 +146,17 @@ class HelpersMixIn(object):
 
         return self._tool_impl[rms]
 
+    def _getTarTool(self, compressor=None):
+        env = self._config['env']
+
+        tar_tool = self._tool_impl['tar']
+        tar_tool.requireInstalled(env)
+
+        if compressor:
+            self._tool_impl[compressor].requireInstalled(env)
+
+        return tar_tool
+
     def _processWcDir(self):
         config = self._config
         wcDir = config['wcDir']
@@ -788,17 +799,24 @@ class DeployMixIn(object):
 
         # Unpack package to temporary folder
         self._info('Extracting the package')
+        env = config['env']
+
         if package_ext == '.txz':
-            _call_cmd(['tar', 'xJf', package_basename,
-                       '-C', package_noext_tmp])
+            tar_tool = self._getTarTool('xz')
+            tar_args = ['xJf', package_basename, '-C', package_noext_tmp]
+            tar_tool.onExec(env, tar_args, False)
         elif package_ext == '.tbz2':
-            _call_cmd(['tar', 'xjf', package_basename,
-                       '-C', package_noext_tmp])
+            tar_tool = self._getTarTool('bzip2')
+            tar_args = ['xjf', package_basename, '-C', package_noext_tmp]
+            tar_tool.onExec(env, tar_args, False)
         elif package_ext == '.tgz':
-            _call_cmd(['tar', 'xzf', package_basename,
-                       '-C', package_noext_tmp])
+            tar_tool = self._getTarTool('gzip')
+            tar_args = ['xzf', package_basename, '-C', package_noext_tmp]
+            tar_tool.onExec(env, tar_args, False)
         elif package_ext == '.tar':
-            _call_cmd(['tar', 'xf', package_basename, '-C', package_noext_tmp])
+            tar_tool = self._getTarTool()
+            tar_args = ['xf', package_basename, '-C', package_noext_tmp]
+            tar_tool.onExec(env, tar_args, False)
         else:
             self._errorExit('Not supported package format: ' + package_ext)
 
@@ -1760,11 +1778,14 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
 
         package_file += '.txz'
         self._info('Creating package {0}'.format(package_file))
-        _call_cmd(['tar', 'cJf', package_file,
-                   '--exclude=' + package_file,
-                   '--exclude=.git*',
-                   '--exclude=.hg*',
-                   '--exclude=.svn'] + package_content)
+
+        tar_tool = self._getTarTool('xz')
+        tar_args = ['cJf', package_file,
+                    '--exclude=' + package_file,
+                    '--exclude=.git*',
+                    '--exclude=.hg*',
+                    '--exclude=.svn'] + package_content
+        tar_tool.onExec(config['env'], tar_args, False)
         # note, no --exclude-vcs
         self._lastPackages = [package_file]
 
