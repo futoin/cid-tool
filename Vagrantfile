@@ -32,8 +32,6 @@ which apk 2>/dev/null && apk update || true
         #'sles_12' => 'suse/sles12sp1',
 
         # not part of standard test cycle
-        #'macos' => 'jhcook/macos-sierra',
-        #'macos' => 'http://files.dryga.com/boxes/osx-sierra-0.3.1.box',
         #'funtoo' => 'tonyczeh/funtoo-generic64-pure64',
         #'gentoo' => 'cmiles/gentoo-amd64-minimal',
 

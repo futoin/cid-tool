@@ -17,9 +17,9 @@ Notes on tuning:
 
     def getDeps(self):
         if self._isAlpineLinux():
-            return ['nvm', 'bash']
+            return []
 
-        return []
+        return ['nvm', 'bash']
 
     def _installTool(self, env):
         if self._isAlpineLinux():

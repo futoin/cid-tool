@@ -67,7 +67,7 @@ through CID, but you can install source releases through
                 ver_list = [v.strip() for v in ver_list]
                 ver_list = filter(lambda x: x and rex.match(x), ver_list)
 
-                env['goVer'] = self._getLatest(ver_list)
+                env['goVer'] = self._getLatest(list(ver_list))
             except Exception as e:
                 self._warn(str(e))
                 return

@@ -31,6 +31,9 @@ In RMS mode support tuning through .toolTune.npm:
             return
 
     def updateTool(self, env):
+        if self._isAlpineLinux():
+            return
+
         self._callExternal([env['npmBin'], 'update', '-g', 'npm'])
 
     def uninstallTool(self, env):
