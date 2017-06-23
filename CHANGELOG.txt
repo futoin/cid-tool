@@ -8,6 +8,7 @@
 * FIXED: to properly handle cases when user/deploy/project configs overlap
 * FIXED: to close all FDs before exec (affects Python 2)
 * FIXED: to use tarTool instead of direct call on package/deploy
+* FIXED: added pylint & fixed issues found
 * CHANGED: "cid promote" rms_pool to support "src_pool:dst_pool" format
 * CHANGED: internally cid promote is split into rmsUpload & rmsPromote
 * CHANGED: update scpTool to fully support RMS requirements & misc. optimizations

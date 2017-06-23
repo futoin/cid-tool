@@ -2,9 +2,9 @@
 import os
 import subprocess
 from ..mixins.util import UtilMixIn
+from ..mixins.package import PackageMixIn
 
-
-class ResourceAlgo(UtilMixIn):
+class ResourceAlgo(UtilMixIn, PackageMixIn):
     def pageSize(self):
         return os.sysconf('SC_PAGE_SIZE')
 

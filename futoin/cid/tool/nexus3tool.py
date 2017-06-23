@@ -42,7 +42,7 @@ avoid setting these variables in process environment.
         self.rmsUpload(config, dst_pool, package_list)
 
     def rmsGetList(self, config, rms_pool, package_hint):
-        script_name = 'cid_list'.format(
+        """script_name = 'cid_list'.format(
             rms_pool.replace('/', '$'),
             package_hint.replace('?', '$$').replace('*', '$$$')
         )
@@ -52,7 +52,7 @@ avoid setting these variables in process environment.
         ]
 
         self._execNexusScript(config, script_name, script)
-
+        """
         raise NotImplementedError(self._name)
 
     def rmsRetrieve(self, config, rms_pool, package_list):

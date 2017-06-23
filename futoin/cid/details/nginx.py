@@ -255,8 +255,8 @@ class ConfigBuilder(UtilMixIn, PathMixIn):
             http['upstream {0}'.format(app)] = upstream
 
             if prefix == '/' and cid_tune.get('serveStatic', True):
-                server['location @main'.format(prefix)] = location
-                server['location /'.format(prefix)] = {
+                server['location @main'] = location
+                server['location /'] = {
                     'try_files': '$uri @main',
                     'disable_symlinks': 'if_not_owner from={0}'.format(server['root']),
                 }

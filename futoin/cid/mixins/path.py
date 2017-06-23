@@ -52,7 +52,7 @@ class PathMixIn(object):
 
                 if p.returncode != 0:
                     raise subprocess.CalledProcessError(
-                        'Failed {0}'.format(p.returncode))
+                        'Failed {0}'.format(p.returncode), cmd)
 
                 return True
 

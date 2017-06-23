@@ -41,7 +41,7 @@ def _call_cmd(cmd):
           Coloring.info(subprocess.list2cmdline(cmd)),
           file=sys.stderr)
 
-    subprocess.call(cmd, stdin=subprocess.PIPE)
+    subprocess.check_output(cmd, stdin=subprocess.PIPE)
 
 
 def cid_action(f):
@@ -59,7 +59,7 @@ def cid_action(f):
                     act = [act]
 
                 for cmd in act:
-                    if cmd == '<default>':
+                    if cmd == '<default>' or cmd == '@default':
                         f(self, *args, **kwargs)
                     else:
                         _call_cmd(['sh', '-c', cmd])
@@ -1820,8 +1820,10 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
             rmstool.rmsUpload(config, rms_pool, packages)
 
     @cid_action
-    def migrate(self, location):
-        self._processWcDir()
+    def migrate(self, location=None):
+        if location is None:
+            self._processWcDir()
+            location = self._config['wcDir']
 
         self._info('Running "migrate" in tools')
         self._forEachTool(

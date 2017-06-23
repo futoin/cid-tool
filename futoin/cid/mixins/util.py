@@ -211,7 +211,7 @@ class UtilMixIn(object):
                 '--max-time', '{0}'.format(int(total_to)),
             ]
 
-        raise NotImplemented('Unknown format: {0}'.format(fmt))
+        raise NotImplementedError('Unknown format: {0}'.format(fmt))
 
     #---
     __memory_mult_table = {

@@ -19,6 +19,10 @@
     }
   },
   "actions" : {
-    "autopep8" : "autopep8 -i -r futoin"
+    "autopep8" : "autopep8 -i -r futoin",
+    "check" : [
+        "pylint -E futoin --ignore=contrib",
+        "@default"
+    ]
   }
 }

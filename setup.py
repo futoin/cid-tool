@@ -24,6 +24,7 @@ config = {
     'download_url': 'https://github.com/futoin/cid-tool/archive/master.zip',
 
     'install_requires': ['docopt', 'requests'],
+    'setup_requires': ['autopep8', 'pylint'],
     'extras_require': {
         'test': ['nose'],
     },

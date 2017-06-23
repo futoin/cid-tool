@@ -39,7 +39,7 @@ class GemToolMixIn(object):
 
     def updateTool(self, env):
         if env.get(self._name + 'Ver', None):
-            self._installTool(self, env)
+            self._installTool(env)
         else:
             self._callExternal(
                 [env['gemBin'], 'update', self._gemName()] + env['gemInstallArgs'].split(' '))
