@@ -1321,7 +1321,7 @@ class ServiceMixIn(object):
 
         signal.signal(signal.SIGTERM, serviceExitSignal)
         signal.signal(signal.SIGINT, serviceExitSignal)
-        signal.signal(signal.SIGHUP, serviceReloadSignal)
+        signal.signal(signal.SIGHUP, serviceExitSignal)
         signal.signal(signal.SIGUSR1, serviceReloadSignal)
         signal.signal(signal.SIGUSR2, serviceReloadSignal)
         signal.signal(signal.SIGCHLD, childSignal)

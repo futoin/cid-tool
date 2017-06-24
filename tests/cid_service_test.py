@@ -69,6 +69,14 @@ done
         self.assertEqual(4, len(deploy_conf['deploy']['autoServices']['app']))
         
     def test03_exec(self):
+        start_file = 'dst/persistent/data/start.txt'
+        reload_file = 'dst/persistent/data/reload.txt'
+        
+        try: os.unlink(start_file)
+        except: pass
+        try: os.unlink(reload_file)
+        except: pass
+        
         pid1 = os.fork()
         
         if not pid1:
@@ -95,9 +103,6 @@ done
             
         self._call_cid(['service', 'exec', 'app', '4', '--deployDir=dst'],
                        returncode=1)
-        
-        start_file = 'dst/persistent/data/start.txt'
-        reload_file = 'dst/persistent/data/reload.txt'
         
         for i in range(10):
             time.sleep(1)
@@ -135,5 +140,64 @@ done
 
         
     def test04_redeploy(self):
+        keep_file = 'dst/persistent/data/keep.txt'
+        
         self._call_cid(['deploy', 'rms', 'Releases', '--deployDir=dst',
                         '--redeploy'])
+        
+        self._writeFile(keep_file, 'KEEP')
+
+        self._call_cid(['deploy', 'rms', 'Releases', '--deployDir=dst',
+                        '--redeploy'])
+        
+        self.assertTrue(os.path.exists(keep_file))
+        
+    def test05_master(self):
+        start_file = 'dst/persistent/data/start.txt'
+        reload_file = 'dst/persistent/data/reload.txt'
+        
+        try: os.unlink(start_file)
+        except: pass
+        try: os.unlink(reload_file)
+        except: pass
+        
+        pid = os.fork()
+        
+        if not pid:
+            os.dup2(os.open(os.devnull, os.O_RDONLY), 0)
+            os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
+            os.dup2(os.open(os.devnull, os.O_WRONLY), 2)
+            
+            os.execv(self.CIDTEST_BIN, [
+                self.CIDTEST_BIN, 'service', 'master',
+                '--deployDir=dst',
+            ])
+            
+        for i in range(10):
+            time.sleep(1)
+            
+            if not os.path.exists(start_file):
+                continue
+
+            if len(self._readFile(start_file)) == 4:
+                break
+        else:
+            self.assertTrue(False)
+            
+        os.kill(pid, signal.SIGHUP)
+        
+        for i in range(30):
+            time.sleep(1)
+
+            if not os.path.exists(reload_file):
+                continue
+
+            if len(self._readFile(reload_file)) == 4:
+                break
+        else:
+            self.assertTrue(False)
+            
+        os.kill(pid, signal.SIGTERM)
+        os.waitpid(pid, 0)
+        
+            
