@@ -42,7 +42,10 @@ def _call_cmd(cmd):
           Coloring.info(subprocess.list2cmdline(cmd)),
           file=sys.stderr)
 
-    subprocess.check_output(cmd, stdin=subprocess.PIPE)
+    res = subprocess.call(cmd, stdin=subprocess.PIPE)
+
+    if res != 0:
+        raise subprocess.SubprocessError('Command failed: ', res)
 
 
 def cid_action(f):
