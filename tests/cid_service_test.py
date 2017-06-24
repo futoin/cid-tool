@@ -184,7 +184,7 @@ done
         else:
             self.assertTrue(False)
             
-        os.kill(pid, signal.SIGHUP)
+        os.kill(pid, signal.SIGUSR1)
         
         for i in range(30):
             time.sleep(1)
