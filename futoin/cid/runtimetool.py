@@ -24,6 +24,7 @@ class RuntimeTool(SubTool):
             'connMemory': '1M',
             'scalable': False,
             'reloadable': False,
+            'multiCore': False,
             'exitTimeoutMS': self.DEFAULT_EXIT_TIMEOUT,
             'maxRequestSize': '1M',
             'socketProtocol': 'custom',

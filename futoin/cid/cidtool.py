@@ -299,7 +299,7 @@ class ConfigMixIn(object):
         ('externalSetup', bool),
     ])
 
-    def _initConfig(self):
+    def _initConfig(self, current='current'):
         errors = []
 
         #--
@@ -321,7 +321,8 @@ class ConfigMixIn(object):
         if deploy_dir:
             deploy_config_file = ospath.join(deploy_dir, self._FUTOIN_JSON)
             deploy_config_file = ospath.realpath(deploy_config_file)
-            project_config_file = ospath.join('current', self._FUTOIN_JSON)
+            project_config_file = ospath.join(
+                deploy_dir, current, self._FUTOIN_JSON)
             project_config_file = ospath.realpath(project_config_file)
         else:
             project_config_file = ospath.realpath(self._FUTOIN_JSON)
@@ -932,6 +933,9 @@ class DeployMixIn(object):
 
             os.symlink(pd, dd)
 
+        # Predictable change of CWD
+        self._processWcDir()
+
         # Build
         if config.get('deployBuild', False):
             self._info('Building project in deployment')
@@ -939,10 +943,10 @@ class DeployMixIn(object):
             self.build()
 
         # Complete migration
-        self.migrate(tmp)
+        self.migrate()
 
         # return back
-        os.chdir(config['deployDir'])
+        self._processDeployDir(tmp)
 
         # Setup read-only permissions
         self._info('Setting up read-only permissions')
@@ -983,7 +987,12 @@ class DeployMixIn(object):
         if ospath.exists('current'):
             whitelist.append(ospath.basename(os.readlink('current')))
 
-        whitelist += ['current', 'persistent', self.DEPLOY_LOCK_FILE]
+        whitelist += [
+            'current',
+            'persistent',
+            self.DEPLOY_LOCK_FILE,
+            self._FUTOIN_JSON,
+        ]
 
         for f in os.listdir('.'):
             (f_noext, f_ext) = ospath.splitext(f)
@@ -1013,9 +1022,14 @@ class DeployMixIn(object):
             except KeyError:
                 pass
 
+        if config.get('rms', None):
+            new_config['rms'] = config['rms']
+            new_config['rmsRepo'] = config['rmsRepo']
+
         new_config['deploy'] = config.get('deploy', {})
         new_config['env'] = orig_config.get('env', {})
 
+        self._info('Writing deployment config in {0}'.format(os.getcwd()))
         self._writeJSONConfig(self._FUTOIN_JSON, new_config)
 
     def _reloadServices(self):
@@ -1029,10 +1043,12 @@ class DeployMixIn(object):
             os.kill(pid, signal.SIGHUP)
 
     def _rebalanceServices(self):
+        self._info('Re-balancing services')
         from .details.resourcealgo import ResourceAlgo
         ResourceAlgo().configServices(self._config)
 
     def _configServices(self):
+        self._info('Configuring services')
         self._requireDeployLock()
 
         config = self._config
@@ -1065,18 +1081,17 @@ class DeployMixIn(object):
                     'Tool "{0}" for "{1}" is not of RuntimeTool type'
                     .format(tool, svc['name']))
 
-    def _processDeployDir(self):
+    def _processDeployDir(self, current='current'):
         deploy_dir = self._config['deployDir']
 
         # make sure wcDir is always set to current
-        wc_dir = ospath.join(deploy_dir, 'current')
+        wc_dir = ospath.join(deploy_dir, current)
         self._config['wcDir'] = wc_dir
         self._overrides['wcDir'] = wc_dir
 
         if not deploy_dir:
             deploy_dir = ospath.realpath('.')
             self._overrides['deployDir'] = deploy_dir
-            self._initConfig()
 
         self._info('Using {0} as deploy directory'.format(deploy_dir))
 
@@ -1092,9 +1107,13 @@ class DeployMixIn(object):
                 .format(deploy_dir, ospath.basename(placeholder))
             )
 
-        print(Coloring.infoLabel('Changing to: ') + Coloring.info(deploy_dir),
-              file=sys.stderr)
-        os.chdir(deploy_dir)
+        self._info('Re-initializing config')
+        self._initConfig(current)
+
+        if deploy_dir != os.getcwd():
+            print(Coloring.infoLabel('Changing to: ') + Coloring.info(deploy_dir),
+                  file=sys.stderr)
+            os.chdir(deploy_dir)
 
         deploy = self._config['deploy']
 
@@ -1820,14 +1839,12 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
             rmstool.rmsUpload(config, rms_pool, packages)
 
     @cid_action
-    def migrate(self, location=None):
-        if location is None:
-            self._processWcDir()
-            location = self._config['wcDir']
+    def migrate(self):
+        self._processWcDir()
 
         self._info('Running "migrate" in tools')
         self._forEachTool(
-            lambda config, t: t.onMigrate(config, location),
+            lambda config, t: t.onMigrate(config),
             base=MigrationTool
         )
 

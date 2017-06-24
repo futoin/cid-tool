@@ -5,5 +5,5 @@ __all__ = ['MigrationTool']
 
 
 class MigrationTool(SubTool):
-    def onMigrate(self, config, location):
+    def onMigrate(self, config):
         pass

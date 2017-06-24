@@ -4,6 +4,7 @@ import subprocess
 from ..mixins.util import UtilMixIn
 from ..mixins.package import PackageMixIn
 
+
 class ResourceAlgo(UtilMixIn, PackageMixIn):
     def pageSize(self):
         return os.sysconf('SC_PAGE_SIZE')
@@ -243,8 +244,8 @@ class ResourceAlgo(UtilMixIn, PackageMixIn):
     def assignSockets(self, config):
         port = 1025
         ports = set()
-        deploy = config.setdefault('deploy', {})
-        autoServices = deploy.setdefault('autoServices', {})
+        deploy = config['deploy']
+        autoServices = deploy['autoServices']
         entryPoints = config.get('entryPoints', {})
 
         base_dir = os.path.realpath(config['deployDir'])
@@ -260,15 +261,15 @@ class ResourceAlgo(UtilMixIn, PackageMixIn):
                 self._errorExit(
                     'Entry point "{0}" sets socketType without socketTypes'.format(en))
 
+            socket_types = ei.get('socketTypes', [])
+
+            if not socket_types:
+                continue
+
+            sock_type = ei.get('socketType', socket_types[0])
+
             for i in range(0, len(instances)):
                 ic = instances[i]
-
-                socket_types = ei.get('socketTypes', [])
-
-                if not socket_types:
-                    continue
-
-                sock_type = ei.get('socketType', socket_types[0])
 
                 ic['socketType'] = sock_type
 
