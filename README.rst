@@ -200,6 +200,73 @@ Then please run the following command instead: ::
 
     cid sudoers --skip-key-management | sudo tee -a /etc/sudoers
 
+Typical use cases
+-----------------
+
+1. Prepare project for development: ::
+
+    cid prepare master --vcsRepo=git:user@host:git/repo.git
+    # create VCS working copy with specified VCS ref
+    # auto-detects tools and executes:
+    #  npm install, composer install, bundle install, etc.
+
+2. Prepare project for release: ::
+
+    cid tag master
+    # updates auto-detected files like package.json
+    # creates tags
+    # "patch" version increment is the default behavior
+
+3. Release builds on CI server: ::
+
+    cid ci_build v1.0.0 Releases --vcsRepo=git:user@host:git/repo.git \
+        --rmsRepo=svn:user@host/rms
+
+4. Nightly builds on CI server: ::
+
+    cid ci_build master Nightly --vcsRepo=git:user@host:git/repo.git \
+        --rmsRepo=scp:user@host
+
+5. Production-like execution environment in development: ::
+
+    cid devserve
+    # PHP-FPM, Ruby rack, Python WSGI, nginx... Doesn't matter - it knows how!
+
+6. Staging deployment from VCS: ::
+
+    cid deploy vcsref master --vcsRepo=git:user@host:git/repo.git \
+        --deployDir=/www/staging \
+        --limit-memory=1G
+    # resource limits are preserved across runs, if not overridden
+
+7. Production deployment from RMS: ::
+
+    cid deploy rms Releases --rmsRepo=svn:user@host/rms \
+        --deployDir=/www/prod \
+        --limit-memory=8G \
+        --limit-cpus=4
+    # resource limits are preserved across runs, if not overridden
+
+8. Alter resource limits before or after deployment: ::
+
+    cid deploy setup
+        --deployDir=/www/prod \
+        --limit-memory=16G
+
+9. Execution of deployed project: ::
+
+    cid service master --deployDir=/www/prod
+
+10. Use any supported tool without caring for setup & dependencies: ::
+
+     cid tool exec dockercompose -- ...
+     # ensures:
+     # * setup of system Docker
+     # * setup of virtualenv
+     # * setup of pip
+     # * setup of docker-compoer via pip into virtualenv
+     # actually, executes
+
 Usage
 -----
 
