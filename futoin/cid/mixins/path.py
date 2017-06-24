@@ -5,7 +5,6 @@ import os
 import sys
 import subprocess
 import glob
-from ..coloring import Coloring
 
 
 class PathMixIn(object):
@@ -24,9 +23,7 @@ class PathMixIn(object):
             if merge_stderr:
                 stderr = subprocess.STDOUT
             elif verbose and not suppress_fail:
-                print(Coloring.infoLabel('Call: ') +
-                      Coloring.info(subprocess.list2cmdline(cmd)),
-                      file=sys.stderr)
+                self._info(subprocess.list2cmdline(cmd), 'Call: ')
                 stderr = sys.stderr
             else:
                 stderr = PathMixIn._dev_null
@@ -94,10 +91,7 @@ class PathMixIn(object):
 
     def _callInteractive(self, cmd, replace=True):
         if replace:
-            print(Coloring.infoLabel('Exec: ') +
-                  Coloring.info(subprocess.list2cmdline(cmd)),
-                  file=sys.stderr)
-
+            self._info(subprocess.list2cmdline(cmd), 'Exec: ')
             sys.stdout.flush()
             sys.stderr.flush()
 
@@ -119,9 +113,7 @@ class PathMixIn(object):
 
             os.execv(cmd[0], cmd)
         else:
-            print(Coloring.infoLabel('Call: ') +
-                  Coloring.info(subprocess.list2cmdline(cmd)),
-                  file=sys.stderr)
+            self._info(subprocess.list2cmdline(cmd), 'Call: ')
             sys.stdout.flush()
             sys.stderr.flush()
 

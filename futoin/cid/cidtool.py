@@ -18,6 +18,7 @@ import hashlib
 import signal
 import copy
 from collections import OrderedDict
+from distutils import dir_util
 
 from .mixins.path import PathMixIn
 from .mixins.util import UtilMixIn
@@ -299,7 +300,7 @@ class ConfigMixIn(object):
         ('externalSetup', bool),
     ])
 
-    def _initConfig(self, current='current'):
+    def _initConfig(self):
         errors = []
 
         #--
@@ -319,6 +320,7 @@ class ConfigMixIn(object):
         deploy_dir = self._overrides.get('deployDir', None)
 
         if deploy_dir:
+            current = self._getDeployCurrent()
             deploy_config_file = ospath.join(deploy_dir, self._FUTOIN_JSON)
             deploy_config_file = ospath.realpath(deploy_config_file)
             project_config_file = ospath.join(
@@ -446,6 +448,9 @@ class ConfigMixIn(object):
             self._errorExit(
                 "Configuration issues are found:\n\n* " +
                 "\n* ".join(set(errors)))
+
+    def _getDeployCurrent(self):
+        return self._current_dir or 'current'
 
     def _sanitizeConfig(self, config, errors):
         conf_vars = self.CONFIG_VARS
@@ -909,32 +914,41 @@ class DeployMixIn(object):
     def _deployCommon(self, tmp, dst, cleanup_whitelist):
         self._requireDeployLock()
 
+        self._current_dir = tmp
         config = self._config
-        config['wcDir'] = ospath.realpath(tmp)
+        persistent_dir = ospath.realpath(
+            config['env'].get('persistentDir', 'persistent'))
+
+        # Predictable change of CWD
+        self._overrides['wcDir'] = config['wcDir'] = ospath.realpath(tmp)
+        self._processWcDir()
+        config = self._config
 
         # Setup persistent folders
         self._info('Setting up read-write directories')
-        persistent_dir = ospath.abspath(
-            config['env'].get('persistentDir', 'persistent'))
-        wdir_wperm = stat.S_IRUSR | stat.S_IXUSR | \
-            stat.S_IRGRP | stat.S_IXGRP | \
-            stat.S_IWUSR | stat.S_IWGRP
 
-        for d in config.get('persistent', []):
-            pd = ospath.join(persistent_dir, d)
-            dd = ospath.join(tmp, d)
+        if not ospath.exists(persistent_dir):
+            os.makedirs(persistent_dir)
 
-            if not ospath.isdir(pd):
+        wfile_wperm = stat.S_IRUSR | stat.S_IRGRP | stat.S_IWUSR | stat.S_IWGRP
+        wdir_wperm = wfile_wperm | stat.S_IXUSR | stat.S_IXGRP
+
+        for dd in config.get('persistent', []):
+            pd = ospath.relpath(ospath.join(persistent_dir, dd))
+            self._info('{0} -> {1}'.format(dd, pd), 'Making persistent: ')
+
+            if ospath.isdir(pd):
+                os.chmod(pd, wdir_wperm)
+            else:
                 os.makedirs(pd, wdir_wperm)
 
             if ospath.exists(dd):
-                shutil.copytree(dd, pd)
+                dir_util.copy_tree(
+                    dd, pd, preserve_symlinks=1, preserve_mode=0)
                 self._rmTree(dd)
 
             os.symlink(pd, dd)
-
-        # Predictable change of CWD
-        self._processWcDir()
+            self._chmodTree(pd, wdir_wperm, wfile_wperm, False)
 
         # Build
         if config.get('deployBuild', False):
@@ -946,20 +960,15 @@ class DeployMixIn(object):
         self.migrate()
 
         # return back
-        self._processDeployDir(tmp)
+        self._processDeployDir()
+        config = self._config
 
         # Setup read-only permissions
         self._info('Setting up read-only permissions')
-        dir_perm = stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP
-        file_perm = stat.S_IRUSR | stat.S_IRGRP
-        walk_list = os.walk(tmp)
-        os.chmod(tmp, dir_perm)
 
-        for (path, dirs, files) in walk_list:
-            for d in dirs:
-                os.chmod(ospath.join(path, d), dir_perm)
-            for f in files:
-                os.chmod(ospath.join(path, f), file_perm)
+        file_perm = stat.S_IRUSR | stat.S_IRGRP
+        dir_perm = file_perm | stat.S_IXUSR | stat.S_IXGRP
+        self._chmodTree(tmp, dir_perm, file_perm, True)
 
         # Setup services
         self._deployConfig()
@@ -973,6 +982,7 @@ class DeployMixIn(object):
         os.rename(tmp, dst)
         os.symlink(dst, 'current.tmp')
         os.rename('current.tmp', 'current')
+        self._current_dir = None
 
         # Re-run
         self._reloadServices()
@@ -1081,10 +1091,13 @@ class DeployMixIn(object):
                     'Tool "{0}" for "{1}" is not of RuntimeTool type'
                     .format(tool, svc['name']))
 
-    def _processDeployDir(self, current='current'):
+    def _processDeployDir(self):
+        os.umask(0o027)
+
         deploy_dir = self._config['deployDir']
 
         # make sure wcDir is always set to current
+        current = self._getDeployCurrent()
         wc_dir = ospath.join(deploy_dir, current)
         self._config['wcDir'] = wc_dir
         self._overrides['wcDir'] = wc_dir
@@ -1107,8 +1120,10 @@ class DeployMixIn(object):
                 .format(deploy_dir, ospath.basename(placeholder))
             )
 
+        os.chmod(deploy_dir, os.stat(deploy_dir).st_mode | stat.S_IWUSR)
+
         self._info('Re-initializing config')
-        self._initConfig(current)
+        self._initConfig()
 
         if deploy_dir != os.getcwd():
             print(Coloring.infoLabel('Changing to: ') + Coloring.info(deploy_dir),
@@ -1558,6 +1573,7 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
         self._startup_env = dict(os.environ)
         self._tool_impl = None
         self._overrides = overrides
+        self._current_dir = None
         self._initLocks()
         self._initConfig()
 
@@ -2395,7 +2411,7 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
         t = self._tool_impl[tool]
 
         if isinstance(t, RuntimeTool):
-            self._serviceStop(svc, t, pid)
+            self._serviceStop(svc, t, int(pid))
         else:
             self._errorExit(
                 'Tool "{0}" for "{1}" does not support "service stop" command'.format(tool, entry_point))
@@ -2410,7 +2426,7 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
         t = self._tool_impl[tool]
 
         if isinstance(t, RuntimeTool):
-            t.onReload(config, pid, svc['tune'])
+            t.onReload(config, int(pid), svc['tune'])
         else:
             self._errorExit(
                 'Tool "{0}" for "{1}" does not support "service reload" command'.format(tool, entry_point))

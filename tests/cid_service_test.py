@@ -27,8 +27,9 @@ class cid_service_Test( cid_UTBase, UtilMixIn ) :
         os.mkdir('data')
         
         self._writeFile('app.sh', """#!/bin/bash
-flock data -c 'echo 1>data/start.txt'
-trap "flock data -c 'echo 1>data/reload.txt'" SIGHUP
+flock data/lock -c 'echo -n "1" >>data/start.txt'
+trap "flock data/lock -c 'echo -n "1" >>data/reload.txt'" SIGHUP
+trap "exit 0" SIGTERM
 
 # high load
 while true; do
@@ -68,4 +69,71 @@ done
         self.assertEqual(4, len(deploy_conf['deploy']['autoServices']['app']))
         
     def test03_exec(self):
-        pass
+        pid1 = os.fork()
+        
+        if not pid1:
+            os.dup2(os.open(os.devnull, os.O_RDONLY), 0)
+            os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
+            os.dup2(os.open(os.devnull, os.O_WRONLY), 2)
+            
+            os.execv(self.CIDTEST_BIN, [
+                self.CIDTEST_BIN, 'service', 'exec', 'app', '0',
+                '--deployDir=dst',
+            ])
+            
+        pid2 = os.fork()
+        
+        if not pid2:
+            os.dup2(os.open(os.devnull, os.O_RDONLY), 0)
+            os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
+            os.dup2(os.open(os.devnull, os.O_WRONLY), 2)
+            
+            os.execv(self.CIDTEST_BIN, [
+                self.CIDTEST_BIN, 'service', 'exec', 'app', '3',
+                '--deployDir=dst',
+            ])
+            
+        self._call_cid(['service', 'exec', 'app', '4', '--deployDir=dst'],
+                       returncode=1)
+        
+        start_file = 'dst/persistent/data/start.txt'
+        reload_file = 'dst/persistent/data/reload.txt'
+        
+        for i in range(10):
+            time.sleep(1)
+            
+            if not os.path.exists(start_file):
+                continue
+
+            if len(self._readFile(start_file)) == 2:
+                break
+        else:
+            self.assertTrue(False)
+
+        self._call_cid(['service', 'reload', 'app', '4', str(pid2), '--deployDir=dst'],
+                       returncode=1)
+        self._call_cid(['service', 'reload', 'app', '3', str(pid2), '--deployDir=dst'])
+           
+        for i in range(10):
+            time.sleep(1)
+
+            if not os.path.exists(reload_file):
+                continue
+
+            if len(self._readFile(reload_file)) == 1:
+                break
+        else:
+            self.assertTrue(False)
+
+        self._call_cid(['service', 'stop', 'app', '4', str(pid2), '--deployDir=dst'],
+                       returncode=1)
+        self._call_cid(['service', 'stop', 'app', '3', str(pid2), '--deployDir=dst'])
+        os.waitpid(pid2, 0)
+            
+        self._call_cid(['service', 'stop', 'app', '0', str(pid1), '--deployDir=dst'])
+        os.waitpid(pid1, 0)
+
+        
+    def test04_redeploy(self):
+        self._call_cid(['deploy', 'rms', 'Releases', '--deployDir=dst',
+                        '--redeploy'])

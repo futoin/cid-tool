@@ -135,8 +135,7 @@ class UtilMixIn(object):
                 raise
 
     def _rmTree(self, dir):
-        print(Coloring.infoLabel('Removing: ') + Coloring.info(dir),
-              file=sys.stderr)
+        self._info(dir, 'Removing: ')
 
         os.chmod(dir, stat.S_IRWXU)
         for (path, dirs, files) in os.walk(dir):
@@ -144,11 +143,38 @@ class UtilMixIn(object):
                 os.chmod(os.path.join(path, id), stat.S_IRWXU)
         shutil.rmtree(dir)
 
+    def _chmodTree(self, dir, dperm, fperm, keep_execute=False):
+        walk_list = os.walk(dir)
+        os.chmod(dir, dperm)
+
+        for (path, dirs, files) in walk_list:
+            for f in dirs + files:
+                f = os.path.join(path, f)
+
+                st_mode = os.lstat(f).st_mode
+
+                if stat.S_ISLNK(st_mode):
+                    continue
+
+                if stat.S_ISDIR(st_mode):
+                    os.chmod(f, dperm)
+                elif keep_execute:
+                    xperm = st_mode & (stat.S_IXUSR | stat.S_IXGRP)
+                    os.chmod(f, fperm | xperm)
+                else:
+                    os.chmod(f, fperm)
+
+    #---
     def _getTune(self, config, key, default=None):
         return config.get('toolTune', {}).get(self._name, {}).get(key, default)
 
-    def _info(self, msg):
-        print(Coloring.info('INFO: ' + msg), file=sys.stderr)
+    def _info(self, msg, label=None):
+        if label:
+            line = Coloring.infoLabel(label) + Coloring.info(msg)
+        else:
+            line = Coloring.info('INFO: ' + msg)
+
+        print(line, file=sys.stderr)
 
     def _warn(self, msg):
         print(Coloring.warn('WARNING: ' + msg), file=sys.stderr)
