@@ -374,6 +374,33 @@ class ConfigMixIn(object):
                         cep_tune.update(ev)
                     else:
                         cep[ek] = ev
+            elif k == 'actions':
+                config_actions = config.setdefault('actions', {})
+
+                for (ak, av) in v.items():
+                    if ak in config_actions:
+                        if not isinstance(av, list):
+                            lav = [av]
+                        else:
+                            lav = list(av)
+
+                        try:
+                            try:
+                                pos = lav.index('@default')
+                            except ValueError:
+                                pos = lav.index('<default>')
+
+                            cv = config_actions[ak]
+
+                            if not isinstance(cv, list):
+                                cv = [cv]
+
+                            lav[pos:pos + 1] = cv
+                            av = lav
+                        except ValueError:
+                            pass
+
+                    config_actions[ak] = av
             else:
                 config[k] = v
 
