@@ -14,7 +14,7 @@ import json
 
 class cid_RMS_UTBase ( cid_UTBase ) :
     __test__ = False
-    RMS_HOST = '10.11.1.11'
+    RMS_HOST = os.environ.get('RMS_HOST', '10.11.1.11')
     TEST_REPOS = ('CIBuilds', 'ReleaseBuilds', 'Verified', 'Prod')
     HASH_LIST = ('md5', 'sha1', 'sha256', 'sha512')
     
