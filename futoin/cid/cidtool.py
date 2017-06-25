@@ -4,6 +4,7 @@ from __future__ import print_function, absolute_import
 import os
 import sys
 import subprocess
+import shlex
 import importlib
 import json
 import datetime
@@ -42,10 +43,7 @@ def _call_cmd(cmd):
           Coloring.info(subprocess.list2cmdline(cmd)),
           file=sys.stderr)
 
-    res = subprocess.call(cmd, stdin=subprocess.PIPE)
-
-    if res != 0:
-        raise subprocess.SubprocessError('Command failed: ', res)
+    subprocess.check_call(cmd, stdin=subprocess.PIPE)
 
 
 def cid_action(f):
@@ -65,6 +63,9 @@ def cid_action(f):
                 for cmd in act:
                     if cmd == '<default>' or cmd == '@default':
                         f(self, *args, **kwargs)
+                    elif cmd.startswith('@cid'):
+                        cmd = shlex.split(cmd)
+                        _call_cmd([sys.executable, '-mfutoin.cid'] + cmd[1:])
                     else:
                         _call_cmd(['sh', '-c', cmd])
         else:
@@ -1930,9 +1931,14 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
                     act = [act]
 
                 for cmd in act:
-                    _call_cmd(['sh', '-c', '{0} {1}'.format(
-                        cmd, subprocess.list2cmdline(args)
-                    )])
+                    if cmd.startswith('@cid'):
+                        cmd = shlex.split(cmd)
+                        _call_cmd(
+                            [sys.executable, '-mfutoin.cid'] + cmd[1:] + args)
+                    else:
+                        _call_cmd(['sh', '-c', '{0} {1}'.format(
+                            cmd, subprocess.list2cmdline(args)
+                        )])
             else:
                 self._errorExit(
                     'Unknown "{0}" action or entry point'.format(command))

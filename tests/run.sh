@@ -70,10 +70,12 @@ if [ "$1" = 'frompip' ]; then
     frompip=frompip
     shift 1
     # make it fresh after editable mode
-    sudo rm -rf ~/.virtualenv-*
+    sudo rm -rf ${HOME}/.virtualenv-*
     pip_install_opts="--upgrade --no-cache-dir futoin-cid"
+    unset CID_SOURCE_DIR
 else
-    pip_install_opts="-e $(pwd)"
+    export CID_SOURCE_DIR=$(pwd)
+    pip_install_opts="-e ${CID_SOURCE_DIR}"
 fi
 
 if [ "$1" = 'nocompile' ]; then
@@ -125,6 +127,7 @@ function run_common() {
         export CIDTEST_RUN_DIR=$CIDTEST_RUN_DIR
         export CIDTEST_BIN=$CIDTEST_BIN
         export CIDTEST_NO_COMPILE=$CIDTEST_NO_COMPILE
+        export CID_SOURCE_DIR=$CID_SOURCE_DIR
         export pythonVer=$pythonVer
         \$CIDTEST_BIN tool exec python -- -m nose $tests
 EOF

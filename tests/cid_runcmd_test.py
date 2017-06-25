@@ -84,6 +84,7 @@ object Hi {
                     "echo CustomList1",
                     "echo CustomList2",
                 ],
+                "test-cid" : "@cid tool exec bash -- -c 'echo FROM-SUB-CID'",
             },
             "entryPoints": {
                 'exe_ep' : {
@@ -123,7 +124,7 @@ object Hi {
                 "gradle": {
                     "package": "jar",
                 }
-            }
+            },
         })
                 
         cls._call_cid(['tool', 'package', 'gradle'])
@@ -138,6 +139,9 @@ object Hi {
     def test11_run_custom_list( self ):
         self._test_run('custom_list', 'CustomList1\nCustomList2')
 
+    def test12_run_test_cid(self):
+        self._test_run('test-cid', 'FROM-SUB-CID')
+        
     def test20_run_exe_ep( self ):
         self._test_run('exe_ep', 'EXE')
         
@@ -161,7 +165,7 @@ object Hi {
     
     def test26_run_scala_ep( self ):
         self._test_run('scala_ep', 'SCALA')
-        
+    
     def test50_run_all( self ):
         res= self._call_cid(['run'], retout=True)
         res = sorted(res.strip().split("\n"))
