@@ -20,6 +20,7 @@
 * CHANGED: to always reload plugins and make sure precedence is CID->Config->Env
 * CHANGED: "cid deploy rms" is explicit now
 * CHANGED: to force tools update on deployment to mitigate security issues
+* CHANGED: to allow actions reference other actions for chaining
 * NEW: added FTN16 .pluginPacks support
 * NEW: added family of "cid rms" commands
 * NEW: added scpTool port support

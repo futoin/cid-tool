@@ -46,6 +46,24 @@ def _call_cmd(cmd):
     subprocess.check_call(cmd, stdin=subprocess.PIPE)
 
 
+def _call_actions(name, actions, args):
+    act = actions[name]
+
+    if not isinstance(act, list):
+        act = [act]
+
+    for cmd in act:
+        if cmd.startswith('@cid'):
+            cmd = shlex.split(cmd)
+            _call_cmd([sys.executable, '-mfutoin.cid'] + cmd[1:] + args)
+        elif cmd in actions:
+            _call_actions(cmd, actions, args)
+        else:
+            if args:
+                cmd = '{0} {1}'.format(cmd, subprocess.list2cmdline(args))
+            _call_cmd(['sh', '-c', cmd])
+
+
 def cid_action(f):
     def custom_f(self, *args, **kwargs):
         config = self._config
@@ -55,8 +73,10 @@ def cid_action(f):
         except AttributeError:
             fn = f.__name__
 
-        if fn in config.get('actions', {}):
-            for act in config['actions'][fn]:
+        actions = config.get('actions', {})
+
+        if fn in actions:
+            for act in actions[fn]:
                 if not isinstance(act, list):
                     act = [act]
 
@@ -66,6 +86,9 @@ def cid_action(f):
                     elif cmd.startswith('@cid'):
                         cmd = shlex.split(cmd)
                         _call_cmd([sys.executable, '-mfutoin.cid'] + cmd[1:])
+                    elif cmd in actions:
+                        filt_args =list(filter(None, args))
+                        _call_actions(cmd, actions, filt_args)
                     else:
                         _call_cmd(['sh', '-c', cmd])
         else:
@@ -2001,20 +2024,7 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
                         'Tool "{0}" for "{1}" does not support "run" command'.format(tool, command))
 
             elif command in actions:
-                act = actions[command]
-
-                if not isinstance(act, list):
-                    act = [act]
-
-                for cmd in act:
-                    if cmd.startswith('@cid'):
-                        cmd = shlex.split(cmd)
-                        _call_cmd(
-                            [sys.executable, '-mfutoin.cid'] + cmd[1:] + args)
-                    else:
-                        _call_cmd(['sh', '-c', '{0} {1}'.format(
-                            cmd, subprocess.list2cmdline(args)
-                        )])
+                _call_actions(command, actions, args)
             else:
                 self._errorExit(
                     'Unknown "{0}" action or entry point'.format(command))
