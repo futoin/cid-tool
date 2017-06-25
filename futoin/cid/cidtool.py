@@ -968,18 +968,23 @@ class DeployMixIn(object):
             pd = ospath.relpath(ospath.join(persistent_dir, dd))
             self._info('{0} -> {1}'.format(dd, pd), 'Making persistent: ')
 
-            if ospath.isdir(pd):
-                os.chmod(pd, wdir_wperm)
-            else:
-                os.makedirs(pd, wdir_wperm)
-
-            if ospath.exists(dd):
+            if ospath.isdir(dd):
                 dir_util.copy_tree(
                     dd, pd, preserve_symlinks=1, preserve_mode=0)
                 self._rmTree(dd)
-
-            os.symlink(pd, dd)
-            self._chmodTree(pd, wdir_wperm, wfile_wperm, False)
+                os.symlink(pd, dd)
+                self._chmodTree(pd, wdir_wperm, wfile_wperm, False)
+            elif ospath.isfile(dd):
+                shutil.move(dd, pd)
+                os.unlink(dd)
+                os.symlink(pd, dd)
+                os.chmod(pd, wfile_wperm)
+            elif ospath.isdir(pd):
+                os.symlink(pd, dd)
+                self._chmodTree(pd, wdir_wperm, wfile_wperm, False)
+            else:
+                os.makedirs(pd, wdir_wperm)
+                os.symlink(pd, dd)
 
         # Build
         if config.get('deployBuild', False):
