@@ -44,7 +44,10 @@ class cid_UTBase ( unittest.TestCase ) :
             if os.path.exists( cleanup_dir ) :
                 for ( path, dirs, files ) in os.walk( cleanup_dir ) :
                     for id in dirs + files :
-                        os.chmod( os.path.join( path, id ), stat.S_IRWXU )
+                        try:
+                            os.chmod( os.path.join( path, id ), stat.S_IRWXU )
+                        except:
+                            pass
                 shutil.rmtree( cleanup_dir )
                 
         if cls._create_test_dir:

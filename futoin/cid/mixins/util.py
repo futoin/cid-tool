@@ -140,7 +140,12 @@ class UtilMixIn(object):
         os.chmod(dir, stat.S_IRWXU)
         for (path, dirs, files) in os.walk(dir):
             for id in dirs + files:
-                os.chmod(os.path.join(path, id), stat.S_IRWXU)
+                id = os.path.join(path, id)
+                st_mode = os.lstat(id).st_mode
+
+                if not stat.S_ISLNK(st_mode):
+                    os.chmod(id, stat.S_IRWXU)
+
         shutil.rmtree(dir)
 
     def _chmodTree(self, dir, dperm, fperm, keep_execute=False):

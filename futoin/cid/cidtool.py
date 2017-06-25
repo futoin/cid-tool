@@ -883,7 +883,7 @@ class DeployMixIn(object):
 
         # cleanup first, in case of incomplete actions
         self._info('Pre-cleanup of deploy directory')
-        self._deployCleanup([vcs_cache, target_dir])
+        self._deployCleanup([self.VCS_CACHE_DIR, target_dir])
 
         # Check if already deployed:
         if ospath.exists(target_dir):
@@ -901,7 +901,7 @@ class DeployMixIn(object):
         vcstool.vcsExport(config, vcs_cache, vcs_ref, target_tmp)
 
         # Common processing
-        self._deployCommon(target_tmp, target_dir, [vcs_cache])
+        self._deployCommon(target_tmp, target_dir, [self.VCS_CACHE_DIR])
 
     def _vcstag_deploy(self, vcs_ref):
         self._requireDeployLock()
@@ -926,7 +926,7 @@ class DeployMixIn(object):
 
         # cleanup first, in case of incomplete actions
         self._info('Pre-cleanup of deploy directory')
-        self._deployCleanup([vcs_cache, target_dir])
+        self._deployCleanup([self.VCS_CACHE_DIR, target_dir])
 
         # Check if already deployed:
         if ospath.exists(target_dir):
@@ -941,7 +941,7 @@ class DeployMixIn(object):
         vcstool.vcsExport(config, vcs_cache, vcs_ref, vcs_ref_tmp)
 
         # Common processing
-        self._deployCommon(vcs_ref_tmp, target_dir, [vcs_cache])
+        self._deployCommon(vcs_ref_tmp, target_dir, [self.VCS_CACHE_DIR])
 
     def _deploy_setup(self):
         self._deployConfig()
