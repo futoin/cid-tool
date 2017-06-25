@@ -16,6 +16,19 @@ development, build, deployment and running.
 Full theoretical details are defined as FutoIn Spec FTN16 available at:
 https://github.com/futoin/specs/blob/master/draft/ftn16_cid_tool.md
 
+Features
+~~~~~~~~
+
+* Single tool for development, testing and production
+* Intelligent automation of human-like behavior
+* Automatic detection & setup of all tool dependencies
+* Resource limit auto-detection & distribution
+* Rolling deployments for zero downtime
+* Container-friendly
+* Technology-neutral
+* Easily extendable & portable
+* Fine tune of all aspects
+
 Supported technologies & tools (so far):
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
