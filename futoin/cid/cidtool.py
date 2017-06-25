@@ -2512,9 +2512,14 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
             entity = pwd.getpwuid(os.geteuid())[0]
 
         lines = ['']
+        commands = []
 
         if self._isDebian() or self._isUbuntu():
             lines += [
+                '# env whitelist',
+                'Defaults  env_keep += "DEBIAN_FRONTEND"',
+            ]
+            commands += [
                 '# package installation only',
                 '/usr/bin/apt-get install *',
                 '/usr/bin/apt-get update',
@@ -2523,68 +2528,68 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
             ]
 
             if not skip_key_mgmt:
-                lines += [
+                commands += [
                     '',
                     '# signing key setup',
                     '/usr/bin/apt-key add *',
                 ]
 
         elif self._isFedora():
-            lines += [
+            commands += [
                 '# package installation only',
                 '/usr/bin/dnf install *',
                 '/usr/bin/dnf config-manager --add-repo *',
             ]
 
             if not skip_key_mgmt:
-                lines += [
+                commands += [
                     '',
                     '# signing key setup',
                     '/usr/bin/rpm --import *',
                 ]
 
         elif self._isCentOS() or self._isOracleLinux() or self._isRHEL():
-            lines += [
+            commands += [
                 '# package installation only',
                 '/usr/bin/yum install *',
                 '/usr/bin/yum-config-manager --add-repo *',
             ]
 
             if not skip_key_mgmt:
-                lines += [
+                commands += [
                     '',
                     '# signing key setup',
                     '/usr/bin/rpm --import *',
                 ]
 
         elif self._isOpenSUSE() or self._isSLES():
-            lines += [
+            commands += [
                 '# package installation only',
                 '/usr/bin/zypper install *',
                 '/usr/bin/zypper addrepo *',
             ]
 
             if not skip_key_mgmt:
-                lines += [
+                commands += [
                     '',
                     '# signing key setup',
                     '/bin/rpm --import *',
                 ]
 
         elif self._isArchLinux():
-            lines += [
+            commands += [
                 '# package installation only',
                 '/usr/bin/pacman *',
             ]
 
         elif self._isGentoo():
-            lines += [
+            commands += [
                 '# package installation only',
                 '/usr/bin/emerge *',
             ]
 
         elif self._isAlpineLinux():
-            lines += [
+            commands += [
                 '# package installation only',
                 '/sbin/apk add *',
                 '/sbin/apk update',
@@ -2593,7 +2598,7 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
             ]
 
         elif self._isMacOS():
-            lines += [
+            commands += [
                 '# aid package installation',
                 '/usr/bin/installer',
                 '/usr/bin/hdiutil',
@@ -2603,31 +2608,32 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
             self._errorExit('Unfortunately this OS is not fully supported yet')
 
         if ospath.exists('/bin/systemctl'):
-            lines += [
+            commands += [
                 '',
                 '# start of services',
                 '/bin/systemctl start *',
             ]
 
         if ospath.exists('/sbin/rc-service'):
-            lines += [
+            commands += [
                 '',
                 '# start of services',
                 '/sbin/rc-service * start',
             ]
 
         if self._isLinux():
-            lines += [
+            commands += [
                 '',
                 '# allow access to Docker (may have no sense)',
                 '/usr/bin/docker *',
             ]
 
-        for i in range(len(lines)):
-            l = lines[i]
+        lines.append('')
 
-            if l and l[0] != '#':
-                lines[i] = '{0} ALL=(ALL) NOPASSWD: {1}'.format(entity, l)
+        for c in commands:
+
+            if c and c[0] != '#':
+                lines.append('{0} ALL=(ALL) NOPASSWD: {1}'.format(entity, c))
 
         lines.append('')
         lines = "\n".join(lines)

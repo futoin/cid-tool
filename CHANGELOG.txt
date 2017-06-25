@@ -11,6 +11,7 @@
 * FIXED: added pylint & fixed issues found
 * FIXED: complex configuration reading in in deploy scenario
 * FIXED: to properly setup persistent data & permissions on deploy
+* FIXED: apt-get to run in non-interactive mode
 * CHANGED: "cid promote" rms_pool to support "src_pool:dst_pool" format
 * CHANGED: internally cid promote is split into rmsUpload & rmsPromote
 * CHANGED: update scpTool to fully support RMS requirements & misc. optimizations

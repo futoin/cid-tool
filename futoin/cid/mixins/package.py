@@ -74,8 +74,11 @@ class PackageMixIn(object):
             if not isinstance(packages, list):
                 packages = [packages]
 
+            os.environ['DEBIAN_FRONTEND'] = 'noninteractive'
             self._trySudoCall(
-                [apt_get, 'install', '-y'] + packages,
+                [apt_get, 'install', '-y',
+                 '-o', 'Dpkg::Options::=--force-confdef',
+                 '-o', 'Dpkg::Options::=--force-confold'] + packages,
                 errmsg='you may need to install the packages manually !'
             )
 
