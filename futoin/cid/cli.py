@@ -13,6 +13,8 @@ Usage:
     cid deploy vcstag [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--tmpDir=<tmp_dir>] [--user=<user>] [--group=<group>]
     cid deploy vcsref <vcs_ref> [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--tmpDir=<tmp_dir>] [--user=<user>] [--group=<group>]
     cid deploy rms <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--build] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--tmpDir=<tmp_dir>] [--user=<user>] [--group=<group>]
+    cid deploy set-action <name> <action>... [--deployDir=<deploy_dir>]
+    cid deploy set-persistent <path>... [--deployDir=<deploy_dir>]
     cid migrate
     cid run
     cid run <command> [--] [<command_arg>...]
@@ -275,6 +277,10 @@ def runInner():
                 cit.deploy('vcstag', args['<vcs_ref>'])
             elif args['setup']:
                 cit.deploy('setup')
+            elif args['set-action']:
+                cit.deploy_set_action(args['<name>'], args['<action>'])
+            elif args['set-persistent']:
+                cit.deploy_set_persistent(args['<path>'])
             else:
                 raise RuntimeError("Not implemented yet.")
         elif args['service']:

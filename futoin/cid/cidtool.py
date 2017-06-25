@@ -401,6 +401,10 @@ class ConfigMixIn(object):
                             pass
 
                     config_actions[ak] = av
+            elif k == 'persistent':
+                persistent = set(config.get('persistent', []))
+                persistent.update(set(v))
+                config['persistent'] = list(persistent)
             else:
                 config[k] = v
 
@@ -970,7 +974,8 @@ class DeployMixIn(object):
         wdir_wperm = wfile_wperm | stat.S_IXUSR | stat.S_IXGRP
 
         for dd in config.get('persistent', []):
-            pd = ospath.relpath(ospath.join(persistent_dir, dd))
+            pd = ospath.relpath(ospath.join(
+                persistent_dir, dd), ospath.dirname(dd))
             self._info('{0} -> {1}'.format(dd, pd), 'Making persistent: ')
 
             if ospath.isdir(dd):
@@ -1062,6 +1067,11 @@ class DeployMixIn(object):
 
         self._rebalanceServices()
         self._configServices()
+
+        self._writeDeployConfig()
+
+    def _writeDeployConfig(self):
+        self._requireDeployLock()
 
         config = self._config
         orig_config = self._deploy_config
@@ -1922,6 +1932,35 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
                 self._deploy_setup()
             else:
                 self._errorExit('Not supported deploy mode: ' + mode)
+        finally:
+            self._deployUnlock()
+
+    def deploy_set_action(self, name, actions):
+        self._processDeployDir()
+
+        dc = self._deploy_config
+        dc_actions = dc.setdefault('actions', {})
+        dc_actions[name] = actions
+
+        self._deployLock()
+
+        try:
+            self._writeDeployConfig()
+        finally:
+            self._deployUnlock()
+
+    def deploy_set_persistent(self, paths):
+        self._processDeployDir()
+
+        dc = self._deploy_config
+        persistent = set(dc.get('persistent', []))
+        persistent.update(set(paths))
+        dc['persistent'] = list(persistent)
+
+        self._deployLock()
+
+        try:
+            self._writeDeployConfig()
         finally:
             self._deployUnlock()
 

@@ -360,8 +360,14 @@ Please see details in the FTN16 spec: ::
        
     cid deploy rms <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--build]
         Deploy from RMS.
-
-
+       
+    cid deploy set-action <name> <actions>... [--deployDir=<deploy_dir>]
+        Override .action in deployment config.
+       
+    cid deploy set-persistent <paths>... [--deployDir=<deploy_dir>]
+        Add .persistent paths in deployment config.
+       
+       
     cid migrate
         Runs data migration tasks.
 
