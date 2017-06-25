@@ -955,6 +955,11 @@ class DeployMixIn(object):
         self._processWcDir()
         config = self._config
 
+        # Update tools
+        if not self._isExternalToolsSetup(config['env']):
+            self._info('Updating tools')
+            self.tool_update(None)
+
         # Setup persistent folders
         self._info('Setting up read-write directories')
 

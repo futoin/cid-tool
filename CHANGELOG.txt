@@ -18,6 +18,7 @@
 * CHANGED: to use ${HOME}/.cache/futoin-cid for implicit file operations
 * CHANGED: to always reload plugins and make sure precedence is CID->Config->Env
 * CHANGED: "cid deploy rms" is explicit now
+* CHANGED: to force tools update on deployment to mitigate security issues
 * NEW: added FTN16 .pluginPacks support
 * NEW: added family of "cid rms" commands
 * NEW: added scpTool port support
