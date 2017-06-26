@@ -26,6 +26,9 @@ class cid_UTBase ( unittest.TestCase ) :
     _create_test_dir = False
     __test__ = False
     _dev_null = open(os.devnull, 'w')
+    _stdout_log = open(os.path.join(os.environ['HOME'], 'stdout.log'), 'w')
+    #_stderr_log = open(os.path.join(os.environ['HOME'], 'stderr.log'), 'w')
+    _stderr_log = _stdout_log
 
     @classmethod
     def setUpClass( cls ):
@@ -75,7 +78,7 @@ class cid_UTBase ( unittest.TestCase ) :
         cmd += args
         
         if stdout is None:
-            stdout = cls._dev_null
+            stdout = cls._stdout_log
         
         #print( 'Call: ' + subprocess.list2cmdline(cmd), file=sys.stderr )
         p = subprocess.Popen(
@@ -83,12 +86,11 @@ class cid_UTBase ( unittest.TestCase ) :
                 bufsize=-1,
                 stdin=subprocess.PIPE,
                 stdout=stdout,
-                stderr=subprocess.PIPE
+                stderr=cls._stderr_log
         )
 
         if stdin is not None:
             p.stdin.write( stdin )
-        err = p.stderr.read()
 
         p.wait()
         
@@ -101,7 +103,6 @@ class cid_UTBase ( unittest.TestCase ) :
             return p.returncode == returncode
         
         if p.returncode != returncode:
-            getattr( sys.stderr, 'buffer', sys.stderr ).write( err )
             raise RuntimeError( "Failed" )
         
         if retout:
@@ -133,6 +134,13 @@ class cid_UTBase ( unittest.TestCase ) :
         content = cls._readFile(file_name)
         object_pairs_hook = lambda pairs: OrderedDict( pairs )
         return json.loads( content, object_pairs_hook=object_pairs_hook )
+    
+    @classmethod
+    def _redirectAsyncStdIO( cls ):
+        os.dup2(cls._dev_null.fileno(), 0)
+        os.dup2(cls._stdout_log.fileno(), 1)
+        os.dup2(cls._stderr_log.fileno(), 2)
+        
         
 class cid_Tool_UTBase ( cid_UTBase ) :
     __test__ = False

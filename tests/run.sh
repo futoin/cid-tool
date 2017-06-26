@@ -120,6 +120,8 @@ which systemctl >/dev/null 2>&1 && sudo systemctl mask \
     php7.1-fpm.service \
     php7-fpm.service \
     php5-fpm.service
+    
+rm -f $HOME/stdout.log $HOME/stderr.log
 
 function run_common() {
     (

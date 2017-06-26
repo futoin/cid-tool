@@ -383,9 +383,7 @@ class cid_devserve_Test( cid_UTBase, UtilMixIn ) :
         pid = os.fork()
         
         if not pid:
-            os.dup2(os.open(os.devnull, os.O_RDONLY), 0)
-            os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
-            os.dup2(os.open(os.devnull, os.O_WRONLY), 2)
+            self._redirectAsyncStdIO()
             os.execv(self.CIDTEST_BIN, [self.CIDTEST_BIN, 'devserve'])
             
         time.sleep(15)
@@ -424,9 +422,7 @@ class cid_multiapp_Base( cid_UTBase, UtilMixIn ) :
         pid = os.fork()
         
         if not pid:
-            os.dup2(os.open(os.devnull, os.O_RDONLY), 0)
-            os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
-            os.dup2(os.open(os.devnull, os.O_WRONLY), 2)
+            self._redirectAsyncStdIO()
             os.execv(self.CIDTEST_BIN, [self.CIDTEST_BIN, 'devserve'])
         
         try:

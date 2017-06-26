@@ -80,9 +80,7 @@ done
         pid1 = os.fork()
         
         if not pid1:
-            os.dup2(os.open(os.devnull, os.O_RDONLY), 0)
-            os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
-            os.dup2(os.open(os.devnull, os.O_WRONLY), 2)
+            self._redirectAsyncStdIO()
             
             os.execv(self.CIDTEST_BIN, [
                 self.CIDTEST_BIN, 'service', 'exec', 'app', '0',
@@ -92,9 +90,7 @@ done
         pid2 = os.fork()
         
         if not pid2:
-            os.dup2(os.open(os.devnull, os.O_RDONLY), 0)
-            os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
-            os.dup2(os.open(os.devnull, os.O_WRONLY), 2)
+            self._redirectAsyncStdIO()
             
             os.execv(self.CIDTEST_BIN, [
                 self.CIDTEST_BIN, 'service', 'exec', 'app', '3',
@@ -164,9 +160,7 @@ done
         pid = os.fork()
         
         if not pid:
-            os.dup2(os.open(os.devnull, os.O_RDONLY), 0)
-            os.dup2(os.open(os.devnull, os.O_WRONLY), 1)
-            os.dup2(os.open(os.devnull, os.O_WRONLY), 2)
+            self._redirectAsyncStdIO()
             
             os.execv(self.CIDTEST_BIN, [
                 self.CIDTEST_BIN, 'service', 'master',

@@ -52,7 +52,7 @@ class cid_RMS_UTBase ( cid_UTBase ) :
                                       '-b', '2048',
                                       '-N', '',
                                       '-f', os.path.join(ssh_dir, 'id_rsa') ],
-                                       stderr=cls._dev_null )
+                                       stderr=cls._stderr_log )
 
         shutil.copy(os.path.join(ssh_dir, 'id_rsa.pub'), 'authorized_keys')
         
@@ -64,7 +64,7 @@ class cid_RMS_UTBase ( cid_UTBase ) :
         if os.path.exists(os.path.join(ssh_dir, 'known_hosts')):
             subprocess.check_output(
                     [ 'ssh-keygen', '-R', '[localhost]:{0}'.format(port) ],
-                    stderr=cls._dev_null )
+                    stderr=cls._stderr_log )
         
         cls._call_cid(['tool', 'exec', 'ssh', '--',
                        '-n',
