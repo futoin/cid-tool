@@ -31,11 +31,12 @@ class cid_redmine_Test( cid_UTBase, SubTool ) :
         self._call_cid(['deploy', 'set-action', 'database-config',
                         'ln -s ../../.database.yml config/database.yml'])
         self._call_cid(['deploy', 'set-action', 'app-install',
-                        '@cid tool exec bundler -- install --without development test'])
+                        '@cid build-dep ruby mysql-client imagemagick',
+                        '@cid tool exec bundler -- install --without development test rmagick'])
         self._call_cid(['deploy', 'set-action', 'migrate',
-                        '@cid tool exec bundler -- bundle exec rake generate_secret_token',
-                        '@cid tool exec bundler -- bundle exec rake db:migrate RAILS_ENV=production',
-                        '@cid tool exec bundler -- bundle exec rake redmine:load_default_data RAILS_ENV=production REDMINE_LANG=en',])
+                        '@cid tool exec bundler -- exec rake generate_secret_token',
+                        '@cid tool exec bundler -- exec rake db:migrate RAILS_ENV=production',
+                        '@cid tool exec bundler -- exec rake redmine:load_default_data RAILS_ENV=production REDMINE_LANG=en',])
         self._call_cid(['deploy', 'set-persistent', 'files', 'log', 'public/plugin_assets'])
         
         self._writeFile('.database.yml', """

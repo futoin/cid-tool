@@ -12,7 +12,6 @@ Currently, used for Python WSGI apps.
 
 It's possible to override uWSGI options with .tune.uwsgi parameter map.
 """
-    _REQUIRE_PYDEV = True
 
     def tuneDefaults(self):
         return {

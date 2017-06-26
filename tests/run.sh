@@ -98,6 +98,7 @@ elif [ -z "$1" ]; then
     tests+=" tests/cid_initcmd_test.py"
     tests+=" tests/cid_deploy_test.py"
     tests+=" tests/cid_service_test.py"
+    tests+=" tests/cid_realapp_test.py"
     tests+=" tests/cid_misc_test.py"
 else
     tests="$*"

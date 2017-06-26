@@ -3,8 +3,6 @@ import os
 
 
 class PipToolMixIn(object):
-    _REQUIRE_PYDEV = False
-
     def getDeps(self):
         return ['pip', 'virtualenv']
 
@@ -12,19 +10,7 @@ class PipToolMixIn(object):
         return self._name
 
     def _installTool(self, env):
-        if self._REQUIRE_PYDEV:
-            if int(env['pythonVer'].split('.')[0]) == 3:
-                self._requireDeb(['python3-dev'])
-                self._requireZypper(['python3-devel'])
-                self._requireYum(['python3-devel'])
-                self._requireYum(['python34-devel'])
-                self._requireApk(['python3-dev'])
-            else:
-                self._requireDeb(['python-dev'])
-                self._requireRpm(['python-devel'])
-                self._requireApk(['python2-dev'])
-
-            self._requireBuildEssential()
+        self._requireBuildDep(env, 'python')
 
         self._callExternal([env['pipBin'], 'install', '-q', self._pipName()])
 

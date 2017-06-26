@@ -9,7 +9,6 @@ class pumaTool(GemToolMixIn, RuntimeTool):
     """A ruby web server built for concurrency http://puma.io
 """
     _SIG_RELOAD = signal.SIGUSR2
-    _REQUIRE_PBDEV = True
 
     def tuneDefaults(self):
         return {

@@ -209,6 +209,11 @@ resources due to lack of trusted binary builds.
             env.setdefault('phpBin', php_bin)
 
     def _buildDeps(self, env):
+        self._requireBuildDep(env, [
+            'openssl',
+            'mysqlclient',
+            'postgresql',
+        ])
         # APT
         #---
         self._requireDeb([
@@ -246,14 +251,12 @@ resources due to lack of trusted binary builds.
             'libpam0g-dev',
             'libpcre3-dev',
             'libpng-dev',
-            'libpq-dev',
             'libpspell-dev',
             'libqdbm-dev',
             'librecode-dev',
             'libsasl2-dev',
             'libsnmp-dev',
             'libsqlite3-dev',
-            'libssl-dev',
             'libwrap0-dev',
             'libxmltok1-dev',
             'libxml2-dev',
@@ -262,9 +265,6 @@ resources due to lack of trusted binary builds.
             'unixodbc-dev',
             'zlib1g-dev',
         ])
-
-        self._requireDeb('libmysqlclient-dev')
-        self._requireDeb('default-libmysqlclient-dev')
 
         # Extra repo before the rest
         #---
@@ -285,7 +285,6 @@ resources due to lack of trusted binary builds.
             'glibc-devel',
             'libxml2-devel',
             'pkgconfig',
-            'openssl-devel',
             'curl-devel',
             'libpng-devel',
             'libjpeg-devel',
@@ -305,16 +304,7 @@ resources due to lack of trusted binary builds.
         ])
 
         self._requireYum('bzip2-devel')
-
-        if self._isOracleLinux():
-            self._requireYum(['mariadb-devel', 'mariadb-libs'])
-        else:
-            self._requireYum('mysql-devel')
-
-        self._requireZypper([
-            'libbz2-devel',
-            'libmysqlclient-devel',
-        ])
+        self._requireZypper('libbz2-devel')
 
         self._requireEmergeDepsOnly(['dev-lang/php'])
         self._requirePacman([
@@ -329,7 +319,6 @@ resources due to lack of trusted binary builds.
             're2c',
             'glibc',
             'libxml2',
-            'openssl',
             'curl',
             'libpng',
             'libjpeg',
@@ -347,8 +336,6 @@ resources due to lack of trusted binary builds.
             'zlib',
             'pcre',
         ])
-
-        self._requireApk(['build-base'])
 
         #---
         systemctl = self._which('systemctl')

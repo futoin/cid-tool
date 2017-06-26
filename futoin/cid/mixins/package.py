@@ -13,6 +13,8 @@ except ImportError:
 
 
 class PackageMixIn(object):
+    SYSTEM_VER = 'system'
+
     def _isCentOS(self):
         return platform.linux_distribution()[0].startswith('CentOS')
 
@@ -460,7 +462,6 @@ class PackageMixIn(object):
     def _requireBuildEssential(self):
         self._requireDeb([
             'build-essential',
-            'libssl-dev',
         ])
         self._requireRpm([
             'binutils',
@@ -469,7 +470,7 @@ class PackageMixIn(object):
             'glibc-devel',
             'libtool',
             'make',
-            'openssl-devel',
+            'patch'
         ])
 
         self._requireYum('redhat-rpm-config')
@@ -491,3 +492,68 @@ class PackageMixIn(object):
             self._trySudoCall(
                 [openrc, name, 'start'],
                 errmsg='you may need to start the service manually')
+
+    def _requireBuildDep(self, env, dep):
+        if not isinstance(dep, list):
+            dep = [dep]
+
+        self._requireBuildEssential()
+
+        for d in dep:
+            getattr(self, '_PackageMixIn__requireBuildDep_' +
+                    d.replace('-', ''))(env)
+
+    def __requireBuildDep_ruby(self, env):
+        if env['rubyVer'] == self.SYSTEM_VER:
+            self._requireDeb(['ruby-dev'])
+            self._requireRpm(['ruby-devel'])
+            self._requireApk(['ruby-dev'])
+        elif self._isSCLSupported():
+            devver = env['rubyVer'].replace('.', '')
+
+            if devver == '19':
+                sclname = 'ruby193-ruby-devel'
+            elif devver == '20':
+                sclname = 'ruby200-ruby-devel'
+            else:
+                sclname = 'rh-ruby{0}-ruby-devel'.format(devver)
+
+            self._requireRpm(sclname)
+
+    def __requireBuildDep_python(self, env):
+        if int(env['pythonVer'].split('.')[0]) == 3:
+            self._requireDeb(['python3-dev'])
+            self._requireZypper(['python3-devel'])
+            self._requireYum(['python3-devel'])
+            self._requireYum(['python34-devel'])
+            self._requireApk(['python3-dev'])
+        else:
+            self._requireDeb(['python-dev'])
+            self._requireRpm(['python-devel'])
+            self._requireApk(['python2-dev'])
+
+    def __requireBuildDep_openssl(self, env):
+        self._requireDeb('libssl-dev')
+        self._requireRpm('openssl-devel')
+        self._requireApk('openssl-dev')
+        self._requirePacman('openssl')
+
+    def __requireBuildDep_mysqlclient(self, env):
+        self._requireDeb('libmysqlclient-dev')
+        self._requireDeb('default-libmysqlclient-dev')
+
+        if self._isOracleLinux():
+            self._requireYum(['mariadb-devel', 'mariadb-libs'])
+        else:
+            self._requireYum('mysql-devel')
+
+        self._requireZypper('libmysqlclient-devel')
+
+    def __requireBuildDep_postgresql(self, env):
+        self._requireDeb('libpq-dev')
+        self._requireRpm(['postgresql-devel', 'postgresql-libs'])
+
+    def __requireBuildDep_imagemagick(self, env):
+        self._requireDeb('libmagick-dev')
+        self._requireRpm(['imagemagick', 'imagemagick-devel'])
+        self._requireApk('imagemagick-dev')

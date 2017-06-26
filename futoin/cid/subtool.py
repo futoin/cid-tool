@@ -12,8 +12,6 @@ __all__ = ['SubTool']
 
 
 class SubTool(PathMixIn, PackageMixIn, UtilMixIn, VersionMixIn, object):
-    SYSTEM_VER = 'system'
-
     def __init__(self, name):
         self._name = name
         self._have_tool = False

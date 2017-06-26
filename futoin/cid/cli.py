@@ -46,6 +46,7 @@ Usage:
     cid service stop <entry_point> <instance_id> <pid> [--deployDir=<deploy_dir>]
     cid service reload <entry_point> <instance_id> <pid> [--deployDir=<deploy_dir>]
     cid sudoers [<sudo_entity>] [--skip-key-management]
+    cid build-dep <build_dep>...
     
 
 Options:
@@ -322,6 +323,8 @@ def runInner():
             cit.devserve()
         elif args['sudoers']:
             cit.sudoers(args['<sudo_entity>'], args['--skip-key-management'])
+        elif args['build-dep']:
+            cit.builddep(args['<build_dep>'])
         else:
             raise RuntimeError("Unknown Command")
 

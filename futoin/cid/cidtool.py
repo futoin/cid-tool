@@ -2689,3 +2689,11 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
         lines.append('')
         lines = "\n".join(lines)
         print(lines)
+
+    def builddep(self, deps):
+        tools = set(self._tool_impl.keys()) & set(deps)
+        self._config['tools'] = dict([(t, True) for t in tools])
+        self._initTools()
+
+        env = self._config['env']
+        self._requireBuildDep(env, deps)
