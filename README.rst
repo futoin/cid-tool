@@ -568,3 +568,15 @@ futoin.json is not strictly required, but it allows to use full power of CID.
     }
 
 
+Development
+-----------
+
+Current goal is to get a feature-complete tool. There is a strong conception,
+but some parts of code became messy. Refactoring is postponed after feature
+stabilization.
+
+Notes for contributing:
+
+1. `./bin/cid run autopep8` - for code auto-formatting
+2. `./bin/cid check` - for static analysis
+3. `./tests/run_vagrant_all.sh [optional filters]` - to make sure nothing is broken

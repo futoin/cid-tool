@@ -45,6 +45,7 @@
 * NEW: added bzip2Tool, gzipTool & xzTool
 * NEW: AlpineLinux support
 * NEW: added @default and @cid .actions placeholder
+* NEW: concept of "cid build-dep"
 
 === 0.7.3 (2017-04-20) ===
 * FIXED: merge failed message to distinguish aborted/left as-is cases
