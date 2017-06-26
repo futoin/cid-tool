@@ -162,7 +162,13 @@ Tested on the following OSes:
     
 * **macOS**
 
-  - Very preliminary support. Help wanted for testing.
+  - *NOTE: Very preliminary support at the moment*.
+  - Test hardware is:
+
+  .. image:: https://www.macstadium.com/content/uploads/2016/07/Powered_by_MacStadium_Logo-1.png
+     :height: 100px
+     :align: right
+     :target: https://www.macstadium.com/
     
 * **OpenSUSE**
 
