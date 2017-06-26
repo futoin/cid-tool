@@ -2680,6 +2680,11 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
                 '/usr/bin/docker *',
             ]
 
+        commands += [
+            '# virtual env bootstrap',
+            '/usr/bin/pip',
+        ]
+
         lines.append('')
 
         for c in commands:

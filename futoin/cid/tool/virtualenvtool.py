@@ -46,6 +46,7 @@ Home: https://pypi.python.org/pypi/virtualenv
 
             if not pip:
                 self._requirePackages(['python-virtualenv'])
+                self._requirePackages(['virtualenv'])
                 self._requireEmerge(['dev-python/virtualenv'])
                 self._requirePacman(['python-virtualenv'])
                 self._requireApk(['py-virtualenv'])

@@ -11,7 +11,7 @@ CID_BOOT=$(pwd)/bin/cid
 if ! which python >/dev/null; then
     which pacman && sudo pacman -S --noconfirm --needed python
     which dnf && sudo dnf install -y python
-    which apt-get && sudo apt-get install -y python
+    which apt-get && sudo apt-get install --no-install-recommends -y python
     which apk && sudo apk add python2
 fi
 
@@ -112,6 +112,14 @@ which docker >/dev/null 2>&1 && (
     sudo systemctl start docker ||
     sudo rc-service docker start
 )
+
+which systemctl >/dev/null 2>&1 && sudo systemctl mask \
+    nginx.service \
+    apache2.service \
+    php7.0-fpm.service \
+    php7.1-fpm.service \
+    php7-fpm.service \
+    php5-fpm.service
 
 function run_common() {
     (

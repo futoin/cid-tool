@@ -438,7 +438,7 @@ class cid_multiapp_Base( cid_UTBase, UtilMixIn ) :
             except OSError: pass
         
     def _firstGet(self, url):
-        for i in range(5):
+        for i in range(15):
             try:
                 res = requests.get(url, timeout=3)
                 

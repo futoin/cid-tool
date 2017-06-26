@@ -370,7 +370,7 @@ class cid_scp_Test ( cid_RMS_UTBase ) :
 FROM debian:stable-slim
 RUN useradd -m -d /rms -U rms && mkdir /rms/.ssh
 COPY authorized_keys /rms/.ssh/
-RUN apt-get update && apt-get install -y openssh-server && \
+RUN apt-get update && apt-get install --no-install-recommends -y openssh-server && \
     chmod 700 /rms/.ssh/ && chmod 600 /rms/.ssh/* && \
     mkdir /var/run/sshd  && \
     chown -R rms:rms /rms
@@ -410,14 +410,14 @@ class cid_svn_Test ( cid_RMS_UTBase ) :
 FROM debian:stable-slim
 RUN useradd -m -d /rms -U rms && mkdir /rms/.ssh
 COPY authorized_keys /rms/.ssh/
-RUN apt-get update && apt-get install -y openssh-server && \
+RUN apt-get update && apt-get install --no-install-recommends -y openssh-server && \
     chmod 700 /rms/.ssh/ && chmod 600 /rms/.ssh/* && \
     mkdir /var/run/sshd  && \
     chown -R rms:rms /rms
 EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]
 
-RUN apt-get install -y subversion
+RUN apt-get install -y --no-install-recommends subversion
 RUN svnadmin create /rms/rmsroot && chown -R rms:rms /rms/rmsroot
 RUN sed -i -e 's@ssh-rsa@command="/usr/bin/svnserve -r /rms/rmsroot -t --tunnel-user=svnuser",no-pty ssh-rsa@' /rms/.ssh/authorized_keys
 ''')
