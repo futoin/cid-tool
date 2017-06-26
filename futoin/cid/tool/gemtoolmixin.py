@@ -26,5 +26,5 @@ class GemToolMixIn(object):
                 [env['gemBin'], 'update', self._gemName()] + env['gemInstallArgs'].split(' '))
 
     def uninstallTool(self, env):
-        self._callExternal([env['gemBin'], 'uninstall', self._gemName()])
+        self._callExternal([env['gemBin'], 'uninstall', '--force', self._gemName()])
         self._have_tool = False

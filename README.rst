@@ -571,7 +571,7 @@ futoin.json is not strictly required, but it allows to use full power of CID.
 Development
 -----------
 
-Current goal is to get a feature-complete tool. There is a strong conception,
+Current goal is to get a feature-complete tool. There is a strong concept,
 but some parts of code became messy. Refactoring is postponed after feature
 stabilization.
 
