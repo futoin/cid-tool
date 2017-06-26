@@ -28,18 +28,42 @@ class PathMixIn(object):
             else:
                 stderr = PathMixIn._dev_null
 
-            if output_handler:
+            if output_handler or input:
                 chunk_size = 65536
+                res = []
                 p = subprocess.Popen(cmd, stdin=stdin, stderr=stderr,
                                      bufsize=chunk_size * 2, close_fds=True,
                                      stdout=subprocess.PIPE)
+
+                if input:
+                    try:
+                        input = input.encode(encoding='UTF-8')
+                    except:
+                        pass
+
+                    try:
+                        p.stdin.write(input)
+                        p.stdin.flush()
+                    finally:
+                        p.stdin.close()
+
+                if output_handler:
+                    on_chunk = output_handler
+                else:
+                    def on_chunk(x):
+                        try:
+                            x = str(x, 'utf8')
+                        except:
+                            pass
+
+                        res.append(x)
 
                 try:
                     while True:
                         chunk = p.stdout.read(chunk_size)
 
                         if chunk:
-                            output_handler(chunk)
+                            on_chunk(chunk)
                         else:
                             break
                 finally:
@@ -51,30 +75,7 @@ class PathMixIn(object):
                     raise subprocess.CalledProcessError(
                         'Failed {0}'.format(p.returncode), cmd)
 
-                return True
-
-            elif input:
-                p = subprocess.Popen(cmd, stdin=stdin, stderr=stderr,
-                                     bufsize=4096, close_fds=True,
-                                     stdout=subprocess.PIPE)
-
-                try:
-                    input = input.encode(encoding='UTF-8')
-                except:
-                    pass
-
-                try:
-                    p.stdin.write(input)
-                finally:
-                    p.stdin.close()
-                    p.wait()
-
-                if p.returncode != 0:
-                    raise subprocess.CalledProcessError(
-                        p.returncode, cmd, None)
-
-                return True
-
+                return ''.join(res)
             else:
                 res = subprocess.check_output(cmd, stdin=stdin, stderr=stderr)
 

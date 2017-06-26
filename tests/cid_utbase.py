@@ -94,7 +94,7 @@ class cid_UTBase ( unittest.TestCase ) :
         
         if retout:
             os.close(w)
-            res = os.read(r, 4096)
+            res = os.read(r, 32*1024)
             os.close(r)
         
         if ignore:

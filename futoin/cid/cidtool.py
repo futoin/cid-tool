@@ -87,7 +87,7 @@ def cid_action(f):
                         cmd = shlex.split(cmd)
                         _call_cmd([sys.executable, '-mfutoin.cid'] + cmd[1:])
                     elif cmd in actions:
-                        filt_args =list(filter(None, args))
+                        filt_args = list(filter(None, args))
                         _call_actions(cmd, actions, filt_args)
                     else:
                         _call_cmd(['sh', '-c', cmd])
@@ -2683,6 +2683,8 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
 
             if c and c[0] != '#':
                 lines.append('{0} ALL=(ALL) NOPASSWD: {1}'.format(entity, c))
+            else:
+                lines.append(c)
 
         lines.append('')
         lines = "\n".join(lines)

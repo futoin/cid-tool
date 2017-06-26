@@ -29,13 +29,13 @@ gemInstallArgs is forcibly set by tool depending on its version.
     def initEnv(self, env):
         installArgs = []
 
-        if env['rubyVer'] == self.SYSTEM_VER:
+        if env['rubyVer'] == self.SYSTEM_VER or env['rubyBinOnly']:
             gemDir = os.path.join(os.environ['HOME'], '.gem')
             gemDir = env.setdefault('gemDir', gemDir)
             os.environ['GEM_HOME'] = gemDir
 
             self._addEnvPath('GEM_PATH', gemDir)
-            self._addBinPath(os.path.join(gemDir, 'bin'))
+            self._addBinPath(os.path.join(gemDir, 'bin'), True)
             installArgs += ['--no-user-install', '--no-format-executable']
 
         super(gemTool, self).initEnv(env)
