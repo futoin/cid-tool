@@ -177,3 +177,6 @@ class PathMixIn(object):
 
         config.setdefault('packageFiles', [])
         config['packageFiles'] += files
+
+    def _deployHome(self):
+        return os.environ.get('CID_DEPLOY_HOME', os.environ['HOME'])

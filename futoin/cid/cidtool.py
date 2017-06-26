@@ -1204,6 +1204,9 @@ class DeployMixIn(object):
                   file=sys.stderr)
             os.chdir(deploy_dir)
 
+        # some tools may benefit of it
+        os.environ['CID_DEPLOY_HOME'] = deploy_dir
+
         deploy = self._config['deploy']
 
         if 'user' not in deploy:
