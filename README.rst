@@ -165,8 +165,7 @@ Tested on the following OSes:
   - *NOTE: Very preliminary support at the moment*.
   - Test hardware is:
 
-  .. image:: https://www.macstadium.com/content/uploads/2016/07/Powered_by_MacStadium_Logo-1.png
-     :height: 100px
+  .. image:: https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?container=focus&refresh=3600&resize_h=100&url=https://www.macstadium.com/content/uploads/2016/07/Powered_by_MacStadium_Logo-1.png
      :align: right
      :target: https://www.macstadium.com/
     
