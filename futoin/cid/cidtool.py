@@ -2656,8 +2656,8 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
         elif self._isMacOS():
             commands += [
                 '# aid package installation',
-                '/usr/bin/installer',
-                '/usr/bin/hdiutil',
+                #'/usr/bin/installer',
+                #'/usr/bin/hdiutil',
             ]
 
         else:
