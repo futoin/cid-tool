@@ -809,6 +809,7 @@ class ConfigMixIn(object):
 #=============================================================================
 class DeployMixIn(object):
     VCS_CACHE_DIR = 'vcs'
+    _devserve_mode = False
 
     def _redeployExit(self, deploy_type):
         self._warn(deploy_type + " has been already deployed. Use --redeploy.")
@@ -1205,7 +1206,8 @@ class DeployMixIn(object):
             os.chdir(deploy_dir)
 
         # some tools may benefit of it
-        os.environ['CID_DEPLOY_HOME'] = deploy_dir
+        if not self._devserve_mode:
+            os.environ['CID_DEPLOY_HOME'] = deploy_dir
 
         deploy = self._config['deploy']
 
@@ -2530,6 +2532,8 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
                 'Tool "{0}" for "{1}" does not support "service reload" command'.format(tool, entry_point))
 
     def devserve(self):
+        self._devserve_mode = True
+
         import tempfile
         deploy_dir = tempfile.mkdtemp(prefix='futoin-cid-devserve')
 
@@ -2681,8 +2685,9 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
             ]
 
         commands += [
+            '',
             '# virtual env bootstrap',
-            '/usr/bin/pip',
+            '/usr/bin/pip install *',
         ]
 
         lines.append('')
