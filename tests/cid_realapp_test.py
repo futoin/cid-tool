@@ -31,7 +31,7 @@ class cid_redmine_Test( cid_UTBase, SubTool ) :
         self._call_cid(['deploy', 'set-action', 'database-config',
                         'ln -s ../../.database.yml config/database.yml'])
         self._call_cid(['deploy', 'set-action', 'app-install',
-                        '@cid build-dep ruby mysql-client imagemagick',
+                        '@cid build-dep ruby mysql-client imagemagick tzdata',
                         '@cid tool exec bundler -- install --without "development test rmagick"'])
         self._call_cid(['deploy', 'set-action', 'migrate',
                         '@cid tool exec bundler -- exec rake generate_secret_token',

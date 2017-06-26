@@ -553,9 +553,17 @@ class PackageMixIn(object):
     def __requireBuildDep_postgresql(self, env):
         self._requireDeb('libpq-dev')
         self._requireRpm(['postgresql-devel', 'postgresql-libs'])
+        self._requirePacman('postgresql')
         self._requireApk('postgresql-dev')
 
     def __requireBuildDep_imagemagick(self, env):
         self._requireDeb('libmagick-dev')
         self._requireRpm(['imagemagick', 'imagemagick-devel'])
+        self._requirePacman('imagemagick')
         self._requireApk('imagemagick-dev')
+
+    def __requireBuildDep_tzdata(self, env):
+        self._requireDeb('tzdata')
+        self._requireRpm('tzdata')
+        self._requirePacman('tzdata')
+        self._requireApk('tzdata')
