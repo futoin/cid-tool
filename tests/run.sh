@@ -130,6 +130,8 @@ function run_common() {
         export CIDTEST_NO_COMPILE=$CIDTEST_NO_COMPILE
         export CID_SOURCE_DIR=$CID_SOURCE_DIR
         export pythonVer=$pythonVer
+        # detection fails for AlpineLinux
+        export JAVA_OPTS="-Xmx256m"
         \$CIDTEST_BIN tool exec python -- -m nose $tests
 EOF
     )   

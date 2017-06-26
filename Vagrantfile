@@ -38,7 +38,6 @@ which apk 2>/dev/null && apk update || true
         # older versions
         'debian_jessie' => 'debian/jessie64',
         'ubuntu_trusty' => 'bento/ubuntu-14.04',
-        #'ubuntu_yakkety' => 'bento/ubuntu-16.10', # non-LTS
         'ubuntu_zesty' => 'wholebits/ubuntu17.04-64', # non-LTS
         #'centos_6' => 'centos/6', # too old
     }

@@ -210,7 +210,7 @@ resources due to lack of trusted binary builds.
 
     def _buildDeps(self, env):
         self._requireBuildDep(env, [
-            'openssl',
+            'ssl',
             'mysqlclient',
             'postgresql',
         ])

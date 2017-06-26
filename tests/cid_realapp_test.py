@@ -32,7 +32,7 @@ class cid_redmine_Test( cid_UTBase, SubTool ) :
                         'ln -s ../../.database.yml config/database.yml'])
         self._call_cid(['deploy', 'set-action', 'app-install',
                         '@cid build-dep ruby mysql-client imagemagick',
-                        '@cid tool exec bundler -- install --without development test rmagick'])
+                        '@cid tool exec bundler -- install --without "development test rmagick"'])
         self._call_cid(['deploy', 'set-action', 'migrate',
                         '@cid tool exec bundler -- exec rake generate_secret_token',
                         '@cid tool exec bundler -- exec rake db:migrate RAILS_ENV=production',
@@ -49,10 +49,17 @@ production:
   encoding: utf8
 """.format(DB_HOST))
         
-        self._call_cid([
-            'deploy', 'vcstag',
-            '--vcsRepo=svn:http://svn.redmine.org/redmine'
-            ])
+        if self._isAlpineLinux() or self._isArchLinux() or self._isSCLSupported():
+            # Ruby 2.4
+            self._call_cid([
+                'deploy', 'vcsref', 'trunk',
+                '--vcsRepo=svn:http://svn.redmine.org/redmine'
+                ])
+        else:
+            self._call_cid([
+                'deploy', 'vcstag',
+                '--vcsRepo=svn:http://svn.redmine.org/redmine'
+                ])
     
     def test02_execute(self):
         pass

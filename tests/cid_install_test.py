@@ -184,7 +184,7 @@ if os.environ.get('CIDTEST_NO_COMPILE', '0') == '1':
 else:
     mixed_tools.update({
         'php' : {
-            'ver': '7',
+            'ver': '7.1',
             'env': {
                 'phpBinOnly': '',
             }

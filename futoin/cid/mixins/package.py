@@ -532,10 +532,10 @@ class PackageMixIn(object):
             self._requireRpm(['python-devel'])
             self._requireApk(['python2-dev'])
 
-    def __requireBuildDep_openssl(self, env):
+    def __requireBuildDep_ssl(self, env):
         self._requireDeb('libssl-dev')
         self._requireRpm('openssl-devel')
-        self._requireApk('openssl-dev')
+        self._requireApk('ressl-dev')
         self._requirePacman('openssl')
 
     def __requireBuildDep_mysqlclient(self, env):
@@ -548,10 +548,12 @@ class PackageMixIn(object):
             self._requireYum('mysql-devel')
 
         self._requireZypper('libmysqlclient-devel')
+        self._requireApk('mariadb-dev')
 
     def __requireBuildDep_postgresql(self, env):
         self._requireDeb('libpq-dev')
         self._requireRpm(['postgresql-devel', 'postgresql-libs'])
+        self._requireApk('postgresql-dev')
 
     def __requireBuildDep_imagemagick(self, env):
         self._requireDeb('libmagick-dev')
