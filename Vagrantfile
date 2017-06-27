@@ -55,6 +55,12 @@ which apk 2>/dev/null && apk update || true
             
             group = 'root'
             
+            if ['ubuntu_trusty', 'centos_7', 'debian_stretch', 'alpinelinux'].include? name
+                nic_type = '82540EM'
+            else
+                nic_type = 'virtio'
+            end
+            
             if box.split('/')[0] == 'centos'
                 dist_controller = 'IDE'
             elsif name == 'archlinux'
@@ -64,17 +70,15 @@ which apk 2>/dev/null && apk update || true
                 node.vm.provision :reload
             elsif name =~ /macos/
                 dist_controller = 'SATA'
+                nic_type = '82545EM'
                 group = 'staff'
+                node.vm.provider "virtualbox" do |v|
+                    v.memory = 4096
+                end
             elsif name == 'sles_12'
                 dist_controller = 'SCSI'
             else
                 dist_controller = 'SATA Controller'
-            end
-            
-            if ['ubuntu_trusty', 'centos_7', 'debian_stretch', 'alpinelinux'].include? name
-                nic_type = '82540EM'
-            else
-                nic_type = 'virtio'
             end
             
             node.vm.provider "virtualbox" do |v|
@@ -119,7 +123,9 @@ which apk 2>/dev/null && apk update || true
                 )
                 
                 node.vm.provision "shell", run: "always", inline: <<-SHELL
-                    ip addr  | grep DOWN | cut -d ' ' -f2 | tr ':' ' ' | xargs -n1 --no-run-if-empty ifup
+                    if which ip >/dev/null; then
+                        ip addr  | grep DOWN | cut -d ' ' -f2 | tr ':' ' ' | xargs -n1 --no-run-if-empty ifup
+                    fi
                 SHELL
             end
         end

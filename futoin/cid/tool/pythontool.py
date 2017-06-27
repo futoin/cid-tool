@@ -32,12 +32,12 @@ system packages OS-specific way.
             self._requireYum(['python34'])
             self._requirePacman(['python'])
             self._requireApk('python3')
-            self._requireHomebrew('python3')
+            self._requireBrew('python3')
         else:
             self._requirePackages(['python'])
             self._requirePacman(['python2'])
             self._requireApk('python2')
-            self._requireHomebrew('python')
+            self._requireBrew('python')
 
         self._requireEmerge(['=dev-lang/python-{0}*'.format(env['pythonVer'])])
 

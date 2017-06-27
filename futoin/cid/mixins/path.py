@@ -126,7 +126,7 @@ class PathMixIn(object):
                 self._callExternal(cmd, **kwargs)
                 return
 
-            self._callExternal(['sudo', '-n'] + cmd, **kwargs)
+            self._callExternal(['sudo', '-n', '-H'] + cmd, **kwargs)
         except subprocess.CalledProcessError:
             if not errmsg:
                 errmsg = 'you may need to call the the failed command manually !'

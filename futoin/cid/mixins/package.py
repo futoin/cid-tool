@@ -397,7 +397,7 @@ class PackageMixIn(object):
 
         self._requireYum('scl-utils')
 
-    def _requireHomebrew(self, packages):
+    def _requireBrew(self, packages, cask=False):
         if not self._isMacOS():
             return
 
@@ -406,24 +406,14 @@ class PackageMixIn(object):
 
         brew = self._which('brew')
 
-        if not brew:
-            curl = self._which('curl')
-            ruby = self._which('ruby')
-
-            # TODO: change to use env timeouts
-            brew_installer = self._callExternal([
-                curl, '-fsSL',
-                '--connect-timeout', '10',
-                '--max-time', '300',
-                'https://raw.githubusercontent.com/Homebrew/install/master/install'
-            ])
-
-            self._callExternal([ruby, '-e', brew_installer])
-
-            brew = self._which('brew')
-
         for package in packages:
-            self._callExternal([brew, 'install', package])
+            try:
+                if cask:
+                    self._callInteractive([brew, 'cask', 'install', package], False)
+                else:
+                    self._callExternal([brew, 'install', package])
+            except subprocess.CalledProcessError:
+                self._warn('You may need to enable the package manually')
 
     def _requireDmg(self, packages):
         if not self._isMacOS():

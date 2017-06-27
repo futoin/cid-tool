@@ -63,8 +63,11 @@ Home: https://pypi.python.org/pypi/virtualenv
                 pip = self._which('pip')
 
             if pip:
-                self._trySudoCall([pip, 'install', '-q', '--upgrade',
-                                   'virtualenv>={0}'.format(env['virtualenvVer'])])
+                pip_cmd = [pip, 'install', '-q', '--upgrade',
+                           'virtualenv>={0}'.format(env['virtualenvVer'])]
+
+                # TODO: use  --user without sudo
+                self._trySudoCall(pip_cmd)
 
             virtualenv = self._which('virtualenv')
 

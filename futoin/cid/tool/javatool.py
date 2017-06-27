@@ -32,12 +32,11 @@ javaVer supports:
         ver = env['javaVer']
 
         if self._isMacOS():
-            if ver == '8':
-                self._requireDmg(
-                    'https://cdn.azul.com/zulu/bin/zulu8.20.0.5-jdk8.0.121-macosx_x64.dmg')
-            elif ver == '7':
-                self._requireDmg(
-                    'https://cdn.azul.com/zulu/bin/zulu7.17.0.5-jdk7.0.131-macosx_x64.dmg')
+            if ver == '7':
+                self._callExternal([env['brewBin'], 'tap', 'caskroom/versions'])
+                self._requireBrew('zulu7', True)
+            else:
+                self._requireBrew('zulu', True)
             return
 
         if self._isAlpineLinux():
@@ -100,9 +99,16 @@ javaVer supports:
             candidates += [
                 "/usr/lib/jvm/java-1.{0}-openjdk/jre/bin/java".format(ver),
             ]
+        elif self._isMacOS():
+            candidates += [
+                "/Library/Java/JavaVirtualMachines/zulu-{0}.jdk/Contents/Home/jre/bin/java".format(ver)
+            ]
 
         for c in candidates:
-            bin_name = glob.glob(c)
+            if os.path.exists(c):
+                bin_name = [c]
+            else:
+                bin_name = glob.glob(c)
 
             if bin_name:
                 bin_name = bin_name[0]

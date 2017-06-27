@@ -26,7 +26,7 @@ if not set by user.
         self._requireEmerge(['dev-vcs/git'])
         self._requirePacman(['git'])
         self._requireApk(['git'])
-        self._requireHomebrew('git')
+        self._requireBrew('git')
 
     def _checkGitConfig(self, env):
         gitBin = env['gitBin']

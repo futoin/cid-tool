@@ -21,7 +21,7 @@ Home: https://www.mercurial-scm.org/
         self._requireEmerge(['dev-vcs/mercurial'])
         self._requirePacman(['mercurial'])
         self._requireApk(['mercurial'])
-        self._requireHomebrew('mercurial')
+        self._requireBrew('mercurial')
 
     def autoDetectFiles(self):
         return '.hg'

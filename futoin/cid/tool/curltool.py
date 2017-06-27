@@ -13,4 +13,4 @@ Home: https://curl.haxx.se/
         self._requireEmerge(['net-misc/curl'])
         self._requirePacman(['curl'])
         self._requireApk(['curl'])
-        self._requireHomebrew('curl')
+        self._requireBrew('curl')

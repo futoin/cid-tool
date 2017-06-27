@@ -32,7 +32,7 @@ Build folder is configurable through cmakeBuildDir env.
         self._requireEmerge(['dev-util/cmake'])
         self._requirePacman(['cmake'])
         self._requireApk(['cmake'])
-        self._requireHomebrew('cmake')
+        self._requireBrew('cmake')
 
     def initEnv(self, env):
         env.setdefault('cmakeBuildDir', 'build')

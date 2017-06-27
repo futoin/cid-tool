@@ -13,6 +13,10 @@ Home: https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
 """
 
     def _installTool(self, env):
+        if self._isMacOS():
+            self._requireBrew('jfrog-cli-go')
+            return
+        
         dst_dir = env['jfrogDir']
         get_url = env['jfrogGet']
         jfrog_bin = env['jfrogBin']
@@ -20,18 +24,21 @@ Home: https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
         if not os.path.exists(dst_dir):
             os.makedirs(dst_dir)
 
-        if self._isMacOS():
-            self._requireHomebrew('jfrog-cli-go')
-        else:
-            self._callCurl(env, [get_url, '-o', jfrog_bin])
-            os.chmod(jfrog_bin, stat.S_IRWXU | stat.S_IRGRP |
-                     stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+        self._callCurl(env, [get_url, '-o', jfrog_bin])
+        os.chmod(jfrog_bin, stat.S_IRWXU | stat.S_IRGRP |
+                    stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
 
     def updateTool(self, env):
+        if self._isMacOS():
+            return
+
         self.uninstallTool(env)
         self._installTool(env)
 
     def uninstallTool(self, env):
+        if self._isMacOS():
+            return
+
         jfrog_bin = env['jfrogBin']
         if os.path.exists(jfrog_bin):
             os.remove(jfrog_bin)
@@ -42,7 +49,6 @@ Home: https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
 
     def initEnv(self, env):
         bin_dir = env.setdefault('jfrogDir', env['binDir'])
-        jfrog_bin = env.setdefault('jfrogBin', os.path.join(bin_dir, 'jfrog'))
 
         pkg = None
         url_base = 'https://api.bintray.com/content/jfrog/jfrog-cli-go/$latest'
@@ -63,4 +69,7 @@ Home: https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
 
         self._addBinPath(bin_dir)
 
-        self._have_tool = os.path.exists(jfrog_bin)
+        super(jfrogTool, self).initEnv(env)
+        
+        if self._have_tool:
+            env['jfrogDir'] = os.path.dirname(env['jfrogBin'])

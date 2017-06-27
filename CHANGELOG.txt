@@ -46,6 +46,7 @@
 * NEW: AlpineLinux support
 * NEW: added @default and @cid .actions placeholder
 * NEW: concept of "cid build-dep"
+* NEW: brewTool & full support of macOS
 
 === 0.7.3 (2017-04-20) ===
 * FIXED: merge failed message to distinguish aborted/left as-is cases

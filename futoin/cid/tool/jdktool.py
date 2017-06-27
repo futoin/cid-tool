@@ -88,9 +88,16 @@ jdkVer supports:
             candidates += [
                 "/usr/lib/jvm/java-1.{0}-openjdk/bin/javac".format(ver),
             ]
+        elif self._isMacOS():
+            candidates += [
+                "/Library/Java/JavaVirtualMachines/zulu-{0}.jdk/Contents/Home/bin/javac".format(ver)
+            ]
 
         for c in candidates:
-            bin_name = glob.glob(c)
+            if os.path.exists(c):
+                bin_name = [c]
+            else:
+                bin_name = glob.glob(c)
 
             if bin_name:
                 bin_name = bin_name[0]

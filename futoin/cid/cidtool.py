@@ -764,6 +764,11 @@ class ConfigMixIn(object):
                 dep_generations.append(postdeps)
                 tools.update(postdeps)
                 postdeps = set()
+        
+        #---
+        if self._isMacOS():
+            # Make sure Homebrew is always implicit first tool
+            dep_generations.append(set(['brew']))
 
         #---
         dep_generations.reverse()
@@ -1047,9 +1052,13 @@ class DeployMixIn(object):
         self._info('Switching current deployment')
         if ospath.exists(dst):
             # re-deploy case
+            os.chmod(dst, stat.S_IRWXU) # macOS
             os.rename(dst, dst + '.tmprm')
 
+        os.chmod(tmp, stat.S_IRWXU) # macOS
         os.rename(tmp, dst)
+        os.chmod(dst, dir_perm)
+        
         os.symlink(dst, 'current.tmp')
         os.rename('current.tmp', 'current')
         self._current_dir = None
@@ -2654,11 +2663,20 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
             ]
 
         elif self._isMacOS():
-            commands += [
-                '# aid package installation',
-                #'/usr/bin/installer',
-                #'/usr/bin/hdiutil',
-            ]
+            if not skip_key_mgmt:
+                commands += [
+                    '# insecure, but required for brew cask',
+                    'SETENV: /usr/sbin/installer *',
+                    'SETENV: /usr/sbin/pkgutil *',
+                    'SETENV: /usr/libexec/PlistBuddy *',
+                    'SETENV: /usr/bin/xargs -0 -- /bin/rm *',
+                    'SETENV: /bin/mv *',
+                    'SETENV: /bin/ln *',
+                    'SETENV: /bin/chmod *',
+                    'SETENV: /bin/chown *',
+                    'SETENV: /bin/rm *',
+                    'SETENV: /bin/rmdir *',
+                ]
 
         else:
             self._errorExit('Unfortunately this OS is not fully supported yet')
