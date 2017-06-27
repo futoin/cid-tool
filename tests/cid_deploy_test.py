@@ -12,8 +12,9 @@ import requests
 from .cid_utbase import cid_UTBase
 from futoin.cid.details.resourcealgo import ResourceAlgo
 from futoin.cid.mixins.util import UtilMixIn
+from futoin.cid.mixins.path import PathMixIn
 
-class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
+class cid_deploy_Test( cid_UTBase, UtilMixIn, PathMixIn ) :
     __test__ = True
     
     TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'deploycmd')
@@ -207,7 +208,11 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
         
                 
     def test_02_memdetect_system(self):
-        sysmem = int(self._readFile('/proc/meminfo').split()[1])*1024
+        if self.IS_MACOS:
+            sysmem = int(self._callExternal(['sysctl', '-n', 'hw.memsize'], verbose=False).strip())
+        else:
+            sysmem = int(self._readFile('/proc/meminfo').split()[1])*1024
+            
         ra = ResourceAlgo()
         
         self.assertEqual(sysmem, ra.systemMemory())
@@ -234,9 +239,12 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn ) :
         self.assertEqual(1234*1024*1024, ResourceAlgo().memoryLimit(config))
         
     def test_03_cpudetect_system(self):
-        cpus = self._readFile('/proc/cpuinfo').split("\n")
-        cpus = filter(lambda x: x.split(':')[0].strip() == 'processor', cpus)
-        cpus = len(list(cpus))
+        if self.IS_MACOS:
+            cpus = int(self._callExternal(['sysctl', '-n', 'hw.ncpu'], verbose=False).strip())
+        else:
+            cpus = self._readFile('/proc/cpuinfo').split("\n")
+            cpus = filter(lambda x: x.split(':')[0].strip() == 'processor', cpus)
+            cpus = len(list(cpus))
         
         self.assertEqual(cpus, ResourceAlgo().systemCpuCount())
 
@@ -358,9 +366,9 @@ class cid_devserve_Test( cid_UTBase, UtilMixIn ) :
         os.mkdir('devserve')
         os.chdir('devserve')
         
-        self._writeFile('longrun.sh', "#!/bin/sh\necho -n 1 >>longrun.txt;sleep 60\n")
+        self._writeFile('longrun.sh', "#!/bin/bash\necho -n 1 >>longrun.txt;sleep 60\n")
         os.chmod('longrun.sh', stat.S_IRWXU)
-        self._writeFile('shortrun.sh', "#!/bin/sh\necho -n 1 >>shortrun.txt;sleep 1\n")
+        self._writeFile('shortrun.sh', "#!/bin/bash\necho -n 1 >>shortrun.txt;sleep 1\n")
         os.chmod('shortrun.sh', stat.S_IRWXU)
         
         self._writeJSON('futoin.json', {
@@ -391,9 +399,9 @@ class cid_devserve_Test( cid_UTBase, UtilMixIn ) :
         try: os.waitpid(pid, 0)
         except OSError: pass
     
-        self.assertEqual(1, len(self._readFile('longrun.txt')))
+        self.assertEqual('1', self._readFile('longrun.txt'))
         # 1,2,delay,3,delay
-        self.assertEqual(3, len(self._readFile('shortrun.txt')))
+        self.assertEqual('111', self._readFile('shortrun.txt'))
         
 class cid_service_Test( cid_UTBase, UtilMixIn ) :
     #__test__ = True
@@ -501,15 +509,15 @@ echo "ADMINPHP\\n";
 """)
         
     def _testApps(self):
-        res = self._firstGet('http://localhost:1234/file.txt')
+        res = self._firstGet('http://127.0.0.1:1234/file.txt')
         self.assertTrue(res.ok)
         self.assertEquals("TESTFILE\n", res.text)
         
-        res = self._firstGet('http://localhost:1234')
+        res = self._firstGet('http://127.0.0.1:1234')
         self.assertTrue(res.ok)
         self.assertEquals("PHP\n", res.text)
 
-        res = self._firstGet('http://localhost:1234/admin/')
+        res = self._firstGet('http://127.0.0.1:1234/admin/')
         self.assertTrue(res.ok)
         self.assertEquals("ADMINPHP\n", res.text)
 
@@ -585,16 +593,16 @@ server.listen(process.env.PORT);
 """)
 
     def _testApps(self):
-        res = self._firstGet('http://localhost:1234/file.txt')     
+        res = self._firstGet('http://127.0.0.1:1234/file.txt')     
         self.assertTrue(res.ok)
         self.assertEquals("TESTFILE\n", res.text)
         
 
-        res = self._firstGet('http://localhost:1234/jsapp/')
+        res = self._firstGet('http://127.0.0.1:1234/jsapp/')
         self.assertTrue(res.ok)
         self.assertEquals("NODEJS\n", res.text)
 
-        res = self._firstGet('http://localhost:1234/jstcpapp/')
+        res = self._firstGet('http://127.0.0.1:1234/jstcpapp/')
         self.assertTrue(res.ok)
         self.assertEquals("NODEJS-TCP\n", res.text)
 
@@ -658,15 +666,15 @@ def application(env, start_response):
         
         
     def _testApps(self):
-        res = self._firstGet('http://localhost:1234/file.txt')
+        res = self._firstGet('http://127.0.0.1:1234/file.txt')
         self.assertTrue(res.ok)
         self.assertEquals("TESTFILE\n", res.text)
         
-        res = self._firstGet('http://localhost:1234')
+        res = self._firstGet('http://127.0.0.1:1234')
         self.assertTrue(res.ok)
         self.assertEquals("PYTHON\n", res.text)
 
-        res = self._firstGet('http://localhost:1234/pytcpapp/')
+        res = self._firstGet('http://127.0.0.1:1234/pytcpapp/')
         self.assertTrue(res.ok)
         self.assertEquals("PYTHON-TCP\n", res.text)
         
@@ -744,15 +752,15 @@ run RubyApp.new()
         
         
     def _testApps(self):
-        res = self._firstGet('http://localhost:1234/file.txt')
+        res = self._firstGet('http://127.0.0.1:1234/file.txt')
         self.assertTrue(res.ok)
         self.assertEquals("TESTFILE\n", res.text)
         
-        res = self._firstGet('http://localhost:1234')
+        res = self._firstGet('http://127.0.0.1:1234')
         self.assertTrue(res.ok)
         self.assertEquals("RUBY\n", res.text)
 
-        res = self._firstGet('http://localhost:1234/rbtcpapp/')
+        res = self._firstGet('http://127.0.0.1:1234/rbtcpapp/')
         self.assertTrue(res.ok)
         self.assertEquals("RUBY-TCP\n", res.text)
 

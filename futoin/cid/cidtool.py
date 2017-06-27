@@ -18,6 +18,7 @@ import fcntl
 import hashlib
 import signal
 import copy
+import errno
 from collections import OrderedDict
 from distutils import dir_util
 
@@ -1582,6 +1583,10 @@ class ServiceMixIn(object):
                 (pid, excode) = os.wait()
             except KeyboardInterrupt:
                 continue
+            except OSError as e: # macOS
+                if e.errno != errno.EINTR:
+                    self._warn(str(e))
+                continue
             finally:
                 self._interruptable = False
 
@@ -1633,6 +1638,9 @@ class ServiceMixIn(object):
                     svc['name'], svc['instanceId'], pid))
         except TimeoutException:
             pass
+        except OSError as e: # macOS
+            if e.errno != errno.EINTR:
+                self._warn(str(e))
         finally:
             signal.setitimer(signal.ITIMER_REAL, 0)
 

@@ -26,16 +26,53 @@ class cid_service_Test( cid_UTBase, UtilMixIn ) :
         os.chdir('src')
         os.mkdir('data')
         
-        self._writeFile('app.sh', """#!/bin/bash
-flock data/lock -c 'echo -n "1" >>data/start.txt'
-trap "flock data/lock -c 'echo -n "1" >>data/reload.txt'" SIGHUP
-trap "exit 0" SIGTERM
+        if self.IS_MACOS:
+            self._writeFile('app.sh', """#!/bin/bash
+                            pwd >&2
+    function lock() {
+        while :; do
+            if mkdir data/lock; then
+                break;
+            fi
+            
+            sleep 0.1
+        done
+    }
+    function unlock() {
+        rmdir data/lock
+    }
+    function on_reload() {
+        lock
+        echo -n 1 >>data/reload.txt
+        unlock
+    }
+    
+    lock
+    touch data/start.txt
+    touch data/reload.txt
+    echo -n "1" >>data/start.txt
+    unlock
+    
+    trap "on_reload" SIGHUP
+    trap "unlock; exit 0" SIGTERM
 
-# high load
-while true; do
-    dd if=/dev/urandom bs=64K count=1024 status=none | sha256sum >/dev/null ;
-done
+    # high load
+    while true; do
+        dd if=/dev/urandom bs=64k count=1024 2>/dev/null | shasum -a 256 >/dev/null;
+    done
 """)
+        else:
+            self._writeFile('app.sh', """#!/bin/bash
+    flock data/lock -c 'echo -n "1" >>data/start.txt'
+    trap "flock data/lock -c 'echo -n 1 >>data/reload.txt'" SIGHUP
+    trap "exit 0" SIGTERM
+
+    # high load
+    while true; do
+        dd if=/dev/urandom bs=64K count=1024 status=none | sha256sum >/dev/null ;
+    done
+""")
+
         os.chmod('app.sh', stat.S_IRWXU)
         self._writeJSON('futoin.json', {
             'name' : 'service-test',

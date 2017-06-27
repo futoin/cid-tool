@@ -154,7 +154,11 @@ Note: file upload is OFF by default.
 
         #
         log_level = 'error'
-        error_log = '/proc/self/fd/2'
+        if self._isMacOS():
+            # TODO: find solution
+            error_log = '/dev/null'
+        else:
+            error_log = '/proc/self/fd/2'
         display_errors = 'Off'
         error_reporting = 'E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED'
 

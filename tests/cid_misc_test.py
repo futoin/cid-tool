@@ -31,7 +31,8 @@ class cid_misc_Test ( cid_UTBase ) :
     def tearDown(self):
         os.environ['HOME'] = self.ORIG_HOME
         #subprocess.call('sudo rm /etc/futoin -rf', shell=True)
-        subprocess.call('rm /etc/futoin/* -rf', shell=True)
+        subprocess.call('rm -rf /etc/futoin/*', shell=True,
+                        stdout=self._stdout_log, stderr=self._stderr_log)
             
     def test_global_config(self):
         self._writeJSON('/etc/futoin/futoin.json', {

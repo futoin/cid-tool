@@ -143,7 +143,9 @@ class UtilMixIn(object):
                 id = os.path.join(path, id)
                 st_mode = os.lstat(id).st_mode
 
-                if not stat.S_ISLNK(st_mode):
+                if stat.S_ISLNK(st_mode):
+                    os.lchmod(id, stat.S_IRWXU)
+                else:
                     os.chmod(id, stat.S_IRWXU)
 
         shutil.rmtree(dir)
@@ -159,6 +161,7 @@ class UtilMixIn(object):
                 st_mode = os.lstat(f).st_mode
 
                 if stat.S_ISLNK(st_mode):
+                    os.lchmod(f, fperm)
                     continue
 
                 if stat.S_ISDIR(st_mode):

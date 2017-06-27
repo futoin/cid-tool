@@ -5,6 +5,7 @@ from collections import OrderedDict
 
 from ..mixins.util import UtilMixIn
 from ..mixins.path import PathMixIn
+from ..mixins.package import PackageMixIn
 
 
 GPG_KEY = """
@@ -99,7 +100,7 @@ uwsgi_param  SERVER_NAME        $server_name;
 """
 
 
-class ConfigBuilder(UtilMixIn, PathMixIn):
+class ConfigBuilder(UtilMixIn, PathMixIn, PackageMixIn):
     def __init__(self, config, svc):
         self._config = config
         self._nginx_conf = copy.deepcopy(svc['tune'].get('config', {}))
@@ -107,10 +108,24 @@ class ConfigBuilder(UtilMixIn, PathMixIn):
         self._remote_addr_var = '$remote_addr'
         self._remote_port_var = '$remote_port'
         self._x_forwarded_for_var = '$proxy_add_x_forwarded_for'
+        
+        env = config['env']
+        nginx_bin = env['nginxBin']
+        
+        #---
+        if self._isMacOS():
+            brew_dir = env.get('brewDir', '')
+            
+            if brew_dir:
+                self._prefix = brew_dir
+            else:
+                self._prefix = '/usr/local'
+        else:
+            self._prefix = ''
 
         #---
         ver = self._callExternal(
-            [config['env']['nginxBin'], '-v'],
+            [nginx_bin, '-v'],
             verbose=False, merge_stderr=True)
         ver = ver.split('/')[1].strip().split('.')
         ver = [int(v) for v in ver]
@@ -145,7 +160,7 @@ class ConfigBuilder(UtilMixIn, PathMixIn):
         # HTTP
         #---
         http = conf.setdefault('http', OrderedDict())
-        http.setdefault('-types', "include /etc/nginx/mime.types;")
+        http.setdefault('-types', "include {0}/etc/nginx/mime.types;".format(self._prefix))
         http.setdefault('default_type', 'application/octet-stream')
         http.setdefault('access_log', 'off')
         http.setdefault('log_not_found', 'off')
@@ -168,9 +183,10 @@ class ConfigBuilder(UtilMixIn, PathMixIn):
         http.setdefault('fastcgi_max_temp_file_size', '0')
         http.setdefault('fastcgi_next_upstream', 'error')
         #
-        http.setdefault('aio', 'threads')
-        if self._version >= (1, 9, 13):
-            http.setdefault('aio_write', 'on')
+        if not self._isMacOS():
+            http.setdefault('aio', 'threads')
+            if self._version >= (1, 9, 13):
+                http.setdefault('aio_write', 'on')
         #
         http.setdefault('server_tokens', 'off')
 
@@ -203,8 +219,12 @@ class ConfigBuilder(UtilMixIn, PathMixIn):
                 'Unsupported socket type "{0}" for "{1}"'.format(socket_type, name_id))
 
         listen += ' '
-        listen += cid_tune.get('listenOptions',
-                               'default_server deferred')
+        listenOptions = 'default_server'
+        
+        if self._isLinux():
+            listenOptions += ' deferred'
+            
+        listen += cid_tune.get('listenOptions', listenOptions)
 
         if cid_tune.get('proxyProtocol', False):
             listen += ' proxy_protocol'

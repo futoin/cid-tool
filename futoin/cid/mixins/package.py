@@ -411,7 +411,7 @@ class PackageMixIn(object):
                 if cask:
                     self._callInteractive([brew, 'cask', 'install', package], False)
                 else:
-                    self._callExternal([brew, 'install', package])
+                    self._callExternal([brew, 'install', '--force-bottle', package])
             except subprocess.CalledProcessError:
                 self._warn('You may need to enable the package manually')
 
@@ -528,6 +528,7 @@ class PackageMixIn(object):
         self._requireRpm('openssl-devel')
         self._requireApk('ressl-dev')
         self._requirePacman('openssl')
+        self._requireBrew('openssl')
 
     def __requireBuildDep_mysqlclient(self, env):
         self._requireDeb('libmysqlclient-dev')
@@ -540,21 +541,31 @@ class PackageMixIn(object):
 
         self._requireZypper('libmysqlclient-devel')
         self._requireApk('mariadb-dev')
+        self._requireBrew('mysql')
 
     def __requireBuildDep_postgresql(self, env):
         self._requireDeb('libpq-dev')
         self._requireRpm(['postgresql-devel', 'postgresql-libs'])
         self._requirePacman('postgresql')
         self._requireApk('postgresql-dev')
+        self._requireBrew('postgresql')
 
     def __requireBuildDep_imagemagick(self, env):
         self._requireDeb('libmagick-dev')
         self._requireRpm(['imagemagick', 'imagemagick-devel'])
         self._requirePacman('imagemagick')
         self._requireApk('imagemagick-dev')
+        self._requireBrew('imagemagick')
 
     def __requireBuildDep_tzdata(self, env):
         self._requireDeb('tzdata')
         self._requireRpm('tzdata')
         self._requirePacman('tzdata')
         self._requireApk('tzdata')
+
+    def __requireBuildDep_libxml2(self, env):
+        self._requireDeb('libxml2-dev')
+        self._requireRpm('libxml2-devel')
+        self._requirePacman('libxml2')
+        self._requireApk('libxml2')
+        self._requireBrew('libxml2')

@@ -19,7 +19,7 @@ Home: https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
         
         dst_dir = env['jfrogDir']
         get_url = env['jfrogGet']
-        jfrog_bin = env['jfrogBin']
+        jfrog_bin = os.path.join(dst_dir, 'jfrog')
 
         if not os.path.exists(dst_dir):
             os.makedirs(dst_dir)
