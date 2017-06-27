@@ -227,7 +227,7 @@ class cid_composer_Test(cid_BuildTool_UTBase):
 
 #=============================================================================
 class cid_docker_Test(cid_BuildTool_UTBase):
-    __test__ = True
+    __test__ = cid_Tool_UTBase.IS_LINUX
     
     @classmethod
     def setUpTool(cls):

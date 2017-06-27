@@ -359,7 +359,7 @@ class cid_nexus3_Test ( cid_RMS_UTBase ) :
 
 #=============================================================================        
 class cid_scp_Test ( cid_RMS_UTBase ) :
-    __test__ = True
+    __test__ = cid_RMS_UTBase.IS_LINUX
     TEST_DIR = os.path.join(cid_RMS_UTBase.TEST_RUN_DIR, 'rms_scp')
     RMS_REPO = 'scp:ssh://rms@localhost/8022:rmsroot'
 
@@ -399,7 +399,7 @@ CMD ["/usr/sbin/sshd", "-D"]
 
 #=============================================================================        
 class cid_svn_Test ( cid_RMS_UTBase ) :
-    __test__ = True
+    __test__ = cid_RMS_UTBase.IS_LINUX
     TEST_DIR = os.path.join(cid_RMS_UTBase.TEST_RUN_DIR, 'rms_svn')
     RMS_REPO = 'svn:svn+ssh://rms@localhost:8022/rms'
 

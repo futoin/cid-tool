@@ -7,6 +7,7 @@ import sys
 import stat
 import shutil
 import json
+import platform
 from collections import OrderedDict
 
 CIDTEST_BIN = os.environ.get('CIDTEST_BIN', None)
@@ -18,6 +19,10 @@ else :
     CIDTEST_BIN = os.path.dirname( __file__ ) + '/../bin/cid'
 
 class cid_UTBase ( unittest.TestCase ) :
+    IS_LINUX = platform.system() == 'Linux'
+    IS_MACOS = platform.system() == 'Darwin'
+    NO_COMPILE = os.environ.get('CIDTEST_NO_COMPILE', '0') == '1'
+    
     CIDTEST_BIN = CIDTEST_BIN
     TEST_DIR = 'invalid'
     TEST_RUN_DIR = os.environ.get('CIDTEST_RUN_DIR', os.path.realpath(
@@ -26,8 +31,8 @@ class cid_UTBase ( unittest.TestCase ) :
     _create_test_dir = False
     __test__ = False
     _dev_null = open(os.devnull, 'w')
-    _stdout_log = open(os.path.join(os.environ['HOME'], 'stdout.log'), 'w')
-    #_stderr_log = open(os.path.join(os.environ['HOME'], 'stderr.log'), 'w')
+    _stdout_log = open(os.path.join(TEST_RUN_DIR, 'stdout.log'), 'a+')
+    #_stderr_log = open(os.path.join(TEST_RUN_DIR, 'stderr.log'), 'a+')
     _stderr_log = _stdout_log
 
     @classmethod

@@ -3,6 +3,8 @@ from .cid_utbase import cid_Tool_UTBase
 import os, subprocess, sys
 import platform
 
+IS_LINUX = cid_Tool_UTBase.IS_LINUX
+IS_MACOS = cid_Tool_UTBase.IS_MACOS
 is_alpinelinux = os.path.exists('/etc/alpine-release')
 
 class cid_Tool_UTCommon ( cid_Tool_UTBase ) :
@@ -69,17 +71,18 @@ system_tools = [
     'unzip',
     'gcc',
     'binutils',
-    'docker',
     'nginx',
     'bzip2',
     'gzip',
     'xz',
+    'rust',
+    'docker',
 ]
 
-if not is_alpinelinux:
-    system_tools += [
-        'rust'
-    ]
+if not cid_Tool_UTBase.IS_LINUX:
+    system_tools.remove('docker')
+if is_alpinelinux:
+    system_tools.remove('rust')
 
 for t in system_tools:
     cls = 'cid_Tool_10_' + t
@@ -103,13 +106,12 @@ managed_tools = [
     'sbt',
     'scala',
     'gvm',
-    'jfrog'
+    'jfrog',
+    'rustup',
 ]
 
-if not is_alpinelinux:
-    managed_tools += [
-        'rustup'
-    ]
+if is_alpinelinux:
+    managed_tools.remove('rustup')
 
 for t in managed_tools:
     cls = 'cid_Tool_20_' + t
@@ -117,6 +119,9 @@ for t in managed_tools:
         '__test__' : True,
         'TOOL_NAME' : t,
     })
+    
+if IS_MACOS:
+    cid_Tool_20_jfrog.TOOL_MANAGED = False
 
 # 30
 #-----
@@ -253,7 +258,13 @@ for t, ti in mixed_tools.items():
 
 # 40 - unmanaged
 #-----
-for t in ['npm', 'gem', 'setuptools']:
+tools_umanaged = [
+    'npm',
+    'gem',
+    'setuptools',
+]
+
+for t in tools_umanaged:
     cls = 'cid_Tool_40_' + t
     globals()[cls] = type(cls, (cid_Tool_UTCommon, ), {
         '__test__' : True,
@@ -263,7 +274,20 @@ for t in ['npm', 'gem', 'setuptools']:
 
 # 50 - managed
 #-----
-for t in ['composer', 'bundler', 'dockercompose', 'twine', 'uwsgi']:
+
+tools_managed2 = [
+    'composer',
+    'bundler',
+    'dockercompose',
+    'twine',
+    'uwsgi',
+    'puma'
+]
+
+if not IS_LINUX:
+    tools_managed2.remove('dockercompose')
+
+for t in tools_managed2:
     cls = 'cid_Tool_50_' + t
     globals()[cls] = type(cls, (cid_Tool_UTCommon, ), {
         '__test__' : True,

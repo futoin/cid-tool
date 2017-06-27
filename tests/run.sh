@@ -22,24 +22,54 @@ if [ "$CIDTEST_USER" = "vagrant" ]; then
     export CIDTEST_RUN_DIR=/testrun
     CIDTEST_USER=cidtest
     sudo mkdir -p $CIDTEST_RUN_DIR
-    id $CIDTEST_USER >/dev/null 2>&1 || \
-        sudo useradd -U -s /bin/bash -d $CIDTEST_RUN_DIR $CIDTEST_USER || \
-        (sudo addgroup cidtest;
-         sudo adduser -DH -s /bin/bash -h $CIDTEST_RUN_DIR -G cidtest cidtest
-        )
-    sudo chown $CIDTEST_USER:$CIDTEST_USER $CIDTEST_RUN_DIR
+    if ! id $CIDTEST_USER >/dev/null 2>&1; then
+        if [ -e /usr/sbin/useradd ]; then
+            sudo /usr/sbin/useradd -U -s /bin/bash -d $CIDTEST_RUN_DIR $CIDTEST_USER
+        fi
+        
+        if [ -e /usr/sbin/addgroup ]; then
+            sudo addgroup $CIDTEST_USER;
+            sudo adduser -DH -s /bin/bash -h $CIDTEST_RUN_DIR -G $CIDTEST_USER $CIDTEST_USER
+        fi
+        
+        if [ -e /usr/bin/dscl ]; then
+            sudo -H bash <<EOF
+                dscl . create /Groups/$CIDTEST_USER
+                dscl . create /Groups/$CIDTEST_USER RealName “CID Test”
+                dscl . create /Groups/$CIDTEST_USER gid 1010
+                
+                dscl . -create /Users/$CIDTEST_USER
+                dscl . -create /Users/$CIDTEST_USER UserShell /bin/bash
+                dscl . -create /Users/$CIDTEST_USER RealName "CID Test" 
+                dscl . -create /Users/$CIDTEST_USER UniqueID "1010"
+                dscl . -create /Users/$CIDTEST_USER PrimaryGroupID 1010
+                dscl . -create /Users/$CIDTEST_USER NFSHomeDirectory $CIDTEST_RUN_DIR
+
+                dscl . -append /Groups/$CIDTEST_USER GroupMembership $CIDTEST_USER
+                
+                mkdir -p $CIDTEST_RUN_DIR/Library/Caches
+EOF
+        fi
+    fi
+    
+    sudo chown -R $CIDTEST_USER:$CIDTEST_USER $CIDTEST_RUN_DIR
     
     sudo chmod go+rx $HOME
     
-    HOME=$HOME/fake
-    mkdir -p $HOME
+    HOME=$(dirname $HOME)/fake
+    sudo mkdir -p $HOME
     sudo chmod go+rwx $HOME
     umask 0000
     
     sudo mkdir -p /etc/futoin && sudo chmod 777 /etc/futoin
 
-    sudo grep -q $CIDTEST_USER /etc/sudoers || \
-        $CID_BOOT sudoers $CIDTEST_USER | sudo tee -a /etc/sudoers
+    if [ -d /etc/sudoers.d ]; then
+        $CID_BOOT sudoers $CIDTEST_USER | sudo tee /etc/sudoers.d/cidtest
+        sudo chmod 400 /etc/sudoers.d/cidtest
+    else
+        sudo grep -q $CIDTEST_USER /etc/sudoers || \
+            $CID_BOOT sudoers $CIDTEST_USER | sudo tee -a /etc/sudoers
+    fi
     
     # Alpine Linux, etc.
     sudo grep -q root /etc/sudoers || \
@@ -121,7 +151,7 @@ which systemctl >/dev/null 2>&1 && sudo systemctl mask \
     php7-fpm.service \
     php5-fpm.service
     
-rm -f $HOME/stdout.log $HOME/stderr.log
+sudo rm -f $CIDTEST_RUN_DIR/stdout.log $CIDTEST_RUN_DIR/stderr.log
 
 function run_common() {
     (
