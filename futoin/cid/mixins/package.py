@@ -397,6 +397,13 @@ class PackageMixIn(object):
 
         self._requireYum('scl-utils')
 
+    def _requireBrewTap(self, tap):
+        if not self._isMacOS():
+            return
+
+        brew = self._which('brew')
+        self._callExternal([brew, 'tap', tap])
+
     def _requireBrew(self, packages, cask=False):
         if not self._isMacOS():
             return

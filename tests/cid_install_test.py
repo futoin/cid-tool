@@ -256,6 +256,18 @@ for t, ti in mixed_tools.items():
                     'TOOL_MANAGED' : False,
                 })
 
+        if 'brew' in binver and cid_Tool_UTBase.IS_MACOS:
+            for bv in binver['brew']:
+                cls = "cid_Tool_32_{0}_brew_{1}".format(t, bv.replace('.', ''))
+                tenv = {}
+                tenv[ "{0}Ver".format(t) ] = bv
+                globals()[cls] = type(cls, (cid_Tool_UTCommon, ), {
+                    '__test__' : True,
+                    'TOOL_NAME' : t,
+                    'TOOL_ENV': tenv,
+                    'TOOL_MANAGED' : False,
+                })
+
 # 40 - unmanaged
 #-----
 tools_umanaged = [

@@ -33,8 +33,7 @@ javaVer supports:
 
         if self._isMacOS():
             if ver == '7':
-                self._callExternal(
-                    [env['brewBin'], 'tap', 'caskroom/versions'])
+                self._requireBrewTap('caskroom/versions')
                 self._requireBrew('zulu7', True)
             else:
                 self._requireBrew('zulu', True)

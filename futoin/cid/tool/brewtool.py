@@ -13,6 +13,7 @@ homebrewInstall is use for admin user installation.
 brewDir & brewGit is used for local install.
 """
     _MACOS_ADMIN_GID = 80  # dirty hack for now
+    _GLOBAL_BREW_DIR = '/usr/local'
 
     def envNames(self):
         return ['brewBin', 'brewDir', 'brewGit', 'homebrewInstall']
@@ -45,15 +46,23 @@ brewDir & brewGit is used for local install.
             self._callExternal([ruby, '-'], input=brew_installer)
 
     def _isLocalBrew(self, env):
-        return env.get('brewDir', '') or self._MACOS_ADMIN_GID not in os.getgroups()
+        if env.get('brewDir', self._GLOBAL_BREW_DIR) != self._GLOBAL_BREW_DIR:
+            return True
+
+        if self._MACOS_ADMIN_GID not in os.getgroups():
+            return True
+
+        return False
 
     def initEnv(self, env, bin_name=None):
-        if self._isLocalBrew(env):
-            homebrew_dir = os.path.join(self._deployHome(), '.homebrew')
-            homebrew_dir = env.setdefault('brewDir', homebrew_dir)
-            env.setdefault('brewGit',
-                           'https://github.com/Homebrew/brew.git')
+        env.setdefault('brewGit',
+                        'https://github.com/Homebrew/brew.git')
+        env.setdefault('homebrewInstall',
+                        'https://raw.githubusercontent.com/Homebrew/install/master/install')
 
+        if self._isLocalBrew(env):
+            homebrew_dir = os.path.join(os.environ['HOME'], '.homebrew')
+            homebrew_dir = env.setdefault('brewDir', homebrew_dir)
             bin_dir = os.path.join(homebrew_dir, 'bin')
             brew = os.path.join(bin_dir, 'brew')
 
@@ -62,6 +71,5 @@ brewDir & brewGit is used for local install.
                 env['brewBin'] = brew
                 self._have_tool = True
         else:
-            env.setdefault('homebrewInstall',
-                           'https://raw.githubusercontent.com/Homebrew/install/master/install')
+            env.setdefault('brewDir', self._GLOBAL_BREW_DIR)
             super(brewTool, self).initEnv(env, bin_name)
