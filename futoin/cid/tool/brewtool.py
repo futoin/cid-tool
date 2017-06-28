@@ -46,7 +46,7 @@ Hint: local brew does not work well with many bottles, you may want to use
                 [curl, '-fsSL', homebrew_install] + curl_args
             )
 
-            self._callExternal([ruby, '-'], input=brew_installer)
+            self._callExternal([ruby, '-'], input=brew_installer, interactive=True)
 
     def _isLocalBrew(self, env):
         return env['brewDir'] != self._GLOBAL_BREW_DIR

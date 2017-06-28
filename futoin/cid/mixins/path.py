@@ -10,13 +10,15 @@ import glob
 class PathMixIn(object):
     _dev_null = None
 
-    def _callExternal(self, cmd, suppress_fail=False, verbose=True, output_handler=None, input=False, merge_stderr=False):
+    def _callExternal(self, cmd, suppress_fail=False, verbose=True, output_handler=None, input=False, merge_stderr=False, interactive=False):
         try:
             if not PathMixIn._dev_null:
                 PathMixIn._dev_null = open(os.devnull, 'w')
 
             if input:
                 stdin = subprocess.PIPE
+            elif interactive:
+                stdin = subprocess.STDIN
             else:
                 stdin = PathMixIn._dev_null
 
