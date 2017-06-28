@@ -163,6 +163,7 @@ mixed_tools = {
         'binver': {
             'deb': ['5.6', '7.0', '7.1'],
             'scl': ['5.6', '7.0'],
+            'brew' : ['5.6', '7.0', '7.1']
         },
     },
     'ruby' : {
@@ -187,20 +188,11 @@ if os.environ.get('CIDTEST_NO_COMPILE', '0') == '1':
     if linux_distro[0].startswith('debian') and linux_distro[1][0] == '9':
         del mixed_tools['ruby']['binver']['deb']
 else:
-    mixed_tools.update({
-        'php' : {
-            'ver': '7.1',
-            'env': {
-                'phpBinOnly': '',
-            }
-        },
-        'ruby' : {
-            'ver': 'ruby-2.4',
-            'env': {
-                'rubyBinOnly': '',
-            }
-        },
-    })
+    mixed_tools['php']['ver'] = '7.1'
+    mixed_tools['php']['env'] = {'phpBinOnly' : ''}
+
+    mixed_tools['ruby']['ver'] = '2.4'
+    mixed_tools['ruby']['env'] = {'rubyBinOnly' : ''}
     
 for t, ti in mixed_tools.items():
     cls = "cid_Tool_31_{0}".format(t)

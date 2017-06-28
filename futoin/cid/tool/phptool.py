@@ -88,6 +88,18 @@ resources due to lack of trusted binary builds.
             else:
                 self._errorExit('Only SCL packages are supported so far')
 
+        elif self._isMacOS():
+            self._requireBrewTap('homebrew/homebrew-php')
+            ver = ver.replace('.', '')
+            base_formula = 'homebrew/php/php{0}'.format(ver)
+
+            formulas = [
+                'apcu',
+                'opcache',
+            ]
+
+            self._requireBrew(['{0}-{1}'.format(base_formula, f) for f in formulas])
+
         else:
             self._systemDeps()
 
@@ -113,12 +125,15 @@ resources due to lack of trusted binary builds.
 
     def initEnv(self, env):
         #---
+        # TODO: rewrite similar to ruby, and add dynamic detection
         if self._isDebian() or self._isUbuntu():
             php_latest = '7.1'
         elif self._isSCLSupported():
             php_latest = '7.0'
         elif self._isAlpineLinux():
             php_latest = '7.0'
+        elif self._isMacOS():
+            php_latest = '7.1'
         else:
             php_latest = None
 
@@ -135,6 +150,9 @@ resources due to lack of trusted binary builds.
                 self._warn('Forcing PHP 5.6 for PHP 5.x requirement')
             elif php_ver == '7':
                 php_ver = php_latest
+            elif self._isMacOS():
+                # Homebrew supports all
+                pass
             elif php_ver > php_latest:
                 phpBinOnly = False
                 self._warn(
@@ -145,7 +163,10 @@ resources due to lack of trusted binary builds.
             phpBinOnly = False
             php_ver = env.setdefault('phpVer', self.SYSTEM_VER)
 
-        phpBinOnly = env.setdefault('phpBinOnly', phpBinOnly)
+        if phpBinOnly:
+            env['phpBinOnly'] = phpBinOnly
+        else:
+            phpBinOnly = env.setdefault('phpBinOnly', phpBinOnly)
 
         #---
         if php_ver == self.SYSTEM_VER:
@@ -173,6 +194,13 @@ resources due to lack of trusted binary builds.
             elif self._isAlpineLinux():
                 bin_name = 'php' + php_ver[0]
                 super(phpTool, self).initEnv(env, bin_name)
+
+            elif self._isMacOS():
+                brew_prefix = env['brewDir']
+                formula = 'php' + php_ver.replace('.', '')
+                php_dir = os.path.join(brew_prefix, 'opt', formula, 'bin')
+                self._addBinPath(php_dir, True)
+                super(phpTool, self).initEnv(env)
 
             return
         else:
@@ -377,11 +405,8 @@ resources due to lack of trusted binary builds.
         else:
             with_libdir = ''
         #---
-        cpu_count = int(self._callBash(
-            env, 'cat /proc/cpuinfo | grep -c vendor'))
-
-        if cpu_count <= 0:
-            cpu_count = 1
+        from ..details.resourcealgo import ResourceAlgo
+        cpu_count = ResourceAlgo().cpuLimit()
 
         os.environ['PHP_BUILD_EXTRA_MAKE_ARGUMENTS'] = '-j{0}'.format(
             cpu_count)
