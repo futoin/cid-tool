@@ -4,3 +4,4 @@ testrun
 futoin_cid.egg-info
 build
 dist
+tests/logs

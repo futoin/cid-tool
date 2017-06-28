@@ -144,7 +144,8 @@ class UtilMixIn(object):
                 st_mode = os.lstat(id).st_mode
 
                 if stat.S_ISLNK(st_mode):
-                    os.lchmod(id, stat.S_IRWXU)
+                    if 'lchmod' in os.__dict__:
+                        os.lchmod(id, stat.S_IRWXU)
                 else:
                     os.chmod(id, stat.S_IRWXU)
 
@@ -161,7 +162,8 @@ class UtilMixIn(object):
                 st_mode = os.lstat(f).st_mode
 
                 if stat.S_ISLNK(st_mode):
-                    os.lchmod(f, fperm)
+                    if 'lchmod' in os.__dict__:
+                        os.lchmod(f, fperm)
                     continue
 
                 if stat.S_ISDIR(st_mode):
