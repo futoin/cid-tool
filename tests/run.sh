@@ -62,6 +62,8 @@ EOF
     if [ -d /etc/sudoers.d ]; then
         $CID_BOOT sudoers $CIDTEST_USER | sudo tee /etc/sudoers.d/cidtest
         sudo chmod 400 /etc/sudoers.d/cidtest
+        sudo egrep -q '^#includedir\s+/etc/sudoers.d\s*$' /etc/sudoers || \
+            echo '#includedir /etc/sudoers.d' | sudo tee -a /etc/sudoers
     else
         sudo grep -q $CIDTEST_USER /etc/sudoers || \
             $CID_BOOT sudoers $CIDTEST_USER | sudo tee -a /etc/sudoers
