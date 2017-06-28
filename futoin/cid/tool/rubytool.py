@@ -107,7 +107,7 @@ if binary versions are not found for specific system.
 
             ruby_bin = self._callExternal(
                 ['scl', 'enable', sclname, 'which ruby'], verbose=False).strip()
-            
+
         elif self._isMacOS():
             formula = self._rubyBrewName(ver)
             self._requireBrew(formula)
@@ -137,7 +137,7 @@ if binary versions are not found for specific system.
             sclname = 'rh-ruby' + pkgver
 
         return sclname
-    
+
     def _rubyBrewName(self, ver):
         if ver != '2.4':
             return 'ruby@{0}'.format(ver)

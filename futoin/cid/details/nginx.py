@@ -108,14 +108,14 @@ class ConfigBuilder(UtilMixIn, PathMixIn, PackageMixIn):
         self._remote_addr_var = '$remote_addr'
         self._remote_port_var = '$remote_port'
         self._x_forwarded_for_var = '$proxy_add_x_forwarded_for'
-        
+
         env = config['env']
         nginx_bin = env['nginxBin']
-        
+
         #---
         if self._isMacOS():
             brew_dir = env.get('brewDir', '')
-            
+
             if brew_dir:
                 self._prefix = brew_dir
             else:
@@ -160,7 +160,8 @@ class ConfigBuilder(UtilMixIn, PathMixIn, PackageMixIn):
         # HTTP
         #---
         http = conf.setdefault('http', OrderedDict())
-        http.setdefault('-types', "include {0}/etc/nginx/mime.types;".format(self._prefix))
+        http.setdefault(
+            '-types', "include {0}/etc/nginx/mime.types;".format(self._prefix))
         http.setdefault('default_type', 'application/octet-stream')
         http.setdefault('access_log', 'off')
         http.setdefault('log_not_found', 'off')
@@ -220,10 +221,10 @@ class ConfigBuilder(UtilMixIn, PathMixIn, PackageMixIn):
 
         listen += ' '
         listenOptions = 'default_server'
-        
+
         if self._isLinux():
             listenOptions += ' deferred'
-            
+
         listen += cid_tune.get('listenOptions', listenOptions)
 
         if cid_tune.get('proxyProtocol', False):

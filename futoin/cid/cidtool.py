@@ -765,7 +765,7 @@ class ConfigMixIn(object):
                 dep_generations.append(postdeps)
                 tools.update(postdeps)
                 postdeps = set()
-        
+
         #---
         if self._isMacOS():
             # Make sure Homebrew is always implicit first tool
@@ -1053,13 +1053,13 @@ class DeployMixIn(object):
         self._info('Switching current deployment')
         if ospath.exists(dst):
             # re-deploy case
-            os.chmod(dst, stat.S_IRWXU) # macOS
+            os.chmod(dst, stat.S_IRWXU)  # macOS
             os.rename(dst, dst + '.tmprm')
 
-        os.chmod(tmp, stat.S_IRWXU) # macOS
+        os.chmod(tmp, stat.S_IRWXU)  # macOS
         os.rename(tmp, dst)
         os.chmod(dst, dir_perm)
-        
+
         os.symlink(dst, 'current.tmp')
         os.rename('current.tmp', 'current')
         self._current_dir = None
@@ -1583,7 +1583,7 @@ class ServiceMixIn(object):
                 (pid, excode) = os.wait()
             except KeyboardInterrupt:
                 continue
-            except OSError as e: # macOS
+            except OSError as e:  # macOS
                 if e.errno != errno.EINTR:
                     self._warn(str(e))
                 continue
@@ -1638,7 +1638,7 @@ class ServiceMixIn(object):
                     svc['name'], svc['instanceId'], pid))
         except TimeoutException:
             pass
-        except OSError as e: # macOS
+        except OSError as e:  # macOS
             if e.errno != errno.EINTR:
                 self._warn(str(e))
         finally:

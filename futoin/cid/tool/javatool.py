@@ -33,7 +33,8 @@ javaVer supports:
 
         if self._isMacOS():
             if ver == '7':
-                self._callExternal([env['brewBin'], 'tap', 'caskroom/versions'])
+                self._callExternal(
+                    [env['brewBin'], 'tap', 'caskroom/versions'])
                 self._requireBrew('zulu7', True)
             else:
                 self._requireBrew('zulu', True)
@@ -101,7 +102,8 @@ javaVer supports:
             ]
         elif self._isMacOS():
             candidates += [
-                "/Library/Java/JavaVirtualMachines/zulu-{0}.jdk/Contents/Home/jre/bin/java".format(ver)
+                "/Library/Java/JavaVirtualMachines/zulu-{0}.jdk/Contents/Home/jre/bin/java".format(
+                    ver)
             ]
 
         for c in candidates:

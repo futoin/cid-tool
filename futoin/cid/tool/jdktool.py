@@ -90,7 +90,8 @@ jdkVer supports:
             ]
         elif self._isMacOS():
             candidates += [
-                "/Library/Java/JavaVirtualMachines/zulu-{0}.jdk/Contents/Home/bin/javac".format(ver)
+                "/Library/Java/JavaVirtualMachines/zulu-{0}.jdk/Contents/Home/bin/javac".format(
+                    ver)
             ]
 
         for c in candidates:

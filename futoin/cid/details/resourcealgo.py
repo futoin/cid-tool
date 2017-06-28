@@ -43,7 +43,7 @@ class ResourceAlgo(UtilMixIn, PackageMixIn):
     def systemCpuCount(self):
         if self._isMacOS():
             return int(subprocess.check_output(['sysctl', '-n', 'hw.ncpu']).strip())
-        
+
         return min(os.sysconf('SC_NPROCESSORS_ONLN'), os.sysconf('SC_NPROCESSORS_CONF'))
 
     def cgroupCpuCount(self, cgroupFile=None):

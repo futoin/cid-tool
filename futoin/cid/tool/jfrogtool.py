@@ -16,7 +16,7 @@ Home: https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
         if self._isMacOS():
             self._requireBrew('jfrog-cli-go')
             return
-        
+
         dst_dir = env['jfrogDir']
         get_url = env['jfrogGet']
         jfrog_bin = os.path.join(dst_dir, 'jfrog')
@@ -26,7 +26,7 @@ Home: https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
 
         self._callCurl(env, [get_url, '-o', jfrog_bin])
         os.chmod(jfrog_bin, stat.S_IRWXU | stat.S_IRGRP |
-                    stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+                 stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
 
     def updateTool(self, env):
         if self._isMacOS():
@@ -70,6 +70,6 @@ Home: https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
         self._addBinPath(bin_dir)
 
         super(jfrogTool, self).initEnv(env)
-        
+
         if self._have_tool:
             env['jfrogDir'] = os.path.dirname(env['jfrogBin'])

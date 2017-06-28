@@ -409,9 +409,11 @@ class PackageMixIn(object):
         for package in packages:
             try:
                 if cask:
-                    self._callInteractive([brew, 'cask', 'install', package], False)
+                    self._callInteractive(
+                        [brew, 'cask', 'install', package], False)
                 else:
-                    self._callExternal([brew, 'install', '--force-bottle', package])
+                    self._callExternal(
+                        [brew, 'install', '--force-bottle', package])
             except subprocess.CalledProcessError:
                 self._warn('You may need to enable the package manually')
 

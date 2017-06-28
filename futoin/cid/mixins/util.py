@@ -145,6 +145,7 @@ class UtilMixIn(object):
 
                 if stat.S_ISLNK(st_mode):
                     if 'lchmod' in os.__dict__:
+                        # pylint: disable=no-member
                         os.lchmod(id, stat.S_IRWXU)
                 else:
                     os.chmod(id, stat.S_IRWXU)
@@ -163,6 +164,7 @@ class UtilMixIn(object):
 
                 if stat.S_ISLNK(st_mode):
                     if 'lchmod' in os.__dict__:
+                        # pylint: disable=no-member
                         os.lchmod(f, fperm)
                     continue
 
