@@ -162,7 +162,7 @@ Tested on the following OSes:
     
 * **macOS**
 
-  - *NOTE: Very preliminary support at the moment*.
+  - **Sierra**
   - Test hardware is:
 
   .. image:: https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?container=focus&refresh=3600&resize_h=100&url=https://www.macstadium.com/content/uploads/2016/07/Powered_by_MacStadium_Logo-1.png

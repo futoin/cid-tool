@@ -92,6 +92,8 @@ resources due to lack of trusted binary builds.
             self._requireBrewTap('homebrew/homebrew-php')
             ver = ver.replace('.', '')
             base_formula = 'homebrew/php/php{0}'.format(ver)
+            
+            self._requireBrew(base_formula)
 
             formulas = [
                 'apcu',
@@ -199,8 +201,10 @@ resources due to lack of trusted binary builds.
                 brew_prefix = env['brewDir']
                 formula = 'php' + php_ver.replace('.', '')
                 php_dir = os.path.join(brew_prefix, 'opt', formula, 'bin')
-                self._addBinPath(php_dir, True)
-                super(phpTool, self).initEnv(env)
+                
+                if os.path.exists(php_dir):
+                    self._addBinPath(php_dir, True)
+                    super(phpTool, self).initEnv(env)
 
             return
         else:

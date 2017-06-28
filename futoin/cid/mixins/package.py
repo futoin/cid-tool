@@ -412,15 +412,19 @@ class PackageMixIn(object):
             packages = [packages]
 
         brew = self._which('brew')
+        brew_sudo = os.environ.get('brewSudo', '').split()
 
         for package in packages:
             try:
                 if cask:
                     self._callInteractive(
-                        [brew, 'cask', 'install', package], False)
+                        brew_sudo + [brew, 'cask', 'install', package], False)
+                elif brew == '/usr/local/bin/brew':
+                    self._callExternal(
+                        brew_sudo + [brew, 'install', '--force-bottle', package])
                 else:
                     self._callExternal(
-                        [brew, 'install', '--force-bottle', package])
+                        brew_sudo + [brew, 'install', package])
             except subprocess.CalledProcessError:
                 self._warn('You may need to enable the package manually')
 

@@ -30,7 +30,7 @@ gemInstallArgs is forcibly set by tool depending on its version.
         installArgs = []
 
         if env['rubyVer'] == self.SYSTEM_VER or env['rubyBinOnly']:
-            gemDir = os.path.join(self._deployHome(), '.gem')
+            gemDir = os.path.join(self._deployHome(), '.gem', env['rubyVer'])
             gemDir = env.setdefault('gemDir', gemDir)
             os.environ['GEM_HOME'] = gemDir
 

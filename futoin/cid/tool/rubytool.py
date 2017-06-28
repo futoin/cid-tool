@@ -109,11 +109,9 @@ if binary versions are not found for specific system.
                 ['scl', 'enable', sclname, 'which ruby'], verbose=False).strip()
 
         elif self._isMacOS():
-            formula = self._rubyBrewName(ver)
+            formula = 'ruby@{0}'.format(ver)
             self._requireBrew(formula)
-            ruby_dir = self._callExternal([env['brewBin'], '--cellar', formula],
-                                          verbose=False).strip()
-            ruby_bin = os.path.join(ruby_dir, 'bin', 'ruby')
+            return
         else:
             self._systemDeps()
             return
@@ -137,12 +135,6 @@ if binary versions are not found for specific system.
             sclname = 'rh-ruby' + pkgver
 
         return sclname
-
-    def _rubyBrewName(self, ver):
-        if ver != '2.4':
-            return 'ruby@{0}'.format(ver)
-        else:
-            return 'ruby'
 
     def updateTool(self, env):
         if env['rubyVer'] != self.SYSTEM_VER and not env['rubyBinOnly']:
@@ -203,12 +195,25 @@ if binary versions are not found for specific system.
                         self._updateEnvFromOutput(env_to_set)
                     except subprocess.CalledProcessError:
                         pass
+                elif self._isMacOS():
+                    env['rubyBinOnly'] = True
+                    formula = 'ruby@{0}'.format(ruby_ver)
+                    brew_prefix = env['brewDir']
+                    ruby_bin_dir = os.path.join(brew_prefix, 'opt', formula, 'bin')
+                    
+                    if os.path.exists(ruby_bin_dir):
+                        self._addBinPath(ruby_bin_dir, True)
+                        super(rubyTool, self).initEnv(env)
+                    return
         else:
             rubyBinOnly = False
             ruby_ver = env.setdefault('rubyVer', self.SYSTEM_VER)
             rvm_ruby_ver = ruby_ver
 
-        rubyBinOnly = env.setdefault('rubyBinOnly', rubyBinOnly)
+        if rubyBinOnly:
+            env['rubyBinOnly'] = rubyBinOnly
+        else:
+            rubyBinOnly = env.setdefault('rubyBinOnly', rubyBinOnly)
 
         #---
         rvm_dir = env['rvmDir']

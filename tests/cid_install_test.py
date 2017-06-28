@@ -53,6 +53,27 @@ class cid_Tool_UTCommon ( cid_Tool_UTBase ) :
             
             os.environ[ver_var] = tool_ver
             self.assertEqual(res, res2)
+            
+    def test_70_tool_ver( self ):
+        tool_name = self.TOOL_NAME
+        
+        ver_var = tool_name + 'Ver'
+        
+        if ver_var not in self.TOOL_ENV:
+            return
+
+        tool_ver = self.TOOL_ENV[ver_var]
+        
+        if tool_name == 'php':
+            res = self._call_cid( [ 'tool', 'exec', tool_name, '--version' ], retout=True )
+            req = "PHP {0}".format(tool_ver)
+        elif tool_name == 'ruby':
+            res = self._call_cid( [ 'tool', 'exec', tool_name, '--version' ], retout=True )
+        else:
+            return 
+        
+        if not res.startswith(req):
+            self.assertEqual(req, res)
 
 # 10
 #-----
@@ -171,6 +192,7 @@ mixed_tools = {
         'binver': {
             'deb': ['1.9', '2.0', '2.1', '2.2', '2.3'],
             'scl': ['1.9', '2.0', '2.2', '2.3'],
+            'brew' : ['1.8', '1.9', '2.1', '2.2', '2.3', '2.4']
         },
     },
     'rust' : {

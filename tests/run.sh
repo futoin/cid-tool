@@ -170,6 +170,7 @@ function run_common() {
         export pythonVer=$pythonVer
         # detection fails for AlpineLinux
         export JAVA_OPTS="-Xmx256m"
+        export brewSudo='/usr/bin/sudo -n -H -u vagrant'
         \$CIDTEST_BIN tool exec python -- -m nose $tests
 EOF
     )   

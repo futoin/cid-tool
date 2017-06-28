@@ -767,7 +767,7 @@ class ConfigMixIn(object):
                 postdeps = set()
 
         #---
-        if self._isMacOS():
+        if self._isMacOS() and tools:
             # Make sure Homebrew is always implicit first tool
             dep_generations.append(set(['brew']))
 
@@ -2671,9 +2671,15 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
             ]
 
         elif self._isMacOS():
+            commands += [
+                '# case for global brew install',
+                '/usr/local/bin/brew install *',
+                '/usr/local/bin/brew cask install *',
+            ]
+                
             if not skip_key_mgmt:
                 commands += [
-                    '# insecure, but required for brew cask',
+                    '# insecure, but required for local brew cask',
                     'SETENV: /usr/sbin/installer *',
                     'SETENV: /usr/sbin/pkgutil *',
                     'SETENV: /usr/libexec/PlistBuddy *',
