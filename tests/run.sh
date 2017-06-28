@@ -25,14 +25,10 @@ if [ "$CIDTEST_USER" = "vagrant" ]; then
     if ! id $CIDTEST_USER >/dev/null 2>&1; then
         if [ -e /usr/sbin/useradd ]; then
             sudo /usr/sbin/useradd -U -s /bin/bash -d $CIDTEST_RUN_DIR $CIDTEST_USER
-        fi
-        
-        if [ -e /usr/sbin/addgroup ]; then
+        elif [ -e /usr/sbin/addgroup ]; then
             sudo addgroup $CIDTEST_USER;
             sudo adduser -DH -s /bin/bash -h $CIDTEST_RUN_DIR -G $CIDTEST_USER $CIDTEST_USER
-        fi
-        
-        if [ -e /usr/bin/dscl ]; then
+        elif [ -e /usr/bin/dscl ]; then
             sudo -H bash <<EOF
                 dscl . create /Groups/$CIDTEST_USER
                 dscl . create /Groups/$CIDTEST_USER RealName “CID Test”
