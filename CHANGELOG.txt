@@ -1,3 +1,5 @@
+=== (next) ===
+* FIXED: not to fail if empty CID_SOURCE_DIR is set
 
 === 0.7.99 (2017-06-29) ===
 * BREAKING CHANGE: dropped --rmsHash in favor of "{package}@{hash-type}:{hash}"

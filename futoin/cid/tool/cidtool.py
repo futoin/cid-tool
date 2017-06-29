@@ -12,8 +12,10 @@ class cidTool(PipToolMixIn, BuildTool):
         return 'futoin-cid'
 
     def _installTool(self, env):
-        try:
+        source_dir = os.environ.get('CID_SOURCE_DIR', None)
+
+        if source_dir:
             self._callExternal(
-                [env['pipBin'], 'install', '-q', '-e', os.environ['CID_SOURCE_DIR']])
-        except KeyError:
+                [env['pipBin'], 'install', '-q', '-e', source_dir])
+        else:
             PipToolMixIn._installTool(self, env)
