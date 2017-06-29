@@ -100,6 +100,7 @@ resources due to lack of trusted binary builds.
                 'opcache',
             ]
 
+            self._requireBrewUnlink(search='/homebrew\/php\/php[0-9]{2}$/')
             self._requireBrew(['{0}-{1}'.format(base_formula, f) for f in formulas])
 
         else:
@@ -142,8 +143,8 @@ resources due to lack of trusted binary builds.
         #---
         if 'phpfpmVer' in env:
             php_ver = env.setdefault('phpVer', env['phpfpmVer'])
-            phpBinOnly = php_latest is not None
-        elif php_latest:
+
+        if php_latest:
             php_ver = env.setdefault('phpVer', php_latest)
             phpBinOnly = True
 
