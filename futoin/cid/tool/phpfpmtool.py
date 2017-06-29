@@ -112,13 +112,6 @@ Note: file upload is OFF by default.
         else:
             bin_name = '{0}-fpm'.format(os.path.basename(php_bin))
 
-        phpfpm_bin = self._which(bin_name)
-
-        if phpfpm_bin:
-            env['phpfpmBin'] = phpfpm_bin
-            self._have_tool = True
-            return
-
         #--
         phpfpm_bin = os.path.realpath(
             os.path.join(php_bin, '..', '..', 'sbin',
@@ -130,6 +123,16 @@ Note: file upload is OFF by default.
             env['phpfpmBin'] = phpfpm_bin[0]
             self._have_tool = True
             return
+
+        # fallback, find any
+        #---
+        phpfpm_bin = self._which(bin_name)
+
+        if phpfpm_bin:
+            env['phpfpmBin'] = phpfpm_bin
+            self._have_tool = True
+            return
+
 
     def onPreConfigure(self, config, runtime_dir, svc, cfg_svc_tune):
         env = config['env']
