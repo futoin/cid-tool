@@ -136,6 +136,21 @@ if binary versions are not found for specific system.
 
         return sclname
 
+    def _fixRvmLinks(self, env, name, ver):
+        bin_dir = os.path.join(env['rvmDir'], 'rubies', name, 'bin')
+
+        for f in ['erb', 'gem', 'irb', 'rake', 'rdoc', 'ri', 'ruby', 'testrb']:
+            f = os.path.join(bin_dir, f)
+            res = glob.glob('{0}{1}*'.format(f, ver))
+
+            if res:
+                try:
+                    os.unlink(f)
+                except:
+                    pass
+
+                os.symlink(res[0], f)
+
     def updateTool(self, env):
         if env['rubyVer'] != self.SYSTEM_VER and not env['rubyBinOnly']:
             self._installTool(env)
@@ -206,6 +221,8 @@ if binary versions are not found for specific system.
                         self._addBinPath(ruby_bin_dir, True)
                         super(rubyTool, self).initEnv(env)
                     return
+                elif self._isDebian() or self._isUbuntu():
+                    self._fixRvmLinks(env, rvm_ruby_ver, ruby_ver)
         else:
             rubyBinOnly = False
             ruby_ver = env.setdefault('rubyVer', self.SYSTEM_VER)
