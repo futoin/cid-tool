@@ -527,7 +527,7 @@ Please see details in the FTN16 spec: ::
         For better security, it's possible to disable trusted signing key management
         with --skip-key-management.
         
-    cid build-dep <build_dep>...
+    cid build-dep [<build_dep>...]
         Require specific development files to be installed, e.g.: openssl, mysqlclient,
         postgresql, imagemagick, etc.
 

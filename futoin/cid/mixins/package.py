@@ -522,6 +522,8 @@ class PackageMixIn(object):
                 [openrc, name, 'start'],
                 errmsg='you may need to start the service manually')
 
+    __BUIID_DEP_PREFIX = '_PackageMixIn__requireBuildDep_'
+
     def _requireBuildDep(self, env, dep):
         if not isinstance(dep, list):
             dep = [dep]
@@ -529,8 +531,24 @@ class PackageMixIn(object):
         self._requireBuildEssential()
 
         for d in dep:
-            getattr(self, '_PackageMixIn__requireBuildDep_' +
-                    d.replace('-', ''))(env)
+            m = '{0}{1}'
+            m.format(self.__BUIID_DEP_PREFIX, d.replace('-', ''))
+            m = getattr(self, m, None)
+
+            if m:
+                m(env)
+            else:
+                self._errorExit('Unknown build dep "{0}"'.format(m))
+
+    def _availableBuildDeps(self):
+        ret = []
+
+        for m in PackageMixIn.__dict__:
+            if m.startswith(self.__BUIID_DEP_PREFIX):
+                m = m.replace(self.__BUIID_DEP_PREFIX, '')
+                ret.append(m)
+
+        return ret
 
     def __requireBuildDep_ruby(self, env):
         if env['rubyVer'] == self.SYSTEM_VER:

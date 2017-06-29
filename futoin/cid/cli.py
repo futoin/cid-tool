@@ -46,7 +46,7 @@ Usage:
     cid service stop <entry_point> <instance_id> <pid> [--deployDir=<deploy_dir>]
     cid service reload <entry_point> <instance_id> <pid> [--deployDir=<deploy_dir>]
     cid sudoers [<sudo_entity>] [--skip-key-management]
-    cid build-dep <build_dep>...
+    cid build-dep [<build_dep>...]
     
 
 Options:
