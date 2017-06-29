@@ -172,6 +172,7 @@ Tested on the following OSes:
 * **OpenSUSE**
 
   - **42.1 Leap**
+  - There are known issues with some tools due to lack of community support.
     
 * **Oracle Linux**
 
@@ -185,12 +186,11 @@ Tested on the following OSes:
 
   - **14.04 LTS - Trusty**
   - **16.04 LTS - Xenial**
-  - **16.10 - Yakkety**
   - **17.04 - Zesty**
     
 * **Other Linux**
 
-  - it should work without issues, if system packages are installed manually
+  - it should work without issues, if system packages are installed manually.
 
 Setup
 -----
