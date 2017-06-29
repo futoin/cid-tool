@@ -23,7 +23,8 @@ Hint: Unprivileged brew does not work well with many bottles, you may want to us
 
     def _installTool(self, env):
         if self._isLocalBrew(env):
-            self._warn('Unprivileged Homebrew install has many drawbacks. Check "cid tool describe brew"')
+            self._warn(
+                'Unprivileged Homebrew install has many drawbacks. Check "cid tool describe brew"')
             homebrew_git = env['brewGit']
             homebrew_dir = env['brewDir']
 
