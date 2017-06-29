@@ -404,16 +404,16 @@ class PackageMixIn(object):
         brew = self._which('brew')
         brew_sudo = os.environ.get('brewSudo', '').split()
         self._callExternal(brew_sudo + [brew, 'tap', tap])
-        
+
     def _requireBrewUnlink(self, formula=None, search=None):
         if not self._isMacOS():
             return
 
         brew = self._which('brew')
         brew_sudo = os.environ.get('brewSudo', '').split()
-        
+
         flist = []
-        
+
         if formula is not None:
             if isinstance(formula, list):
                 flist += formula
@@ -422,7 +422,7 @@ class PackageMixIn(object):
 
         if search:
             flist += self._callExternal([brew, 'search', search]).split()
-        
+
         for f in flist:
             self._callExternal(brew_sudo + [brew, 'unlink', f],
                                suppress_fail=True)

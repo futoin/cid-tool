@@ -133,7 +133,6 @@ Note: file upload is OFF by default.
             self._have_tool = True
             return
 
-
     def onPreConfigure(self, config, runtime_dir, svc, cfg_svc_tune):
         env = config['env']
         deploy = config['deploy']

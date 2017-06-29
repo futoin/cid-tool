@@ -30,7 +30,8 @@ Hint: local brew does not work well with many bottles, you may want to use
 
             if not git:
                 xcode_select = self._which('xcode-select')
-                self._callExternal([xcode_select, '--install'], suppress_fail=True)
+                self._callExternal(
+                    [xcode_select, '--install'], suppress_fail=True)
                 git = self._which('git')
 
             self._callExternal([git, 'clone', homebrew_git, homebrew_dir])
@@ -58,20 +59,20 @@ Hint: local brew does not work well with many bottles, you may want to use
 
     def initEnv(self, env, bin_name=None):
         brewSudo = env.get('brewSudo', '')
-        
+
         if self._MACOS_ADMIN_GID not in os.getgroups() and not brewSudo:
             homebrew_dir = os.path.join(os.environ['HOME'], '.homebrew')
             env.setdefault('brewDir', homebrew_dir)
         else:
             env.setdefault('brewDir', self._GLOBAL_BREW_DIR)
-            
+
             if brewSudo:
                 os.environ['brewSudo'] = brewSudo
-            
+
         env.setdefault('brewGit',
-                        'https://github.com/Homebrew/brew.git')
+                       'https://github.com/Homebrew/brew.git')
         env.setdefault('brewInstall',
-                        'https://raw.githubusercontent.com/Homebrew/install/master/install')
+                       'https://raw.githubusercontent.com/Homebrew/install/master/install')
 
         if self._isLocalBrew(env):
             homebrew_dir = env['brewDir']

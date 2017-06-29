@@ -199,8 +199,9 @@ if binary versions are not found for specific system.
                     env['rubyBinOnly'] = True
                     formula = 'ruby@{0}'.format(ruby_ver)
                     brew_prefix = env['brewDir']
-                    ruby_bin_dir = os.path.join(brew_prefix, 'opt', formula, 'bin')
-                    
+                    ruby_bin_dir = os.path.join(
+                        brew_prefix, 'opt', formula, 'bin')
+
                     if os.path.exists(ruby_bin_dir):
                         self._addBinPath(ruby_bin_dir, True)
                         super(rubyTool, self).initEnv(env)

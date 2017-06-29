@@ -2681,7 +2681,7 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
                 '# lesser problem'
                 '/usr/local/bin/brew unlink *',
             ]
-                
+
             if not skip_key_mgmt:
                 commands += [
                     '',

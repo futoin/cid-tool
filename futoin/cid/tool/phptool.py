@@ -92,7 +92,7 @@ resources due to lack of trusted binary builds.
             self._requireBrewTap('homebrew/homebrew-php')
             ver = ver.replace('.', '')
             base_formula = 'homebrew/php/php{0}'.format(ver)
-            
+
             self._requireBrew(base_formula)
 
             formulas = [
@@ -101,7 +101,8 @@ resources due to lack of trusted binary builds.
             ]
 
             self._requireBrewUnlink(search='/homebrew\/php\/php[0-9]{2}$/')
-            self._requireBrew(['{0}-{1}'.format(base_formula, f) for f in formulas])
+            self._requireBrew(['{0}-{1}'.format(base_formula, f)
+                               for f in formulas])
 
         else:
             self._systemDeps()
@@ -202,7 +203,7 @@ resources due to lack of trusted binary builds.
                 brew_prefix = env['brewDir']
                 formula = 'php' + php_ver.replace('.', '')
                 php_dir = os.path.join(brew_prefix, 'opt', formula, 'bin')
-                
+
                 if os.path.exists(php_dir):
                     self._addBinPath(php_dir, True)
                     super(phpTool, self).initEnv(env)
