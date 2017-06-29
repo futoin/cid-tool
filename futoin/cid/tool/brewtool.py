@@ -12,8 +12,8 @@ Home: https://brew.sh/
 brewInstall is use for admin user installation.
 brewDir & brewGit is used for local install.
 
-Hint: local brew does not work well with many bottles, you may want to use
-    brewSudo='/usr/bin/sudo -n -H -u adminaccount'
+Hint: Unprivileged brew does not work well with many bottles, you may want to use
+    brewSudo='/usr/bin/sudo -n -H -u adminaccount' with "cid sudoers" config.
 """
     _MACOS_ADMIN_GID = 80  # dirty hack for now
     _GLOBAL_BREW_DIR = '/usr/local'
@@ -23,6 +23,7 @@ Hint: local brew does not work well with many bottles, you may want to use
 
     def _installTool(self, env):
         if self._isLocalBrew(env):
+            self._warn('Unprivileged Homebrew install has many drawbacks. Check "cid tool describe brew"')
             homebrew_git = env['brewGit']
             homebrew_dir = env['brewDir']
 

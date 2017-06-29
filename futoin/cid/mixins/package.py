@@ -424,8 +424,10 @@ class PackageMixIn(object):
             flist += self._callExternal([brew, 'search', search]).split()
 
         for f in flist:
-            self._callExternal(brew_sudo + [brew, 'unlink', f],
-                               suppress_fail=True)
+            try:
+                self._callExternal(brew_sudo + [brew, 'unlink', f])
+            except subprocess.CalledProcessError:
+                self._warn('You may need to unlink the formula manually!')
 
     def _requireBrew(self, packages, cask=False):
         if not self._isMacOS():

@@ -2678,7 +2678,7 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
                 '# note: security problem, if optional URL paremeter is used',
                 '/usr/local/bin/brew tap homebrew/*',
                 '/usr/local/bin/brew tap caskroom/*',
-                '# lesser problem'
+                '# lesser problem',
                 '/usr/local/bin/brew unlink *',
             ]
 
