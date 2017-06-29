@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.7.99 (2017-06-29) ===
 * BREAKING CHANGE: dropped --rmsHash in favor of "{package}@{hash-type}:{hash}"
 * BREAKING CHANGE: "cid promote" format to support multiple packages
 * BREAKING CHANGE: fixed long standing deviation from spec for entry point "path"

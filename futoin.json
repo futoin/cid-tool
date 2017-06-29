@@ -1,6 +1,6 @@
 {
   "name": "futoin-cid",
-  "version": "0.7.3",
+  "version": "0.7.99",
   "plugins": {
     "release": "futoin.cid.misc.releasetool"
   },
@@ -18,11 +18,11 @@
       "path": "bin/cid"
     }
   },
-  "actions" : {
-    "autopep8" : "autopep8 -i -r futoin",
-    "check" : [
-        "pylint -E futoin --ignore=contrib",
-        "@default"
+  "actions": {
+    "autopep8": "autopep8 -i -r futoin",
+    "check": [
+      "pylint -E futoin --ignore=contrib",
+      "@default"
     ]
   }
 }
