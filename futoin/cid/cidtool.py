@@ -2675,10 +2675,16 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
                 '# case for global brew install',
                 '/usr/local/bin/brew install *',
                 '/usr/local/bin/brew cask install *',
+                '# note: security problem, if optional URL paremeter is used',
+                '/usr/local/bin/brew tap homebrew/*',
+                '/usr/local/bin/brew tap caskroom/*',
+                '# lesser problem'
+                '/usr/local/bin/brew unlink *',
             ]
                 
             if not skip_key_mgmt:
                 commands += [
+                    '',
                     '# insecure, but required for local brew cask',
                     'SETENV: /usr/sbin/installer *',
                     'SETENV: /usr/sbin/pkgutil *',
