@@ -74,7 +74,7 @@ def cid_action(f):
         except AttributeError:
             fn = f.__name__
 
-        actions = config.get('actions', {})
+        actions = config and config.get('actions', {}) or {}
 
         if fn in actions:
             for act in actions[fn]:
@@ -145,7 +145,7 @@ class HelpersMixIn(object):
             try:
                 config['vcsRepo'] = vcstool.vcsGetRepo(config)
             except subprocess.CalledProcessError as e:
-                pass
+                self._warn(str(e))
 
             if not config.get('vcsRepo', None):
                 self._errorExit(
@@ -176,7 +176,7 @@ class HelpersMixIn(object):
         return self._tool_impl[rms]
 
     def _getTarTool(self, compressor=None):
-        env = self._config['env']
+        env = self._env
 
         tar_tool = self._tool_impl['tar']
         tar_tool.requireInstalled(env)
@@ -187,27 +187,21 @@ class HelpersMixIn(object):
         return tar_tool
 
     def _processWcDir(self):
-        config = self._config
-        wcDir = config['wcDir']
+        wcDir = self._overrides['wcDir']
 
-        if not ospath.exists(wcDir):
+        try:
             os.makedirs(wcDir)
+        except OSError:
+            if not ospath.exists(wcDir):
+                raise
 
         if wcDir != os.getcwd():
-            # Make sure to keep VCS info when switch to another location
-            # for checkout.
-            #---
-            if 'vcs' in config:
-                self._getVcsTool()
-
-                for cv in ['vcs', 'vcsRepo']:
-                    self._overrides[cv] = config[cv]
-            #---
-
             print(Coloring.infoLabel('Changing to: ') + Coloring.info(wcDir),
                   file=sys.stderr)
             os.chdir(wcDir)
-            self._overrides['wcDir'] = config['wcDir'] = os.getcwd()
+            self._overrides['wcDir'] = os.getcwd()
+            self._initConfig()
+        elif self._config is None:
             self._initConfig()
 
 
@@ -328,14 +322,15 @@ class ConfigMixIn(object):
         ('externalSetup', bool),
     ])
 
-    def _initConfig(self):
+    def _initConfig(self, skip_project=False):
         errors = []
 
         #--
         user_home = os.environ.get('HOME', '/')
+        user_home = ospath.realpath(user_home)
         user_config_path = ospath.join(user_home, '.' + self._FUTOIN_JSON)
 
-        if not ospath.exists(user_config_path) and user_home != self._overrides['wcDir']:
+        if not ospath.exists(user_config_path) and user_home != os.getcwd():
             user_config_path = ospath.join(user_home, self._FUTOIN_JSON)
 
         user_config_path = ospath.realpath(user_config_path)
@@ -345,9 +340,12 @@ class ConfigMixIn(object):
         global_config_file = ospath.realpath(global_config_file)
 
         deploy_config_file = None
+        project_config_file = None
         deploy_dir = self._overrides.get('deployDir', None)
 
-        if deploy_dir:
+        if skip_project:
+            pass
+        elif deploy_dir:
             current = self._getDeployCurrent()
             deploy_config_file = ospath.join(deploy_dir, self._FUTOIN_JSON)
             deploy_config_file = ospath.realpath(deploy_config_file)
@@ -368,17 +366,24 @@ class ConfigMixIn(object):
         if user_config_path not in (deploy_config_file, project_config_file):
             uc = self._loadJSONConfig(user_config_path, uc)
 
-        if project_config_file != deploy_config_file:
-            pc = self._loadJSONConfig(project_config_file, pc)
+        if not skip_project:
+            if project_config_file != deploy_config_file:
+                pc = self._loadJSONConfig(project_config_file, pc)
 
-        if deploy_config_file:
-            dc = self._loadJSONConfig(deploy_config_file, dc)
+            if deploy_config_file:
+                dc = self._loadJSONConfig(deploy_config_file, dc)
 
         #---
         self._global_config = gc
         self._user_config = uc
-        self._deploy_config = dc
-        self._project_config = pc
+
+        if skip_project:
+            self._deploy_config = None
+            self._project_config = None
+        else:
+            self._deploy_config = dc
+            self._project_config = pc
+
         #--
 
         config = dict(pc)
@@ -390,14 +395,15 @@ class ConfigMixIn(object):
             elif k == 'entryPoints':
                 config_epoints = config.setdefault('entryPoints', {})
 
-                for (ek, ev) in v.items():
-                    cep = config_epoints.setdefault(ek, {})
+                for (ename, edef) in v.items():
+                    cep = config_epoints.setdefault(ename, {})
 
-                    if ek == 'tune':
-                        cep_tune = cep.setdefault('tune', {})
-                        cep_tune.update(ev)
-                    else:
-                        cep[ek] = ev
+                    for (epk, epv) in edef.items():
+                        if epk == 'tune':
+                            cep_tune = cep.setdefault('tune', {})
+                            cep_tune.update(epv)
+                        else:
+                            cep[epk] = epv
             elif k == 'actions':
                 config_actions = config.setdefault('actions', {})
 
@@ -463,8 +469,13 @@ class ConfigMixIn(object):
         self._initEnv(env)
 
         config['env'] = env
+        self._env = env
         config.update(self._overrides)
-        self._config = config
+
+        if skip_project:
+            self._config = None
+        else:
+            self._config = config
 
         self._initTools()
 
@@ -650,19 +661,23 @@ class ConfigMixIn(object):
 
     def _initTools(self):
         config = self._config
-        env = config['env']
+        env = self._env
+
+        if config is None:
+            config = self._overrides.copy()
+            config['env'] = env
 
         #---
         config['projectRootSet'] = set(os.listdir('.'))
 
         #---
         plugins = {}
-        plugins.update(env['plugins'])
+        plugins.update(env.get('plugins', {}))
         plugins.update(config.get('plugins', {}))
 
         plugin_packs = []
-        plugin_packs += env['pluginPacks']
-        plugin_packs += config.get('pluginPacks', {})
+        plugin_packs += env.get('pluginPacks', [])
+        plugin_packs += config.get('pluginPacks', [])
         plugin_packs.append('futoin.cid.tool')
 
         for pack_mod_name in plugin_packs:
@@ -692,7 +707,7 @@ class ConfigMixIn(object):
             tool_ver = config.get('toolVer', None)
 
             if tool_ver:
-                config['env'][curr_tool + 'Ver'] = tool_ver
+                env[curr_tool + 'Ver'] = tool_ver
         else:
             config_tools = config.get('tools', {})
             tools = []
@@ -708,7 +723,7 @@ class ConfigMixIn(object):
 
                     if v != '*' and v != True:
                         env[tool + 'Ver'] = v
-            else:
+            elif self._project_config is not None:
                 for (n, t) in tool_impl.items():
                     if t.autoDetect(config):
                         tools.append(n)
@@ -784,7 +799,7 @@ class ConfigMixIn(object):
             t.envDeps(env)
 
         #--
-        if config['toolTest']:
+        if config.get('toolTest', False):
             for tool in tools:
                 t = tool_impl[tool]
                 t.sanitizeVersion(env)
@@ -1179,12 +1194,11 @@ class DeployMixIn(object):
     def _processDeployDir(self):
         os.umask(0o027)
 
-        deploy_dir = self._config['deployDir']
+        deploy_dir = self._overrides['deployDir']
 
         # make sure wcDir is always set to current
         current = self._getDeployCurrent()
         wc_dir = ospath.join(deploy_dir, current)
-        self._config['wcDir'] = wc_dir
         self._overrides['wcDir'] = wc_dir
 
         if not deploy_dir:
@@ -1207,7 +1221,9 @@ class DeployMixIn(object):
 
         os.chmod(deploy_dir, os.stat(deploy_dir).st_mode | stat.S_IWUSR)
 
-        self._info('Re-initializing config')
+        if self._config is not None:
+            self._info('Re-initializing config')
+
         self._initConfig()
 
         if deploy_dir != os.getcwd():
@@ -1676,7 +1692,7 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
         self._overrides = overrides
         self._current_dir = None
         self._initLocks()
-        self._initConfig()
+        self._initConfig(True)
 
     @cid_action
     def tag(self, branch, next_version=None):
@@ -2071,6 +2087,8 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
 
     @cid_action
     def ci_build(self, vcs_ref, rms_pool):
+        self._initConfig()
+
         config = self._config
         wcDir = config['wcDir']
 
@@ -2084,6 +2102,18 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
             except OSError:
                 self._rmTree(wcDir)
 
+        # Make sure to keep VCS info when switch to another location
+        # for checkout.
+        #---
+        if 'vcs' in config:
+            self._getVcsTool()
+
+            for cv in ['vcs', 'vcsRepo']:
+                self._overrides[cv] = config[cv]
+        #---
+
+        self._processWcDir()
+
         self._lastPackages = None
         self.prepare(vcs_ref)
         self.build()
@@ -2095,20 +2125,20 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
 
     def tool_exec(self, tool, args):
         t = self._tool_impl[tool]
-        t.onExec(self._config['env'], args)
+        t.onExec(self._env, args)
 
     def tool_install(self, tool):
-        config = self._config
-        env = config['env']
-
-        if self._isExternalToolsSetup(env):
+        if self._isExternalToolsSetup(self._env):
             self._errorExit(
                 'environment requires external installation of tools')
 
         if tool:
             tools = [tool]
         else:
-            tools = config['toolOrder']
+            self._processWcDir()
+            tools = self._config['toolOrder']
+
+        env = self._env
 
         self._globalLock()
 
@@ -2119,17 +2149,17 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
         self._globalUnlock()
 
     def tool_uninstall(self, tool):
-        config = self._config
-        env = config['env']
-
-        if self._isExternalToolsSetup(env):
+        if self._isExternalToolsSetup(self._env):
             self._errorExit(
                 'environment requires external management of tools')
 
         if tool:
             tools = [tool]
         else:
-            tools = reversed(config['toolOrder'])
+            self._processWcDir()
+            tools = reversed(self._config['toolOrder'])
+
+        env = self._env
 
         self._globalLock()
 
@@ -2141,17 +2171,17 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
         self._globalUnlock()
 
     def tool_update(self, tool):
-        config = self._config
-        env = config['env']
-
-        if self._isExternalToolsSetup(env):
+        if self._isExternalToolsSetup(self._env):
             self._errorExit(
                 'environment requires external management of tools')
 
         if tool:
             tools = [tool]
         else:
-            tools = config['toolOrder']
+            self._processWcDir()
+            tools = self._config['toolOrder']
+
+        env = self._env
 
         self._globalLock()
 
@@ -2162,13 +2192,13 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
         self._globalUnlock()
 
     def tool_test(self, tool):
-        config = self._config
-        env = config['env']
-
         if tool:
             tools = [tool]
         else:
-            tools = config['toolOrder']
+            self._processWcDir()
+            tools = self._config['toolOrder']
+
+        env = self._env
 
         for tool in tools:
             t = self._tool_impl[tool]
@@ -2177,15 +2207,14 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
                 self._errorExit("Tool '%s' is missing" % tool)
 
     def tool_env(self, tool):
-        config = self._config
-        env = config['env']
-
         if tool:
             tools = [tool]
         else:
-            tools = config['toolOrder']
+            self._processWcDir()
+            tools = self._config['toolOrder']
 
         res = dict(os.environ)
+        env = self._env
 
         # remove unchanged vars
         for k, v in self._startup_env.items():
@@ -2203,6 +2232,8 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
             print("{0}='{1}'".format(k, v))
 
     def _tool_cmd(self, tool, base, method):
+        self._processWcDir()
+
         config = self._config
         t = self._tool_impl[tool]
 
@@ -2283,6 +2314,8 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
         print()
 
     def tool_detect(self):
+        self._processWcDir()
+
         config = self._config
         env = config['env']
 
@@ -2561,19 +2594,17 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
 
         try:
             wc_dir = ospath.realpath(self._overrides['wcDir'])
+            deploy_dir = os.path.realpath(deploy_dir)
             os.symlink(wc_dir, os.path.join(deploy_dir, 'current'))
 
             self._overrides['devWcDir'] = wc_dir
-            self._config['devWcDir'] = wc_dir
-
-            deploy_dir = os.path.realpath(deploy_dir)
             self._overrides['deployDir'] = deploy_dir
-            self._config['deployDir'] = deploy_dir
+
             self._deployLock()
             self._deployUnlock()
 
             self._processDeployDir()
-            self._config['env']['type'] = 'dev'
+            self._env['type'] = 'dev'
             self._serviceAdapt()
             self._serviceListPrint()
             self._serviceMaster()
@@ -2753,8 +2784,10 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
             return
 
         tools = set(self._tool_impl.keys()) & set(deps)
-        self._config['tools'] = dict([(t, True) for t in tools])
+        self._config = {
+            'tools': dict([(t, True) for t in tools])
+        }
         self._initTools()
 
-        env = self._config['env']
+        env = self._env
         self._requireBuildDep(env, deps - tools)
