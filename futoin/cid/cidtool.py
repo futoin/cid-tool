@@ -1413,7 +1413,11 @@ class ServiceMixIn(object):
         signal.signal(signal.SIGHUP, serviceExitSignal)
         signal.signal(signal.SIGUSR1, serviceReloadSignal)
         signal.signal(signal.SIGUSR2, serviceReloadSignal)
-        signal.signal(signal.SIGCHLD, childSignal)
+
+        if self._isMacOS():
+            signal.signal(signal.SIGCHLD, signal.SIG_DFL)
+        else:
+            signal.signal(signal.SIGCHLD, childSignal)
 
         # Still, it's not safe to assume processes continue
         # to run in set process group.
@@ -1628,7 +1632,7 @@ class ServiceMixIn(object):
 
         try:
             signal.setitimer(signal.ITIMER_REAL,
-                             RuntimeTool.DEFAULT_EXIT_TIMEOUT)
+                             RuntimeTool.DEFAULT_EXIT_TIMEOUT / 1000.0)
 
             while len(pid_to_svc) > 0:
                 (pid, excode) = os.waitpid(-1, 0)
@@ -1637,7 +1641,7 @@ class ServiceMixIn(object):
                 self._info('Exited "{0}:{1}" pid "{2}"'.format(
                     svc['name'], svc['instanceId'], pid))
         except TimeoutException:
-            pass
+            self._warn('Timed out waiting for children shutdown')
         except OSError as e:  # macOS
             if e.errno != errno.EINTR:
                 self._warn(str(e))
@@ -1646,7 +1650,8 @@ class ServiceMixIn(object):
 
         # final kill
         #---
-        self._info('Killing children')
+        if pid_to_svc:
+            self._info('Killing children')
         for pid in pid_to_svc:
             try:
                 svc = pid_to_svc[pid]
@@ -1654,8 +1659,8 @@ class ServiceMixIn(object):
                     svc['name'], svc['instanceId'], pid))
                 os.kill(pid, signal.SIGKILL)
                 os.waitpid(pid, 0)
-            except OSError:
-                pass
+            except OSError as e:
+                self._warn(str(e))
 
         self._info('Master process exit')
         self._masterUnlock()
