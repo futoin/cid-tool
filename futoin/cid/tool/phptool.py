@@ -411,7 +411,7 @@ resources due to lack of trusted binary builds.
             with_libdir = ''
         #---
         from ..details.resourcealgo import ResourceAlgo
-        cpu_count = ResourceAlgo().cpuLimit()
+        cpu_count = ResourceAlgo().cpuLimit({})
 
         os.environ['PHP_BUILD_EXTRA_MAKE_ARGUMENTS'] = '-j{0}'.format(
             cpu_count)
