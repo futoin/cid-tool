@@ -69,7 +69,7 @@ class cid_UTBase ( unittest.TestCase ) :
         self._goToBase()
 
     @classmethod
-    def _call_cid( cls, args, stdin=None, stdout=None, returncode=0, ignore=False, retout=False ) :
+    def _call_cid( cls, args, stdin=None, stdout=None, returncode=0, ignore=False, retout=False, merge_stderr=False ) :
         cmd = []
         
         if CIDTEST_BIN_EXT:
@@ -84,6 +84,11 @@ class cid_UTBase ( unittest.TestCase ) :
         
         if stdout is None:
             stdout = cls._stdout_log
+            
+        stderr = cls._stderr_log
+        
+        if merge_stderr:
+            stderr=subprocess.STDOUT
         
         #print( 'Call: ' + subprocess.list2cmdline(cmd), file=sys.stderr )
         p = subprocess.Popen(
@@ -91,7 +96,7 @@ class cid_UTBase ( unittest.TestCase ) :
                 bufsize=-1,
                 stdin=subprocess.PIPE,
                 stdout=stdout,
-                stderr=cls._stderr_log
+                stderr=stderr
         )
 
         if stdin is not None:

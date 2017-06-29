@@ -1,7 +1,7 @@
 
 from .cid_utbase import cid_Tool_UTBase
 import os, subprocess, sys
-import platform
+import platform, re
 
 IS_LINUX = cid_Tool_UTBase.IS_LINUX
 IS_MACOS = cid_Tool_UTBase.IS_MACOS
@@ -64,11 +64,20 @@ class cid_Tool_UTCommon ( cid_Tool_UTBase ) :
 
         tool_ver = self.TOOL_ENV[ver_var]
         
-        if tool_name == 'php':
-            res = self._call_cid( [ 'tool', 'exec', tool_name, '--version' ], retout=True )
+        if tool_name in ('php', 'phpfpm'):
+            res = self._call_cid( [ 'tool', 'exec', tool_name, '--', '--version' ], retout=True )
             req = "PHP {0}".format(tool_ver)
         elif tool_name == 'ruby':
-            res = self._call_cid( [ 'tool', 'exec', tool_name, '--version' ], retout=True )
+            res = self._call_cid( [ 'tool', 'exec', tool_name, '--', '--version' ], retout=True )
+            req = "ruby {0}".format(tool_ver)
+        elif tool_name == 'java':
+            res = self._call_cid( [ 'tool', 'exec', tool_name, '--', '-version' ],
+                                 retout=True, merge_stderr=True )
+            
+            req = '"1.{0}.[0-9_]+"'.format(tool_ver)
+            
+            if re.search(req, res):
+                return
         else:
             return 
         
@@ -177,6 +186,7 @@ mixed_tools = {
         'binver': {
             'deb': ['5.6', '7.0', '7.1'],
             'scl': ['5.6', '7.0'],
+            'brew' : ['5.6', '7.0', '7.1']
         },
     },
     'phpfpm' : {
