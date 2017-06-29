@@ -1,11 +1,23 @@
 #!/bin/bash
 
 if ! test -e bin/cid; then
-    echo "Invoke from CITool project root!"
+    echo "Invoke from CID Tool project root!"
     exit 1
 fi
 
-CID_BOOT=$(pwd)/bin/cid
+CID_SOURCE_DIR=$(pwd)
+CID_BOOT=${CID_SOURCE_DIR}/bin/cid
+TEST_ROOT=${CID_SOURCE_DIR}
+
+# go out of project root to avoid tool autodetection
+cd ..
+CWD=$(pwd) 
+
+if [ ${CWD} = '/' ]; then
+    export CIDTEST_RUN_DIR=/testrun
+else
+    export CIDTEST_RUN_DIR=${CWD}/testrun
+fi
 
 # ArchLinux images comes without python
 if ! which python >/dev/null; then
@@ -19,7 +31,6 @@ fi
 export CIDTEST_USER=$(id -un)
 
 if [ "$CIDTEST_USER" = "vagrant" ]; then
-    export CIDTEST_RUN_DIR=/testrun
     CIDTEST_USER=cidtest
     sudo mkdir -p $CIDTEST_RUN_DIR
     if ! id $CIDTEST_USER >/dev/null 2>&1; then
@@ -102,7 +113,7 @@ if [ "$1" = 'frompip' ]; then
     pip_install_opts="--upgrade --no-cache-dir futoin-cid"
     unset CID_SOURCE_DIR
 else
-    export CID_SOURCE_DIR=$(pwd)
+    export CID_SOURCE_DIR
     pip_install_opts="-e ${CID_SOURCE_DIR}"
 fi
 
@@ -131,6 +142,8 @@ elif [ -z "$1" ]; then
 else
     tests="$*"
 fi
+
+tests=$(for t in $tests; do [[ $t =~ ^tests/ ]] && echo -n ${TEST_ROOT}/$t || echo -n $t; echo -n ' '; done)
 
 # CentOS 6
 [ -e /opt/rh/python27/enable ] && source /opt/rh/python27/enable 
