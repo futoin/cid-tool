@@ -446,7 +446,7 @@ class PackageMixIn(object):
                     self._callExternal(
                         brew_sudo + [brew, 'cask', 'install', package],
                         cwd='/',
-                        interactive=True)
+                        user_interaction=True)
                 elif brew == '/usr/local/bin/brew':
                     self._callExternal(
                         brew_sudo + [brew, 'install',
@@ -542,6 +542,7 @@ class PackageMixIn(object):
             m = getattr(self, m, None)
 
             if m:
+                # pylint: disable=not-callable
                 m(env)
             else:
                 self._errorExit('Unknown build dep "{0}"'.format(d))

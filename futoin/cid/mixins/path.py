@@ -10,14 +10,17 @@ import glob
 class PathMixIn(object):
     _dev_null = None
 
-    def _callExternal(self, cmd, suppress_fail=False, verbose=True, output_handler=None, input=False, merge_stderr=False, cwd=None, interactive=False):
+    def _callExternal(self, cmd, suppress_fail=False, verbose=True,
+                      output_handler=None, input=False,
+                      merge_stderr=False, cwd=None,
+                      user_interaction=False):
         try:
             if not PathMixIn._dev_null:
                 PathMixIn._dev_null = open(os.devnull, 'w')
 
             if input:
                 stdin = subprocess.PIPE
-            elif interactive:
+            elif user_interaction:
                 stdin = None
             else:
                 stdin = PathMixIn._dev_null
@@ -32,13 +35,13 @@ class PathMixIn(object):
             else:
                 stderr = PathMixIn._dev_null
 
-            if interactive and not output_handler:
+            if user_interaction and not output_handler:
                 stdout = None
             else:
                 stdout = subprocess.PIPE
 
             chunk_size = 65536
-            res = []
+            res_buffers = []
             p = subprocess.Popen(cmd, stdin=stdin, stderr=stderr,
                                  bufsize=chunk_size * 2, close_fds=True,
                                  stdout=stdout, cwd=cwd)
@@ -65,7 +68,7 @@ class PathMixIn(object):
                         except:
                             pass
 
-                        res.append(x)
+                        res_buffers.append(x)
 
                 try:
                     while True:
@@ -80,7 +83,7 @@ class PathMixIn(object):
                         pass
 
             p.wait()
-            res = ''.join(res)
+            res = ''.join(res_buffers)
 
             if p.returncode != 0:
                 raise subprocess.CalledProcessError(p.returncode, cmd, res)
@@ -119,7 +122,7 @@ class PathMixIn(object):
 
             os.execv(cmd[0], cmd)
         else:
-            self._callExternal(cmd, interactive=True, *args, **kwargs)
+            self._callExternal(cmd, user_interaction=True, *args, **kwargs)
 
     def _trySudoCall(self, cmd, errmsg=None, **kwargs):
         try:
