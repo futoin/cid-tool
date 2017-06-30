@@ -20,7 +20,7 @@ import signal
 import copy
 import errno
 from collections import OrderedDict
-from distutils import dir_util
+from distutils import dir_util  # pylint: disable=no-name-in-module
 
 from .mixins.path import PathMixIn
 from .mixins.util import UtilMixIn
