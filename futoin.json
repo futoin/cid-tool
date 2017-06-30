@@ -19,10 +19,18 @@
     }
   },
   "actions": {
-    "autopep8": "autopep8 -i -r futoin",
+    "autopep8": [
+      "@cid tool exec pip -- install -q autopep8",
+      "autopep8 -i -r futoin"
+    ],
+    "yapf": [
+      "@cid tool exec pip -- install -q yapf",
+      "yapf -i -r futoin"
+    ],
     "check": [
-      "pylint -E futoin --ignore=contrib",
-      "@default"
+      "@default",
+      "@cid tool exec pip -- install -q pylint",
+      "pylint -E futoin --ignore=contrib"
     ]
   }
 }
