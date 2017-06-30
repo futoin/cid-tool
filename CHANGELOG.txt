@@ -1,4 +1,4 @@
-=== (next) ===
+=== 0.7.991 (2017-06-30) ===
 * FIXED: not to fail if empty CID_SOURCE_DIR is set
 * FIXED: to properly create persistent folders in sub-paths
 * FIXED: to properly export .env into process env for subcalls
