@@ -22,7 +22,8 @@ composerDir is equal to user's ~/bin/ folder by default.
         composer_get = env.get(
             'composerGet', 'https://getcomposer.org/installer')
 
-        composer_installer = self._callCurl(env, [composer_get])
+        composer_installer = self._callCurl(
+            env, [composer_get], binary_output=True)
 
         if not os.path.exists(composer_dir):
             os.makedirs(composer_dir)
@@ -33,7 +34,8 @@ composerDir is equal to user's ~/bin/ folder by default.
                 '--install-dir=' + composer_dir,
                 '--filename=composer'
             ],
-            input=composer_installer)
+            input=composer_installer,
+            binary_input=True)
 
     def updateTool(self, env):
         self._callExternal([env['composerBin'], 'self-update'])
