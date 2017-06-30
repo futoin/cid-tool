@@ -168,6 +168,11 @@ if binary versions are not found for specific system.
         return ['rubyVer', 'rubyBin', 'rubyBinOnly']
 
     def initEnv(self, env):
+        if 'GEM_HOME' in os.environ:
+            self._delEnvPath('PATH', os.environ['GEM_HOME'])
+            self._delEnvPath('GEM_PATH', os.environ['GEM_HOME'])
+            del os.environ['GEM_HOME']
+
         #---
         if self._isDebian() or self._isUbuntu():
             bb_repo = 'http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu'

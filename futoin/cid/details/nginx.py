@@ -222,7 +222,7 @@ class ConfigBuilder(UtilMixIn, PathMixIn, PackageMixIn):
         listen += ' '
         listenOptions = 'default_server'
 
-        if self._isLinux():
+        if self._isLinux() and socket_type != 'unix':
             listenOptions += ' deferred'
 
         listen += cid_tune.get('listenOptions', listenOptions)

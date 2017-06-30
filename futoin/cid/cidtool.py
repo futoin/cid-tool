@@ -44,7 +44,7 @@ def _call_cmd(cmd):
           Coloring.info(subprocess.list2cmdline(cmd)),
           file=sys.stderr)
 
-    subprocess.check_call(cmd, stdin=subprocess.PIPE)
+    subprocess.check_call(cmd)
 
 
 def _call_actions(name, actions, args):
@@ -322,7 +322,21 @@ class ConfigMixIn(object):
         ('externalSetup', bool),
     ])
 
-    def _initConfig(self, skip_project=False):
+    def _resetProcessEnv(self):
+        orig_env = self._startup_env
+
+        for (k, v) in orig_env.items():
+            os.environ[k] = v
+
+        to_del = set(os.environ.keys()) - set(orig_env.keys())
+
+        for k in to_del:
+            del os.environ[k]
+
+    def _initConfig(self, startup=False):
+        if not startup:
+            self._resetProcessEnv()
+
         errors = []
 
         #--
@@ -343,7 +357,7 @@ class ConfigMixIn(object):
         project_config_file = None
         deploy_dir = self._overrides.get('deployDir', None)
 
-        if skip_project:
+        if startup:
             pass
         elif deploy_dir:
             current = self._getDeployCurrent()
@@ -366,7 +380,7 @@ class ConfigMixIn(object):
         if user_config_path not in (deploy_config_file, project_config_file):
             uc = self._loadJSONConfig(user_config_path, uc)
 
-        if not skip_project:
+        if not startup:
             if project_config_file != deploy_config_file:
                 pc = self._loadJSONConfig(project_config_file, pc)
 
@@ -377,7 +391,7 @@ class ConfigMixIn(object):
         self._global_config = gc
         self._user_config = uc
 
-        if skip_project:
+        if startup:
             self._deploy_config = None
             self._project_config = None
         else:
@@ -472,7 +486,7 @@ class ConfigMixIn(object):
         self._env = env
         config.update(self._overrides)
 
-        if skip_project:
+        if startup:
             self._config = None
         else:
             self._config = config
@@ -512,6 +526,26 @@ class ConfigMixIn(object):
                     deploy[dk] = dv
 
         self._sanitizeDeployConfig(config, errors)
+
+        #---
+        if not startup:
+            # there is no point to export variables provided in env
+            # or global configs.
+            tool_impl = self._tool_impl
+            export_env = {}
+
+            for tool in config.get('toolOrder', []):
+                tool_impl[tool].exportEnv(env, export_env)
+
+            for (k, v) in export_env.items():
+                if isinstance(v, bool):
+                    v = v and '1' or ''
+
+                try:
+                    os.environ[k] = v
+                except:
+                    self._warn('Variable: {0}'.format(k))
+                    raise
 
         #---
         if errors:
@@ -1018,28 +1052,33 @@ class DeployMixIn(object):
         wfile_wperm = stat.S_IRUSR | stat.S_IRGRP | stat.S_IWUSR | stat.S_IWGRP
         wdir_wperm = wfile_wperm | stat.S_IXUSR | stat.S_IXGRP
 
-        for dd in config.get('persistent', []):
-            pd = ospath.relpath(ospath.join(
-                persistent_dir, dd), ospath.dirname(dd))
-            self._info('{0} -> {1}'.format(dd, pd), 'Making persistent: ')
+        for def_dir in config.get('persistent', []):
+            persist_dst = ospath.join(persistent_dir, def_dir)
+            sym_target = ospath.relpath(persist_dst, ospath.dirname(def_dir))
+            self._info('{0} -> {1}'.format(def_dir, persist_dst),
+                       'Making persistent: ')
 
-            if ospath.isdir(dd):
-                dir_util.copy_tree(
-                    dd, pd, preserve_symlinks=1, preserve_mode=0)
-                self._rmTree(dd)
-                os.symlink(pd, dd)
-                self._chmodTree(pd, wdir_wperm, wfile_wperm, False)
-            elif ospath.isfile(dd):
-                shutil.move(dd, pd)
-                os.unlink(dd)
-                os.symlink(pd, dd)
-                os.chmod(pd, wfile_wperm)
-            elif ospath.isdir(pd):
-                os.symlink(pd, dd)
-                self._chmodTree(pd, wdir_wperm, wfile_wperm, False)
+            if ospath.isdir(def_dir):
+                self._info('copy tree', ' >> ')
+                dir_util.copy_tree(def_dir, persist_dst,
+                                   preserve_symlinks=1, preserve_mode=0)
+                self._rmTree(def_dir)
+                os.symlink(sym_target, def_dir)
+                self._chmodTree(persist_dst, wdir_wperm, wfile_wperm, False)
+            elif ospath.isfile(def_dir):
+                self._info('moving file', ' >> ')
+                shutil.move(def_dir, persist_dst)
+                os.unlink(def_dir)
+                os.symlink(sym_target, def_dir)
+                os.chmod(persist_dst, wfile_wperm)
+            elif ospath.isdir(persist_dst):
+                self._info('symlink existing dir', ' >> ')
+                os.symlink(sym_target, def_dir)
+                self._chmodTree(persist_dst, wdir_wperm, wfile_wperm, False)
             else:
-                os.makedirs(pd, wdir_wperm)
-                os.symlink(pd, dd)
+                self._info('create & symlink dir', ' >> ')
+                os.makedirs(persist_dst, wdir_wperm)
+                os.symlink(sym_target, def_dir)
 
         # Build
         if config.get('deployBuild', False):
@@ -2157,10 +2196,13 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
             self.promote(rms_pool, self._lastPackages)
 
     def tool_exec(self, tool, args):
+        self._processWcDir()
         t = self._tool_impl[tool]
         t.onExec(self._env, args)
 
     def tool_install(self, tool):
+        self._processWcDir()
+
         if self._isExternalToolsSetup(self._env):
             self._errorExit(
                 'environment requires external installation of tools')
@@ -2168,20 +2210,22 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
         if tool:
             tools = [tool]
         else:
-            self._processWcDir()
             tools = self._config['toolOrder']
 
         env = self._env
+        tool_impl = self._tool_impl
 
         self._globalLock()
 
         for tool in tools:
-            t = self._tool_impl[tool]
+            t = tool_impl[tool]
             t.requireInstalled(env)
 
         self._globalUnlock()
 
     def tool_uninstall(self, tool):
+        self._processWcDir()
+
         if self._isExternalToolsSetup(self._env):
             self._errorExit(
                 'environment requires external management of tools')
@@ -2189,21 +2233,23 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
         if tool:
             tools = [tool]
         else:
-            self._processWcDir()
             tools = reversed(self._config['toolOrder'])
 
         env = self._env
+        tool_impl = self._tool_impl
 
         self._globalLock()
 
         for tool in tools:
-            t = self._tool_impl[tool]
+            t = tool_impl[tool]
             if t.isInstalled(env):
                 t.uninstallTool(env)
 
         self._globalUnlock()
 
     def tool_update(self, tool):
+        self._processWcDir()
+
         if self._isExternalToolsSetup(self._env):
             self._errorExit(
                 'environment requires external management of tools')
@@ -2211,43 +2257,47 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
         if tool:
             tools = [tool]
         else:
-            self._processWcDir()
             tools = self._config['toolOrder']
 
         env = self._env
+        tool_impl = self._tool_impl
 
         self._globalLock()
 
         for tool in tools:
-            t = self._tool_impl[tool]
+            t = tool_impl[tool]
             t.updateTool(env)
 
         self._globalUnlock()
 
     def tool_test(self, tool):
+        self._processWcDir()
+
         if tool:
             tools = [tool]
         else:
-            self._processWcDir()
             tools = self._config['toolOrder']
 
         env = self._env
+        tool_impl = self._tool_impl
 
         for tool in tools:
-            t = self._tool_impl[tool]
+            t = tool_impl[tool]
 
             if not t.isInstalled(env):
                 self._errorExit("Tool '%s' is missing" % tool)
 
     def tool_env(self, tool):
+        self._processWcDir()
+
         if tool:
             tools = [tool]
         else:
-            self._processWcDir()
             tools = self._config['toolOrder']
 
         res = dict(os.environ)
         env = self._env
+        tool_impl = self._tool_impl
 
         # remove unchanged vars
         for k, v in self._startup_env.items():
@@ -2255,7 +2305,7 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
                 del res[k]
 
         for tool in tools:
-            self._tool_impl[tool].exportEnv(env, res)
+            tool_impl[tool].exportEnv(env, res)
 
         for k, v in sorted(res.items()):
             if type(v) == type(''):

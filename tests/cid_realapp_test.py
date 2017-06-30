@@ -32,6 +32,8 @@ class cid_redmine_Test( cid_UTBase, SubTool ) :
                         'ln -s ../../.database.yml config/database.yml'])
         self._call_cid(['deploy', 'set', 'action', 'app-install',
                         '@cid build-dep ruby mysql-client imagemagick tzdata libxml2',
+                        #'env',
+                        #'@cid tool env bundler',
                         '@cid tool exec bundler -- install --without "development test rmagick"'])
         self._call_cid(['deploy', 'set', 'action', 'migrate',
                         '@cid tool exec bundler -- exec rake generate_secret_token',
@@ -42,7 +44,7 @@ class cid_redmine_Test( cid_UTBase, SubTool ) :
         
         self._call_cid(['deploy', 'set', 'env', 'rubyVer', '2.3'])
         
-        self._call_cid(['deploy', 'set', 'entrypoint', 'web', 'nginx', 'public', 'socketPort=1234'])
+        self._call_cid(['deploy', 'set', 'entrypoint', 'web', 'nginx', 'public', 'socketType=tcp', 'socketPort=1234'])
         self._call_cid(['deploy', 'set', 'entrypoint', 'app', 'puma', 'config.ru', 'internal=1'])
         
         self._call_cid(['deploy', 'set', 'webcfg', 'main', 'app'])
@@ -80,11 +82,11 @@ production:
         
         try:
             res = self._firstGet('http://127.0.0.1:1234/plugin_assets/file.txt')
-            self.assertEqual('STATICFILE', res.strip())
+            self.assertEqual('STATICFILE', res.text.strip())
             
             res = self._firstGet('http://127.0.0.1:1234/')
             
-            if res.find('redmine') < 0:
+            if res.text.find('redmine') < 0:
                 print(res)
                 self.assertFalse(True)
                 

@@ -165,6 +165,19 @@ class PathMixIn(object):
 
             os.environ[env_name] = os.pathsep.join(dir_list)
 
+    def _delEnvPath(self, env_name, del_dir, fail=False):
+        if env_name in os.environ:
+            dir_list = os.environ[env_name].split(os.pathsep)
+
+            try:
+                del dir_list[dir_list.index(del_dir)]
+            except ValueError:
+                if fail:
+                    raise
+        elif fail:
+            # trigger KeyError
+            return os.environ[env_name]
+
     def _addBinPath(self, bin_dir, first=False):
         self._addEnvPath('PATH', bin_dir, first=first)
 
