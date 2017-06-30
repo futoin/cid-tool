@@ -2,6 +2,7 @@
 * FIXED: not to fail if empty CID_SOURCE_DIR is set
 * FIXED: to properly create persistent folders in sub-paths
 * FIXED: to properly export .env into process env for subcalls
+* FIXED: to support tar/bzip2/gzip/xz setup on macOS
 * CHANGED: build-dep lists available deps when nothing is supplied
 * CHANGED: to initialize project/deploy config only if required by command
 * NEW: extended "cid deploy set" commands

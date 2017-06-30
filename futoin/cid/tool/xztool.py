@@ -13,3 +13,4 @@ Home: https://tukaani.org/xz/
         self._requireEmerge(['app-arch/xz-utils'])
         self._requirePacman(['xz-utils'])
         self._requireApk(['xz'])
+        self._requireBrew('xz')

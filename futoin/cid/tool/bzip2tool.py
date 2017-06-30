@@ -15,6 +15,7 @@ Home: http://www.bzip.org/
         self._requireEmerge(['app-arch/bzip2'])
         self._requirePacman(['bzip2'])
         self._requireApk(['bzip2'])
+        self._requireBrew('bzip2')
 
     def initEnv(self, env, bin_name=None):
         # Busybox's version is not enough for SDKMan

@@ -15,6 +15,7 @@ Home: http://www.gzip.org/
         self._requireEmerge(['app-arch/gzip'])
         self._requirePacman(['gzip'])
         self._requireApk(['gzip'])
+        self._requireBrew('gzip')
 
     def initEnv(self, env, bin_name=None):
         # Busybox's version is not enough for SDKMan

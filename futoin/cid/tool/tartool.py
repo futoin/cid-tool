@@ -13,6 +13,7 @@ class tarTool(RunEnvTool):
         self._requireEmerge(['app-arch/tar'])
         self._requirePacman(['tar'])
         self._requireApk(['tar'])
+        self._requireBrew('gnu-tar')
 
     def initEnv(self, env, bin_name=None):
         # Busybox's version is not enough for SDKMan
