@@ -13,7 +13,9 @@ class PathMixIn(object):
     def _callExternal(self, cmd, suppress_fail=False, verbose=True,
                       output_handler=None, input=False,
                       merge_stderr=False, cwd=None,
-                      user_interaction=False):
+                      user_interaction=False,
+                      encoding='UTF-8',
+                      binary_input=False, binary_output=False):
         try:
             if not PathMixIn._dev_null:
                 PathMixIn._dev_null = open(os.devnull, 'w')
@@ -47,10 +49,8 @@ class PathMixIn(object):
                                  stdout=stdout, cwd=cwd)
 
             if input:
-                try:
-                    input = input.encode(encoding='UTF-8')
-                except:
-                    pass
+                if not binary_input:
+                    input = input.encode(encoding=encoding)
 
                 try:
                     p.stdin.write(input)
@@ -61,14 +61,21 @@ class PathMixIn(object):
             if stdout:
                 if output_handler:
                     on_chunk = output_handler
+                elif binary_output:
+                    def on_binary_chunk(x):
+                        res_buffers.append(x)
+
+                    on_chunk = on_binary_chunk
                 else:
-                    def on_chunk(x):
+                    def on_str_chunk(x):
                         try:
-                            x = str(x, 'utf8')
-                        except:
+                            x = str(x, encoding)
+                        except TypeError:
                             pass
 
                         res_buffers.append(x)
+
+                    on_chunk = on_str_chunk
 
                 try:
                     while True:
@@ -83,7 +90,11 @@ class PathMixIn(object):
                         pass
 
             p.wait()
-            res = ''.join(res_buffers)
+
+            if binary_output:
+                res = b''.join(res_buffers)
+            else:
+                res = ''.join(res_buffers)
 
             if p.returncode != 0:
                 raise subprocess.CalledProcessError(p.returncode, cmd, res)

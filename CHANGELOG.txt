@@ -4,6 +4,7 @@
 * FIXED: to properly export .env into process env for subcalls
 * FIXED: to support tar/bzip2/gzip/xz setup on macOS
 * FIXED: brew not to fail, if run from not reachable cwd with user of brewSudo
+* FIXED: errors in external tool calls when run in python3 in some cases
 * CHANGED: build-dep lists available deps when nothing is supplied
 * CHANGED: to initialize project/deploy config only if required by command
 * NEW: extended "cid deploy set" commands

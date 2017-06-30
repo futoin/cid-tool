@@ -65,7 +65,7 @@ resources due to lack of trusted binary builds.
 
         if self._isDebian():
             repo = env.get('phpSuryRepo', 'https://packages.sury.org/php')
-            gpg = self._callCurl(env, [repo + '/apt.gpg'])
+            gpg = self._callCurl(env, [repo + '/apt.gpg'], binary_output=True)
 
             self._addAptRepo(
                 'sury', "deb {0} $codename$ main".format(repo), gpg)
