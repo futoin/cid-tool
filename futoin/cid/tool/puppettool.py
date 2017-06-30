@@ -19,7 +19,7 @@ Primary purpose is to support Puppet module development.
 
     def initEnv(self, env):
         super(puppetTool, self).initEnv(env)
-        puppet_ver = env.setdefault('puppetVer', None)
+        puppet_ver = env.get('puppetVer', None)
 
         if self._have_tool and puppet_ver:
             try:

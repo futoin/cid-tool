@@ -74,11 +74,13 @@ class cid_misc_Test ( cid_UTBase ) :
         self._call_cid(['tool', 'list'], returncode=1)
 
     def test_unknown_tool(self):
+        self._call_cid(['tool', 'install'])
+    
         self._writeJSON(os.path.join(self.TEST_DIR, 'futoin.json'), {
             'tools' : {
                 'unknown_tool' : True,
             }
         })
-        self._call_cid(['tool', 'list'], returncode=1)
+        self._call_cid(['tool', 'install'], returncode=1)
 
 
