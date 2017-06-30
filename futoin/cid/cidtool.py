@@ -233,7 +233,7 @@ class LockMixIn(object):
     def _deployLock(self):
         self._lockCommon(
             '_deploy_lock',
-            ospath.join(self._config['deployDir'], self.DEPLOY_LOCK_FILE),
+            ospath.join(self._overrides['deployDir'], self.DEPLOY_LOCK_FILE),
             fcntl.LOCK_EX | fcntl.LOCK_NB
         )
 
@@ -253,7 +253,7 @@ class LockMixIn(object):
     def _masterLock(self):
         self._lockCommon(
             '_master_lock',
-            ospath.join(self._config['deployDir'], self.MASTER_LOCK_FILE),
+            ospath.join(self._overrides['deployDir'], self.MASTER_LOCK_FILE),
             fcntl.LOCK_EX | fcntl.LOCK_NB
         )
 
@@ -1245,6 +1245,64 @@ class DeployMixIn(object):
             import grp
             deploy['group'] = grp.getgrgid(os.getegid())[0]
 
+    def _deploy_set_action(self, name, actions):
+        dc = self._deploy_config
+        dc_actions = dc.setdefault('actions', {})
+        dc_actions[name] = actions
+
+    def _deploy_set_persistent(self, paths):
+        dc = self._deploy_config
+        persistent = set(dc.get('persistent', []))
+        persistent.update(set(paths))
+        dc['persistent'] = sorted(list(persistent))
+
+    def _deploy_set_entrypoint(self, name, tool, path, tune):
+        dc = self._deploy_config
+        epoints = dc.setdefault('entryPoints', {})
+        ep = epoints.setdefault(name, {})
+        ep['tool'] = tool
+        ep['path'] = path
+
+        eptune = ep.setdefault('tune', {})
+
+        for t in tune:
+            t = t.split('=', 1)
+            tkey = t[0]
+
+            if len(t) == 2 and t[1]:
+                eptune[tkey] = t[1]
+            elif tkey in eptune:
+                del eptune[tkey]
+
+    def _deploy_set_env(self, var, val):
+        dc = self._deploy_config
+        env = dc.setdefault('env', {})
+
+        if val is not None:
+            env[var] = val
+        elif var in env:
+            del env[var]
+
+    def _deploy_set_webcfg(self, var, val):
+        dc = self._deploy_config
+        webcfg = dc.setdefault('webcfg', {})
+
+        if var == 'mounts':
+            mounts = webcfg.setdefault('mounts', {})
+            val = val.split('=', 1)
+            var = val[0]
+
+            if len(val) == 2 and val[1]:
+                mounts[var] = val[1]
+            elif var in mounts:
+                del mounts[var]
+
+        elif val is not None:
+            webcfg[var] = val
+
+        elif var in webcfg:
+            del webcfg[var]
+
 
 #=============================================================================
 class ServiceMixIn(object):
@@ -1421,19 +1479,12 @@ class ServiceMixIn(object):
             if self._interruptable:
                 raise KeyboardInterrupt('Reload received')
 
-        def childSignal(*args, **kwargs):
-            pass
-
         signal.signal(signal.SIGTERM, serviceExitSignal)
         signal.signal(signal.SIGINT, serviceExitSignal)
         signal.signal(signal.SIGHUP, serviceExitSignal)
         signal.signal(signal.SIGUSR1, serviceReloadSignal)
         signal.signal(signal.SIGUSR2, serviceReloadSignal)
-
-        if self._isMacOS():
-            signal.signal(signal.SIGCHLD, signal.SIG_DFL)
-        else:
-            signal.signal(signal.SIGCHLD, childSignal)
+        signal.signal(signal.SIGCHLD, signal.SIG_DFL)  # important for macOS
 
         # Still, it's not safe to assume processes continue
         # to run in set process group.
@@ -1604,8 +1655,7 @@ class ServiceMixIn(object):
             except KeyboardInterrupt:
                 continue
             except OSError as e:  # macOS
-                if e.errno != errno.EINTR:
-                    self._warn(str(e))
+                self._warn(str(e))
                 continue
             finally:
                 self._interruptable = False
@@ -1659,8 +1709,7 @@ class ServiceMixIn(object):
         except TimeoutException:
             self._warn('Timed out waiting for children shutdown')
         except OSError as e:  # macOS
-            if e.errno != errno.EINTR:
-                self._warn(str(e))
+            self._warn(str(e))
         finally:
             signal.setitimer(signal.ITIMER_REAL, 0)
 
@@ -2001,27 +2050,11 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
         finally:
             self._deployUnlock()
 
-    def deploy_set_action(self, name, actions):
+    def deploy_set(self, action, *args):
         self._processDeployDir()
 
-        dc = self._deploy_config
-        dc_actions = dc.setdefault('actions', {})
-        dc_actions[name] = actions
-
-        self._deployLock()
-
-        try:
-            self._writeDeployConfig()
-        finally:
-            self._deployUnlock()
-
-    def deploy_set_persistent(self, paths):
-        self._processDeployDir()
-
-        dc = self._deploy_config
-        persistent = set(dc.get('persistent', []))
-        persistent.update(set(paths))
-        dc['persistent'] = list(persistent)
+        member = '_deploy_set_{0}'.format(action)
+        getattr(self, member)(*args)
 
         self._deployLock()
 
@@ -2783,11 +2816,12 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
             print("\n".join(res))
             return
 
-        tools = set(self._tool_impl.keys()) & set(deps)
+        deps = set(deps)
+        tools = set(self._tool_impl.keys()) & deps
         self._config = {
             'tools': dict([(t, True) for t in tools])
         }
         self._initTools()
 
         env = self._env
-        self._requireBuildDep(env, deps - tools)
+        self._requireBuildDep(env, list(deps - tools))

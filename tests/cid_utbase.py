@@ -90,7 +90,9 @@ class cid_UTBase ( unittest.TestCase ) :
         if merge_stderr:
             stderr=subprocess.STDOUT
         
-        #print( 'Call: ' + subprocess.list2cmdline(cmd), file=sys.stderr )
+        print( 'Test Call: ' + subprocess.list2cmdline(cmd), file=cls._stderr_log )
+        cls._stderr_log.flush()
+
         p = subprocess.Popen(
                 cmd,
                 bufsize=-1,
@@ -150,6 +152,22 @@ class cid_UTBase ( unittest.TestCase ) :
         os.dup2(cls._dev_null.fileno(), 0)
         os.dup2(cls._stdout_log.fileno(), 1)
         os.dup2(cls._stderr_log.fileno(), 2)
+        
+    def _firstGet(self, url):
+        import requests, time
+
+        for i in range(15):
+            try:
+                res = requests.get(url, timeout=3)
+                
+                if res.ok:
+                    return res
+                else:
+                    time.sleep(1)
+            except:
+                time.sleep(1)
+        else:
+            self.assertTrue(False)
         
         
 class cid_Tool_UTBase ( cid_UTBase ) :

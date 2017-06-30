@@ -13,7 +13,7 @@ class rubyTool(BashToolMixIn, RuntimeTool):
 Home: https://www.ruby-lang.org/en/
 
 By default the latest available Ruby binary is used for the following OSes:
-* Debian & Ubuntu - uses Brightbox builds 1.9, 2.0, 2.1, 2.2, 2.3.
+* Debian & Ubuntu - uses Brightbox builds 1.9, 2.0, 2.1, 2.2, 2.3, 2.4.
 * CentOS, RHEL & Oracle Linux - uses SCL 1.9, 2.0, 2.2, 2.3
 
 You can forbid source builds by setting rubyBinOnly to non-empty string.
@@ -171,7 +171,7 @@ if binary versions are not found for specific system.
         #---
         if self._isDebian() or self._isUbuntu():
             bb_repo = 'http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu'
-            ruby_binaries = ['1.9', '2.0', '2.1', '2.2', '2.3']
+            ruby_binaries = ['1.9', '2.0', '2.1', '2.2', '2.3', '2.4']
 
             code_name = self._osCodeName()
 

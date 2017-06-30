@@ -13,8 +13,11 @@ Usage:
     cid deploy vcstag [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--tmpDir=<tmp_dir>] [--user=<user>] [--group=<group>]
     cid deploy vcsref <vcs_ref> [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--tmpDir=<tmp_dir>] [--user=<user>] [--group=<group>]
     cid deploy rms <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--build] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--tmpDir=<tmp_dir>] [--user=<user>] [--group=<group>]
-    cid deploy set-action <name> <action>... [--deployDir=<deploy_dir>]
-    cid deploy set-persistent <path>... [--deployDir=<deploy_dir>]
+    cid deploy set action <name> <action>... [--deployDir=<deploy_dir>]
+    cid deploy set persistent <path>... [--deployDir=<deploy_dir>]
+    cid deploy set entrypoint <name> <tool> <entry_path> [<tune>...] [--deployDir=<deploy_dir>]
+    cid deploy set env <variable> [<value>] [--deployDir=<deploy_dir>]
+    cid deploy set webcfg <variable> [<value>] [--deployDir=<deploy_dir>]
     cid migrate
     cid run
     cid run <command> [--] [<command_arg>...]
@@ -278,10 +281,21 @@ def runInner():
                 cit.deploy('vcstag', args['<vcs_ref>'])
             elif args['setup']:
                 cit.deploy('setup')
-            elif args['set-action']:
-                cit.deploy_set_action(args['<name>'], args['<action>'])
-            elif args['set-persistent']:
-                cit.deploy_set_persistent(args['<path>'])
+            elif args['set']:
+                if args['action']:
+                    cit.deploy_set('action', args['<name>'], args['<action>'])
+                elif args['persistent']:
+                    cit.deploy_set('persistent', args['<path>'])
+                elif args['entrypoint']:
+                    cit.deploy_set('entrypoint', args['<name>'], args['<tool>'],
+                                   args['<entry_path>'], args['<tune>'])
+                elif args['env']:
+                    cit.deploy_set('env', args['<variable>'], args['<value>'])
+                elif args['webcfg']:
+                    cit.deploy_set(
+                        'webcfg', args['<variable>'], args['<value>'])
+                else:
+                    raise RuntimeError("Not implemented yet.")
             else:
                 raise RuntimeError("Not implemented yet.")
         elif args['service']:

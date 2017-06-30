@@ -532,13 +532,13 @@ class PackageMixIn(object):
 
         for d in dep:
             m = '{0}{1}'
-            m.format(self.__BUIID_DEP_PREFIX, d.replace('-', ''))
+            m = m.format(self.__BUIID_DEP_PREFIX, d.replace('-', ''))
             m = getattr(self, m, None)
 
             if m:
                 m(env)
             else:
-                self._errorExit('Unknown build dep "{0}"'.format(m))
+                self._errorExit('Unknown build dep "{0}"'.format(d))
 
     def _availableBuildDeps(self):
         ret = []
@@ -551,12 +551,14 @@ class PackageMixIn(object):
         return ret
 
     def __requireBuildDep_ruby(self, env):
-        if env['rubyVer'] == self.SYSTEM_VER:
+        ver = env['rubyVer']
+
+        if ver == self.SYSTEM_VER:
             self._requireDeb(['ruby-dev'])
             self._requireRpm(['ruby-devel'])
             self._requireApk(['ruby-dev'])
         elif self._isSCLSupported():
-            devver = env['rubyVer'].replace('.', '')
+            devver = ver.replace('.', '')
 
             if devver == '19':
                 sclname = 'ruby193-ruby-devel'
@@ -566,6 +568,15 @@ class PackageMixIn(object):
                 sclname = 'rh-ruby{0}-ruby-devel'.format(devver)
 
             self._requireRpm(sclname)
+        elif self._isDebian() or self._isUbuntu():
+            if ver == '1.9':
+                pkgver = '1.9.[0-9]'
+            else:
+                pkgver = ver
+
+            self._requireDeb([
+                'ruby{0}-dev'.format(pkgver),
+            ])
 
     def __requireBuildDep_python(self, env):
         if int(env['pythonVer'].split('.')[0]) == 3:

@@ -243,6 +243,10 @@ class ConfigBuilder(UtilMixIn, PathMixIn, PackageMixIn):
         mounts = webcfg.get('mounts', {}).copy()
         autoServices = deploy['autoServices']
         main = webcfg.get('main', None)
+        webroot = webcfg.get('root', svc['path'])
+
+        if webroot != svc['path']:
+            self._errorExit('.webcfg.root mismatches nginx entrypoint .path')
 
         if main:
             mounts['/'] = main

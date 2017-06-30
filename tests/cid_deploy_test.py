@@ -206,8 +206,182 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn, PathMixIn ) :
             'group' : group,
         })
         
+    def test_08_set_persistent(self):
+        cfg_file = os.path.join('setupdir', 'futoin.json')
+        
+        self._call_cid(['deploy', 'set', 'persistent',
+                        'path1', 'path/2',
+                        '--deployDir', 'setupdir',
+                        ])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals(
+            sorted([
+                'path1',                
+                'path/2',
+            ]),
+            cfg['persistent'])
+
+        self._call_cid(['deploy', 'set', 'persistent',
+                        'path/2', 'path/3/a',
+                        '--deployDir', 'setupdir'
+                        ])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals(
+            sorted([
+                'path1',
+                'path/2',
+                'path/3/a',
+            ]),
+            cfg['persistent'])
+            
+    def test_09_set_env(self):
+        cfg_file = os.path.join('setupdir', 'futoin.json')
+        
+        self._call_cid(['deploy', 'set', 'env', 'myVar', '3', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals('3', cfg['env']['myVar'])
+
+        self._call_cid(['deploy', 'set', 'env', 'myVar', '456', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals('456', cfg['env']['myVar'])
+
+        self._call_cid(['deploy', 'set', 'env', 'myVar','--deployDir', 'setupdir' ])
+        cfg = self._readJSON(cfg_file)
+        self.assertTrue('myVar' not in cfg['env'])
+        
+    def test_10_set_webcfg(self):
+        cfg_file = os.path.join('setupdir', 'futoin.json')
+        
+        self._call_cid(['deploy', 'set', 'webcfg', 'root', '/webroot', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals('/webroot', cfg['webcfg']['root'])
+
+        self._call_cid(['deploy', 'set', 'webcfg', 'root', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertTrue('root' not in cfg['webcfg'])
+        
+        self._call_cid(['deploy', 'set', 'webcfg', 'mounts', '/admin=myapp', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals('myapp', cfg['webcfg']['mounts']['/admin'])
+
+        self._call_cid(['deploy', 'set', 'webcfg', 'mounts', '/admin2=myapp2', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals('myapp', cfg['webcfg']['mounts']['/admin'])
+        self.assertEquals('myapp2', cfg['webcfg']['mounts']['/admin2'])
+
+        self._call_cid(['deploy', 'set', 'webcfg', 'mounts', '/admin2=', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals('myapp', cfg['webcfg']['mounts']['/admin'])
+        self.assertTrue('/admin2' not in cfg['webcfg']['mounts'])
+        
+        self._call_cid(['deploy', 'set', 'webcfg', 'mounts', '/admin=', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertTrue('/admin' not in cfg['webcfg']['mounts'])
+        self.assertTrue('/admin2' not in cfg['webcfg']['mounts'])
+        
+    def test_11_set_entrypoint(self):
+        cfg_file = os.path.join('setupdir', 'futoin.json')
+        
+        self._call_cid(['deploy', 'set', 'entrypoint', 'app', 'exe', 'file.exe', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals({
+                'app': {
+                    'tool' : 'exe',
+                    'path' : 'file.exe',
+                    'tune' : {},
+                },
+            },
+            dict(cfg['entryPoints']))
+            
+        self._call_cid(['deploy', 'set', 'entrypoint', 'app2', 'exe', 'file2.exe', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals({
+                'app': {
+                    'tool' : 'exe',
+                    'path' : 'file.exe',
+                    'tune' : {},
+                },
+                'app2': {
+                    'tool' : 'exe',
+                    'path' : 'file2.exe',
+                    'tune' : {},
+                },
+            },
+            dict(cfg['entryPoints']))
+
+        self._call_cid(['deploy', 'set', 'entrypoint', 'app2', 'exe', 'file2.exe', 'myTune=123', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals({
+                'app': {
+                    'tool' : 'exe',
+                    'path' : 'file.exe',
+                    'tune' : {},
+                },
+                'app2': {
+                    'tool' : 'exe',
+                    'path' : 'file2.exe',
+                    'tune' : {
+                        'myTune' : '123',
+                    },
+                },
+            },
+            dict(cfg['entryPoints']))
+        
+        self._call_cid(['deploy', 'set', 'entrypoint', 'app2', 'exe', 'file2.exe', 'myTune2=some', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals({
+                'app': {
+                    'tool' : 'exe',
+                    'path' : 'file.exe',
+                    'tune' : {},
+                },
+                'app2': {
+                    'tool' : 'exe',
+                    'path' : 'file2.exe',
+                    'tune' : {
+                        'myTune' : '123',
+                        'myTune2' : 'some',
+                    },
+                },
+            },
+            dict(cfg['entryPoints']))
+                    
+        self._call_cid(['deploy', 'set', 'entrypoint', 'app2', 'exe', 'file2.exe', 'myTune2=', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals({
+                'app': {
+                    'tool' : 'exe',
+                    'path' : 'file.exe',
+                    'tune' : {},
+                },
+                'app2': {
+                    'tool' : 'exe',
+                    'path' : 'file2.exe',
+                    'tune' : {
+                        'myTune' : '123',
+                    },
+                },
+            },
+            dict(cfg['entryPoints']))                    
+        
+
+        self._call_cid(['deploy', 'set', 'entrypoint', 'app2', 'exe', 'file2.exe', 'myTune', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals({
+                'app': {
+                    'tool' : 'exe',
+                    'path' : 'file.exe',
+                    'tune' : {},
+                },
+                'app2': {
+                    'tool' : 'exe',
+                    'path' : 'file2.exe',
+                    'tune' : {},
+                },
+            },
+            dict(cfg['entryPoints']))                    
                 
-    def test_02_memdetect_system(self):
+    def test_20_memdetect_system(self):
         if self.IS_MACOS:
             sysmem = int(self._callExternal(['sysctl', '-n', 'hw.memsize'], verbose=False).strip())
         else:
@@ -218,7 +392,7 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn, PathMixIn ) :
         self.assertEqual(sysmem, ra.systemMemory())
         self.assertEqual(sysmem / 2, ra.memoryLimit({}))
     
-    def test_02_memdetect_cgroup(self):
+    def test_20_memdetect_cgroup(self):
         ra = ResourceAlgo()
         
         if os.path.exists('/sys/fs/cgroup/memory/memory.limit_in_bytes'):
@@ -231,14 +405,14 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn, PathMixIn ) :
         self._writeFile('cgroup_mem', '1234567')
         self.assertEqual(1234567, ra.cgroupMemory('cgroup_mem'))
     
-    def test_02_memdetect_config(self):
+    def test_20_memdetect_config(self):
         self._call_cid(['deploy', 'setup',
                         '--deployDir', 'setupdir',
                         '--limit-memory=1234M'])
         config = self._readJSON(os.path.join('setupdir', 'futoin.json'))
         self.assertEqual(1234*1024*1024, ResourceAlgo().memoryLimit(config))
         
-    def test_03_cpudetect_system(self):
+    def test_30_cpudetect_system(self):
         if self.IS_MACOS:
             cpus = int(self._callExternal(['sysctl', '-n', 'hw.ncpu'], verbose=False).strip())
         else:
@@ -248,7 +422,7 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn, PathMixIn ) :
         
         self.assertEqual(cpus, ResourceAlgo().systemCpuCount())
 
-    def test_03_cpudetect_cgroup(self):
+    def test_30_cpudetect_cgroup(self):
         ra = ResourceAlgo()
         
         self._writeFile('cgroup_cpu', '3')
@@ -263,14 +437,14 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn, PathMixIn ) :
         self._writeFile('cgroup_cpu', '1,3-6,8\n')
         self.assertEqual(6, ra.cgroupCpuCount('cgroup_cpu'))
         
-    def test_03_cpudetect_config(self):
+    def test_30_cpudetect_config(self):
         self._call_cid(['deploy', 'setup',
                         '--deployDir', 'setupdir',
                         '--limit-cpus=132'])
         config = self._readJSON(os.path.join('setupdir', 'futoin.json'))
         self.assertEqual(132, ResourceAlgo().cpuLimit(config))
         
-    def test_03_distribute(self):
+    def test_30_distribute(self):
         ra = ResourceAlgo()
         
         config = {
@@ -440,20 +614,6 @@ class cid_multiapp_Base( cid_UTBase, UtilMixIn ) :
             os.kill(pid, signal.SIGTERM)
             try: os.waitpid(pid, 0)
             except OSError: pass
-        
-    def _firstGet(self, url):
-        for i in range(15):
-            try:
-                res = requests.get(url, timeout=3)
-                
-                if res.ok:
-                    return res
-                else:
-                    time.sleep(1)
-            except:
-                time.sleep(1)
-        else:
-            self.assertTrue(False)
 
         
 class cid_multiphp_Test( cid_multiapp_Base ) :
