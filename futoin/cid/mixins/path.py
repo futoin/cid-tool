@@ -94,7 +94,8 @@ class PathMixIn(object):
     def _callInteractive(self, cmd, replace=True, *args, **kwargs):
         if replace:
             if args or kwargs:
-                self._errorExit('Extra args are not supported for replace call')
+                self._errorExit(
+                    'Extra args are not supported for replace call')
 
             self._info(subprocess.list2cmdline(cmd), 'Exec: ')
             sys.stdout.flush()

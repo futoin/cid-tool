@@ -403,7 +403,7 @@ class PackageMixIn(object):
 
         brew = self._which('brew')
         brew_sudo = os.environ.get('brewSudo', '').split()
-        self._callExternal(brew_sudo + [brew, 'tap', tap])
+        self._callExternal(brew_sudo + [brew, 'tap', tap], cwd='/')
 
     def _requireBrewUnlink(self, formula=None, search=None):
         if not self._isMacOS():
@@ -421,11 +421,12 @@ class PackageMixIn(object):
                 flist.append(formula)
 
         if search:
-            flist += self._callExternal([brew, 'search', search]).split()
+            flist += self._callExternal([brew,
+                                         'search', search], cwd='/').split()
 
         for f in flist:
             try:
-                self._callExternal(brew_sudo + [brew, 'unlink', f])
+                self._callExternal(brew_sudo + [brew, 'unlink', f], cwd='/')
             except subprocess.CalledProcessError:
                 self._warn('You may need to unlink the formula manually!')
 
@@ -442,14 +443,19 @@ class PackageMixIn(object):
         for package in packages:
             try:
                 if cask:
-                    self._callInteractive(
-                        brew_sudo + [brew, 'cask', 'install', package], False)
+                    self._callExternal(
+                        brew_sudo + [brew, 'cask', 'install', package],
+                        cwd='/',
+                        interactive=True)
                 elif brew == '/usr/local/bin/brew':
                     self._callExternal(
-                        brew_sudo + [brew, 'install', '--force-bottle', package])
+                        brew_sudo + [brew, 'install',
+                                     '--force-bottle', package],
+                        cwd='/')
                 else:
                     self._callExternal(
-                        brew_sudo + [brew, 'install', package])
+                        brew_sudo + [brew, 'install', package],
+                        cwd='/')
             except subprocess.CalledProcessError:
                 self._warn('You may need to enable the package manually')
 
