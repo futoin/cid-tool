@@ -67,6 +67,7 @@ def _call_actions(name, actions, args):
 
 def cid_action(f):
     def custom_f(self, *args, **kwargs):
+        self._processWcDir()
         config = self._config
 
         try:
@@ -74,7 +75,7 @@ def cid_action(f):
         except AttributeError:
             fn = f.__name__
 
-        actions = config and config.get('actions', {}) or {}
+        actions = config.get('actions', {})
 
         if fn in actions:
             for act in actions[fn]:
@@ -1784,6 +1785,9 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
 
     @cid_action
     def tag(self, branch, next_version=None):
+        # implciit in @cid_action
+        # self._processWcDir()
+
         mode = 'patch'
 
         if next_version in ['patch', 'minor', 'major']:
@@ -1792,8 +1796,6 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
 
         if next_version and not re.match('^[0-9]+\.[0-9]+\.[0-9]+$', next_version):
             self._errorExit('Valid version format: x.y.z')
-
-        self._processWcDir()
 
         config = self._config
         vcstool = self._getVcsTool()
@@ -1864,7 +1866,8 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
 
     @cid_action
     def prepare(self, vcs_ref):
-        self._processWcDir()
+        # implciit in @cid_action
+        # self._processWcDir()
 
         config = self._config
 
@@ -1886,7 +1889,8 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
 
     @cid_action
     def build(self):
-        self._processWcDir()
+        # implciit in @cid_action
+        # self._processWcDir()
 
         self._info('Running "build" in tools')
         self._forEachTool(
@@ -1896,7 +1900,8 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
 
     @cid_action
     def package(self):
-        self._processWcDir()
+        # implciit in @cid_action
+        # self._processWcDir()
 
         #---
         self._info('Running "package" in tools')
@@ -2031,7 +2036,8 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
 
     @cid_action
     def check(self):
-        self._processWcDir()
+        # implciit in @cid_action
+        # self._processWcDir()
 
         self._info('Running "check" in tools')
         self._forEachTool(
@@ -2042,7 +2048,8 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
 
     @cid_action
     def promote(self, rms_pool, packages):
-        self._processWcDir()
+        # implciit in @cid_action
+        # self._processWcDir()
 
         config = self._config
         rmstool = self._getRmsTool()
@@ -2061,7 +2068,8 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
 
     @cid_action
     def migrate(self):
-        self._processWcDir()
+        # implciit in @cid_action
+        # self._processWcDir()
 
         self._info('Running "migrate" in tools')
         self._forEachTool(
@@ -2069,7 +2077,6 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
             base=MigrationTool
         )
 
-    @cid_action
     def deploy(self, mode, p1=None, p2=None):
         self._processDeployDir()
 
@@ -2157,7 +2164,6 @@ class CIDTool(ServiceMixIn, DeployMixIn, ConfigMixIn, LockMixIn, HelpersMixIn, P
                 os.wait()
                 i -= 1
 
-    @cid_action
     def ci_build(self, vcs_ref, rms_pool):
         self._initConfig()
 
