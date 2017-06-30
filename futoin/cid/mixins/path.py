@@ -10,13 +10,15 @@ import glob
 class PathMixIn(object):
     _dev_null = None
 
-    def _callExternal(self, cmd, suppress_fail=False, verbose=True, output_handler=None, input=False, merge_stderr=False):
+    def _callExternal(self, cmd, suppress_fail=False, verbose=True, output_handler=None, input=False, merge_stderr=False, cwd=None, interactive=False):
         try:
             if not PathMixIn._dev_null:
                 PathMixIn._dev_null = open(os.devnull, 'w')
 
             if input:
                 stdin = subprocess.PIPE
+            elif interactive:
+                stdin = None
             else:
                 stdin = PathMixIn._dev_null
 
@@ -24,29 +26,36 @@ class PathMixIn(object):
                 stderr = subprocess.STDOUT
             elif verbose and not suppress_fail:
                 self._info(subprocess.list2cmdline(cmd), 'Call: ')
+                sys.stdout.flush()
+                sys.stderr.flush()
                 stderr = sys.stderr
             else:
                 stderr = PathMixIn._dev_null
 
-            if output_handler or input:
-                chunk_size = 65536
-                res = []
-                p = subprocess.Popen(cmd, stdin=stdin, stderr=stderr,
-                                     bufsize=chunk_size * 2, close_fds=True,
-                                     stdout=subprocess.PIPE)
+            if interactive and not output_handler:
+                stdout = None
+            else:
+                stdout = subprocess.PIPE
 
-                if input:
-                    try:
-                        input = input.encode(encoding='UTF-8')
-                    except:
-                        pass
+            chunk_size = 65536
+            res = []
+            p = subprocess.Popen(cmd, stdin=stdin, stderr=stderr,
+                                 bufsize=chunk_size * 2, close_fds=True,
+                                 stdout=stdout, cwd=cwd)
 
-                    try:
-                        p.stdin.write(input)
-                        p.stdin.flush()
-                    finally:
-                        p.stdin.close()
+            if input:
+                try:
+                    input = input.encode(encoding='UTF-8')
+                except:
+                    pass
 
+                try:
+                    p.stdin.write(input)
+                    p.stdin.flush()
+                finally:
+                    p.stdin.close()
+
+            if stdout:
                 if output_handler:
                     on_chunk = output_handler
                 else:
@@ -69,29 +78,24 @@ class PathMixIn(object):
                 finally:
                     while p.stdout.read(chunk_size):
                         pass
-                    p.wait()
 
-                if p.returncode != 0:
-                    raise subprocess.CalledProcessError(
-                        'Failed {0}'.format(p.returncode), cmd)
+            p.wait()
+            res = ''.join(res)
 
-                return ''.join(res)
-            else:
-                res = subprocess.check_output(cmd, stdin=stdin, stderr=stderr)
+            if p.returncode != 0:
+                raise subprocess.CalledProcessError(p.returncode, cmd, res)
 
-                try:
-                    res = str(res, 'utf8')
-                except:
-                    pass
-
-                return res
+            return res
         except subprocess.CalledProcessError:
             if suppress_fail:
                 return None
             raise
 
-    def _callInteractive(self, cmd, replace=True):
+    def _callInteractive(self, cmd, replace=True, *args, **kwargs):
         if replace:
+            if args or kwargs:
+                self._errorExit('Extra args are not supported for replace call')
+
             self._info(subprocess.list2cmdline(cmd), 'Exec: ')
             sys.stdout.flush()
             sys.stderr.flush()
@@ -114,11 +118,7 @@ class PathMixIn(object):
 
             os.execv(cmd[0], cmd)
         else:
-            self._info(subprocess.list2cmdline(cmd), 'Call: ')
-            sys.stdout.flush()
-            sys.stderr.flush()
-
-            return subprocess.check_call(cmd)
+            self._callExternal(cmd, interactive=True, *args, **kwargs)
 
     def _trySudoCall(self, cmd, errmsg=None, **kwargs):
         try:
