@@ -145,8 +145,12 @@ class UtilMixIn(object):
 
                 if stat.S_ISLNK(st_mode):
                     if 'lchmod' in os.__dict__:
-                        # pylint: disable=no-member
-                        os.lchmod(id, stat.S_IRWXU)
+                        try:
+                            # pylint: disable=no-member
+                            os.lchmod(id, stat.S_IRWXU)
+                        except OSError:
+                            # lchmod is false available in some Linux builds
+                            pass
                 else:
                     os.chmod(id, stat.S_IRWXU)
 
@@ -164,8 +168,12 @@ class UtilMixIn(object):
 
                 if stat.S_ISLNK(st_mode):
                     if 'lchmod' in os.__dict__:
-                        # pylint: disable=no-member
-                        os.lchmod(f, fperm)
+                        try:
+                            # pylint: disable=no-member
+                            os.lchmod(f, fperm)
+                        except OSError:
+                            # lchmod is false available in some Linux builds
+                            pass
                     continue
 
                 if stat.S_ISDIR(st_mode):
