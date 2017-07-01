@@ -369,7 +369,7 @@ class ConfigBuilder(UtilMixIn, PathMixIn, PackageMixIn):
         location['proxy_set_header Host'] = '$host'
         location['proxy_set_header X-Real-IP'] = self._remote_addr_var
         location['proxy_set_header X-Forwarded-For'] = self._x_forwarded_for_var
-        location['proxy_set_header Proxy'] = ''
+        location['proxy_set_header Proxy'] = '""'
         location['proxy_next_upstream_tries'] = len(instances)
         location['client_max_body_size'] = self._svcBodyLimit(instances)
 
