@@ -1,4 +1,4 @@
-=== (next) ===
+=== 0.7.992 (2017-07-01) ===
 * FIXED: RVM ruby builds for Debian Stretch (and any with libssl1.0-dev Deb)
 * FIXED: added protection against HTTP_PROXY vulnerability
 * FIXED: false lchmod support on some Linux Python builds
