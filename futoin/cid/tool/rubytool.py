@@ -39,7 +39,7 @@ if binary versions are not found for specific system.
             self._installBinaries(env)
             return
 
-        self._buildDeps()
+        self._buildDeps(env)
         self._callExternal([
             env['rvmBin'], 'install', ruby_ver, '--autolibs=read-only'
         ])
@@ -52,21 +52,6 @@ if binary versions are not found for specific system.
         pkgver = ver
 
         if self._isDebian() or self._isUbuntu():
-            if self._osCodeName() == 'stretch':
-                self._requireDeb(['equivs', 'libssl1.0.2'])
-                cwd = os.getcwd()
-                try:
-                    tmpdir = self._tmpCacheDir(prefix='equivs-')
-                    self._writeTextFile(
-                        'libssl1.0.0', self._FAKE_LIBSSL100_DEB)
-                    equivsbuild = self._which('equivs-build')
-                    dpkg = self._which('dpkg')
-                    self._callExternal([equivsbuild, 'libssl1.0.0'])
-                    self._trySudoCall(
-                        [dpkg, '-i', 'libssl1.0.0_1.0.2l_all.deb'])
-                finally:
-                    os.chdir(cwd)
-
             repo = env['rubyBrightboxRepo']
 
             self._addAptRepo(
@@ -255,13 +240,14 @@ if binary versions are not found for specific system.
             self._updateEnvFromOutput(env_to_set)
             super(rubyTool, self).initEnv(env)
 
-    def _buildDeps(self):
+    def _buildDeps(self, env):
+        self._requireBuildDep(env, 'ssl')
+
         # APT
         #---
         self._requireDeb([
             'build-essential',
             'gawk',
-            'libssl-dev',
             'make',
             'libc6-dev',
             'zlib1g-dev',
@@ -296,7 +282,6 @@ if binary versions are not found for specific system.
             'readline-devel',
             'zlib-devel',
             'libffi-devel',
-            'openssl-devel',
             'automake',
             'libtool',
             'bison',
@@ -304,7 +289,6 @@ if binary versions are not found for specific system.
             'make',
             'm4',
             'gdbm-devel',
-            'libopenssl-devel',
             'sqlite3-devel',
         ])
 
@@ -344,19 +328,6 @@ CRD12l8Jwxc6pl2BA/4p5DFEpGVvkgLj7/YLYCtYmZDw8i/drGbkWfIQiOgPWIf8QgpJXVME
 =G8vE
 -----END PGP PUBLIC KEY BLOCK-----
 '''
-
-    _FAKE_LIBSSL100_DEB = """
-Section: misc
-Priority: optional
-Standards-Version: 3.9.2
-
-Package: libssl1.0.0
-Version: 1.0.2l
-Depends: libssl1.0.2 (>= 1.0.2l)
-Architecture: all
-Description: Dummy libssl1.0.0 package for dep resolution.
- Required due to lack of libssl1.0.0 on Stretch
-"""
 
     def tuneDefaults(self):
         return {

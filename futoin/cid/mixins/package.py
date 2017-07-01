@@ -598,8 +598,14 @@ class PackageMixIn(object):
             self._requireApk(['python2-dev'])
 
     def __requireBuildDep_ssl(self, env):
-        self._requireDeb('libssl-dev')
+        apt_cache = self._which('apt-cache')
+
+        if apt_cache and self._callExternal([apt_cache, 'search', 'libssl1.0-dev']).strip():
+            self._requireDeb('libssl1.0-dev')
+        else:
+            self._requireDeb('libssl-dev')
         self._requireRpm('openssl-devel')
+        self._requireRpm('libopenssl-devel')
         self._requireApk('ressl-dev')
         self._requirePacman('openssl')
         self._requireBrew('openssl')
