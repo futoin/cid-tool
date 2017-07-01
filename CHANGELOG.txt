@@ -1,5 +1,6 @@
 === (next) ===
 * FIXED: RVM ruby builds for Debian Stretch (and any with libssl1.0-dev Deb)
+* FIXED: added protection against HTTP_PROXY vulnerability
 
 === 0.7.991 (2017-06-30) ===
 * FIXED: not to fail if empty CID_SOURCE_DIR is set

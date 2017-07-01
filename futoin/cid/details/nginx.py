@@ -63,6 +63,8 @@ fastcgi_param  SERVER_NAME        $server_name;
 
 # PHP only, required if PHP was built with --enable-force-cgi-redirect
 fastcgi_param  REDIRECT_STATUS    200;
+
+fastcgi_param  HTTP_PROXY         "";
 """
 
 SCGI_PARAMS = """
@@ -80,6 +82,8 @@ scgi_param  HTTPS              $https if_not_empty;
 
 scgi_param  SERVER_PORT        $server_port;
 scgi_param  SERVER_NAME        $server_name;
+
+scgi_param  HTTP_PROXY         "";
 """
 
 UWSGI_PARAMS = """
@@ -97,6 +101,8 @@ uwsgi_param  HTTPS              $https if_not_empty;
 
 uwsgi_param  SERVER_PORT        $server_port;
 uwsgi_param  SERVER_NAME        $server_name;
+
+uwsgi_param  HTTP_PROXY         "";
 """
 
 
@@ -363,6 +369,7 @@ class ConfigBuilder(UtilMixIn, PathMixIn, PackageMixIn):
         location['proxy_set_header Host'] = '$host'
         location['proxy_set_header X-Real-IP'] = self._remote_addr_var
         location['proxy_set_header X-Forwarded-For'] = self._x_forwarded_for_var
+        location['proxy_set_header Proxy'] = ''
         location['proxy_next_upstream_tries'] = len(instances)
         location['client_max_body_size'] = self._svcBodyLimit(instances)
 
