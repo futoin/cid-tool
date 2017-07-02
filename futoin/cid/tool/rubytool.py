@@ -121,7 +121,7 @@ if binary versions are not found for specific system.
     def _fixRvmLinks(self, env, name, ver):
         ospath = self._ospath
         os = self._os
-        glob = self._glob
+        glob = self._ext.glob
         bin_dir = ospath.join(env['rvmDir'], 'rubies', name, 'bin')
 
         for f in ['erb', 'gem', 'irb', 'rake', 'rdoc', 'ri', 'ruby', 'testrb']:

@@ -52,6 +52,7 @@ _ext_demand_map = {
     'errno': 'errno',
     'pwd': 'pwd',
     'grp': 'grp',
+    'glob': 'glob',
     'dir_util': 'distutils.dir_util',
     'requests': 'requests',
     'minidom': 'xml.dom.minidom',
