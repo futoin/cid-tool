@@ -3,7 +3,7 @@ from __future__ import print_function, absolute_import
 
 from .cid_utbase import cid_UTBase
 from futoin.cid.rmstool import RmsTool
-from futoin.cid.util import exec as _executil
+from futoin.cid.util import executil as _executil
 from futoin.cid.util import path as _path
 from futoin.cid.util import install as _install
 
