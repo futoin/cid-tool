@@ -1,7 +1,4 @@
 
-import os
-import subprocess
-
 from ..vcstool import VcsTool
 from .bashtoolmixin import BashToolMixIn
 
@@ -14,6 +11,7 @@ Home: https://git-scm.com/
 Git tool forcibly sets user.email and user.name, 
 if not set by user.
 """
+    __slots__ = ()
 
     def getDeps(self):
         return ['bash', 'tar']
@@ -67,7 +65,7 @@ if not set by user.
         ], verbose=False).strip()
 
     def vcsGetRepo(self, config, wc_dir=None):
-        git_dir = wc_dir or os.path.join(os.getcwd(), '.git')
+        git_dir = wc_dir or self._ospath.join(self._os.getcwd(), '.git')
 
         return self._callExternal([
             config['env']['gitBin'],
@@ -82,11 +80,11 @@ if not set by user.
 
     def vcsCheckout(self, config, vcs_ref):
         gitBin = config['env']['gitBin']
-        wc_dir = os.getcwd()
+        wc_dir = self._os.getcwd()
         vcsRepo = config['vcsRepo']
         vcs_ref = vcs_ref or 'master'
 
-        if os.path.isdir('.git'):
+        if self._ospath.isdir('.git'):
             remote_url = self.vcsGetRepo(config, '.git')
 
             if not self._gitCompareRepo(vcsRepo, remote_url):
@@ -100,7 +98,7 @@ if not set by user.
             try:
                 self._callExternal(
                     [gitBin, 'rev-parse', 'HEAD'], verbose=False)
-            except subprocess.CalledProcessError:
+            except self._ext.subprocess.CalledProcessError:
                 # exit on empty repository
                 return
 
@@ -147,7 +145,7 @@ if not set by user.
             try:
                 self._callExternal(
                     [gitBin, 'rev-parse', 'HEAD'], verbose=False)
-            except subprocess.CalledProcessError:
+            except self._ext.subprocess.CalledProcessError:
                 # exit on empty repository
                 return
 
@@ -207,6 +205,7 @@ if not set by user.
         return res
 
     def vcsExport(self, config, vcs_cache_dir, vcs_ref, dst_path):
+        ospath = self._ospath
         env = config['env']
         gitBin = env['gitBin']
         vcsRepo = config['vcsRepo']
@@ -214,7 +213,7 @@ if not set by user.
         if vcs_cache_dir is None:
             cache_repo = vcsRepo
         else:
-            if os.path.exists(vcs_cache_dir):
+            if ospath.exists(vcs_cache_dir):
                 remote_url = self.vcsGetRepo(config, vcs_cache_dir)
 
                 if not self._gitCompareRepo(vcsRepo,  remote_url):
@@ -222,7 +221,7 @@ if not set by user.
                                .format(remote_url, vcsRepo))
                     self._rmTree(vcs_cache_dir)
 
-            if not os.path.exists(vcs_cache_dir):
+            if not ospath.exists(vcs_cache_dir):
                 self._callExternal([
                     env['gitBin'],
                     'clone',
@@ -241,10 +240,10 @@ if not set by user.
 
             cache_repo = 'file://' + vcs_cache_dir
 
-        if os.path.exists(dst_path):
+        if ospath.exists(dst_path):
             self._rmTree(dst_path)
 
-        os.mkdir(dst_path)
+        self._os.makedirs(dst_path)
 
         self._callBash(env, '{0} archive --remote={1} --format=tar {2} | {3} x -C {4}'
                        .format(config['env']['gitBin'], cache_repo, vcs_ref, env['tarBin'], dst_path))
@@ -271,7 +270,7 @@ if not set by user.
                 config['env']['gitBin'],
                 'merge', '--no-ff', 'origin/' + vcs_ref,
             ])
-        except subprocess.CalledProcessError:
+        except self._ext.subprocess.CalledProcessError:
             if cleanup:
                 self.vcsRevert(config)
                 self._errorExit('Merge failed, aborted.')
@@ -283,7 +282,7 @@ if not set by user.
         env = config['env']
         gitBin = env['gitBin']
 
-        have_local = (os.path.exists('.git') and
+        have_local = (self._ospath.exists('.git') and
                       self._gitCompareRepo(config['vcsRepo'],  self.vcsGetRepo(config)))
 
         if have_local:
@@ -292,7 +291,7 @@ if not set by user.
                     config['env']['gitBin'],
                     'branch', '-D', vcs_ref,
                 ])
-            except subprocess.CalledProcessError as e:
+            except self._ext.subprocess.CalledProcessError as e:
                 self._warn(str(e))
 
             self.vcsPush(config, ['--force', '--delete', vcs_ref])
@@ -311,6 +310,7 @@ if not set by user.
                 'init', repo,
             ], verbose=False)
 
+            os = self._os
             oldcwd = os.getcwd()
             os.chdir(repo)
             self.vcsPush(config, ['--force', '--delete',
@@ -320,7 +320,9 @@ if not set by user.
             self._rmTree(repo)
 
     def vcsRevert(self, config):
-        if os.path.exists(os.path.join('.git', 'MERGE_HEAD')):
+        ospath = self._ospath
+
+        if ospath.exists(ospath.join('.git', 'MERGE_HEAD')):
             self._callExternal([
                 config['env']['gitBin'],
                 'merge', '--abort',

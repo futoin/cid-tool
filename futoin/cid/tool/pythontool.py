@@ -1,8 +1,4 @@
 
-from __future__ import print_function
-
-import os
-
 from ..runtimetool import RuntimeTool
 
 
@@ -14,6 +10,8 @@ Home: https://www.python.org/
 Only the first part of pythonVer is used for installation of
 system packages OS-specific way.
 """
+    __slots__ = ()
+
     VER_CMD = 'import sys; print( "%s.%s" % (sys.version_info.major, sys.version_info.minor) )'
 
     def getPostDeps(self):
@@ -45,16 +43,17 @@ system packages OS-specific way.
         pass
 
     def initEnv(self, env):
+        environ = self._environ
         python_ver = env.setdefault('pythonVer', '3')
         bin_name = None
 
         if self._isGentoo():
             if len(python_ver) == 3:
-                os.environ['EPYTHON'] = 'python{0}'.format(python_ver)
+                environ['EPYTHON'] = 'python{0}'.format(python_ver)
             elif int(python_ver.split('.')[0]) == 3:
-                os.environ['EPYTHON'] = 'python3.4'
+                environ['EPYTHON'] = 'python3.4'
             else:
-                os.environ['EPYTHON'] = 'python2.7'
+                environ['EPYTHON'] = 'python2.7'
         elif self._isArchLinux():
             if int(python_ver.split('.')[0]) == 2:
                 bin_name = 'python2'

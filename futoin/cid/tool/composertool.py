@@ -1,6 +1,4 @@
 
-import os
-
 from ..buildtool import BuildTool
 from .curltoolmixin import CurlToolMixIn
 
@@ -14,6 +12,8 @@ Composer is installed in composerDir as single Phar with "composer" name without
 extension.
 composerDir is equal to user's ~/bin/ folder by default.
 """
+    __slots__ = ()
+
     COMPOSER_JSON = 'composer.json'
 
     def _installTool(self, env):
@@ -25,8 +25,8 @@ composerDir is equal to user's ~/bin/ folder by default.
         composer_installer = self._callCurl(
             env, [composer_get], binary_output=True)
 
-        if not os.path.exists(composer_dir):
-            os.makedirs(composer_dir)
+        if not self._ospath.exists(composer_dir):
+            self._os.makedirs(composer_dir)
 
         self._callExternal(
             [
@@ -41,21 +41,22 @@ composerDir is equal to user's ~/bin/ folder by default.
         self._callExternal([env['composerBin'], 'self-update'])
 
     def uninstallTool(self, env):
-        os.remove(env['composerBin'])
+        self._os.remove(env['composerBin'])
         self._have_tool = False
 
     def envNames(self):
         return ['composerDir', 'composerBin', 'composerGet']
 
     def initEnv(self, env):
+        ospath = self._ospath
         bin_dir = env['binDir']
         composer_dir = env.setdefault('composerDir', bin_dir)
         composer_bin = env.setdefault(
-            'composerBin', os.path.join(composer_dir, 'composer'))
+            'composerBin', ospath.join(composer_dir, 'composer'))
 
         self._addBinPath(composer_dir)
 
-        self._have_tool = os.path.exists(composer_bin)
+        self._have_tool = ospath.exists(composer_bin)
 
     def autoDetectFiles(self):
         return self.COMPOSER_JSON

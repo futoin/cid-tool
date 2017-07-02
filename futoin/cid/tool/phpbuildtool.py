@@ -1,6 +1,4 @@
 
-import os
-
 from ..runenvtool import RunEnvTool
 from .bashtoolmixin import BashToolMixIn
 
@@ -10,7 +8,8 @@ class phpbuildTool(BashToolMixIn, RunEnvTool):
 
 Home: https://github.com/php-build/php-build
 """
-    PHPBUILD_DIR_DEFAULT = os.path.join(os.environ['HOME'], '.phpbuild')
+    __slots__ = ()
+
     PHPBUILD_LATEST = 'master'
 
     def getDeps(self):
@@ -38,7 +37,7 @@ Home: https://github.com/php-build/php-build
     def uninstallTool(self, env):
         phpbuild_dir = env['phpbuildDir']
 
-        if os.path.exists(phpbuild_dir):
+        if self._ospath.exists(phpbuild_dir):
             self._rmTree(phpbuild_dir)
 
         self._have_tool = False
@@ -47,7 +46,9 @@ Home: https://github.com/php-build/php-build
         return ['phpbuildDir', 'phpbuildBin', 'phpbuildGit', 'phpbuildVer']
 
     def initEnv(self, env):
-        phpbuild_dir = env.setdefault('phpbuildDir', self.PHPBUILD_DIR_DEFAULT)
+        ospath = self._ospath
+        phpbuild_dir = ospath.join(self._environ['HOME'], '.phpbuild')
+        phpbuild_dir = env.setdefault('phpbuildDir', phpbuild_dir)
         phpbuild_bin = env.setdefault(
-            'phpbuildBin', os.path.join(phpbuild_dir, 'bin', 'php-build'))
-        self._have_tool = os.path.exists(phpbuild_bin)
+            'phpbuildBin', ospath.join(phpbuild_dir, 'bin', 'php-build'))
+        self._have_tool = ospath.exists(phpbuild_bin)

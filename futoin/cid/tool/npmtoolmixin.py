@@ -1,5 +1,10 @@
 
-class NpmToolMixIn(object):
+from ..subtool import SubTool
+
+
+class NpmToolMixIn(SubTool):
+    __slots__ = ()
+
     def getDeps(self):
         return ['node', 'npm']
 

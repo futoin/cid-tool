@@ -5,6 +5,7 @@ from ..runenvtool import RunEnvTool
 class zipTool(RunEnvTool):
     """package and compress (archive) files.
 """
+    __slots__ = ()
 
     def _installTool(self, env):
         self._requirePackages(['zip'])

@@ -1,12 +1,12 @@
 
-import os
-
 from .subtool import SubTool
 
 __all__ = ['VcsTool']
 
 
 class VcsTool(SubTool):
+    __slots__ = ()
+
     def autoDetect(self, config):
         return self._autoDetectVCS(config, self.autoDetectFiles())
 

@@ -1,18 +1,6 @@
 
-from __future__ import print_function
-
-import os
-import re
-import sys
-import subprocess
-
 from ..vcstool import VcsTool
 from ..rmstool import RmsTool
-
-try:
-    import xml.dom.minidom as minidom
-except ImportError:
-    print('WARNING: missing xml.dom.minidom - SVN will not work', file=sys.stderr)
 
 
 class svnTool(VcsTool, RmsTool):
@@ -20,6 +8,7 @@ class svnTool(VcsTool, RmsTool):
 
 Home: https://subversion.apache.org/
 """
+    __slots__ = ()
 
     def _installTool(self, env):
         self._requirePackages(['subversion'])
@@ -39,17 +28,17 @@ Home: https://subversion.apache.org/
         return ['ssh']
 
     def vcsGetRepo(self, config, wc_dir=None):
-        wc_dir = wc_dir or os.getcwd()
+        wc_dir = wc_dir or self._os.getcwd()
 
         svn_info = self._callExternal([
             config['env']['svnBin'], 'info', '--xml', wc_dir
         ], verbose=False)
 
-        svn_info = minidom.parseString(svn_info)
+        svn_info = self._ext.minidom.parseString(svn_info)
         svn_info = svn_info.getElementsByTagName('url')
         url = svn_info[0].firstChild.nodeValue
 
-        url = re.sub('/(trunk|branches|tags).*$', '', url)
+        url = self._ext.re.sub('/(trunk|branches|tags).*$', '', url)
         return url
 
     def _detectSVNPath(self, config, vcs_ref):
@@ -71,12 +60,12 @@ Home: https://subversion.apache.org/
 
     def vcsCheckout(self, config, vcs_ref):
         env = config['env']
-        wc_dir = os.getcwd()
+        wc_dir = self._os.getcwd()
         vcs_ref = vcs_ref or 'trunk'
 
         svn_repo_path = self._detectSVNPath(config, vcs_ref)
 
-        if os.path.isdir('.svn'):
+        if self._ospath.isdir('.svn'):
             self._callVCSSVN(config, ['switch', svn_repo_path])
         else:
             self._callVCSSVN(config, [
@@ -99,7 +88,7 @@ Home: https://subversion.apache.org/
         env = config['env']
 
         svn_info = self._callVCSSVN(config, ['info', '--xml'], verbose=False)
-        svn_info = minidom.parseString(svn_info)
+        svn_info = self._ext.minidom.parseString(svn_info)
         svn_info = svn_info.getElementsByTagName('url')
         svn_url = svn_info[0].firstChild.nodeValue
 
@@ -117,7 +106,7 @@ Home: https://subversion.apache.org/
     def vcsGetRevision(self, config):
         svn_info = self._callVCSSVN(config, ['info',  '--xml'], verbose=False)
 
-        svn_info = minidom.parseString(svn_info)
+        svn_info = self._ext.minidom.parseString(svn_info)
         svn_info = svn_info.getElementsByTagName('commit')
 
         if len(svn_info):
@@ -131,7 +120,7 @@ Home: https://subversion.apache.org/
         res = self._callVCSSVN(
             config, ['info', svn_repo_path, '--xml'], verbose=False)
 
-        res = minidom.parseString(res)
+        res = self._ext.minidom.parseString(res)
         return res.getElementsByTagName('commit')[0].getAttribute('revision')
 
     def vcsListTags(self, config, vcs_cache_dir, tag_hint):
@@ -159,16 +148,17 @@ Home: https://subversion.apache.org/
         return res
 
     def vcsExport(self, config, vcs_cache_dir, vcs_ref, dst_path):
+        ospath = self._ospath
         svn_repo_path = self._detectSVNPath(config, vcs_ref)
 
-        if os.path.exists(dst_path):
-            os.rmdir(dst_path)
+        if ospath.exists(dst_path):
+            self._rmTree(dst_path)
 
         if vcs_cache_dir is None:
             self._callVCSSVN(config, ['export', svn_repo_path, dst_path])
             return
 
-        if os.path.isdir(vcs_cache_dir):
+        if ospath.isdir(vcs_cache_dir):
             cnd = 'switch'
         else:
             cnd = 'checkout'
@@ -181,7 +171,7 @@ Home: https://subversion.apache.org/
         svn_dst_path = '{0}/branches/{1}'.format(vcsRepo, vcs_ref)
 
         svn_info = self._callVCSSVN(config, ['info', '--xml'], verbose=False)
-        svn_info = minidom.parseString(svn_info)
+        svn_info = self._ext.minidom.parseString(svn_info)
         svn_info = svn_info.getElementsByTagName('url')
         svn_src_path = svn_info[0].firstChild.nodeValue
 
@@ -204,7 +194,7 @@ Home: https://subversion.apache.org/
 
         try:
             self._callVCSSVN(config, ['commit', '-m', 'CID merged ' + vcs_ref])
-        except subprocess.CalledProcessError:
+        except self._ext.subprocess.CalledProcessError:
             if cleanup:
                 self.vcsRevert(config)
                 self._errorExit('Merge failed, aborted.')
@@ -232,10 +222,11 @@ Home: https://subversion.apache.org/
         return res == ''
 
     def rmsUpload(self, config, rms_pool, package_list):
+        ospath = self._ospath
         rms_repo = config['rmsRepo']
 
         for package in package_list:
-            package_basename = os.path.basename(package)
+            package_basename = ospath.basename(package)
 
             dst = '{0}/{1}/{2}'.format(rms_repo, rms_pool, package_basename)
 
@@ -246,6 +237,7 @@ Home: https://subversion.apache.org/
             ])
 
     def rmsPromote(self, config, src_pool, dst_pool, package_list):
+        ospath = self._ospath
         rms_repo = config['rmsRepo']
 
         args = []
@@ -254,7 +246,7 @@ Home: https://subversion.apache.org/
             args += ['--parents']
 
         for package in package_list:
-            package_basename = os.path.basename(package)
+            package_basename = ospath.basename(package)
 
             src = '{0}/{1}/{2}'.format(rms_repo, src_pool, package_basename)
             dst = '{0}/{1}/{2}'.format(rms_repo, dst_pool, package_basename)
@@ -272,15 +264,16 @@ Home: https://subversion.apache.org/
         self._rmsRetrieve(config, rms_pool, package_list)
 
     def _rmsRetrieve(self, config, rms_pool, package_list, dst_dir=None):
+        ospath = self._ospath
         rms_repo = config['rmsRepo']
 
         for package in package_list:
-            package_basename = os.path.basename(package)
+            package_basename = ospath.basename(package)
 
             src = '{0}/{1}/{2}'.format(rms_repo, rms_pool, package_basename)
 
             if dst_dir:
-                dst = os.path.join(dst_dir, package_basename)
+                dst = ospath.join(dst_dir, package_basename)
             else:
                 dst = package_basename
 
@@ -300,7 +293,7 @@ Home: https://subversion.apache.org/
                 '-m', 'FutoIn CID pool creation',
                 dst,
             ])
-        except subprocess.CalledProcessError:
+        except self._ext.subprocess.CalledProcessError:
             # make sure it exists
             self._callRMSSVN(config, ['info', dst])
 
@@ -312,9 +305,7 @@ Home: https://subversion.apache.org/
 
         src = '{0}/{1}/{2}'.format(rms_repo, rms_pool, package)
 
-        import hashlib
-
-        hf = hashlib.new(hash_type)
+        hf = self._ext.hashlib.new(hash_type)
 
         self._callRMSSVN(config, ['cat', src],
                          output_handler=lambda chunk: hf.update(chunk))
@@ -334,7 +325,7 @@ Home: https://subversion.apache.org/
         opts = []
 
         if rms_repo.startswith('svn+ssh://'):
-            sshm = re.match('svn\\+ssh://[^/]+(:([0-9]+))', rms_repo)
+            sshm = self._ext.re.match('svn\\+ssh://[^/]+(:([0-9]+))', rms_repo)
             ssh_port = sshm.group(2) or '22'
             ssh_opts = '-o BatchMode=yes -o StrictHostKeyChecking={0}'.format(
                 env['sshStrictHostKeyChecking'])

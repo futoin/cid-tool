@@ -1,5 +1,7 @@
 
 class CurlToolMixIn(object):
+    __slots__ = ()
+
     def getDeps(self):
         return ['curl']
 

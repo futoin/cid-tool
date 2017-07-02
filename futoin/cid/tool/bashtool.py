@@ -7,3 +7,4 @@ class bashTool(RunEnvTool):
 
 Mostly used for internal purposes.
 """
+    __slots__ = ()

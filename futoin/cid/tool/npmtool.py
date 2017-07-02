@@ -1,6 +1,4 @@
 
-import os
-
 from ..buildtool import BuildTool
 from ..rmstool import RmsTool
 
@@ -14,6 +12,8 @@ In RMS mode support tuning through .toolTune.npm:
     .tag - npm publish --tag
     .access - npm publish --access
 """
+    __slots__ = ()
+
     PACKAGE_JSON = 'package.json'
 
     def autoDetectFiles(self):
@@ -57,12 +57,12 @@ In RMS mode support tuning through .toolTune.npm:
         return self._updateJSONConfig(self.PACKAGE_JSON, updater)
 
     def onPrepare(self, config):
-        if os.path.exists(self.PACKAGE_JSON):
+        if self._ospath.exists(self.PACKAGE_JSON):
             npmBin = config['env']['npmBin']
             self._callExternal([npmBin, 'install'])
 
     def onPackage(self, config):
-        if os.path.exists(self.PACKAGE_JSON):
+        if self._ospath.exists(self.PACKAGE_JSON):
             npmBin = config['env']['npmBin']
             self._callExternal([npmBin, 'prune', '--production'])
 

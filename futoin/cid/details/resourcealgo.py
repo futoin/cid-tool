@@ -1,27 +1,29 @@
 
-import os
-import subprocess
+
+from ..mixins.log import LogMixIn
+from ..mixins.ondemand import OnDemandMixIn
+
 from ..mixins.util import UtilMixIn
 from ..mixins.package import PackageMixIn
 
 
-class ResourceAlgo(UtilMixIn, PackageMixIn):
+class ResourceAlgo(LogMixIn, OnDemandMixIn,  UtilMixIn, PackageMixIn):
     def pageSize(self):
-        return os.sysconf('SC_PAGE_SIZE')
+        return self._os.sysconf('SC_PAGE_SIZE')
 
     def systemMemory(self):
         try:
-            return self.pageSize() * os.sysconf('SC_PHYS_PAGES')
+            return self.pageSize() * self._os.sysconf('SC_PHYS_PAGES')
         except ValueError:
             if self._isMacOS():
-                return int(subprocess.check_output(['sysctl', '-n', 'hw.memsize']).strip())
+                return int(self._ext.subprocess.check_output(['sysctl', '-n', 'hw.memsize']).strip())
             else:
                 self._errorExit('Failed to detect system memory size')
 
     def cgroupMemory(self, cgroupFile=None):
         cgroupFile = cgroupFile or '/sys/fs/cgroup/memory/memory.limit_in_bytes'
 
-        if os.path.exists(cgroupFile):
+        if self._ospath.exists(cgroupFile):
             return int(self._readTextFile(cgroupFile).strip())
 
         return None
@@ -42,14 +44,15 @@ class ResourceAlgo(UtilMixIn, PackageMixIn):
 
     def systemCpuCount(self):
         if self._isMacOS():
-            return int(subprocess.check_output(['sysctl', '-n', 'hw.ncpu']).strip())
+            return int(self._ext.subprocess.check_output(['sysctl', '-n', 'hw.ncpu']).strip())
 
+        os = self._os
         return min(os.sysconf('SC_NPROCESSORS_ONLN'), os.sysconf('SC_NPROCESSORS_CONF'))
 
     def cgroupCpuCount(self, cgroupFile=None):
         cgroupFile = cgroupFile or '/sys/fs/cgroup/cpuset/cpuset.cpus'
 
-        if not os.path.exists(cgroupFile):
+        if not self._ospath.exists(cgroupFile):
             return None
 
         cpus = self._readTextFile(cgroupFile).strip()
@@ -251,10 +254,12 @@ class ResourceAlgo(UtilMixIn, PackageMixIn):
         autoServices = deploy['autoServices']
         entryPoints = config.get('entryPoints', {})
 
-        base_dir = os.path.realpath(config['deployDir'])
-        run_dir = os.path.join(base_dir, '.runtime')
+        ospath = self._ospath
+        os = self._os
+        base_dir = ospath.realpath(config['deployDir'])
+        run_dir = ospath.join(base_dir, '.runtime')
         run_dir = deploy.setdefault('runtimeDir', run_dir)
-        tmp_dir = os.path.join(base_dir, '.tmp')
+        tmp_dir = ospath.join(base_dir, '.tmp')
         tmp_dir = deploy.setdefault('tmpDir', tmp_dir)
 
         for (en, instances) in autoServices.items():
@@ -277,7 +282,7 @@ class ResourceAlgo(UtilMixIn, PackageMixIn):
                 ic['socketType'] = sock_type
 
                 if sock_type == 'unix':
-                    ic['socketPath'] = os.path.join(
+                    ic['socketPath'] = ospath.join(
                         run_dir, '{0}.{1}.sock'.format(en, i))
                 else:
                     ic['socketAddress'] = deploy.get(

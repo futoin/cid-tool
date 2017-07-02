@@ -1,16 +1,15 @@
 
 from .subtool import SubTool
 
-import os
-import signal
-
 __all__ = ['RuntimeTool']
 
 
 class RuntimeTool(SubTool):
+    __slots__ = ()
     DEFAULT_EXIT_TIMEOUT = 5000
-    _SIG_STOP = signal.SIGTERM
-    _SIG_RELOAD = signal.SIGHUP
+
+    def __init__(self, name):
+        super(RuntimeTool, self).__init__(name)
 
     def onRun(self, config, svc, args):
         env = config['env']
@@ -31,11 +30,11 @@ class RuntimeTool(SubTool):
         }
 
     def onStop(self, config, pid, tune):
-        self._signalPID(pid, self._SIG_STOP)
+        self._signalPID(pid, self._sigStop())
 
     def onReload(self, config, pid, tune):
         if tune['reloadable']:
-            self._signalPID(pid, self._SIG_RELOAD)
+            self._signalPID(pid, self._sigReload())
         else:
             self.onStop(config, pid, tune)
 
@@ -43,4 +42,10 @@ class RuntimeTool(SubTool):
         pass
 
     def _signalPID(self, pid, sig):
-        os.kill(pid, sig)
+        self._os.kill(pid, sig)
+
+    def _sigReload(self):
+        return self._ext.signal.SIGHUP
+
+    def _sigStop(self):
+        return self._ext.signal.SIGTERM

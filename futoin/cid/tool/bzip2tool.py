@@ -1,6 +1,4 @@
 
-import os
-
 from ..runenvtool import RunEnvTool
 
 
@@ -9,6 +7,7 @@ class bzip2Tool(RunEnvTool):
 
 Home: http://www.bzip.org/
 """
+    __slots__ = ()
 
     def _installTool(self, env):
         self._requirePackages(['bzip2'])
@@ -19,7 +18,7 @@ Home: http://www.bzip.org/
 
     def initEnv(self, env, bin_name=None):
         # Busybox's version is not enough for SDKMan
-        if self._isAlpineLinux() and os.path.islink('/usr/bin/bzip2'):
+        if self._isAlpineLinux() and self._ospath.islink('/usr/bin/bzip2'):
             return
 
         super(bzip2Tool, self).initEnv(env, bin_name)

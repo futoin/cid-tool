@@ -1,6 +1,4 @@
 
-import os
-
 from ..runenvtool import RunEnvTool
 
 
@@ -9,6 +7,7 @@ class gzipTool(RunEnvTool):
 
 Home: http://www.gzip.org/
 """
+    __slots__ = ()
 
     def _installTool(self, env):
         self._requirePackages(['gzip'])
@@ -19,7 +18,7 @@ Home: http://www.gzip.org/
 
     def initEnv(self, env, bin_name=None):
         # Busybox's version is not enough for SDKMan
-        if self._isAlpineLinux() and os.path.islink('/bin/gzip'):
+        if self._isAlpineLinux() and self._ospath.islink('/bin/gzip'):
             return
 
         super(gzipTool, self).initEnv(env, bin_name)

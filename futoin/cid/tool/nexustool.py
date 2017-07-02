@@ -1,7 +1,4 @@
 
-import os
-import shutil
-
 from ..rmstool import RmsTool
 
 
@@ -14,6 +11,7 @@ Sonatype Nexus v2 (!). Please see nexus3 tools for v3 support.
 Please set user and password in ~/.futoin.json env. Please
 avoid setting these variables in process environment.
 """
+    __slots__ = ()
 
     def envNames(self):
         return ['nexusUser', 'nexusPassword']
@@ -22,8 +20,10 @@ avoid setting these variables in process environment.
         self._have_tool = True
 
     def rmsUpload(self, config, rms_pool, package_list):
+        ospath = self._ospath
+
         for package in package_list:
-            package_basename = os.path.basename(package)
+            package_basename = ospath.basename(package)
             path = '/content/repositories/{0}/{1}'.format(
                 rms_pool, package_basename)
 
@@ -42,6 +42,7 @@ avoid setting these variables in process environment.
     def rmsPromote(self, config, src_pool, dst_pool, package_list):
         # TODO: find out how to copy on server
         tmpdir = self._tmpCacheDir(prefix='nexus')
+        os = self._os
 
         try:
             cwd = os.getcwd()
@@ -71,6 +72,8 @@ avoid setting these variables in process environment.
         return res
 
     def rmsRetrieve(self, config, rms_pool, package_list):
+        shutil = self._ext.shutil
+
         for package in package_list:
             result = self._callNexus(
                 config,
@@ -145,7 +148,6 @@ avoid setting these variables in process environment.
 
     def _callNexus(self, config, method, path, **kwargs):
         env = config['env']
-        import requests
 
         rms_repo = config['rmsRepo']
         if rms_repo[-1] == '/':
@@ -159,4 +161,4 @@ avoid setting these variables in process environment.
         kwargs['timeout'] = self._timeouts(env, 'requests')
 
         self._info('HTTP call {0} {1}'.format(method, url))
-        return requests.request(method, url, **kwargs)
+        return self._ext.requests.request(method, url, **kwargs)

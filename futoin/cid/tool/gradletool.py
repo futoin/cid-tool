@@ -1,7 +1,4 @@
 
-import os
-import re
-
 from ..buildtool import BuildTool
 from .sdkmantoolmixin import SdkmanToolMixIn
 
@@ -20,7 +17,10 @@ Override targets with .config.toolTune.
 
 Requires Java >= 7.
 """
-    _MIN_JAVA = '7'
+    __slots__ = ()
+
+    def _minJava(self):
+        return '7'
 
     def autoDetectFiles(self):
         return 'build.gradle'
@@ -30,10 +30,10 @@ Requires Java >= 7.
 
         gradlew_prop = 'gradle/wrapper/gradle-wrapper.properties'
 
-        if os.path.exists(gradlew_prop):
+        if self._ospath.exists(gradlew_prop):
             with open(gradlew_prop, 'r') as f:
                 props = f.read()
-                env['gradleVer'] = re.search(
+                env['gradleVer'] = self._ext.re.search(
                     'gradle-([0-9.]+)-bin.zip', props).group(1)
 
     def onPrepare(self, config):

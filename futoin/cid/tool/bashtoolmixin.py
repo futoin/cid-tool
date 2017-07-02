@@ -1,5 +1,7 @@
 
 class BashToolMixIn(object):
+    __slots__ = ()
+
     def getDeps(self):
         return ['bash']
 

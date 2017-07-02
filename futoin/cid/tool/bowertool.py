@@ -1,6 +1,4 @@
 
-import os
-
 from ..buildtool import BuildTool
 from .npmtoolmixin import NpmToolMixIn
 
@@ -10,6 +8,8 @@ class bowerTool(NpmToolMixIn, BuildTool):
 
 Home: https://bower.io/
 """
+    __slots__ = ()
+
     BOWER_JSON = 'bower.json'
 
     def autoDetectFiles(self):
@@ -42,7 +42,7 @@ Home: https://bower.io/
 
     def onPackage(self, config):
         # Bower does not remove dev deps by itself
-        if os.path.exists('bower_components'):
+        if self._ospath.exists('bower_components'):
             self._rmTree('bower_components')
 
         bowerBin = config['env']['bowerBin']

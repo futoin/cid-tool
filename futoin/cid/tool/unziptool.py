@@ -1,12 +1,11 @@
 
-import os
-
 from ..runenvtool import RunEnvTool
 
 
 class unzipTool(RunEnvTool):
     """list, test and extract compressed files in a ZIP archive.
 """
+    __slots__ = ()
 
     def _installTool(self, env):
         self._requirePackages(['unzip'])
@@ -16,7 +15,7 @@ class unzipTool(RunEnvTool):
 
     def initEnv(self, env, bin_name=None):
         # Busybox's version is not enough for SDKMan
-        if self._isAlpineLinux() and os.path.islink('/usr/bin/unzip'):
+        if self._isAlpineLinux() and self._ospath.islink('/usr/bin/unzip'):
             return
 
         super(unzipTool, self).initEnv(env, bin_name)

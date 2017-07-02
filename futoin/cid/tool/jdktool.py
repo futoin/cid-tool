@@ -1,7 +1,4 @@
 
-import os
-import glob
-
 from ..runenvtool import RunEnvTool
 from .javatoolmixin import JavaToolMixIn
 
@@ -19,6 +16,7 @@ jdkVer supports:
 - use jdkDir for custom JDK
 - jdkVer is equal to javaVer by default
 """
+    __slots__ = ()
 
     def getDeps(self):
         return ['java']
@@ -52,12 +50,16 @@ jdkVer supports:
         pass
 
     def initEnv(self, env):
+        ospath = self._ospath
+        environ = self._environ
+        glob = self._ext.glob
+
         if env.get('jdkDir', None):
             java_home = env['jdkDir']
-            bin_dir = os.path.join(java_home, 'bin')
+            bin_dir = ospath.join(java_home, 'bin')
 
-            os.environ['JAVA_HOME'] = java_home
-            os.environ['JDK_HOME'] = java_home
+            environ['JAVA_HOME'] = java_home
+            environ['JDK_HOME'] = java_home
 
             self._addBinPath(bin_dir, True)
 
@@ -95,19 +97,19 @@ jdkVer supports:
             ]
 
         for c in candidates:
-            if os.path.exists(c):
+            if ospath.exists(c):
                 bin_name = [c]
             else:
                 bin_name = glob.glob(c)
 
             if bin_name:
                 bin_name = bin_name[0]
-                bin_dir = os.path.dirname(bin_name)
-                java_home = os.path.dirname(bin_dir)
+                bin_dir = ospath.dirname(bin_name)
+                java_home = ospath.dirname(bin_dir)
 
                 env['jdkDir'] = java_home
-                os.environ['JAVA_HOME'] = java_home
-                os.environ['JDK_HOME'] = java_home
+                environ['JAVA_HOME'] = java_home
+                environ['JDK_HOME'] = java_home
 
                 self._addBinPath(bin_dir, True)
                 self._have_tool = True

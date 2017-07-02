@@ -100,7 +100,7 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         package = sorted(os.listdir(os.path.join(rms_dir, 'Builds')))[0]
             
         package_base = os.path.basename( package )
-        pkg_hash = RmsTool.rmsCalcHash( package_base, 'sha512' )
+        pkg_hash = RmsTool('name').rmsCalcHash( package_base, 'sha512' )
         os.unlink( package_base )
         self._call_cid( [ 'promote', 'Builds:Verified', package + '@' + pkg_hash,
                             '--rmsRepo', 'scp:' + rms_dir ] )

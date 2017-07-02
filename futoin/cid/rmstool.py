@@ -1,13 +1,12 @@
 
-from __future__ import print_function, absolute_import
-
 from .subtool import SubTool
-from .coloring import Coloring
 
 __all__ = ['RmsTool']
 
 
 class RmsTool(SubTool):
+    __slots__ = ()
+
     ALLOWED_HASH_TYPES = [
         'md5',
         'sha1',
@@ -76,9 +75,8 @@ class RmsTool(SubTool):
 
         return ret
 
-    @classmethod
-    def rmsCalcHash(cls, file_name, hash_type):
-        import hashlib
+    def rmsCalcHash(self, file_name, hash_type):
+        hashlib = self._ext.hashlib
 
         hf = hashlib.new(hash_type)
         with open(file_name, 'rb') as f:
@@ -88,13 +86,12 @@ class RmsTool(SubTool):
                 hf.update(chunk)
         return "{0}:{1}".format(hash_type, hf.hexdigest())
 
-    @classmethod
-    def rmsCalcHashes(cls, file_name):
-        import hashlib
+    def rmsCalcHashes(self, file_name):
+        hashlib = self._ext.hashlib
 
         hashes = {}
 
-        for hash_type in cls.ALLOWED_HASH_TYPES:
+        for hash_type in self.ALLOWED_HASH_TYPES:
             hashes[hash_type] = hashlib.new(hash_type)
 
         with open(file_name, 'rb') as f:
@@ -102,10 +99,10 @@ class RmsTool(SubTool):
                 if not chunk:
                     break
 
-                for hash_type in cls.ALLOWED_HASH_TYPES:
+                for hash_type in self.ALLOWED_HASH_TYPES:
                     hashes[hash_type].update(chunk)
 
-        for hash_type in cls.ALLOWED_HASH_TYPES:
+        for hash_type in self.ALLOWED_HASH_TYPES:
             hashes[hash_type] = hashes[hash_type].hexdigest()
 
         return hashes

@@ -1,6 +1,4 @@
 
-import signal
-
 from ..runtimetool import RuntimeTool
 from .gemtoolmixin import GemToolMixIn
 
@@ -8,7 +6,10 @@ from .gemtoolmixin import GemToolMixIn
 class pumaTool(GemToolMixIn, RuntimeTool):
     """A ruby web server built for concurrency http://puma.io
 """
-    _SIG_RELOAD = signal.SIGUSR2
+    __slots__ = ()
+
+    def _sigReload(self):
+        return self._ext.signal.SIGUSR2
 
     def tuneDefaults(self):
         return {
@@ -41,7 +42,7 @@ class pumaTool(GemToolMixIn, RuntimeTool):
             ruby_env = 'production'
 
         #---
-        import resource
+        resource = self._ext.resource
         heap_limit = self._parseMemory(svc_tune['maxMemory'])
         # both limit RAM and HEAP (not the same)
         resource.setrlimit(resource.RLIMIT_RSS, (heap_limit, heap_limit))

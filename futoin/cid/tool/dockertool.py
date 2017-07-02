@@ -1,7 +1,4 @@
 
-import re
-import os
-
 from ..buildtool import BuildTool
 from ..runenvtool import RunEnvTool
 from ..runtimetool import RuntimeTool
@@ -20,6 +17,7 @@ For other systems, "docker" or "docker-engine" packages is tried to be installed
 
 Docker EE or other installation methods are out of scope for now.
 """
+    __slots__ = ()
 
     def autoDetectFiles(self):
         return 'Dockerfile'
@@ -105,8 +103,9 @@ Docker EE or other installation methods are out of scope for now.
         self._startService('docker')
 
     def onBuild(self, config):
+        ospath = self._ospath
         env = config['env']
-        tag = env.get('dockerTag', os.path.basename(os.path.realpath('.')))
+        tag = env.get('dockerTag', ospath.basename(ospath.realpath('.')))
         cmd = [env['dockerBin'], 'build', '-t', tag, '.']
 
         if self._haveGroup('docker') or self._isAdmin():

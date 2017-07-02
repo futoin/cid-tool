@@ -13,6 +13,7 @@ Only binary releases of Golang are supported for installation
 through CID, but you can install source releases through
 "cid tool exec gvm -- install sourcetag".
 """
+    __slots__ = ()
 
     def getDeps(self):
         return ['gvm', 'bash', 'binutils', 'gcc']
@@ -60,8 +61,7 @@ through CID, but you can install source releases through
                 ver_list = self._callBash(env, cmd, verbose=False)
                 ver_list = ver_list.split("\n")
 
-                import re
-                rex = re.compile('^go[0-9]+\.[0-9]+(\.[0-9]+)?$')
+                rex = self._ext.re.compile('^go[0-9]+\.[0-9]+(\.[0-9]+)?$')
 
                 ver_list = [v.strip() for v in ver_list]
                 ver_list = filter(lambda x: x and rex.match(x), ver_list)

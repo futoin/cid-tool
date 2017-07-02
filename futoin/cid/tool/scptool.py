@@ -1,6 +1,4 @@
 
-import os
-import re
 
 from ..rmstool import RmsTool
 
@@ -22,6 +20,7 @@ More details:
 * SCP itself is used only for upload & retrieval. The rest is done through SSH.
 * {hash_type}sum utilities must be present on remote for hash calculation support.
 """
+    __slots__ = ()
 
     REMOTE_PATTERN = '^(ssh://)?([a-zA-Z][a-zA-Z0-9_]+@[a-zA-Z][a-zA-Z0-9_]+)(/([0-9]{1,5}))(:(.+))?$'
     REMOTE_GRP_USER_HOST = 2
@@ -32,6 +31,8 @@ More details:
         return ['ssh']
 
     def rmsUpload(self, config, rms_pool, package_list):
+        ospath = self._ospath
+        re = self._ext.re
         scpBin = config['env']['scpBin']
         rms_repo = config['rmsRepo']
 
@@ -42,34 +43,36 @@ More details:
             path = remote.group(self.REMOTE_GRP_PATH)
 
         for package in package_list:
-            package_basename = os.path.basename(package)
+            package_basename = ospath.basename(package)
 
             if remote:
                 dst = "{0}:{1}".format(
                     user_host,
-                    os.path.join(path, rms_pool, package_basename)
+                    ospath.join(path, rms_pool, package_basename)
                 )
 
                 if '/' in rms_pool:
-                    cmd = "mkdir -p {0}".format(os.path.join(path, rms_pool))
+                    cmd = "mkdir -p {0}".format(ospath.join(path, rms_pool))
                     self._callSSH(config, user_host, port, cmd)
 
                 self._callRemoteSCP(config, port, package, dst)
 
                 cmd = "chmod ugo-wx {0}".format(
-                    os.path.join(path, rms_pool, package_basename))
+                    ospath.join(path, rms_pool, package_basename))
                 self._callSSH(config, user_host, port, cmd)
             else:
-                dst = os.path.join(rms_repo, rms_pool, package_basename)
+                dst = ospath.join(rms_repo, rms_pool, package_basename)
 
                 if '/' in rms_pool:
                     self._callExternal(
-                        ['mkdir', '-p', os.path.join(rms_repo, rms_pool)])
+                        ['mkdir', '-p', ospath.join(rms_repo, rms_pool)])
 
                 self._callExternal([scpBin, '-Bq', package, dst])
                 self._callExternal(['chmod', 'ugo-wx', dst])
 
     def rmsPromote(self, config, src_pool, dst_pool, package_list):
+        ospath = self._ospath
+        re = self._ext.re
         scpBin = config['env']['scpBin']
         rms_repo = config['rmsRepo']
 
@@ -80,30 +83,33 @@ More details:
             path = remote.group(self.REMOTE_GRP_PATH)
 
         for package in package_list:
-            package_basename = os.path.basename(package)
+            package_basename = ospath.basename(package)
 
             if remote:
                 if '/' in dst_pool:
-                    cmd = "mkdir -p {0}".format(os.path.join(path, dst_pool))
+                    cmd = "mkdir -p {0}".format(ospath.join(path, dst_pool))
                     self._callSSH(config, user_host, port, cmd)
 
                 cmd = 'cp -a {0} {1} && chmod ugo-wx {1}'.format(
-                    os.path.join(path, src_pool, package_basename),
-                    os.path.join(path, dst_pool, package_basename)
+                    ospath.join(path, src_pool, package_basename),
+                    ospath.join(path, dst_pool, package_basename)
                 )
                 self._callSSH(config, user_host, port, cmd)
             else:
-                src = os.path.join(rms_repo, src_pool, package_basename)
-                dst = os.path.join(rms_repo, dst_pool, package_basename)
+                src = ospath.join(rms_repo, src_pool, package_basename)
+                dst = ospath.join(rms_repo, dst_pool, package_basename)
 
                 if '/' in dst_pool:
                     self._callExternal(
-                        ['mkdir', '-p', os.path.join(rms_repo, dst_pool)])
+                        ['mkdir', '-p', ospath.join(rms_repo, dst_pool)])
 
                 self._callExternal([scpBin, '-Bq', src, dst])
                 self._callExternal(['chmod', 'ugo-wx', dst])
 
     def rmsGetList(self, config, rms_pool, package_hint):
+        ospath = self._ospath
+        re = self._ext.re
+
         env = config['env']
         rms_repo = config['rmsRepo']
         remote = re.match(self.REMOTE_PATTERN, rms_repo)
@@ -111,16 +117,19 @@ More details:
         if remote:
             user_host = remote.group(self.REMOTE_GRP_USER_HOST)
             port = remote.group(self.REMOTE_GRP_PORT)
-            path = os.path.join(remote.group(self.REMOTE_GRP_PATH), rms_pool)
+            path = ospath.join(remote.group(self.REMOTE_GRP_PATH), rms_pool)
             cmd = 'ls {0}'.format(path)
             ret = self._callSSH(config, user_host, port, cmd).split("\n")
         else:
-            path = os.path.join(rms_repo, rms_pool)
-            ret = os.listdir(path)
+            path = ospath.join(rms_repo, rms_pool)
+            ret = self._os.listdir(path)
 
         return ret
 
     def rmsRetrieve(self, config, rms_pool, package_list):
+        ospath = self._ospath
+        re = self._ext.re
+
         scpBin = config['env']['scpBin']
         rms_repo = config['rmsRepo']
 
@@ -131,19 +140,22 @@ More details:
             path = remote.group(self.REMOTE_GRP_PATH)
 
         for package in package_list:
-            package_basename = os.path.basename(package)
+            package_basename = ospath.basename(package)
 
             if remote:
                 src = "{0}:{1}".format(
                     user_host,
-                    os.path.join(path, rms_pool, package_basename)
+                    ospath.join(path, rms_pool, package_basename)
                 )
                 self._callRemoteSCP(config, port, src, package_basename)
             else:
-                src = os.path.join(rms_repo, rms_pool, package_basename)
+                src = ospath.join(rms_repo, rms_pool, package_basename)
                 self._callExternal([scpBin, '-Bq', src, package_basename])
 
     def rmsGetHash(self, config, rms_pool, package, hash_type):
+        ospath = self._ospath
+        re = self._ext.re
+
         env = config['env']
         rms_repo = config['rmsRepo']
         remote = re.match(self.REMOTE_PATTERN, rms_repo)
@@ -151,18 +163,21 @@ More details:
         if remote:
             user_host = remote.group(self.REMOTE_GRP_USER_HOST)
             port = remote.group(self.REMOTE_GRP_PORT)
-            path = os.path.join(remote.group(
+            path = ospath.join(remote.group(
                 self.REMOTE_GRP_PATH), rms_pool, package)
             cmd = "{0}sum {1}".format(hash_type, path)
             ret = self._callSSH(config, user_host, port, cmd,
                                 verbose=False).strip().split()[0]
         else:
-            path = os.path.join(rms_repo, rms_pool, package)
+            path = ospath.join(rms_repo, rms_pool, package)
             ret = self.rmsCalcHash(path, hash_type).split(':', 1)[1]
 
         return ret
 
     def rmsPoolCreate(self, config, rms_pool):
+        ospath = self._ospath
+        re = self._ext.re
+
         env = config['env']
         rms_repo = config['rmsRepo']
         remote = re.match(self.REMOTE_PATTERN, rms_repo)
@@ -170,16 +185,19 @@ More details:
         if remote:
             user_host = remote.group(self.REMOTE_GRP_USER_HOST)
             port = remote.group(self.REMOTE_GRP_PORT)
-            path = os.path.join(remote.group(self.REMOTE_GRP_PATH), rms_pool)
+            path = ospath.join(remote.group(self.REMOTE_GRP_PATH), rms_pool)
             cmd = 'mkdir -p {0}'.format(path)
             self._callSSH(config, user_host, port, cmd)
         else:
-            path = os.path.join(rms_repo, rms_pool)
+            path = ospath.join(rms_repo, rms_pool)
 
-            if not os.path.exists(path):
-                os.makedirs(path)
+            if not ospath.exists(path):
+                self._os.makedirs(path)
 
     def rmsPoolList(self, config):
+        os = self._os
+        re = self._ext.re
+
         env = config['env']
         rms_repo = config['rmsRepo']
         remote = re.match(self.REMOTE_PATTERN, rms_repo)

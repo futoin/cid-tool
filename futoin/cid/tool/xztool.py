@@ -7,6 +7,7 @@ class xzTool(RunEnvTool):
 
 Home: https://tukaani.org/xz/
 """
+    __slots__ = ()
 
     def _installTool(self, env):
         self._requirePackages(['xz-utils'])

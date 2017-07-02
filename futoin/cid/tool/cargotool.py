@@ -1,6 +1,4 @@
 
-import os
-
 from ..buildtool import BuildTool
 from ..testtool import TestTool
 from ..rmstool import RmsTool
@@ -18,6 +16,7 @@ Build targets:
 Override targets with .config.toolTune.
 
 """
+    __slots__ = ()
 
     def autoDetectFiles(self):
         return 'Cargo.toml'

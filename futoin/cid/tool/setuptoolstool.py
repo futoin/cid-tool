@@ -1,6 +1,4 @@
 
-import os
-
 from ..buildtool import BuildTool
 from ..testtool import TestTool
 from .piptoolmixin import PipToolMixIn
@@ -20,6 +18,7 @@ Build targets:
 Override targets with .config.toolTune.    
 
 """
+    __slots__ = ()
 
     def autoDetectFiles(self):
         return 'setup.py'
@@ -28,18 +27,20 @@ Override targets with .config.toolTune.
         pass
 
     def initEnv(self, env):
+        ospath = self._ospath
         virtualenv_dir = env['virtualenvDir']
-        self._have_tool = os.path.exists(
-            os.path.join(virtualenv_dir, 'bin', 'easy_install'))
+        self._have_tool = ospath.exists(
+            ospath.join(virtualenv_dir, 'bin', 'easy_install'))
 
     def onPrepare(self, config):
+        ospath = self._ospath
         targets = self._getTune(config, 'prepare', ['build', 'dist'])
 
         if not isinstance(targets, list):
             targets = [targets]
 
         for d in targets:
-            if os.path.exists(d):
+            if ospath.exists(d):
                 self._rmTree(d)
 
     def onBuild(self, config):
@@ -55,7 +56,7 @@ Override targets with .config.toolTune.
 
     def onPackage(self, config):
         target = self._getTune(config, 'package', 'dist')
-        self._addPackageFiles(config, os.path.join(target, '*'))
+        self._addPackageFiles(config, self._ospath.join(target, '*'))
 
     def onCheck(self, config):
         env = config['env']

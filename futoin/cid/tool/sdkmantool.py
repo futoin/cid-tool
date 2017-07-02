@@ -1,6 +1,4 @@
 
-import os
-import subprocess
 
 from ..runenvtool import RunEnvTool
 from .bashtoolmixin import BashToolMixIn
@@ -12,7 +10,7 @@ class sdkmanTool(BashToolMixIn, CurlToolMixIn, RunEnvTool):
 
 Home: http://sdkman.io/
 """
-    SDKMAN_DIR_DEFAULT = os.path.join(os.environ['HOME'], '.sdkman')
+    __slots__ = ()
 
     def getDeps(self):
         return (
@@ -29,9 +27,10 @@ Home: http://sdkman.io/
 
         installer = self._callCurl(env, [get])
 
-        os.environ['SDKMAN_DIR'] = dir
+        environ = self._environ
+        environ['SDKMAN_DIR'] = dir
         self._callBash(env, input=installer)
-        del os.environ['SDKMAN_DIR']
+        del environ['SDKMAN_DIR']
 
     def updateTool(self, env):
         self._callBash(env,
@@ -40,20 +39,23 @@ Home: http://sdkman.io/
                        )
 
     def uninstallTool(self, env):
+        ospath = self._ospath
         dir = env['sdkmanDir']
 
-        if os.path.exists(dir):
+        if ospath.exists(dir):
             self._rmTree(dir)
 
         self._have_tool = False
 
     def initEnv(self, env):
-        dir = env.setdefault('sdkmanDir', self.SDKMAN_DIR_DEFAULT)
-        env_init = os.path.join(dir, 'bin', 'sdkman-init.sh')
+        ospath = self._ospath
+        dir = ospath.join(self._environ['HOME'], '.sdkman')
+        dir = env.setdefault('sdkmanDir', dir)
+        env_init = ospath.join(dir, 'bin', 'sdkman-init.sh')
         env['sdkmanInit'] = env_init
-        self._have_tool = os.path.exists(env_init)
+        self._have_tool = ospath.exists(env_init)
 
     def onExec(self, env, args, replace=True):
         cmd = '. {0} && sdk {1}'.format(
-            env['sdkmanInit'], subprocess.list2cmdline(args))
+            env['sdkmanInit'], self._ext.subprocess.list2cmdline(args))
         self._callBashInteractive(env, cmd, replace=replace)

@@ -1,7 +1,6 @@
 
-from __future__ import print_function, absolute_import
-
-import os
+from .mixins.ondemand import OnDemandMixIn
+from .mixins.log import LogMixIn
 
 from .mixins.util import UtilMixIn
 from .mixins.path import PathMixIn
@@ -11,8 +10,15 @@ from .mixins.version import VersionMixIn
 __all__ = ['SubTool']
 
 
-class SubTool(PathMixIn, PackageMixIn, UtilMixIn, VersionMixIn, object):
+class SubTool(LogMixIn, OnDemandMixIn,
+              PathMixIn, PackageMixIn, UtilMixIn, VersionMixIn):
+    __slots__ = (
+        '_name',
+        '_have_tool',
+    )
+
     def __init__(self, name):
+        super(SubTool, self).__init__()
         self._name = name
         self._have_tool = False
 
@@ -36,7 +42,7 @@ class SubTool(PathMixIn, PackageMixIn, UtilMixIn, VersionMixIn, object):
         return [self._name + 'Bin']
 
     def importEnv(self, env):
-        environ = os.environ
+        environ = self._environ
 
         for name in self.envNames():
             val = environ.get(name, None)
@@ -70,6 +76,9 @@ class SubTool(PathMixIn, PackageMixIn, UtilMixIn, VersionMixIn, object):
             return self._autoDetectByCfg(config, files)
 
         return False
+
+    def autoDetectFiles(self):
+        return None
 
     def requireInstalled(self, env):
         self.importEnv(env)

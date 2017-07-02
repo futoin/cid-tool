@@ -21,6 +21,7 @@ Build targets:
 Override targets with .config.toolTune.
 
 """
+    __slots__ = ()
 
     def autoDetectFiles(self):
         return ['build.xml']

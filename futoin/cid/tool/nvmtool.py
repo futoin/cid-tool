@@ -1,7 +1,4 @@
 
-import os
-import subprocess
-
 from ..runenvtool import RunEnvTool
 from .bashtoolmixin import BashToolMixIn
 
@@ -11,7 +8,8 @@ class nvmTool(BashToolMixIn, RunEnvTool):
 
 Home: https://github.com/creationix/nvm    
 """
-    NVM_DIR_DEFAULT = os.path.join(os.environ['HOME'], '.nvm')
+    __slots__ = ()
+
     NVM_LATEST = '$(git describe --abbrev=0 --tags --match "v[0-9]*")'
 
     def getDeps(self):
@@ -36,9 +34,10 @@ Home: https://github.com/creationix/nvm
                        .format(nvm_dir, nvm_ver))
 
     def uninstallTool(self, env):
+        ospath = self._ospath
         nvm_dir = env['nvmDir']
 
-        if os.path.exists(nvm_dir):
+        if ospath.exists(nvm_dir):
             self._rmTree(nvm_dir)
 
         self._have_tool = False
@@ -47,12 +46,14 @@ Home: https://github.com/creationix/nvm
         return ['nvmDir', 'nvmGit', 'nvmVer']
 
     def initEnv(self, env):
-        nvm_dir = env.setdefault('nvmDir', self.NVM_DIR_DEFAULT)
-        env_init = os.path.join(nvm_dir, 'nvm.sh')
+        ospath = self._ospath
+        nvm_dir = ospath.join(self._environ['HOME'], '.nvm')
+        nvm_dir = env.setdefault('nvmDir', nvm_dir)
+        env_init = ospath.join(nvm_dir, 'nvm.sh')
         env['nvmInit'] = env_init
-        self._have_tool = os.path.exists(env_init)
+        self._have_tool = ospath.exists(env_init)
 
     def onExec(self, env, args, replace=True):
         cmd = '. {0} && nvm {1}'.format(
-            env['nvmInit'], subprocess.list2cmdline(args))
+            env['nvmInit'], self._ext.subprocess.list2cmdline(args))
         self._callBashInteractive(env, cmd, replace=replace)

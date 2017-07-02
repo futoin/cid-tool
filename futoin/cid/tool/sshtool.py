@@ -1,6 +1,4 @@
 
-import os
-
 from ..runenvtool import RunEnvTool
 
 
@@ -13,6 +11,7 @@ Note:
     * sshStrictHostKeyChecking is set to "yes" by default.
       It is used by tools depending on ssh.
 """
+    __slots__ = ()
 
     def envNames(self):
         return ['sshBin', 'sshStrictHostKeyChecking']

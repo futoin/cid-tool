@@ -78,7 +78,7 @@ Options:
     <sudo_entity>                   Username or group to be put in generated sudoers as is.
 """
 
-from __future__ import print_function, absolute_import
+from __future__ import print_function
 
 from .cidtool import CIDTool
 from .coloring import Coloring
@@ -91,7 +91,6 @@ except ImportError:
 
 import os
 import sys
-import traceback
 
 if sys.version_info < (2, 7):
     print('Sorry, but only Python version >= 2.7 is supported!', file=sys.stderr)
@@ -107,6 +106,8 @@ def runInner():
     if type(args) == str:
         print(args)
     else:
+        ospath = os.path
+
         if 'CID_COLOR' in os.environ:
             Coloring.enable(os.environ['CID_COLOR'] == 'yes')
 
@@ -136,19 +137,19 @@ def runInner():
             if 'vcs' in overrides:
                 def_wc_dir = 'ci_build'
             else:
-                def_wc_dir = os.path.join('..', 'ci_builds',
-                                          os.path.basename(os.path.realpath('.')))
+                def_wc_dir = ospath.join('..', 'ci_builds',
+                                         ospath.basename(ospath.realpath('.')))
             def_wc_dir += '_' + args['<vcs_ref>']
         else:
             def_wc_dir = '.'
-        overrides['wcDir'] = os.path.realpath(args['--wcDir'] or def_wc_dir)
+        overrides['wcDir'] = ospath.realpath(args['--wcDir'] or def_wc_dir)
         #--
         deploy_dir = args['--deployDir']
 
         if deploy_dir:
-            overrides['deployDir'] = os.path.realpath(deploy_dir)
+            overrides['deployDir'] = ospath.realpath(deploy_dir)
         elif args['deploy'] or args['service']:
-            overrides['deployDir'] = os.path.realpath('.')
+            overrides['deployDir'] = ospath.realpath('.')
 
         overrides['reDeploy'] = args['--redeploy'] and True or False
 
@@ -185,7 +186,7 @@ def runInner():
         cache_dir = args['--cacheDir']
 
         if cache_dir:
-            cache_dir = os.path.realpath(cache_dir)
+            cache_dir = ospath.realpath(cache_dir)
 
         #---
         deploy = overrides.setdefault('_deploy', {})
@@ -246,7 +247,7 @@ def runInner():
             elif args['delete']:
                 cit.vcs_delete(args['<vcs_ref>'], cache_dir)
             elif args['export']:
-                dst_dir = os.path.realpath(args['<dst_dir>'])
+                dst_dir = ospath.realpath(args['<dst_dir>'])
                 cit.vcs_export(args['<vcs_ref>'], dst_dir, cache_dir)
             elif args['tags']:
                 cit.vcs_tags(args['<tag_pattern>'], cache_dir)
@@ -350,6 +351,7 @@ def run():
         print(file=sys.stderr)
         print(Coloring.error('ERROR: ' + str(e)), file=sys.stderr)
         print(file=sys.stderr)
+        import traceback
         print(Coloring.warn(traceback.format_exc()), file=sys.stderr)
         sys.exit(1)
     except KeyboardInterrupt as e:

@@ -5,6 +5,8 @@ __all__ = ['BuildTool']
 
 
 class BuildTool(SubTool):
+    __slots__ = ()
+
     def onPrepare(self, config):
         pass
 

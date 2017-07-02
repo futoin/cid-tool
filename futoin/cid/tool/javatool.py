@@ -1,7 +1,4 @@
 
-import os
-import glob
-
 from ..runtimetool import RuntimeTool
 from .javatoolmixin import JavaToolMixIn
 
@@ -18,6 +15,7 @@ javaVer supports:
 - only one digit like 6, 7, 8, 9 (Zulu JDK (http://zulu.org)
 - use javaBin for custom JRE
 """
+    __slots__ = ()
 
     def envNames(self):
         return ['javaBin', 'javaVer']
@@ -64,12 +62,16 @@ javaVer supports:
         pass
 
     def initEnv(self, env):
-        if env.get('javaBin', None):
-            bin_dir = os.path.dirname(env['javaBin'])
-            java_home = os.path.dirname(env['javaBin'])
+        ospath = self._ospath
+        environ = self._environ
+        glob = self._ext.glob
 
-            os.environ['JAVA_HOME'] = java_home
-            os.environ['JRE_HOME'] = java_home
+        if env.get('javaBin', None):
+            bin_dir = ospath.dirname(env['javaBin'])
+            java_home = ospath.dirname(env['javaBin'])
+
+            environ['JAVA_HOME'] = java_home
+            environ['JRE_HOME'] = java_home
             self._addBinPath(bin_dir, True)
 
             super(javaTool, self).initEnv(env, 'java')
@@ -106,19 +108,19 @@ javaVer supports:
             ]
 
         for c in candidates:
-            if os.path.exists(c):
+            if ospath.exists(c):
                 bin_name = [c]
             else:
                 bin_name = glob.glob(c)
 
             if bin_name:
                 bin_name = bin_name[0]
-                bin_dir = os.path.dirname(bin_name)
-                java_home = os.path.dirname(bin_dir)
+                bin_dir = ospath.dirname(bin_name)
+                java_home = ospath.dirname(bin_dir)
 
                 env['javaBin'] = bin_name
-                os.environ['JAVA_HOME'] = java_home
-                os.environ['JRE_HOME'] = java_home
+                environ['JAVA_HOME'] = java_home
+                environ['JRE_HOME'] = java_home
                 self._addBinPath(bin_dir, True)
                 self._have_tool = True
                 break

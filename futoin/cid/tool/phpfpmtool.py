@@ -1,8 +1,4 @@
 
-import os
-import glob
-import copy
-
 from ..runtimetool import RuntimeTool
 
 
@@ -27,6 +23,7 @@ Use .tune.phpini for php.ini tuning - dict representing ini file options.
 Note: system php.ini is ignored, but all extensions are automatically loaded from system scan dir.
 Note: file upload is OFF by default.
 """
+    __slots__ = ()
 
     def getDeps(self):
         return ['php']
@@ -91,6 +88,7 @@ Note: file upload is OFF by default.
         return ['phpfpmBin', 'phpfpmVer']
 
     def initEnv(self, env):
+        ospath = self._ospath
         php_ver = env['phpVer']
         phpfpm_ver = env.setdefault('phpfpmVer', php_ver)
 
@@ -110,14 +108,14 @@ Note: file upload is OFF by default.
                 bin_name = 'php-fpm' + php_ver
 
         else:
-            bin_name = '{0}-fpm'.format(os.path.basename(php_bin))
+            bin_name = '{0}-fpm'.format(ospath.basename(php_bin))
 
         #--
-        phpfpm_bin = os.path.realpath(
-            os.path.join(php_bin, '..', '..', 'sbin',
-                         '{0}*'.format(bin_name))
+        phpfpm_bin = ospath.realpath(
+            ospath.join(php_bin, '..', '..', 'sbin',
+                        '{0}*'.format(bin_name))
         )
-        phpfpm_bin = glob.glob(phpfpm_bin)
+        phpfpm_bin = self._ext.glob.glob(phpfpm_bin)
 
         if phpfpm_bin:
             env['phpfpmBin'] = phpfpm_bin[0]
@@ -134,6 +132,7 @@ Note: file upload is OFF by default.
             return
 
     def onPreConfigure(self, config, runtime_dir, svc, cfg_svc_tune):
+        ospath = self._ospath
         env = config['env']
         deploy = config['deploy']
         name_id = '{0}-{1}'.format(svc['name'], svc['instanceId'])
@@ -143,10 +142,10 @@ Note: file upload is OFF by default.
 
         # conf location
         fpm_conf = "phpfpm-{0}.conf".format(name_id)
-        fpm_conf = os.path.join(runtime_dir, fpm_conf)
+        fpm_conf = ospath.join(runtime_dir, fpm_conf)
 
         php_conf = "php-{0}.ini".format(name_id)
-        php_conf = os.path.join(runtime_dir, php_conf)
+        php_conf = ospath.join(runtime_dir, php_conf)
 
         # Save location to deployment config
         cfg_svc_tune.update({
@@ -171,7 +170,7 @@ Note: file upload is OFF by default.
 
         #
         fpm_ini = svc_tune.get('config', {})
-        fpm_ini = copy.deepcopy(fpm_ini)
+        fpm_ini = self._ext.copy.deepcopy(fpm_ini)
 
         #
         cid_tune = svc_tune.get('cid', {})
@@ -184,7 +183,7 @@ Note: file upload is OFF by default.
         global_ini['daemonize'] = 'no'
         global_ini['rlimit_files'] = svc_tune['maxFD']
 
-        if os.path.exists('/bin/systemctl'):
+        if ospath.exists('/bin/systemctl'):
             global_ini['systemd_interval'] = '0'
 
         #
@@ -212,10 +211,10 @@ Note: file upload is OFF by default.
         self._writeIni(fpm_conf, fpm_ini)
 
         #
-        tmp_dir = os.path.join(deploy['tmpDir'], 'php')
+        tmp_dir = ospath.join(deploy['tmpDir'], 'php')
         self._mkDir(tmp_dir)
 
-        upload_dir = os.path.join(deploy['tmpDir'], 'phpupload')
+        upload_dir = ospath.join(deploy['tmpDir'], 'phpupload')
         self._mkDir(upload_dir)
 
         #

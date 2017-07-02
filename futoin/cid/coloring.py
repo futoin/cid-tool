@@ -3,6 +3,7 @@ import sys
 
 
 class Coloring:
+    __slots__ = ()
     _color = sys.stdout.isatty()
 
     @classmethod

@@ -11,6 +11,7 @@ Not a fully supported RMS. Supports only uploading of local packages.
 
 Note: rmsRepo is ignored and rmsPool is actual repo URL or uses ~/.pypirc entry
 """
+    __slots__ = ()
 
     def getDeps(self):
         return super(twineTool, self).getDeps() + ['gpg']

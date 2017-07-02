@@ -8,6 +8,7 @@ class bundlerTool(GemToolMixIn, BuildTool):
 
 Home: http://bundler.io/
 """
+    __slots__ = ()
 
     def autoDetectFiles(self):
         return 'Gemfile'

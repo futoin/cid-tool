@@ -1,6 +1,4 @@
 
-import os
-
 from ..runtimetool import RuntimeTool
 from .bashtoolmixin import BashToolMixIn
 
@@ -14,6 +12,7 @@ Notes on tuning:
 * .tune.nodeArgs
 
 """
+    __slots__ = ()
 
     def getDeps(self):
         if self._isAlpineLinux():
@@ -101,7 +100,7 @@ Notes on tuning:
         else:
             node_env['NODE_ENV'] = 'production'
 
-        os.environ.update(node_env)
+        self._environ.update(node_env)
 
         #---
         node_args = []

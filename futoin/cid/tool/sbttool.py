@@ -22,7 +22,10 @@ Override targets with .config.toolTune.
 
 Requires Java >= 8.
 """
-    _MIN_JAVA = '8'
+    __slots__ = ()
+
+    def _minJava(self):
+        return '8'
 
     def autoDetectFiles(self):
         return 'build.sbt'

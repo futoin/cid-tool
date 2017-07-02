@@ -1,8 +1,4 @@
 
-import os
-import subprocess
-import glob
-
 from ..vcstool import VcsTool
 from .bashtoolmixin import BashToolMixIn
 
@@ -12,6 +8,7 @@ class hgTool(BashToolMixIn, VcsTool):
 
 Home: https://www.mercurial-scm.org/
 """
+    __slots__ = ()
 
     def getDeps(self):
         return ['bash']
@@ -32,8 +29,9 @@ Home: https://www.mercurial-scm.org/
         ]).strip()
 
     def vcsGetRepo(self, config, wc_dir=None):
+        wc_dir = wc_dir or self._os.getcwd()
         return self._callExternal([
-            config['env']['hgBin'], '--repository', wc_dir or os.getcwd(), 'paths', 'default'
+            config['env']['hgBin'], '--repository', wc_dir, 'paths', 'default'
         ], verbose=False).strip()
 
     def _hgCheckoutTool(self, config):
@@ -48,10 +46,11 @@ Home: https://www.mercurial-scm.org/
         return tool_args
 
     def vcsCheckout(self, config, vcs_ref):
+        ospath = self._ospath
         hgBin = config['env']['hgBin']
-        wc_dir = os.getcwd()
+        wc_dir = self._os.getcwd()
 
-        if os.path.isdir('.hg'):
+        if ospath.isdir('.hg'):
             if 'vcsRepo' in config:
                 remote_info = self.vcsGetRepo(config, '.')
                 if remote_info != config['vcsRepo']:
@@ -112,22 +111,23 @@ Home: https://www.mercurial-scm.org/
         return self._callExternal([hgBin, 'identify', '--id'], verbose=False).strip()
 
     def _hgCache(self, config, vcs_cache_dir):
+        ospath = self._ospath
         hgBin = config['env']['hgBin']
         vcsrepo = config['vcsRepo']
 
         if vcs_cache_dir is None:
             # Hg does not allow remote repository listing
-            if os.path.exists('.hg') and self.vcsGetRepo(config, vcs_cache_dir) == vcsrepo:
+            if ospath.exists('.hg') and self.vcsGetRepo(config, vcs_cache_dir) == vcsrepo:
                 vcs_cache_dir = '.'
             else:
                 vcs_cache_dir = self._cacheDir('hg')
-                vcs_cache_dir = os.path.join(
+                vcs_cache_dir = ospath.join(
                     vcs_cache_dir,
                     vcsrepo.replace('/', '_').replace(':', '_')
                 )
-            vcs_cache_dir = os.path.realpath(vcs_cache_dir)
+            vcs_cache_dir = ospath.realpath(vcs_cache_dir)
 
-        if os.path.isdir(vcs_cache_dir):
+        if ospath.isdir(vcs_cache_dir):
             remote_info = self.vcsGetRepo(config, vcs_cache_dir)
 
             if remote_info != vcsrepo:
@@ -137,7 +137,7 @@ Home: https://www.mercurial-scm.org/
             else:
                 self._callExternal([hgBin, '--cwd', vcs_cache_dir, 'pull'])
 
-        if not os.path.isdir(vcs_cache_dir):
+        if not ospath.isdir(vcs_cache_dir):
             self._callExternal([hgBin, 'clone', vcsrepo, vcs_cache_dir])
 
         return vcs_cache_dir
@@ -187,6 +187,8 @@ Home: https://www.mercurial-scm.org/
         return res
 
     def vcsExport(self, config, vcs_cache_dir, vcs_ref, dst_path):
+        ospath = self._ospath
+        os = self._os
         vcs_cache_dir = self._hgCache(config, vcs_cache_dir)
 
         self._callExternal([
@@ -200,9 +202,9 @@ Home: https://www.mercurial-scm.org/
         ])
 
         for f in ['.hgtags', '.hgignore', '.hg_archival.txt']:
-            f = os.path.join(dst_path, f)
+            f = ospath.join(dst_path, f)
 
-            if os.path.exists(f):
+            if ospath.exists(f):
                 os.remove(f)
 
     def vcsBranch(self, config, vcs_ref):
@@ -221,7 +223,7 @@ Home: https://www.mercurial-scm.org/
         try:
             self._callExternal(
                 [hgBin, 'merge', '--tool', 'internal:merge', vcs_ref])
-        except subprocess.CalledProcessError:
+        except self._ext.subprocess.CalledProcessError:
             if cleanup:
                 self.vcsRevert(config)
                 self._errorExit('Merge failed, aborted.')
@@ -231,6 +233,7 @@ Home: https://www.mercurial-scm.org/
         self.vcsPush(config, [curr_ref])
 
     def vcsDelete(self, config, vcs_cache_dir, vcs_ref):
+        os = self._os
         vcs_cache_dir = self._hgCache(config, vcs_cache_dir)
         hgBin = config['env']['hgBin']
 

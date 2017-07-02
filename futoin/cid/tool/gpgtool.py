@@ -9,6 +9,7 @@ Home: https://www.gnupg.org/
 
 gpgKeyServer is hkp://keyserver.ubuntu.com:80 by default
 """
+    __slots__ = ()
 
     def envNames(self):
         return ['gpgBin', 'gpgKeyServer']

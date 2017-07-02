@@ -8,6 +8,7 @@ class gulpTool(NpmToolMixIn, BuildTool):
 
 Home: http://gulpjs.com/    
 """
+    __slots__ = ()
 
     def autoDetectFiles(self):
         return 'gulpfile.js'

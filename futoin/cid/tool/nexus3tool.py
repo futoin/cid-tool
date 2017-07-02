@@ -1,7 +1,4 @@
 
-import os
-import shutil
-
 from ..rmstool import RmsTool
 
 
@@ -17,6 +14,7 @@ So, this tool is not usable yet.
 Please set user and password in ~/.futoin.json env. Please
 avoid setting these variables in process environment.
 """
+    __slots__ = ()
 
     def envNames(self):
         return ['nexus3User', 'nexus3Password']
@@ -25,8 +23,10 @@ avoid setting these variables in process environment.
         self._have_tool = True
 
     def rmsUpload(self, config, rms_pool, package_list):
+        ospath = self._ospath
+
         for package in package_list:
-            package_basename = os.path.basename(package)
+            package_basename = ospath.basename(package)
 
             with open(package, 'rb') as pf:
                 self._callNexus(
@@ -67,7 +67,7 @@ avoid setting these variables in process environment.
 
             with open(package, 'wb') as f:
                 result.raw.decode_content = True
-                shutil.copyfileobj(result.raw, f)
+                self._ext.shutil.copyfileobj(result.raw, f)
 
     def rmsPoolCreate(self, config, rms_pool):
         pool = rms_pool.split('/', 1)[0]
@@ -119,7 +119,6 @@ avoid setting these variables in process environment.
 
     def _callNexus(self, config, method, path, **kwargs):
         env = config['env']
-        import requests
 
         rms_repo = config['rmsRepo']
         if rms_repo[-1] == '/':
@@ -133,4 +132,4 @@ avoid setting these variables in process environment.
         kwargs['timeout'] = self._timeouts(env, 'requests')
 
         self._info('HTTP call {0} {1}'.format(method, url))
-        return requests.request(method, url, **kwargs)
+        return self._ext.requests.request(method, url, **kwargs)

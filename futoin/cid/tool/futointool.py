@@ -9,6 +9,7 @@ Home: https://github.com/futoin/specs/blob/master/draft/ftn16_cid_tool.md
 
 futoin.json is the only file read by FutoIn CID itself.
 """
+    __slots__ = ()
 
     def autoDetectFiles(self):
         return self._FUTOIN_JSON

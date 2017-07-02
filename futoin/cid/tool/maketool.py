@@ -10,6 +10,7 @@ Home: https://www.gnu.org/software/make/
 Expects presence of "clean" target.
 Build uses the default target.
 """
+    __slots__ = ()
 
     def autoDetectFiles(self):
         return [

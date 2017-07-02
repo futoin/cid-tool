@@ -1,11 +1,4 @@
 
-from __future__ import print_function, absolute_import
-
-import os
-import fnmatch
-import glob
-import subprocess
-
 from ..runtimetool import RuntimeTool
 from .bashtoolmixin import BashToolMixIn
 from .curltoolmixin import CurlToolMixIn
@@ -26,7 +19,7 @@ You can forbid source builds by setting phpBinOnly to non-empty string.
 However, if phpVer is set then we use php-build which make consume a lot of time and
 resources due to lack of trusted binary builds.
 """
-    PHP_DIR = os.path.join(os.environ['HOME'], '.php')
+    __slots__ = ()
 
     def getDeps(self):
         return (
@@ -35,6 +28,8 @@ resources due to lack of trusted binary builds.
             CurlToolMixIn.getDeps(self))
 
     def _installTool(self, env):
+        ospath = self._ospath
+        environ = self._environ
         php_ver = env['phpVer']
 
         if php_ver == self.SYSTEM_VER:
@@ -48,17 +43,17 @@ resources due to lack of trusted binary builds.
         php_dir = env['phpDir']
 
         try:
-            os.makedirs(php_dir)
+            self._os.makedirs(php_dir)
         except:
             pass
 
         self._buildDeps(env)
 
-        old_tmpdir = os.environ.get('TMPDIR', '/tmp')
-        os.environ['TMPDIR'] = os.path.join(php_dir, '..')
+        old_tmpdir = environ.get('TMPDIR', '/tmp')
+        environ['TMPDIR'] = ospath.join(php_dir, '..')
         self._callExternal(
             [env['phpbuildBin'], env['phpSrcVer'], env['phpDir']])
-        os.environ['TMPDIR'] = old_tmpdir
+        environ['TMPDIR'] = old_tmpdir
 
     def _installBinaries(self, env):
         ver = env['phpVer']
@@ -119,7 +114,7 @@ resources due to lack of trusted binary builds.
 
         php_dir = env['phpDir']
 
-        if os.path.exists(php_dir):
+        if self._ospath.exists(php_dir):
             self._rmTree(php_dir)
 
         self._have_tool = False
@@ -128,6 +123,9 @@ resources due to lack of trusted binary builds.
         return ['phpDir', 'phpBin', 'phpVer', 'phpfpmVer', 'phpBinOnly', 'phpSuryRepo']
 
     def initEnv(self, env):
+        ospath = self._ospath
+        os = self._os
+
         #---
         # TODO: rewrite similar to ruby, and add dynamic detection
         if self._isDebian() or self._isUbuntu():
@@ -187,7 +185,7 @@ resources due to lack of trusted binary builds.
                     try:
                         env_to_set = self._callBash(
                             env, 'scl enable rh-php{0} env'.format(ver), verbose=False)
-                    except subprocess.CalledProcessError:
+                    except self._ext.subprocess.CalledProcessError:
                         return
 
                     self._updateEnvFromOutput(env_to_set)
@@ -202,22 +200,22 @@ resources due to lack of trusted binary builds.
             elif self._isMacOS():
                 brew_prefix = env['brewDir']
                 formula = 'php' + php_ver.replace('.', '')
-                php_dir = os.path.join(brew_prefix, 'opt', formula, 'bin')
+                php_dir = ospath.join(brew_prefix, 'opt', formula, 'bin')
 
-                if os.path.exists(php_dir):
+                if ospath.exists(php_dir):
                     self._addBinPath(php_dir, True)
                     super(phpTool, self).initEnv(env)
 
             return
         else:
-            def_dir = os.path.join(
+            def_dir = ospath.join(
                 env['phpbuildDir'], 'share', 'php-build', 'definitions')
 
-            if not os.path.exists(def_dir):
+            if not ospath.exists(def_dir):
                 return
 
             defs = os.listdir(def_dir)
-            defs = fnmatch.filter(defs, php_ver + '*')
+            defs = self._ext.fnmatch.filter(defs, php_ver + '*')
 
             if not defs:
                 self._errorExit('PHP version "{0}" not found'.format(php_ver))
@@ -233,16 +231,21 @@ resources due to lack of trusted binary builds.
 
             env['phpSrcVer'] = php_ver
 
-        php_dir = env.setdefault('phpDir', os.path.join(self.PHP_DIR, php_ver))
-        php_bin_dir = os.path.join(php_dir, 'bin')
-        php_bin = os.path.join(php_bin_dir, 'php')
+        php_dir = ospath.join(os.environ['HOME'], '.php', php_ver)
+        php_dir = env.setdefault('phpDir', php_dir)
+        php_bin_dir = ospath.join(php_dir, 'bin')
+        php_bin = ospath.join(php_bin_dir, 'php')
 
-        if os.path.exists(php_bin):
+        if ospath.exists(php_bin):
             self._have_tool = True
             self._addBinPath(php_bin_dir, True)
             env.setdefault('phpBin', php_bin)
 
     def _buildDeps(self, env):
+        ospath = self._ospath
+        os = self._os
+        environ = self._environ
+
         self._requireBuildDep(env, [
             'ssl',
             'mysqlclient',
@@ -389,15 +392,15 @@ resources due to lack of trusted binary builds.
                 [dpkgarch, '-qDEB_HOST_MULTIARCH']).strip()
 
         if multiarch:
-            if os.path.exists(os.path.join('/usr/include', multiarch, 'curl')):
-                curl_dir = os.path.join(env['phpDir'], '..', 'curl')
+            if ospath.exists(ospath.join('/usr/include', multiarch, 'curl')):
+                curl_dir = ospath.join(env['phpDir'], '..', 'curl')
 
                 try:
                     os.mkdir(curl_dir)
-                    os.symlink(os.path.join('/usr/include', multiarch),
-                               os.path.join(curl_dir, 'include'))
-                    os.symlink(os.path.join('/usr/lib', multiarch),
-                               os.path.join(curl_dir, 'lib'))
+                    os.symlink(ospath.join('/usr/include', multiarch),
+                               ospath.join(curl_dir, 'include'))
+                    os.symlink(ospath.join('/usr/lib', multiarch),
+                               ospath.join(curl_dir, 'lib'))
                 except Exception as e:
                     # print(e)
                     pass
@@ -405,7 +408,7 @@ resources due to lack of trusted binary builds.
                 curl_dir = '/usr/include'
 
             with_libdir = ' --with-libdir={0} --with-curl={1}'.format(
-                os.path.join('lib', multiarch),
+                ospath.join('lib', multiarch),
                 curl_dir,
             )
         else:
@@ -414,10 +417,10 @@ resources due to lack of trusted binary builds.
         from ..details.resourcealgo import ResourceAlgo
         cpu_count = ResourceAlgo().cpuLimit({})
 
-        os.environ['PHP_BUILD_EXTRA_MAKE_ARGUMENTS'] = '-j{0}'.format(
+        environ['PHP_BUILD_EXTRA_MAKE_ARGUMENTS'] = '-j{0}'.format(
             cpu_count)
 
-        os.environ['PHP_BUILD_CONFIGURE_OPTS'] = ' \
+        environ['PHP_BUILD_CONFIGURE_OPTS'] = ' \
             --disable-debug \
             --with-regex=php \
             --enable-calendar \

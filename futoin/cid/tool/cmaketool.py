@@ -1,6 +1,4 @@
 
-import os
-
 from ..buildtool import BuildTool
 
 
@@ -12,6 +10,7 @@ Home: https://cmake.org/
 CMake creates a build folder and does all processing in it.
 Build folder is configurable through cmakeBuildDir env.
 """
+    __slots__ = ()
 
     def getOrder(self):
         return -10
@@ -41,13 +40,15 @@ Build folder is configurable through cmakeBuildDir env.
     def onPrepare(self, config):
         build_dir = config['env']['cmakeBuildDir']
 
-        if os.path.exists(build_dir):
+        if self._ospath.exists(build_dir):
             self._rmTree(build_dir)
 
     def onBuild(self, config):
+        ospath = self._ospath
+        os = self._os
         build_dir = config['env']['cmakeBuildDir']
 
-        if os.path.exists(build_dir):
+        if ospath.exists(build_dir):
             self._callExternal([config['env']['cmakeBin'], build_dir])
         else:
             os.mkdir(build_dir)

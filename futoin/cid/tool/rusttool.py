@@ -1,6 +1,4 @@
 
-import os
-
 from ..runenvtool import RunEnvTool
 
 
@@ -9,6 +7,7 @@ class rustTool(RunEnvTool):
 
 Home: https://www.rust-lang.org
 """
+    __slots__ = ()
 
     def getDeps(self):
         if self._useSystem():
@@ -49,7 +48,7 @@ Home: https://www.rust-lang.org
     def initEnv(self, env):
         if not self._useSystem():
             ver = env.setdefault('rustVer', 'stable')
-            os.environ['RUSTUP_TOOLCHAIN'] = ver
+            self._environ['RUSTUP_TOOLCHAIN'] = ver
 
             try:
                 res = self._callExternal([

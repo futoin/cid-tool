@@ -1,8 +1,10 @@
 
-import os
+from ..subtool import SubTool
 
 
-class PipToolMixIn(object):
+class PipToolMixIn(SubTool):
+    __slots__ = ()
+
     def getDeps(self):
         return ['pip', 'virtualenv']
 
@@ -31,9 +33,10 @@ class PipToolMixIn(object):
             if bin_name is None:
                 bin_name = name
 
-            tool_path = os.path.join(env['virtualenvDir'], 'bin', bin_name)
+            ospath = self._ospath
+            tool_path = ospath.join(env['virtualenvDir'], 'bin', bin_name)
 
-            if os.path.exists(tool_path):
+            if ospath.exists(tool_path):
                 env[bin_env] = tool_path
                 self._have_tool = True
         else:

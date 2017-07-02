@@ -7,6 +7,7 @@ class curlTool(RunEnvTool):
 
 Home: https://curl.haxx.se/
 """
+    __slots__ = ()
 
     def _installTool(self, env):
         self._requirePackages(['curl'])

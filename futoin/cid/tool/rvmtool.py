@@ -1,6 +1,4 @@
 
-import os
-
 from ..runenvtool import RunEnvTool
 from .bashtoolmixin import BashToolMixIn
 from .curltoolmixin import CurlToolMixIn
@@ -13,8 +11,8 @@ Home: https://rvm.io/
 
 Stable RVM is used by default.
 """
+    __slots__ = ()
 
-    RVM_DIR_DEFAULT = os.path.join(os.environ['HOME'], '.rvm')
     RVM_LATEST = 'stable'
     RVM_GPG_KEY = '409B6B1796C275462A1703113804BB82D39DC0E3'
     RVM_GET = 'https://get.rvm.io'
@@ -35,8 +33,9 @@ Stable RVM is used by default.
             '--recv-keys', rvm_gpg_key
         ], suppress_fail=True)
 
-        os.environ['rvm_user_install_flag'] = '1'
-        os.environ['rvm_auto_dotfiles_flag'] = '0'
+        environ = self._environ
+        environ['rvm_user_install_flag'] = '1'
+        environ['rvm_auto_dotfiles_flag'] = '0'
 
         installer = self._callCurl(env, [rvm_get])
 
@@ -59,7 +58,7 @@ Stable RVM is used by default.
 
         rvm_dir = env['rvmDir']
 
-        if os.path.exists(rvm_dir):
+        if self._ospath.exists(rvm_dir):
             self._rmTree(rvm_dir)
 
         self._have_tool = False
@@ -68,15 +67,19 @@ Stable RVM is used by default.
         return ['rvmVer', 'rvmDir', 'rvmBin', 'rvmGet', 'rvmGpgKey']
 
     def initEnv(self, env):
+        ospath = self._ospath
+        environ = self._environ
+
         for v in ['rvm_path', 'rvm_bin_path', 'rvm_prefix', 'rvm_version']:
             try:
-                del os.environ[v]
+                del environ[v]
             except:
                 pass
 
         env.setdefault('rvmVer', self.RVM_LATEST)
-        rvm_dir = env.setdefault('rvmDir', self.RVM_DIR_DEFAULT)
-        rvm_bin_dir = os.path.join(rvm_dir, 'bin')
-        rvm_bin = env['rvmBin'] = os.path.join(rvm_bin_dir, 'rvm')
-        env['rvmInit'] = os.path.join(rvm_dir, 'scripts', 'rvm')
-        self._have_tool = os.path.exists(rvm_bin)
+        rvm_dir = ospath.join(environ['HOME'], '.rvm')
+        rvm_dir = env.setdefault('rvmDir', rvm_dir)
+        rvm_bin_dir = ospath.join(rvm_dir, 'bin')
+        rvm_bin = env['rvmBin'] = ospath.join(rvm_bin_dir, 'rvm')
+        env['rvmInit'] = ospath.join(rvm_dir, 'scripts', 'rvm')
+        self._have_tool = ospath.exists(rvm_bin)

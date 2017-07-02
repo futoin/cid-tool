@@ -1,6 +1,4 @@
 
-import os
-
 from ..runtimetool import RuntimeTool
 from .piptoolmixin import PipToolMixIn
 
@@ -12,6 +10,7 @@ Currently, used for Python WSGI apps.
 
 It's possible to override uWSGI options with .tune.uwsgi parameter map.
 """
+    __slots__ = ()
 
     def tuneDefaults(self):
         return {
@@ -29,16 +28,17 @@ It's possible to override uWSGI options with .tune.uwsgi parameter map.
         }
 
     def onPreConfigure(self, config, runtime_dir, svc, cfg_svc_tune):
+        ospath = self._ospath
         env = config['env']
         deploy = config['deploy']
 
         name_id = '{0}-{1}'.format(svc['name'], svc['instanceId'])
 
         conf_file = 'uwsgi-{0}.ini'.format(name_id)
-        conf_file = os.path.join(runtime_dir, conf_file)
+        conf_file = ospath.join(runtime_dir, conf_file)
 
         pid_file = 'uwsgi-{0}.pid'.format(name_id)
-        pid_file = os.path.join(runtime_dir, pid_file)
+        pid_file = ospath.join(runtime_dir, pid_file)
 
         cfg_svc_tune['uwsgiConf'] = conf_file
         cfg_svc_tune['uwsgiPid'] = pid_file

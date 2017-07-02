@@ -1,5 +1,4 @@
 
-from __future__ import print_function, absolute_import
 
 import os
 import json
@@ -8,13 +7,12 @@ import shutil
 import sys
 import grp
 import time
-import tempfile
 import re
 from collections import OrderedDict
-from ..coloring import Coloring
 
 
 class UtilMixIn(object):
+    __slots__ = ()
     _FUTOIN_JSON = 'futoin.json'
 
     def _updateEnvFromOutput(self, env_to_set):
@@ -25,9 +23,6 @@ class UtilMixIn(object):
                 continue
             n, v = e.split('=', 1)
             os.environ[n] = v
-
-    def autoDetectFiles(self):
-        return None
 
     def _autoDetectByCfg(self, config, file_name):
         if self._name in config.get('toolOrder', []):
@@ -135,7 +130,7 @@ class UtilMixIn(object):
                 raise
 
     def _rmTree(self, dir):
-        self._info(dir, 'Removing: ')
+        self._infoLabel('Removing: ', dir)
 
         os.chmod(dir, stat.S_IRWXU)
         for (path, dirs, files) in os.walk(dir):
@@ -188,20 +183,6 @@ class UtilMixIn(object):
     def _getTune(self, config, key, default=None):
         return config.get('toolTune', {}).get(self._name, {}).get(key, default)
 
-    def _info(self, msg, label=None):
-        if label:
-            line = Coloring.infoLabel(label) + Coloring.info(msg)
-        else:
-            line = Coloring.info('INFO: ' + msg)
-
-        print(line, file=sys.stderr)
-
-    def _warn(self, msg):
-        print(Coloring.warn('WARNING: ' + msg), file=sys.stderr)
-
-    def _errorExit(self, msg):
-        raise RuntimeError(msg)
-
     def _isAdmin(self):
         return os.geteuid() == 0
 
@@ -241,7 +222,7 @@ class UtilMixIn(object):
                         os.remove(fp)
             self._writeTextFile(placeholder, '')
 
-        return tempfile.mkdtemp(dir=tmp_dir, **kwargs)
+        return self._ext.tempfile.mkdtemp(dir=tmp_dir, **kwargs)
 
     def _timeouts(self, env, fmt):
         timeouts = env['timeouts']

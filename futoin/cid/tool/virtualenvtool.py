@@ -1,6 +1,4 @@
 
-import os
-
 from ..runenvtool import RunEnvTool
 from .bashtoolmixin import BashToolMixIn
 
@@ -10,6 +8,7 @@ class virtualenvTool(BashToolMixIn, RunEnvTool):
 
 Home: https://pypi.python.org/pypi/virtualenv
 """
+    __slots__ = ()
 
     def getDeps(self):
         return ['bash', 'python']
@@ -85,14 +84,15 @@ Home: https://pypi.python.org/pypi/virtualenv
         pass
 
     def initEnv(self, env):
+        ospath = self._ospath
         virtualenv_dir = '.virtualenv-{0}'.format(env['pythonFactVer'])
         virtualenv_dir = env.setdefault(
-            'virtualenvDir', os.path.join(self._deployHome(), virtualenv_dir))
+            'virtualenvDir', ospath.join(self._deployHome(), virtualenv_dir))
 
         env.setdefault('virtualenvVer', '15.1.0')
 
-        self._have_tool = os.path.exists(
-            os.path.join(virtualenv_dir, 'bin', 'activate'))
+        self._have_tool = ospath.exists(
+            ospath.join(virtualenv_dir, 'bin', 'activate'))
 
         if self._have_tool:
             env_to_set = self._callBash(env,
@@ -103,4 +103,4 @@ Home: https://pypi.python.org/pypi/virtualenv
 
             self._updateEnvFromOutput(env_to_set)
             # reverse-dep hack
-            env['pythonBin'] = os.path.join(virtualenv_dir, 'bin', 'python')
+            env['pythonBin'] = ospath.join(virtualenv_dir, 'bin', 'python')

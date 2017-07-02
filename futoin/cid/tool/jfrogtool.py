@@ -1,7 +1,4 @@
 
-import os
-import stat
-
 from ..runenvtool import RunEnvTool
 from .curltoolmixin import CurlToolMixIn
 
@@ -11,20 +8,25 @@ class jfrogTool(CurlToolMixIn, RunEnvTool):
 
 Home: https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
 """
+    __slots__ = ()
 
     def _installTool(self, env):
+        ospath = self._ospath
+        os = self._os
+
         if self._isMacOS():
             self._requireBrew('jfrog-cli-go')
             return
 
         dst_dir = env['jfrogDir']
         get_url = env['jfrogGet']
-        jfrog_bin = os.path.join(dst_dir, 'jfrog')
+        jfrog_bin = ospath.join(dst_dir, 'jfrog')
 
-        if not os.path.exists(dst_dir):
+        if not ospath.exists(dst_dir):
             os.makedirs(dst_dir)
 
         self._callCurl(env, [get_url, '-o', jfrog_bin])
+        stat = self._ext.stat
         os.chmod(jfrog_bin, stat.S_IRWXU | stat.S_IRGRP |
                  stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
 
@@ -40,8 +42,8 @@ Home: https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
             return
 
         jfrog_bin = env['jfrogBin']
-        if os.path.exists(jfrog_bin):
-            os.remove(jfrog_bin)
+        if self._ospath.exists(jfrog_bin):
+            self._os.remove(jfrog_bin)
         self._have_tool = False
 
     def envNames(self):
@@ -72,4 +74,4 @@ Home: https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
         super(jfrogTool, self).initEnv(env)
 
         if self._have_tool:
-            env['jfrogDir'] = os.path.dirname(env['jfrogBin'])
+            env['jfrogDir'] = self._ospath.dirname(env['jfrogBin'])

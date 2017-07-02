@@ -1,6 +1,4 @@
 
-import os
-
 from ..rmstool import RmsTool
 
 
@@ -24,6 +22,7 @@ Note 2: Artifactory OSS API is limited and may not support all commands
 
 Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
 """
+    __slots__ = ()
 
     def getDeps(self):
         return ['jfrog']
@@ -32,10 +31,11 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
         return ['artifactoryUser', 'artifactoryPassword', 'artifactoryApiKey']
 
     def initEnv(self, env):
-        os.environ['JFROG_CLI_LOG_LEVEL'] = 'ERROR'
+        self._environ['JFROG_CLI_LOG_LEVEL'] = 'ERROR'
         self._have_tool = True
 
     def rmsUpload(self, config, rms_pool, package_list):
+        ospath = self._ospath
         self._checkFileUpload(config, rms_pool, package_list)
 
         server_cfg = self._getServerConfig(config)
@@ -50,7 +50,7 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
                 '--recursive=false',
                 '--regexp=false',
                 package,
-                '{0}/{1}'.format(rms_pool, os.path.basename(package))
+                '{0}/{1}'.format(rms_pool, ospath.basename(package))
             ])
 
     def rmsPromote(self, config, src_pool, dst_pool, package_list):
@@ -71,6 +71,7 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
             ])
 
     def rmsGetList(self, config, rms_pool, package_hint):
+        ospath = self._ospath
         (pool, path) = self._prepParts(rms_pool, package_hint or '*')
 
         result = self._callArtifactory(
@@ -84,7 +85,7 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
         result.raise_for_status()
 
         result = result.json()
-        result = [os.path.basename(r) for r in result['files']]
+        result = [ospath.basename(r) for r in result['files']]
         return result
 
     def rmsRetrieve(self, config, rms_pool, package_list):
@@ -200,8 +201,8 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
         if url[-1] != '/':
             url += '/'
 
-        jfrog_cfg = os.path.join(
-            os.environ['HOME'], '.jfrog', 'jfrog-cli.conf')
+        jfrog_cfg = self._ospath.join(
+            self._environ['HOME'], '.jfrog', 'jfrog-cli.conf')
         jfrog_cfg = self._loadJSONConfig(jfrog_cfg)
 
         if jfrog_cfg:
@@ -240,9 +241,7 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
             'Please make sure Artifactory server is configured in JFrog CLI. See tool desc.')
 
     def _genServerId(self):
-        import binascii
-
-        rndm = binascii.hexlify(os.urandom(8))
+        rndm = self._ext.binascii.hexlify(self._os.urandom(8))
 
         try:
             rndm = str(rndm, 'utf8')
@@ -252,8 +251,10 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
         return 'cid-' + rndm
 
     def _checkFileUpload(self, config, rms_pool, package_list):
+        ospath = self._ospath
+
         for package in package_list:
-            package = os.path.basename(package)
+            package = ospath.basename(package)
             res = self.rmsGetList(config, rms_pool, package)
 
             if res:

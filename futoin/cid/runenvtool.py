@@ -5,4 +5,4 @@ __all__ = ['RunEnvTool']
 
 
 class RunEnvTool(SubTool):
-    pass
+    __slots__ = ()

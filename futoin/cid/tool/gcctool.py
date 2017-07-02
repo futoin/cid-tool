@@ -1,6 +1,4 @@
 
-import os
-
 from ..runenvtool import RunEnvTool
 
 
@@ -11,6 +9,7 @@ Home: https://gcc.gnu.org/
 
 If gccBin is set it must point to bin folder.
 """
+    __slots__ = ()
 
     def envNames(self):
         return ['gccBin', 'gccPrefix', 'gccPostfix']
@@ -29,7 +28,7 @@ If gccBin is set it must point to bin folder.
         postf = env.setdefault('gccPostfix', '')
 
         if gcc_bin:
-            if os.path.exists(gcc_bin):
+            if self._ospath.exists(gcc_bin):
                 self._have_tool = True
         else:
             gcc = pref + 'gcc' + postf

@@ -1,19 +1,20 @@
 
-import os
-import re
 
 from .bashtoolmixin import BashToolMixIn
 from .javatoolmixin import JavaToolMixIn
 
 
 class SdkmanToolMixIn(BashToolMixIn, JavaToolMixIn):
-    _NEED_JDK = True
+    __slots__ = ()
+
+    def _needJDK(self):
+        return True
 
     def getDeps(self):
         return (
             super(SdkmanToolMixIn, self).getDeps() +
             ['sdkman', 'java'] +
-            (self._NEED_JDK and ['jdk'] or [])
+            (self._needJDK() and ['jdk'] or [])
         )
 
     def _sdkName(self):
@@ -25,7 +26,7 @@ class SdkmanToolMixIn(BashToolMixIn, JavaToolMixIn):
     def _setAutoAnswer(self, env):
         self._callBash(env,
                        'grep -q "sdkman_auto_answer=true" {0} || echo "sdkman_auto_answer=true" >> {0}'
-                       .format(os.path.join(env['sdkmanDir'], 'etc', 'config')),
+                       .format(self._ospath.join(env['sdkmanDir'], 'etc', 'config')),
                        verbose=False
                        )
 
@@ -44,7 +45,7 @@ class SdkmanToolMixIn(BashToolMixIn, JavaToolMixIn):
 
         java_ver = self._callBash(
             env, '{0} -version 2>&1'.format(env['javaBin']), verbose=False)
-        return int(re.search('version "1\.([0-9]+)\.', java_ver).group(1))
+        return int(self._ext.re.search('version "1\.([0-9]+)\.', java_ver).group(1))
 
     def _installTool(self, env):
         self._setAutoAnswer(env)
@@ -64,9 +65,10 @@ class SdkmanToolMixIn(BashToolMixIn, JavaToolMixIn):
                          )
 
     def uninstallTool(self, env):
-        tool_dir = os.path.join(
+        ospath = self._ospath
+        tool_dir = ospath.join(
             env['sdkmanDir'], 'candidates', self._sdkName())
-        if os.path.exists(tool_dir):
+        if ospath.exists(tool_dir):
             self._info('Removing: {0}'.format(tool_dir))
             self._rmTree(tool_dir)
         #self._setAutoAnswer( env )
@@ -78,13 +80,14 @@ class SdkmanToolMixIn(BashToolMixIn, JavaToolMixIn):
         #)
 
     def initEnv(self, env):
+        ospath = self._ospath
         if not env.get('sdkmanDir', None):
             return
 
-        tool_dir = os.path.join(
+        tool_dir = ospath.join(
             env['sdkmanDir'], 'candidates', self._sdkName(), 'current')
 
-        if not os.path.exists(tool_dir):
+        if not ospath.exists(tool_dir):
             return
 
         try:

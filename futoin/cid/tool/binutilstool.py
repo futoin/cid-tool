@@ -1,6 +1,4 @@
 
-import os
-
 from ..runenvtool import RunEnvTool
 
 
@@ -11,6 +9,7 @@ Home: https://www.gnu.org/software/binutils/
 
 If binutilsDir is set it must point to bin folder.
 """
+    __slots__ = ()
 
     def envNames(self):
         return ['binutilsDir', 'binutilsPrefix', 'binutilsPostfix']
@@ -23,6 +22,7 @@ If binutilsDir is set it must point to bin folder.
         self._requireApk(['binutils'])
 
     def initEnv(self, env):
+        ospath = self._ospath
         pref = env.setdefault('binutilsPrefix', '')
         postf = env.setdefault('binutilsPostfix', '')
 
@@ -30,11 +30,11 @@ If binutilsDir is set it must point to bin folder.
         ld = pref + 'ld' + postf
 
         if bu_dir:
-            ld = os.path.join(bu_dir, ld)
-            self._have_tool = os.path.exists(bu_dir)
+            ld = ospath.join(bu_dir, ld)
+            self._have_tool = ospath.exists(bu_dir)
         else:
             ld = self._which(ld)
 
             if ld:
-                env['binutilsDir'] = os.path.dirname(ld)
+                env['binutilsDir'] = ospath.dirname(ld)
                 self._have_tool = True

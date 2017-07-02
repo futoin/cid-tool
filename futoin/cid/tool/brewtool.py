@@ -1,6 +1,4 @@
 
-import os
-
 from ..runenvtool import RunEnvTool
 
 
@@ -15,6 +13,8 @@ brewDir & brewGit is used for local install.
 Hint: Unprivileged brew does not work well with many bottles, you may want to use
     brewSudo='/usr/bin/sudo -n -H -u adminaccount' with "cid sudoers" config.
 """
+    __slots__ = ()
+
     _MACOS_ADMIN_GID = 80  # dirty hack for now
     _GLOBAL_BREW_DIR = '/usr/local'
 
@@ -54,22 +54,24 @@ Hint: Unprivileged brew does not work well with many bottles, you may want to us
     def _isLocalBrew(self, env):
         return env['brewDir'] != self._GLOBAL_BREW_DIR
 
-        if self._MACOS_ADMIN_GID not in os.getgroups():
+        if self._MACOS_ADMIN_GID not in self._os.getgroups():
             return True
 
         return False
 
     def initEnv(self, env, bin_name=None):
+        ospath = self._ospath
+        os = self._os
         brewSudo = env.get('brewSudo', '')
 
         if self._MACOS_ADMIN_GID not in os.getgroups() and not brewSudo:
-            homebrew_dir = os.path.join(os.environ['HOME'], '.homebrew')
+            homebrew_dir = ospath.join(self._environ['HOME'], '.homebrew')
             env.setdefault('brewDir', homebrew_dir)
         else:
             env.setdefault('brewDir', self._GLOBAL_BREW_DIR)
 
             if brewSudo:
-                os.environ['brewSudo'] = brewSudo
+                self._environ['brewSudo'] = brewSudo
 
         env.setdefault('brewGit',
                        'https://github.com/Homebrew/brew.git')
@@ -78,10 +80,10 @@ Hint: Unprivileged brew does not work well with many bottles, you may want to us
 
         if self._isLocalBrew(env):
             homebrew_dir = env['brewDir']
-            bin_dir = os.path.join(homebrew_dir, 'bin')
-            brew = os.path.join(bin_dir, 'brew')
+            bin_dir = ospath.join(homebrew_dir, 'bin')
+            brew = ospath.join(bin_dir, 'brew')
 
-            if os.path.exists(brew):
+            if ospath.exists(brew):
                 self._addBinPath(bin_dir, True)
                 env['brewBin'] = brew
                 self._have_tool = True

@@ -1,7 +1,8 @@
 
-import os
-import copy
 from collections import OrderedDict
+
+from ..mixins.log import LogMixIn
+from ..mixins.ondemand import OnDemandMixIn
 
 from ..mixins.util import UtilMixIn
 from ..mixins.path import PathMixIn
@@ -106,10 +107,11 @@ uwsgi_param  HTTP_PROXY         "";
 """
 
 
-class ConfigBuilder(UtilMixIn, PathMixIn, PackageMixIn):
+class ConfigBuilder(LogMixIn, OnDemandMixIn,  UtilMixIn, PathMixIn, PackageMixIn):
     def __init__(self, config, svc):
         self._config = config
-        self._nginx_conf = copy.deepcopy(svc['tune'].get('config', {}))
+        self._nginx_conf = self._ext.copy.deepcopy(
+            svc['tune'].get('config', {}))
         self._svc = svc
         self._remote_addr_var = '$remote_addr'
         self._remote_port_var = '$remote_port'
@@ -205,7 +207,7 @@ class ConfigBuilder(UtilMixIn, PathMixIn, PackageMixIn):
         # The only vhost
         #---
         server = http.setdefault('server', OrderedDict())
-        server['root'] = os.path.join(config['wcDir'], svc['path'])
+        server['root'] = self._ospath.join(config['wcDir'], svc['path'])
         server.setdefault('gzip_static', 'on')
         server.setdefault('server_name', '_')
 
@@ -386,7 +388,7 @@ class ConfigBuilder(UtilMixIn, PathMixIn, PackageMixIn):
         location['-fastcgi-params'] = FASTCGI_PARAMS
         location['fastcgi_param REMOTE_ADDR'] = self._remote_addr_var
         location['fastcgi_param REMOTE_PORT'] = self._remote_port_var
-        location['fastcgi_param SCRIPT_FILENAME'] = os.path.join(
+        location['fastcgi_param SCRIPT_FILENAME'] = self._ospath.join(
             self._config['deployDir'], 'current', svc['path'])
 
         return upstream, location

@@ -1,6 +1,4 @@
 
-import os
-
 from ..runtimetool import RuntimeTool
 from ..details.nginx import *
 
@@ -44,6 +42,8 @@ Additional notes:
 * proxy buffering is disabled and assumed to be part of front- or middle- balancers
 
 """
+    __slots__ = ()
+
     _GPG_KEY = GPG_KEY
 
     def envNames(self):
@@ -135,20 +135,21 @@ Additional notes:
 
         sbin_nginx = '/usr/sbin/nginx'
 
-        if not self._have_tool and os.path.exists(sbin_nginx):
+        if not self._have_tool and self._ospath.exists(sbin_nginx):
             env['nginxBin'] = sbin_nginx
             self._have_tool = True
 
     def onPreConfigure(self, config, runtime_dir, svc, cfg_svc_tune):
+        ospath = self._ospath
         deploy = config['deploy']
 
         name_id = '{0}-{1}'.format(svc['name'], svc['instanceId'])
 
         conf_file = 'nginx-{0}.conf'.format(name_id)
-        conf_file = os.path.join(runtime_dir, conf_file)
+        conf_file = ospath.join(runtime_dir, conf_file)
 
         pid_file = 'nginx-{0}.pid'.format(name_id)
-        pid_file = os.path.join(runtime_dir, pid_file)
+        pid_file = ospath.join(runtime_dir, pid_file)
 
         cfg_svc_tune['nginxConf'] = conf_file
 
@@ -162,7 +163,7 @@ Additional notes:
                 )
         cfg_svc_tune['maxRequestSize'] = self._toMemory(max_request_size)
         #
-        tmp_path = os.path.join(deploy['tmpDir'], 'nginx')
+        tmp_path = ospath.join(deploy['tmpDir'], 'nginx')
         self._mkDir(tmp_path)
 
         #

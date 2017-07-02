@@ -1,6 +1,4 @@
 
-from __future__ import print_function, absolute_import
-
 import os
 import subprocess
 import platform
@@ -13,6 +11,7 @@ except ImportError:
 
 
 class PackageMixIn(object):
+    __slots__ = ()
     SYSTEM_VER = 'system'
 
     def _isCentOS(self):

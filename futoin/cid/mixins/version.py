@@ -1,12 +1,11 @@
 
-from __future__ import print_function, absolute_import
-
 
 class VersionMixIn(object):
     """
 CID tools are required to ignore bug-fix/patch release
 version parts and always install the latest from release line.
 """
+    __slots__ = ()
 
     def getVersionParts(self):
         """Override, if tool has different number of meaningful parts"""

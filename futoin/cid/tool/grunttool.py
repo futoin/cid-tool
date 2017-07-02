@@ -8,6 +8,7 @@ class gruntTool(NpmToolMixIn, BuildTool):
 
 Home: https://gruntjs.com/    
 """
+    __slots__ = ()
 
     def autoDetectFiles(self):
         return ['Gruntfile.js', 'Gruntfile.coffee']

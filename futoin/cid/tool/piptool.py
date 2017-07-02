@@ -1,6 +1,4 @@
 
-import os
-
 from ..buildtool import BuildTool
 
 
@@ -9,6 +7,8 @@ class pipTool(BuildTool):
 
 Home: https://pypi.python.org/pypi/pip
 """
+    __slots__ = ()
+
     REQUIREMENTS_FILE = 'requirements.txt'
 
     def autoDetectFiles(self):
@@ -21,12 +21,14 @@ Home: https://pypi.python.org/pypi/pip
         return ['pipBin', 'pipVer']
 
     def _installTool(self, env):
-        if os.path.exists(env['pipBin']):
+        ospath = self._ospath
+
+        if ospath.exists(env['pipBin']):
             self.updateTool(env)
         else:
             self._callExternal([
-                os.path.join(env['virtualenvDir'], 'bin',
-                             'easy_install'), 'pip'
+                ospath.join(env['virtualenvDir'], 'bin',
+                            'easy_install'), 'pip'
             ])
 
     def updateTool(self, env):
@@ -40,11 +42,12 @@ Home: https://pypi.python.org/pypi/pip
         pass
 
     def initEnv(self, env):
-        pipBin = os.path.join(env['virtualenvDir'], 'bin', 'pip')
+        ospath = self._ospath
+        pipBin = ospath.join(env['virtualenvDir'], 'bin', 'pip')
         pipBin = env.setdefault('pipBin', pipBin)
         pipVer = env.setdefault('pipVer', '9.0.1')
 
-        if os.path.exists(pipBin):
+        if ospath.exists(pipBin):
             pipFactVer = self._callExternal(
                 [pipBin, '--version'], verbose=False)
             pipFactVer = [int(v) for v in pipFactVer.split(' ')[1].split('.')]
@@ -53,6 +56,6 @@ Home: https://pypi.python.org/pypi/pip
             self._have_tool = pipNeedVer <= pipFactVer
 
     def onPrepare(self, config):
-        if os.path.exists(self.REQUIREMENTS_FILE):
+        if self._ospath.exists(self.REQUIREMENTS_FILE):
             self._callExternal(
                 [config['env']['pipBin'], 'install', '-r', self.REQUIREMENTS_FILE])

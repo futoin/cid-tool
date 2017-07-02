@@ -1,6 +1,4 @@
 
-import os
-
 from ..buildtool import BuildTool
 from .gemtoolmixin import GemToolMixIn
 
@@ -12,6 +10,8 @@ Home: https://puppet.com/
 
 Primary purpose is to support Puppet module development.
 """
+    __slots__ = ()
+
     METADATA_FILE = 'metadata.json'
 
     def envNames(self):
@@ -53,7 +53,7 @@ Primary purpose is to support Puppet module development.
         return self._updateJSONConfig(self.METADATA_FILE, updater)
 
     def onPrepare(self, config):
-        if os.path.exists('pkg'):
+        if self._ospath.exists('pkg'):
             self._rmTree('pkg')
 
     def onBuild(self, config):
@@ -66,7 +66,7 @@ Primary purpose is to support Puppet module development.
             config['version']
         )
 
-        if not os.path.exists(package_file):
+        if not self._ospath.exists(package_file):
             self._errorExit(
                 'Puppet Module built package is missing: ' + package_file)
 

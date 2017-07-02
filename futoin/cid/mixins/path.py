@@ -1,6 +1,4 @@
 
-from __future__ import print_function, absolute_import
-
 import os
 import sys
 import subprocess
@@ -8,6 +6,7 @@ import glob
 
 
 class PathMixIn(object):
+    __slots__ = ()
     _dev_null = None
 
     def _callExternal(self, cmd, suppress_fail=False, verbose=True,
@@ -16,6 +15,12 @@ class PathMixIn(object):
                       user_interaction=False,
                       encoding='UTF-8',
                       binary_input=False, binary_output=False):
+
+        if verbose and not suppress_fail:
+            self._infoLabel('Call: ', subprocess.list2cmdline(cmd))
+            sys.stdout.flush()
+            sys.stderr.flush()
+
         try:
             if not PathMixIn._dev_null:
                 PathMixIn._dev_null = open(os.devnull, 'w')
@@ -30,9 +35,6 @@ class PathMixIn(object):
             if merge_stderr:
                 stderr = subprocess.STDOUT
             elif verbose and not suppress_fail:
-                self._info(subprocess.list2cmdline(cmd), 'Call: ')
-                sys.stdout.flush()
-                sys.stderr.flush()
                 stderr = sys.stderr
             else:
                 stderr = PathMixIn._dev_null
@@ -111,7 +113,7 @@ class PathMixIn(object):
                 self._errorExit(
                     'Extra args are not supported for replace call')
 
-            self._info(subprocess.list2cmdline(cmd), 'Exec: ')
+            self._infoLabel('Exec: ', subprocess.list2cmdline(cmd))
             sys.stdout.flush()
             sys.stderr.flush()
 

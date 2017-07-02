@@ -4,6 +4,7 @@ from ..runtimetool import RuntimeTool
 
 class exeTool(RuntimeTool):
     """Dummy tool to execute files directly"""
+    __slots__ = ()
 
     def initEnv(self, env):
         self._have_tool = True

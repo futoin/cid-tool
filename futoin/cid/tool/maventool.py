@@ -20,7 +20,10 @@ Override targets with .config.toolTune.
 
 Requires Java >= 7.
 """
-    _MIN_JAVA = '7'
+    __slots__ = ()
+
+    def _minJava(self):
+        return '7'
 
     def autoDetectFiles(self):
         return 'pom.xml'

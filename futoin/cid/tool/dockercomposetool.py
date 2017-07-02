@@ -11,6 +11,7 @@ Home: https://docs.docker.com/compose/
 
 Experimental support.
 """
+    __slots__ = ()
 
     def autoDetectFiles(self):
         return ['docker-compose.yml', 'docker-compose.yaml']

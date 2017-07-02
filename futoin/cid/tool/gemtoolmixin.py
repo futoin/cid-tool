@@ -1,5 +1,10 @@
 
-class GemToolMixIn(object):
+from ..subtool import SubTool
+
+
+class GemToolMixIn(SubTool):
+    __slots__ = ()
+
     def getDeps(self):
         return ['gem', 'ruby']
 

@@ -1,6 +1,4 @@
 
-import os
-
 from ..buildtool import BuildTool
 
 
@@ -16,6 +14,7 @@ gemDir is equal to ~/.gem by default.
 
 gemInstallArgs is forcibly set by tool depending on its version.
 """
+    __slots__ = ()
 
     def getDeps(self):
         return ['ruby']
@@ -27,15 +26,17 @@ gemInstallArgs is forcibly set by tool depending on its version.
         return ['gemBin', 'gemDir', 'gemInstallArgs']
 
     def initEnv(self, env):
+        ospath = self._ospath
+        environ = self._environ
         installArgs = []
 
         if env['rubyVer'] == self.SYSTEM_VER or env['rubyBinOnly']:
-            gemDir = os.path.join(self._deployHome(), '.gem', env['rubyVer'])
+            gemDir = ospath.join(self._deployHome(), '.gem', env['rubyVer'])
             gemDir = env.setdefault('gemDir', gemDir)
-            os.environ['GEM_HOME'] = gemDir
+            environ['GEM_HOME'] = gemDir
 
             self._addEnvPath('GEM_PATH', gemDir)
-            self._addBinPath(os.path.join(gemDir, 'bin'), True)
+            self._addBinPath(ospath.join(gemDir, 'bin'), True)
             installArgs += ['--no-user-install', '--no-format-executable']
 
         super(gemTool, self).initEnv(env)

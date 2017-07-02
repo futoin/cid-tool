@@ -1,8 +1,4 @@
 
-import os
-import re
-import shutil
-
 from ..rmstool import RmsTool
 
 
@@ -12,6 +8,7 @@ Home: https://archiva.apache.org/
 
 NOT IMPLEMENTED YET!
 """
+    __slots__ = ()
 
     def envNames(self):
         return ['archivaUser', 'archivaPassword']
@@ -20,8 +17,10 @@ NOT IMPLEMENTED YET!
         self._have_tool = True
 
     def rmsUpload(self, config, rms_pool, package_list):
+        ospath = self._ospath
+
         for package in package_list:
-            package_basename = os.path.basename(package)
+            package_basename = ospath.basename(package)
             path = '/repository/{0}/{1}'.format(rms_pool, package_basename)
 
             res = self._callArchiva(config, 'HEAD', path)
@@ -83,6 +82,8 @@ NOT IMPLEMENTED YET!
                 res.raise_for_status()
 
     def rmsGetList(self, config, rms_pool, package_hint):
+        ospath = self._ospath
+
         apires = self._callArchiva(
             config,
             'PROPFIND', '/repository/{0}/'.format(rms_pool),
@@ -100,7 +101,7 @@ NOT IMPLEMENTED YET!
         )
         apires.raise_for_status()
 
-        import xml.dom.minidom as minidom
+        minidom = self._ext.minidom
         try:
             apidom = minidom.parseString(apires.text)
         except:
@@ -113,7 +114,7 @@ NOT IMPLEMENTED YET!
             if response.getElementsByTagNameNS('*', 'iscollection')[0].firstChild.nodeValue == '0':
                 name = response.getElementsByTagNameNS(
                     '*', 'displayname')[0].firstChild.nodeValue
-                (sname, sext) = os.path.splitext(name)
+                (sname, sext) = ospath.splitext(name)
 
                 if sext and sext[1:] in self.ALLOWED_HASH_TYPES:
                     continue
@@ -123,6 +124,8 @@ NOT IMPLEMENTED YET!
         return ret
 
     def rmsRetrieve(self, config, rms_pool, package_list):
+        shutil = self._ext.shutil
+
         for package in package_list:
             result = self._callArchiva(
                 config,
@@ -208,5 +211,4 @@ NOT IMPLEMENTED YET!
         kwargs['timeout'] = self._timeouts(env, 'requests')
 
         self._info('HTTP call {0} {1}'.format(method, url))
-        import requests
-        return requests.request(method, url, **kwargs)
+        return self._ext.requests.request(method, url, **kwargs)

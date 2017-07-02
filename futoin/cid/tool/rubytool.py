@@ -1,8 +1,4 @@
 
-import glob
-import subprocess
-import os
-
 from ..runtimetool import RuntimeTool
 from .bashtoolmixin import BashToolMixIn
 
@@ -24,6 +20,7 @@ If rubyVer is set then RVM is used to setup custom rubies.
 That may lead to long time and resource consumption due to compilation,
 if binary versions are not found for specific system.
 """
+    __slots__ = ()
 
     def getDeps(self):
         return ['rvm']
@@ -76,7 +73,7 @@ if binary versions are not found for specific system.
                 'ruby{0}'.format(pkgver),
                 'ruby{0}-dev'.format(pkgver),
             ])
-            ruby_bin = glob.glob('/usr/bin/ruby{0}*'.format(ver))[0]
+            ruby_bin = self._ext.glob.glob('/usr/bin/ruby{0}*'.format(ver))[0]
 
         elif self._isSCLSupported():
             sclname = self._rubySCLName(ver)
@@ -122,10 +119,13 @@ if binary versions are not found for specific system.
         return sclname
 
     def _fixRvmLinks(self, env, name, ver):
-        bin_dir = os.path.join(env['rvmDir'], 'rubies', name, 'bin')
+        ospath = self._ospath
+        os = self._os
+        glob = self._glob
+        bin_dir = ospath.join(env['rvmDir'], 'rubies', name, 'bin')
 
         for f in ['erb', 'gem', 'irb', 'rake', 'rdoc', 'ri', 'ruby', 'testrb']:
-            f = os.path.join(bin_dir, f)
+            f = ospath.join(bin_dir, f)
             res = glob.glob('{0}{1}*'.format(f, ver))
 
             if res:
@@ -153,10 +153,13 @@ if binary versions are not found for specific system.
         return ['rubyVer', 'rubyBin', 'rubyBinOnly']
 
     def initEnv(self, env):
-        if 'GEM_HOME' in os.environ:
-            self._delEnvPath('PATH', os.environ['GEM_HOME'])
-            self._delEnvPath('GEM_PATH', os.environ['GEM_HOME'])
-            del os.environ['GEM_HOME']
+        environ = self._environ
+        ospath = self._ospath
+
+        if 'GEM_HOME' in environ:
+            self._delEnvPath('PATH', environ['GEM_HOME'])
+            self._delEnvPath('GEM_PATH', environ['GEM_HOME'])
+            del environ['GEM_HOME']
 
         #---
         if self._isDebian() or self._isUbuntu():
@@ -198,16 +201,16 @@ if binary versions are not found for specific system.
                         env_to_set = self._callExternal(
                             ['scl', 'enable', sclname, 'env'], verbose=False)
                         self._updateEnvFromOutput(env_to_set)
-                    except subprocess.CalledProcessError:
+                    except self._ext.subprocess.CalledProcessError:
                         pass
                 elif self._isMacOS():
                     env['rubyBinOnly'] = True
                     formula = 'ruby@{0}'.format(ruby_ver)
                     brew_prefix = env['brewDir']
-                    ruby_bin_dir = os.path.join(
+                    ruby_bin_dir = ospath.join(
                         brew_prefix, 'opt', formula, 'bin')
 
-                    if os.path.exists(ruby_bin_dir):
+                    if ospath.exists(ruby_bin_dir):
                         self._addBinPath(ruby_bin_dir, True)
                         super(rubyTool, self).initEnv(env)
                     return

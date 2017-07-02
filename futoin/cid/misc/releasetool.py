@@ -1,21 +1,19 @@
 
-import os
-import re
-import datetime
-
 from ..buildtool import BuildTool
 
 
 class releaseTool(BuildTool):
     "FutoIn CID-specific release processing"
+    __slots__ = ()
 
-    RELEASE_FILE = os.path.join('futoin', 'cid', '__init__.py')
     CHANGELOG_FILE = 'CHANGELOG.txt'
 
     def autoDetect(self, config):
         return True
 
     def updateProjectConfig(self, config, updates):
+        re = self._ext.re
+
         def py_updater(content):
             if 'version' in updates:
                 return re.sub(
@@ -27,7 +25,8 @@ class releaseTool(BuildTool):
 
         def cl_updater(content):
             if 'version' in updates:
-                date = datetime.datetime.utcnow().isoformat().split('T')[0]
+                date = self._ext.datetime.datetime.utcnow().isoformat().split('T')[
+                    0]
                 return re.sub(
                     r'^=== \(next\) ===$',
                     '=== {0} ({1}) ==='.format(updates['version'], date),
@@ -35,8 +34,11 @@ class releaseTool(BuildTool):
                     count=1,
                     flags=re.MULTILINE
                 )
+
+        RELEASE_FILE = self._ospath.join('futoin', 'cid', '__init__.py')
+
         res = self._updateTextFile(
-            self.RELEASE_FILE,
+            RELEASE_FILE,
             py_updater
         )
         res += self._updateTextFile(
