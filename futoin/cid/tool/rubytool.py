@@ -51,6 +51,12 @@ if binary versions are not found for specific system.
         pkgver = ver
 
         if detect.isDebian() or detect.isUbuntu():
+            code_name = self._detect.osCodeName()
+
+            if code_name in ['stretch', 'buster', 'sid', 'testing']:
+                self._install.aptRepo('jessie-ssl10',
+                                      'deb http://deb.debian.org/debian jessie main')
+
             repo = env['rubyBrightboxRepo']
 
             self._install.aptRepo(
@@ -175,8 +181,6 @@ if binary versions are not found for specific system.
             if code_name == 'zesty':
                 # 1.9 build is broken on LaunchPad
                 bb_repo = 'http://ppa.launchpad.net/brightbox/ruby-ng-experimental/ubuntu'
-            elif code_name == 'stretch':
-                ruby_binaries = None
 
             env.setdefault('rubyBrightboxRepo', bb_repo)
 

@@ -217,7 +217,7 @@ if os.environ.get('CIDTEST_NO_COMPILE', '0') == '1':
     linux_distro = platform.linux_distribution()
     
     # Workaround for birghtbox issues on Stretch
-    if linux_distro[0].startswith('debian') and linux_distro[1][0] == '9':
+    if linux_distro[0].startswith('debian') and linux_distro[1][0] == '9' and False:
         del mixed_tools['ruby']['binver']['deb']
 else:
     mixed_tools['php']['ver'] = '7.1'

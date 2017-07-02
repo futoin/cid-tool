@@ -1,6 +1,7 @@
 
 === (next) ===
 BREAKING CHANGE: huge internal refactoring
+FIXED: to install libssl1.0.0 from Jessie for Debian Stretch and above
 NEW: ondemand loading mechanism instead of imports
 
 === 0.7.992 (2017-07-01) ===
