@@ -64,11 +64,11 @@ More details:
                 dst = ospath.join(rms_repo, rms_pool, package_basename)
 
                 if '/' in rms_pool:
-                    self._callExternal(
+                    self._exec.callExternal(
                         ['mkdir', '-p', ospath.join(rms_repo, rms_pool)])
 
-                self._callExternal([scpBin, '-Bq', package, dst])
-                self._callExternal(['chmod', 'ugo-wx', dst])
+                self._exec.callExternal([scpBin, '-Bq', package, dst])
+                self._exec.callExternal(['chmod', 'ugo-wx', dst])
 
     def rmsPromote(self, config, src_pool, dst_pool, package_list):
         ospath = self._ospath
@@ -100,11 +100,11 @@ More details:
                 dst = ospath.join(rms_repo, dst_pool, package_basename)
 
                 if '/' in dst_pool:
-                    self._callExternal(
+                    self._exec.callExternal(
                         ['mkdir', '-p', ospath.join(rms_repo, dst_pool)])
 
-                self._callExternal([scpBin, '-Bq', src, dst])
-                self._callExternal(['chmod', 'ugo-wx', dst])
+                self._exec.callExternal([scpBin, '-Bq', src, dst])
+                self._exec.callExternal(['chmod', 'ugo-wx', dst])
 
     def rmsGetList(self, config, rms_pool, package_hint):
         ospath = self._ospath
@@ -150,7 +150,7 @@ More details:
                 self._callRemoteSCP(config, port, src, package_basename)
             else:
                 src = ospath.join(rms_repo, rms_pool, package_basename)
-                self._callExternal([scpBin, '-Bq', src, package_basename])
+                self._exec.callExternal([scpBin, '-Bq', src, package_basename])
 
     def rmsGetHash(self, config, rms_pool, package, hash_type):
         ospath = self._ospath
@@ -216,7 +216,7 @@ More details:
     def _callRemoteSCP(self, config, port, src, dst):
         port = port or '22'
         env = config['env']
-        self._callExternal([
+        self._exec.callExternal([
             env['scpBin'],
             '-Bq', '-P', port,
             '-o', 'StrictHostKeyChecking={0}'.format(
@@ -227,7 +227,7 @@ More details:
     def _callSSH(self, config, user_host, port, cmd, **kwargs):
         port = port or '22'
         env = config['env']
-        return self._callExternal([
+        return self._exec.callExternal([
             env['sshBin'],
             '-Tqn',
             '-o', 'BatchMode=yes',

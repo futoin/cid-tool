@@ -35,15 +35,15 @@ jdkVer supports:
 
         # Zulu is installed in javaTool
         # leaving it here for possible future use
-        # self._requireDeb(['openjdk-{0}-jdk'.format(ver)])
-        # self._requireYum(['java-1.{0}.0-openjdk-devel'.format(ver)])
-        # self._requireZypper(['java-1_{0}_0-openjdk-devel'.format(ver)])
-        self._requirePacman(['jdk{0}-openjdk'.format(ver)])
-        self._requireEmerge(['=dev-java/oracle-jdk-bin-1.{0}*'.format(ver)])
+        # self._install.deb(['openjdk-{0}-jdk'.format(ver)])
+        # self._install.yum(['java-1.{0}.0-openjdk-devel'.format(ver)])
+        # self._install.zypper(['java-1_{0}_0-openjdk-devel'.format(ver)])
+        self._install.pacman(['jdk{0}-openjdk'.format(ver)])
+        self._install.emerge(['=dev-java/oracle-jdk-bin-1.{0}*'.format(ver)])
 
-        if self._isAlpineLinux():
-            self._requireApkCommunity()
-            self._requireApk('openjdk{0}'.format(ver))
+        if self._detect.isAlpineLinux():
+            self._install.apkCommunity()
+            self._install.apk('openjdk{0}'.format(ver))
             return
 
     def uninstallTool(self, env):
@@ -53,6 +53,7 @@ jdkVer supports:
         ospath = self._ospath
         environ = self._environ
         glob = self._ext.glob
+        detect = self._detect
 
         if env.get('jdkDir', None):
             java_home = env['jdkDir']
@@ -61,7 +62,7 @@ jdkVer supports:
             environ['JAVA_HOME'] = java_home
             environ['JDK_HOME'] = java_home
 
-            self._addBinPath(bin_dir, True)
+            self._path.addBinPath(bin_dir, True)
 
             super(jdkTool, self).initEnv(env, 'javac')
             return
@@ -82,15 +83,15 @@ jdkVer supports:
             #"/opt/jdk/jdk1.{0}*/bin/javac".format(ver),
         ]
 
-        if self._isGentoo() or self._isArchLinux():
+        if detect.isGentoo() or detect.isArchLinux():
             candidates += [
                 "/usr/lib/jvm/java-{0}-openjdk*/bin/javac".format(ver),
             ]
-        elif self._isAlpineLinux():
+        elif detect.isAlpineLinux():
             candidates += [
                 "/usr/lib/jvm/java-1.{0}-openjdk/bin/javac".format(ver),
             ]
-        elif self._isMacOS():
+        elif detect.isMacOS():
             candidates += [
                 "/Library/Java/JavaVirtualMachines/zulu-{0}.jdk/Contents/Home/bin/javac".format(
                     ver)
@@ -111,6 +112,6 @@ jdkVer supports:
                 environ['JAVA_HOME'] = java_home
                 environ['JDK_HOME'] = java_home
 
-                self._addBinPath(bin_dir, True)
+                self._path.addBinPath(bin_dir, True)
                 self._have_tool = True
                 break

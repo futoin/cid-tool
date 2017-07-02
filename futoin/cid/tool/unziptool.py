@@ -8,14 +8,14 @@ class unzipTool(RunEnvTool):
     __slots__ = ()
 
     def _installTool(self, env):
-        self._requirePackages(['unzip'])
-        self._requireEmerge(['app-arch/unzip'])
-        self._requirePacman(['unzip'])
-        self._requireApk(['unzip'])
+        self._install.debrpm(['unzip'])
+        self._install.emerge(['app-arch/unzip'])
+        self._install.pacman(['unzip'])
+        self._install.apk(['unzip'])
 
     def initEnv(self, env, bin_name=None):
         # Busybox's version is not enough for SDKMan
-        if self._isAlpineLinux() and self._ospath.islink('/usr/bin/unzip'):
+        if self._detect.isAlpineLinux() and self._ospath.islink('/usr/bin/unzip'):
             return
 
         super(unzipTool, self).initEnv(env, bin_name)

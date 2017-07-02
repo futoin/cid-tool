@@ -32,21 +32,21 @@ Requires Java >= 8.
 
     def onPrepare(self, config):
         target = self._getTune(config, 'prepare', 'clean')
-        self._callExternal([config['env']['sbtBin'], target])
+        self._exec.callExternal([config['env']['sbtBin'], target])
 
     def onBuild(self, config):
         target = self._getTune(config, 'build', 'compile')
-        self._callExternal([config['env']['sbtBin'], target])
+        self._exec.callExternal([config['env']['sbtBin'], target])
 
     def onPackage(self, config):
         target = self._getTune(config, 'package', 'package')
-        self._callExternal([config['env']['sbtBin'], target])
-        self._addPackageFiles(config, 'target/scala-*/*.jar')
+        self._exec.callExternal([config['env']['sbtBin'], target])
+        self._path.addPackageFiles(config, 'target/scala-*/*.jar')
 
     def onRunDev(self, config):
         target = self._getTune(config, 'run', 'check')
-        self._callExternal([config['env']['sbtBin'], target])
+        self._exec.callExternal([config['env']['sbtBin'], target])
 
     def onCheck(self, config):
         target = self._getTune(config, 'check', 'test')
-        self._callExternal([config['env']['sbtBin'], target])
+        self._exec.callExternal([config['env']['sbtBin'], target])

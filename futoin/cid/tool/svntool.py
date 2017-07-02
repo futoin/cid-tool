@@ -11,11 +11,11 @@ Home: https://subversion.apache.org/
     __slots__ = ()
 
     def _installTool(self, env):
-        self._requirePackages(['subversion'])
-        self._requireEmerge(['dev-vcs/subversion'])
-        self._requirePacman(['subversion'])
-        self._requireApk(['subversion'])
-        self._requireBrew('subversion')
+        self._install.debrpm(['subversion'])
+        self._install.emerge(['dev-vcs/subversion'])
+        self._install.pacman(['subversion'])
+        self._install.apk(['subversion'])
+        self._install.brew('subversion')
 
     def autoDetectFiles(self):
         return '.svn'
@@ -30,7 +30,7 @@ Home: https://subversion.apache.org/
     def vcsGetRepo(self, config, wc_dir=None):
         wc_dir = wc_dir or self._os.getcwd()
 
-        svn_info = self._callExternal([
+        svn_info = self._exec.callExternal([
             config['env']['svnBin'], 'info', '--xml', wc_dir
         ], verbose=False)
 
@@ -152,7 +152,7 @@ Home: https://subversion.apache.org/
         svn_repo_path = self._detectSVNPath(config, vcs_ref)
 
         if ospath.exists(dst_path):
-            self._rmTree(dst_path)
+            self._path.rmTree(dst_path)
 
         if vcs_cache_dir is None:
             self._callVCSSVN(config, ['export', svn_repo_path, dst_path])
@@ -343,4 +343,4 @@ Home: https://subversion.apache.org/
                     if a.startswith(sshm.group(0)):
                         args[i] = a.replace(sshm.group(1), '', 1)
 
-        return self._callExternal([svnBin] + args + opts, **kwargs)
+        return self._exec.callExternal([svnBin] + args + opts, **kwargs)

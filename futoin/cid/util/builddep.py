@@ -1,0 +1,159 @@
+
+from ..mixins.ondemand import ext as _ext
+from . import log as _log
+
+_BUIID_DEP_PREFIX = '_bdep_'
+_SYSTEM_VER = 'system'
+
+
+def essential():
+    _ext.install.deb([
+        'build-essential',
+    ])
+    _ext.install.rpm([
+        'binutils',
+        'gcc',
+        'gcc-c++',
+        'glibc-devel',
+        'libtool',
+        'make',
+        'patch'
+    ])
+
+    _ext.install.yum('redhat-rpm-config')
+
+    _ext.install.apk([
+        'build-base',
+        'linux-headers',
+    ])
+
+
+def require(env, dep):
+    if not isinstance(dep, list):
+        dep = [dep]
+
+    essential()
+
+    for d in dep:
+        m = '{0}{1}'
+        m = m.format(_BUIID_DEP_PREFIX, d.replace('-', ''))
+        m = getattr(globals(), m, None)
+
+        if m:
+            # pylint: disable=not-callable
+            m(env)
+        else:
+            _log.errorExit('Unknown build dep "{0}"'.format(d))
+
+
+def available():
+    ret = []
+
+    for m in globals().__dict__:
+        if m.startswith(_BUIID_DEP_PREFIX):
+            m = m.replace(_BUIID_DEP_PREFIX, '')
+            ret.append(m)
+
+    return ret
+
+
+def __bdep_ruby(env):
+    detect = _ext.detect
+    ver = env['rubyVer']
+
+    if ver == _SYSTEM_VER:
+        _ext.install.deb(['ruby-dev'])
+        _ext.install.rpm(['ruby-devel'])
+        _ext.install.apk(['ruby-dev'])
+    elif detect.isSCLSupported():
+        devver = ver.replace('.', '')
+
+        if devver == '19':
+            sclname = 'ruby193-ruby-devel'
+        elif devver == '20':
+            sclname = 'ruby200-ruby-devel'
+        else:
+            sclname = 'rh-ruby{0}-ruby-devel'.format(devver)
+
+        _ext.install.rpm(sclname)
+    elif detect.isDebian() or detect.isUbuntu():
+        if ver == '1.9':
+            pkgver = '1.9.[0-9]'
+        else:
+            pkgver = ver
+
+        _ext.install.deb([
+            'ruby{0}-dev'.format(pkgver),
+        ])
+
+
+def __bdep_python(env):
+    if int(env['pythonVer'].split('.')[0]) == 3:
+        _ext.install.deb(['python3-dev'])
+        _ext.install.zypper(['python3-devel'])
+        _ext.install.yum(['python3-devel'])
+        _ext.install.yum(['python34-devel'])
+        _ext.install.apk(['python3-dev'])
+    else:
+        _ext.install.deb(['python-dev'])
+        _ext.install.rpm(['python-devel'])
+        _ext.install.apk(['python2-dev'])
+
+
+def __bdep_ssl(env):
+    apt_cache = _ext.path.which('apt-cache')
+
+    if apt_cache and _ext.exec.callExternal([apt_cache, 'search', 'libssl1.0-dev']).strip():
+        _ext.install.deb('libssl1.0-dev')
+    else:
+        _ext.install.deb('libssl-dev')
+    _ext.install.rpm('openssl-devel')
+    _ext.install.rpm('libopenssl-devel')
+    _ext.install.apk('ressl-dev')
+    _ext.install.pacman('openssl')
+    _ext.install.brew('openssl')
+
+
+def __bdep_mysqlclient(env):
+    _ext.install.deb('libmysqlclient-dev')
+    _ext.install.deb('default-libmysqlclient-dev')
+
+    if _ext.detect.isOracleLinux():
+        _ext.install.yum(['mariadb-devel', 'mariadb-libs'])
+    else:
+        _ext.install.yum('mysql-devel')
+
+    _ext.install.zypper('libmysqlclient-devel')
+    _ext.install.apk('mariadb-dev')
+    _ext.install.brew('mysql')
+
+
+def __bdep_postgresql(env):
+    _ext.install.deb('libpq-dev')
+    _ext.install.rpm(['postgresql-devel', 'postgresql-libs'])
+    _ext.install.pacman('postgresql')
+    _ext.install.apk('postgresql-dev')
+    _ext.install.brew('postgresql')
+
+
+def __bdep_imagemagick(env):
+    _ext.install.deb('libmagick-dev')
+    _ext.install.rpm(['imagemagick', 'imagemagick-devel'])
+    _ext.install.pacman('imagemagick')
+    _ext.install.apk('imagemagick-dev')
+    _ext.install.brew('imagemagick')
+
+
+def __bdep_tzdata(env):
+    _ext.install.deb('tzdata')
+    _ext.install.rpm('tzdata')
+    _ext.install.pacman('tzdata')
+    _ext.install.apk('tzdata')
+
+
+def __bdep_libxml2(env):
+    _ext.install.deb('libxml2-dev')
+    _ext.install.rpm('libxml2-devel')
+    _ext.install.pacman('libxml2')
+    _ext.install.apk('libxml2')
+    _ext.install.brew('libxml2')

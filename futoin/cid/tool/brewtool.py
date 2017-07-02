@@ -28,28 +28,28 @@ Hint: Unprivileged brew does not work well with many bottles, you may want to us
             homebrew_git = env['brewGit']
             homebrew_dir = env['brewDir']
 
-            git = self._which('git')
+            git = self._path.which('git')
 
             if not git:
-                xcode_select = self._which('xcode-select')
-                self._callExternal(
+                xcode_select = self._path.which('xcode-select')
+                self._exec.callExternal(
                     [xcode_select, '--install'], suppress_fail=True)
-                git = self._which('git')
+                git = self._path.which('git')
 
-            self._callExternal([git, 'clone', homebrew_git, homebrew_dir])
+            self._exec.callExternal([git, 'clone', homebrew_git, homebrew_dir])
         else:
             # should be system-available
-            curl = self._which('curl')
-            ruby = self._which('ruby')
+            curl = self._path.which('curl')
+            ruby = self._path.which('ruby')
             homebrew_install = env['brewInstall']
 
-            curl_args = self._timeouts(env, 'curl')
+            curl_args = self._configutil.timeouts(env, 'curl')
 
-            brew_installer = self._callExternal(
+            brew_installer = self._exec.callExternal(
                 [curl, '-fsSL', homebrew_install] + curl_args
             )
 
-            self._callExternal([ruby, '-'], input=brew_installer)
+            self._exec.callExternal([ruby, '-'], input=brew_installer)
 
     def _isLocalBrew(self, env):
         return env['brewDir'] != self._GLOBAL_BREW_DIR
@@ -84,7 +84,7 @@ Hint: Unprivileged brew does not work well with many bottles, you may want to us
             brew = ospath.join(bin_dir, 'brew')
 
             if ospath.exists(brew):
-                self._addBinPath(bin_dir, True)
+                self._path.addBinPath(bin_dir, True)
                 env['brewBin'] = brew
                 self._have_tool = True
         else:

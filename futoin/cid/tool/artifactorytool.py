@@ -41,7 +41,7 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
         server_cfg = self._getServerConfig(config)
 
         for package in package_list:
-            self._callExternal([
+            self._exec.callExternal([
                 config['env']['jfrogBin'],
                 'rt', 'upload',
                 '--server-id={0}'.format(server_cfg['serverId']),
@@ -59,7 +59,7 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
         server_cfg = self._getServerConfig(config)
 
         for package in package_list:
-            self._callExternal([
+            self._exec.callExternal([
                 config['env']['jfrogBin'],
                 'rt', 'copy',
                 '--server-id={0}'.format(server_cfg['serverId']),
@@ -92,7 +92,7 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
         server_cfg = self._getServerConfig(config)
 
         for package in package_list:
-            self._callExternal([
+            self._exec.callExternal([
                 config['env']['jfrogBin'],
                 'rt', 'download',
                 '--server-id={0}'.format(server_cfg['serverId']),
@@ -190,7 +190,8 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
         elif 'password' in server_cfg:
             kwargs['auth'] = (server_cfg['user'], server_cfg['password'])
 
-        kwargs['timeout'] = self._timeouts(config['env'], 'requests')
+        kwargs['timeout'] = self._configutil.timeouts(
+            config['env'], 'requests')
 
         self._info('HTTP call {0} {1}'.format(method, url))
         return requests.request(method, url, **kwargs)
@@ -203,7 +204,7 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
 
         jfrog_cfg = self._ospath.join(
             self._environ['HOME'], '.jfrog', 'jfrog-cli.conf')
-        jfrog_cfg = self._loadJSONConfig(jfrog_cfg)
+        jfrog_cfg = self._path.loadJSONConfig(jfrog_cfg)
 
         if jfrog_cfg:
             for server_cfg in jfrog_cfg.get('artifactory', []):
@@ -215,7 +216,7 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
         if repeat:
             pass
         elif 'artifactoryUser' in env and 'artifactoryPassword' in env:
-            self._callExternal([
+            self._exec.callExternal([
                 env['jfrogBin'],
                 'rt', 'config',
                 '--interactive=false',
@@ -227,7 +228,7 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
             ])
             return self._getServerConfig(config, True)
         elif 'artifactoryApiKey' in env:
-            self._callExternal([
+            self._exec.callExternal([
                 env['jfrogBin'],
                 'rt', 'config',
                 '--interactive=false',

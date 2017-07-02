@@ -22,25 +22,28 @@ In RMS mode support tuning through .toolTune.npm:
     def getDeps(self):
         return ['node']
 
+    def _isGlobalNpm(self):
+        return self._detect.isAlpineLinux()
+
     def _installTool(self, env):
-        if self._isAlpineLinux():
+        if self._isGlobalNpm():
             if env['nodeVer'] == 'current':
-                self._requireApk('nodejs-npm-current')
+                self._install.apk('nodejs-npm-current')
             else:
-                self._requireApk('nodejs-npm')
+                self._install.apk('nodejs-npm')
             return
 
     def updateTool(self, env):
-        if self._isAlpineLinux():
+        if self._isGlobalNpm():
             return
 
-        self._callExternal([env['npmBin'], 'update', '-g', 'npm'])
+        self._exec.callExternal([env['npmBin'], 'update', '-g', 'npm'])
 
     def uninstallTool(self, env):
         pass
 
     def loadConfig(self, config):
-        content = self._loadJSONConfig(self.PACKAGE_JSON)
+        content = self._path.loadJSONConfig(self.PACKAGE_JSON)
         if content is None:
             return
 
@@ -54,17 +57,17 @@ In RMS mode support tuning through .toolTune.npm:
                 if f in updates:
                     json[f] = updates[f]
 
-        return self._updateJSONConfig(self.PACKAGE_JSON, updater)
+        return self._path.updateJSONConfig(self.PACKAGE_JSON, updater)
 
     def onPrepare(self, config):
         if self._ospath.exists(self.PACKAGE_JSON):
             npmBin = config['env']['npmBin']
-            self._callExternal([npmBin, 'install'])
+            self._exec.callExternal([npmBin, 'install'])
 
     def onPackage(self, config):
         if self._ospath.exists(self.PACKAGE_JSON):
             npmBin = config['env']['npmBin']
-            self._callExternal([npmBin, 'prune', '--production'])
+            self._exec.callExternal([npmBin, 'prune', '--production'])
 
     def rmsUpload(self, config, rms_pool, package_list):
         npmBin = config['env']['npmBin']
@@ -78,7 +81,7 @@ In RMS mode support tuning through .toolTune.npm:
         if 'access' in tune:
             cmd += ['--access', tune['access']]
 
-        self._callExternal(cmd)
+        self._exec.callExternal(cmd)
 
     def rmsPoolList(self, config):
         return [

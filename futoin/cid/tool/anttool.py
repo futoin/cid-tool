@@ -34,17 +34,17 @@ Override targets with .config.toolTune.
 
     def onPrepare(self, config):
         target = self._getTune(config, 'prepare', 'clean')
-        self._callExternal([config['env']['antBin'], target])
+        self._exec.callExternal([config['env']['antBin'], target])
 
     def onBuild(self, config):
         target = self._getTune(config, 'build', 'compile')
-        self._callExternal([config['env']['antBin'], target])
+        self._exec.callExternal([config['env']['antBin'], target])
 
     def onPackage(self, config):
         target = self._getTune(config, 'package', 'jar')
-        self._callExternal([config['env']['antBin'], target])
+        self._exec.callExternal([config['env']['antBin'], target])
 
-        self._addPackageFiles(config, 'build/jar/*.jar')
+        self._path.addPackageFiles(config, 'build/jar/*.jar')
 
     def onRunDev(self, config):
-        self._callExternal([config['env']['antBin'], 'run'])
+        self._exec.callExternal([config['env']['antBin'], 'run'])

@@ -69,8 +69,10 @@ Additional notes:
         if env['nginxVer'] == 'mainline':
             base_url += '/mainline'
 
-        if self._isDebian():
-            self._addAptRepo(
+        detect = self._detect
+
+        if detect.isDebian():
+            self._install.aptRepo(
                 'nginx',
                 'deb {0}/debian/ $codename$ nginx'.format(base_url),
                 self._GPG_KEY,
@@ -79,8 +81,8 @@ Additional notes:
                     'testing': 'stretch',
                 })
 
-        elif self._isUbuntu():
-            self._addAptRepo(
+        elif detect.isUbuntu():
+            self._install.aptRepo(
                 'nginx',
                 'deb {0}/ubuntu/ $codename$ nginx'.format(base_url),
                 self._GPG_KEY,
@@ -88,44 +90,44 @@ Additional notes:
                     'zesty': 'yakkety',
                 })
 
-        elif self._isCentOS() or self._isOracleLinux():
-            self._addYumRepo(
+        elif detect.isCentOS() or detect.isOracleLinux():
+            self._install.yumRepo(
                 'nginx',
                 '{0}/centos/$releasever/$basearch/'.format(base_url),
                 self._GPG_KEY,
                 repo_url=True)
 
-        elif self._isFedora():
-            self._addYumRepo(
+        elif detect.isFedora():
+            self._install.yumRepo(
                 'nginx',
                 '{0}/centos/7/$basearch/'.format(base_url),
                 self._GPG_KEY,
                 repo_url=True)
 
-        elif self._isRHEL():
-            self._addYumRepo(
+        elif detect.isRHEL():
+            self._install.yumRepo(
                 'nginx',
                 '{0}/rhel/$releasever/$basearch/'.format(base_url),
                 self._GPG_KEY,
                 repo_url=True)
 
-        elif self._isSLES():
-            self._addZypperRepo(
+        elif detect.isSLES():
+            self._install.zypperRepo(
                 'nginx',
                 '{0}/sles/$releasever/$basearch/'.format(base_url),
                 self._GPG_KEY,
                 yum=True)
 
-        elif self._isArchLinux():
+        elif detect.isArchLinux():
             if env['nginxVer'] == 'mainline':
-                self._requirePacman('nginx-mainline')
+                self._install.pacman('nginx-mainline')
             else:
-                self._requirePacman('nginx')
+                self._install.pacman('nginx')
             return
 
-        self._requirePackages('nginx')
-        self._requireApk('nginx')
-        self._requireBrew('nginx')
+        self._install.debrpm('nginx')
+        self._install.apk('nginx')
+        self._install.brew('nginx')
 
     def initEnv(self, env, bin_name=None):
         env.setdefault('nginxBaseUrl', 'http://nginx.org/packages')
@@ -154,27 +156,29 @@ Additional notes:
         cfg_svc_tune['nginxConf'] = conf_file
 
         # max of all proxied connections
-        max_request_size = self._parseMemory(svc['tune']['maxRequestSize'])
+        max_request_size = self._configutil.parseMemory(
+            svc['tune']['maxRequestSize'])
         for sl in deploy['autoServices'].values():
             for s in sl:
                 max_request_size = max(
                     max_request_size,
-                    self._parseMemory(s['maxRequestSize'])
+                    self._configutil.parseMemory(s['maxRequestSize'])
                 )
-        cfg_svc_tune['maxRequestSize'] = self._toMemory(max_request_size)
+        cfg_svc_tune['maxRequestSize'] = self._configutil.toMemory(
+            max_request_size)
         #
         tmp_path = ospath.join(deploy['tmpDir'], 'nginx')
-        self._mkDir(tmp_path)
+        self._path.mkDir(tmp_path)
 
         #
         conf_builder = ConfigBuilder(config, svc)
         nginx_conf = conf_builder.build(name_id, pid_file, tmp_path)
-        self._writeTextFile(conf_file, nginx_conf)
+        self._path.writeTextFile(conf_file, nginx_conf)
 
         # Verify
         #---
         env = config['env']
-        self._callExternal([
+        self._exec.callExternal([
             env['nginxBin'],
             '-q', '-t',
             '-p', runtime_dir,
@@ -184,7 +188,7 @@ Additional notes:
     def onRun(self, config, svc, args):
         env = config['env']
         deploy = config['deploy']
-        self._callInteractive([
+        self._exec.callInteractive([
             env['nginxBin'],
             '-p', deploy['runtimeDir'],
             '-c', svc['tune']['nginxConf'],
@@ -193,7 +197,7 @@ Additional notes:
     def onStop(self, config, pid, tune):
         env = config['env']
         deploy = config['deploy']
-        self._callExternal([
+        self._exec.callExternal([
             env['nginxBin'],
             '-s', 'stop',
             '-p', deploy['runtimeDir'],
@@ -203,7 +207,7 @@ Additional notes:
     def onReload(self, config, pid, tune):
         env = config['env']
         deploy = config['deploy']
-        self._callExternal([
+        self._exec.callExternal([
             env['nginxBin'],
             '-s', 'reload',
             '-p', deploy['runtimeDir'],

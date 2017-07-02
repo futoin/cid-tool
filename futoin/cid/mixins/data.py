@@ -33,3 +33,5 @@ class DataSlots(OnDemandMixIn):
         '_reload_services',
         '_interruptable',
     )
+
+    _FUTOIN_JSON = 'futoin.json'

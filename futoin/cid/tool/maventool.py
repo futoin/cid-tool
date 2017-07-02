@@ -33,17 +33,17 @@ Requires Java >= 7.
 
     def onPrepare(self, config):
         target = self._getTune(config, 'prepare', 'clean')
-        self._callExternal([config['env']['mavenBin'], target])
+        self._exec.callExternal([config['env']['mavenBin'], target])
 
     def onBuild(self, config):
         target = self._getTune(config, 'build', 'compile')
-        self._callExternal([config['env']['mavenBin'], target])
+        self._exec.callExternal([config['env']['mavenBin'], target])
 
     def onPackage(self, config):
         target = self._getTune(config, 'package', 'package')
-        self._callExternal([config['env']['mavenBin'], target])
-        self._addPackageFiles(config, 'target/*.jar')
+        self._exec.callExternal([config['env']['mavenBin'], target])
+        self._path.addPackageFiles(config, 'target/*.jar')
 
     def onCheck(self, config):
         target = self._getTune(config, 'check', 'test')
-        self._callExternal([config['env']['mavenBin'], target])
+        self._exec.callExternal([config['env']['mavenBin'], target])

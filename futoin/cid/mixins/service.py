@@ -152,7 +152,7 @@ class ServiceMixIn(DataSlots):
             return None
 
         try:
-            pid = int(self._readTextFile(self.__MASTER_PID_FILE))
+            pid = int(self._path.readTextFile(self.__MASTER_PID_FILE))
         except ValueError:
             return None
 
@@ -219,8 +219,8 @@ class ServiceMixIn(DataSlots):
                     'Master process is already running with PID "{0}"'.format(current_master))
 
             self._masterLock()
-            self._writeTextFile(self.__MASTER_PID_FILE,
-                                '{0}'.format(os.getpid()))
+            self._path.writeTextFile(self.__MASTER_PID_FILE,
+                                     '{0}'.format(os.getpid()))
         finally:
             self._deployUnlock()
 

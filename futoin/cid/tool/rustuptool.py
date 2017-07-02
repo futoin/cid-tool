@@ -20,7 +20,7 @@ Home: https://www.rustup.rs/
             CurlToolMixIn.getDeps(self))
 
     def _installTool(self, env):
-        if self._isAlpineLinux():
+        if self._detect.isAlpineLinux():
             self._warn('Unfortunately, rustup does not support musl libc yet')
 
         installer = self._callCurl(env, [env['rustupInstaller']])
@@ -31,7 +31,7 @@ Home: https://www.rustup.rs/
             input=installer)
 
     def updateTool(self, env):
-        self._callExternal([
+        self._exec.callExternal([
             env['rustupBin'], 'self', 'update'
         ])
 
@@ -42,7 +42,7 @@ Home: https://www.rustup.rs/
             dir = env[v]
 
             if ospath.exists(dir):
-                self._rmTree(dir)
+                self._path.rmTree(dir)
 
         self._have_tool = False
 
@@ -66,7 +66,7 @@ Home: https://www.rustup.rs/
         env.setdefault('rustupInstaller', self.INSTALLER_DEFAULT)
 
         bin_dir = ospath.join(cargo_dir, 'bin')
-        self._addBinPath(bin_dir, True)
+        self._path.addBinPath(bin_dir, True)
 
         if ospath.exists(ospath.join(bin_dir, 'rustup')):
             super(rustupTool, self).initEnv(env)

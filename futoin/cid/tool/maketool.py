@@ -20,13 +20,13 @@ Build uses the default target.
         ]
 
     def _installTool(self, env):
-        self._requirePackages(['make'])
-        self._requireEmerge(['sys-devel/make'])
-        self._requirePacman(['make'])
-        self._requireApk(['make'])
+        self._install.debrpm(['make'])
+        self._install.emerge(['sys-devel/make'])
+        self._install.pacman(['make'])
+        self._install.apk(['make'])
 
     def onPrepare(self, config):
-        self._callExternal([config['env']['makeBin'], 'clean'])
+        self._exec.callExternal([config['env']['makeBin'], 'clean'])
 
     def onBuild(self, config):
         target = self._getTune(config, 'build')
@@ -36,4 +36,4 @@ Build uses the default target.
         else:
             args = []
 
-        self._callExternal([config['env']['makeBin']] + args)
+        self._exec.callExternal([config['env']['makeBin']] + args)

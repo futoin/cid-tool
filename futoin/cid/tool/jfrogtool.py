@@ -14,8 +14,8 @@ Home: https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
         ospath = self._ospath
         os = self._os
 
-        if self._isMacOS():
-            self._requireBrew('jfrog-cli-go')
+        if self._detect.isMacOS():
+            self._install.brew('jfrog-cli-go')
             return
 
         dst_dir = env['jfrogDir']
@@ -31,14 +31,14 @@ Home: https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
                  stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
 
     def updateTool(self, env):
-        if self._isMacOS():
+        if self._detect.isMacOS():
             return
 
         self.uninstallTool(env)
         self._installTool(env)
 
     def uninstallTool(self, env):
-        if self._isMacOS():
+        if self._detect.isMacOS():
             return
 
         jfrog_bin = env['jfrogBin']
@@ -55,9 +55,11 @@ Home: https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
         pkg = None
         url_base = 'https://api.bintray.com/content/jfrog/jfrog-cli-go/$latest'
 
-        if self._isMacOS():
+        detect = self._detect
+
+        if detect.isMacOS():
             pass
-        elif self._isAMD64():
+        elif detect.isAMD64():
             pkg = 'jfrog-cli-linux-amd64'
         else:
             pkg = 'jfrog-cli-linux-386'
@@ -69,7 +71,7 @@ Home: https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
                     pkg)
             )
 
-        self._addBinPath(bin_dir)
+        self._path.addBinPath(bin_dir)
 
         super(jfrogTool, self).initEnv(env)
 

@@ -56,16 +56,18 @@ Note: file upload is OFF by default.
     def _installBinaries(self, env):
         ver = env['phpVer']
 
-        if self._isDebian() or self._isUbuntu():
-            self._requireDeb('php{0}-fpm'.format(ver))
+        detect = self._detect
 
-        elif self._isSCLSupported():
+        if detect.isDebian() or detect.isUbuntu():
+            self._install.deb('php{0}-fpm'.format(ver))
+
+        elif detect.isSCLSupported():
             if self._isPHPSCL(env):
                 ver = ver.replace('.', '')
 
-                self._requireSCL()
+                self._install.yumSCL()
 
-                self._requireYum([
+                self._install.yum([
                     'rh-php{0}-php-fpm'.format(ver),
                 ])
             else:
@@ -77,18 +79,20 @@ Note: file upload is OFF by default.
         return env['phpfpmVer'] in ('5.6', '7.0')
 
     def _systemDeps(self):
-        self._requireDeb(['php.*-fpm'])
-        self._requireZypper(['php*-fpm'])
-        self._requireYum(['php-fpm'])
-        self._requirePacman(['php-fpm'])
-        self._requireApkCommunity()
-        self._requireApk(['php7-fpm'])
+        self._install.deb(['php.*-fpm'])
+        self._install.zypper(['php*-fpm'])
+        self._install.yum(['php-fpm'])
+        self._install.pacman(['php-fpm'])
+        self._install.apkCommunity()
+        self._install.apk(['php7-fpm'])
 
     def envNames(self):
         return ['phpfpmBin', 'phpfpmVer']
 
     def initEnv(self, env):
         ospath = self._ospath
+        detect = self._detect
+
         php_ver = env['phpVer']
         phpfpm_ver = env.setdefault('phpfpmVer', php_ver)
 
@@ -104,7 +108,7 @@ Note: file upload is OFF by default.
         if env['phpBinOnly']:
             bin_name = 'php-fpm'
 
-            if self._isDebian() or self._isUbuntu():
+            if detect.isDebian() or detect.isUbuntu():
                 bin_name = 'php-fpm' + php_ver
 
         else:
@@ -124,7 +128,7 @@ Note: file upload is OFF by default.
 
         # fallback, find any
         #---
-        phpfpm_bin = self._which(bin_name)
+        phpfpm_bin = self._path.which(bin_name)
 
         if phpfpm_bin:
             env['phpfpmBin'] = phpfpm_bin
@@ -155,7 +159,7 @@ Note: file upload is OFF by default.
 
         #
         log_level = 'error'
-        if self._isMacOS():
+        if self._detect.isMacOS():
             # TODO: find solution
             error_log = '/dev/null'
         else:
@@ -208,14 +212,14 @@ Note: file upload is OFF by default.
         pool_ini['chdir'] = config['wcDir']
         pool_ini.setdefault('clear_env', 'yes')
 
-        self._writeIni(fpm_conf, fpm_ini)
+        self._path.writeIni(fpm_conf, fpm_ini)
 
         #
         tmp_dir = ospath.join(deploy['tmpDir'], 'php')
-        self._mkDir(tmp_dir)
+        self._path.mkDir(tmp_dir)
 
         upload_dir = ospath.join(deploy['tmpDir'], 'phpupload')
-        self._mkDir(upload_dir)
+        self._path.mkDir(upload_dir)
 
         #
         php_ini = svc_tune.get('phpini', {})
@@ -223,7 +227,7 @@ Note: file upload is OFF by default.
 
         php_ini.setdefault('sys_temp_dir', tmp_dir)
         php_ini.setdefault(
-            'memory_limit', self._parseMemory(svc_tune['connMemory']))
+            'memory_limit', self._configutil.parseMemory(svc_tune['connMemory']))
         php_ini.setdefault('expose_php', 'Off')
         php_ini.setdefault('zend.multibyte', 'On')
         php_ini.setdefault('zend.script_encoding', 'UTF-8')
@@ -237,7 +241,8 @@ Note: file upload is OFF by default.
         php_ini.setdefault('error_reporting', error_reporting)
         php_ini.setdefault('file_uploads', 'On')
         php_ini.setdefault('upload_tmp_dir', upload_dir)
-        request_size_limit = self._parseMemory(svc_tune['maxRequestSize'])
+        request_size_limit = self._configutil.parseMemory(
+            svc_tune['maxRequestSize'])
         php_ini['upload_max_filesize'] = request_size_limit
         php_ini['post_max_size'] = request_size_limit
 
@@ -249,10 +254,10 @@ Note: file upload is OFF by default.
             if k in cid_tune:
                 php_ini[k] = cid_tune
 
-        self._writeIni(php_conf, {'php': php_ini})
+        self._path.writeIni(php_conf, {'php': php_ini})
 
         # Validate
-        self._callExternal([
+        self._exec.callExternal([
             env['phpfpmBin'],
             '-c', php_conf,
             '--fpm-config', fpm_conf,
@@ -262,7 +267,7 @@ Note: file upload is OFF by default.
     def onRun(self, config, svc, args):
         env = config['env']
         svc_tune = svc['tune']
-        self._callInteractive([
+        self._exec.callInteractive([
             env['phpfpmBin'],
             '-c', svc_tune['phpConf'],
             '--fpm-config', svc_tune['fpmConf'],

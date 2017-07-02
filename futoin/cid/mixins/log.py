@@ -1,7 +1,7 @@
 
-from __future__ import print_function
+from ..util.log import *
 
-from ..coloring import Coloring
+__all__ = ('LogMixIn')
 
 
 class LogMixIn(object):
@@ -9,18 +9,15 @@ class LogMixIn(object):
 
     def _info(self, msg, label=None):
         if label:  # for backward compatibility
-            self._infoLabel(label, msg)
-            return
-
-        line = Coloring.info('INFO: ' + msg)
-        print(line, file=self._sys.stderr)
+            infoLabel(label, msg)
+        else:
+            info(msg)
 
     def _infoLabel(self, label, msg):
-        line = Coloring.infoLabel(label) + Coloring.info(msg)
-        print(line, file=self._sys.stderr)
+        infoLabel(label, msg)
 
     def _warn(self, msg):
-        print(Coloring.warn('WARNING: ' + msg), file=self._sys.stderr)
+        warn(msg)
 
     def _errorExit(self, msg):
-        raise RuntimeError(msg)
+        errorExit(msg)

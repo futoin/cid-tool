@@ -30,7 +30,8 @@
     "check": [
       "@default",
       "@cid tool exec pip -- install -q pylint",
-      "pylint -E futoin --ignore=contrib"
+      "pylint -E futoin --ignore=contrib",
+      "pylint -E tests/"
     ]
   }
 }

@@ -11,9 +11,8 @@ import glob
 import requests
 
 from .cid_utbase import cid_UTBase
-from futoin.cid.mixins.util import UtilMixIn
 
-class cid_service_Test( cid_UTBase, UtilMixIn ) :
+class cid_service_Test( cid_UTBase ) :
     __test__ = True
     
     TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'servicecmd')

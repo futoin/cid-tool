@@ -21,12 +21,12 @@ Home: https://github.com/moovweb/gvm
             CurlToolMixIn.getDeps(self))
 
     def _installTool(self, env):
-        self._requireDeb(['bison', 'gcc', 'build-essential'])
-        self._requireRpm(['bison', 'gcc', 'glibc-devel'])
-        self._requireEmergeDepsOnly(['dev-lang/go'])
-        self._requirePacman(['bison', 'gcc', 'glibc', ])
-        self._requireApk('bison')
-        self._requireBuildEssential()
+        self._install.deb(['bison', 'gcc', 'build-essential'])
+        self._install.rpm(['bison', 'gcc', 'glibc-devel'])
+        self._install.emergeDepsOnly(['dev-lang/go'])
+        self._install.pacman(['bison', 'gcc', 'glibc', ])
+        self._install.apk('bison')
+        self._builddep.essential()
 
         gvm_installer = self._callCurl(env, [env['gvmInstaller']])
         self._callBash(
@@ -41,7 +41,7 @@ Home: https://github.com/moovweb/gvm
         gvm_dir = env['gvmDir']
 
         if self._ospath.exists(gvm_dir):
-            self._rmTree(gvm_dir)
+            self._path.rmTree(gvm_dir)
 
         self._have_tool = False
 

@@ -8,7 +8,7 @@ class zipTool(RunEnvTool):
     __slots__ = ()
 
     def _installTool(self, env):
-        self._requirePackages(['zip'])
-        self._requireEmerge(['app-arch/zip'])
-        self._requirePacman(['zip'])
-        self._requireApk(['zip'])
+        self._install.debrpm(['zip'])
+        self._install.emerge(['app-arch/zip'])
+        self._install.pacman(['zip'])
+        self._install.apk(['zip'])

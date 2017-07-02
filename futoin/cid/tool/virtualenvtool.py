@@ -30,7 +30,7 @@ Home: https://pypi.python.org/pypi/virtualenv
         # virtualenv depends on ensurepip and provides no setuptools
         # ensurepip is not packaged on all OSes...
         if False:  # and int(python_ver[0]) == 3 and int(python_ver[1]) >= 3:
-            self._callExternal([
+            self._exec.callExternal([
                 env['pythonRawBin'],
                 '-m', 'venv',
                 '--system-site-packages',
@@ -41,39 +41,39 @@ Home: https://pypi.python.org/pypi/virtualenv
             ])
         else:
             # Looks quite stupid, but it's a workaround for different OSes
-            pip = self._which('pip')
+            pip = self._path.which('pip')
 
             if not pip:
-                self._requirePackages(['python-virtualenv'])
-                self._requirePackages(['virtualenv'])
-                self._requireEmerge(['dev-python/virtualenv'])
-                self._requirePacman(['python-virtualenv'])
-                self._requireApk(['py-virtualenv'])
+                self._install.debrpm(['python-virtualenv'])
+                self._install.debrpm(['virtualenv'])
+                self._install.emerge(['dev-python/virtualenv'])
+                self._install.pacman(['python-virtualenv'])
+                self._install.apk(['py-virtualenv'])
 
-                self._requireDeb(['python-pip'])
-                self._requireYum(['python2-pip'])
-                self._requireEmerge(['dev-python/pip'])
-                self._requirePacman(['python-pip'])
-                self._requireApk('py2-pip')
+                self._install.deb(['python-pip'])
+                self._install.yum(['python2-pip'])
+                self._install.emerge(['dev-python/pip'])
+                self._install.pacman(['python-pip'])
+                self._install.apk('py2-pip')
 
-                if self._isMacOS():
-                    self._trySudoCall(['easy_install', 'pip'])
+                if self._detect.isMacOS():
+                    self._exec.trySudoCall(['easy_install', 'pip'])
 
-                pip = self._which('pip')
+                pip = self._path.which('pip')
 
             if pip:
                 pip_cmd = [pip, 'install', '-q', '--upgrade',
                            'virtualenv>={0}'.format(env['virtualenvVer'])]
 
                 # TODO: use  --user without sudo
-                self._trySudoCall(pip_cmd)
+                self._exec.trySudoCall(pip_cmd)
 
-            virtualenv = self._which('virtualenv')
+            virtualenv = self._path.which('virtualenv')
 
             if not virtualenv:
                 self._errorExit('Failed to find virtualenv')
 
-            self._callExternal([
+            self._exec.callExternal([
                 virtualenv,
                 '--python={0}'.format(env['pythonRawBin']),
                 '--clear',
@@ -87,7 +87,7 @@ Home: https://pypi.python.org/pypi/virtualenv
         ospath = self._ospath
         virtualenv_dir = '.virtualenv-{0}'.format(env['pythonFactVer'])
         virtualenv_dir = env.setdefault(
-            'virtualenvDir', ospath.join(self._deployHome(), virtualenv_dir))
+            'virtualenvDir', ospath.join(self._path.deployHome(), virtualenv_dir))
 
         env.setdefault('virtualenvVer', '15.1.0')
 
@@ -101,6 +101,6 @@ Home: https://pypi.python.org/pypi/virtualenv
                                         verbose=False
                                         )
 
-            self._updateEnvFromOutput(env_to_set)
+            self._path.updateEnvFromOutput(env_to_set)
             # reverse-dep hack
             env['pythonBin'] = ospath.join(virtualenv_dir, 'bin', 'python')

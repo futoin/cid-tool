@@ -51,53 +51,55 @@ resources due to lack of trusted binary builds.
 
         old_tmpdir = environ.get('TMPDIR', '/tmp')
         environ['TMPDIR'] = ospath.join(php_dir, '..')
-        self._callExternal(
+        self._exec.callExternal(
             [env['phpbuildBin'], env['phpSrcVer'], env['phpDir']])
         environ['TMPDIR'] = old_tmpdir
 
     def _installBinaries(self, env):
+        detect = self._detect
+
         ver = env['phpVer']
 
-        if self._isDebian():
+        if detect.isDebian():
             repo = env.get('phpSuryRepo', 'https://packages.sury.org/php')
             gpg = self._callCurl(env, [repo + '/apt.gpg'], binary_output=True)
 
-            self._addAptRepo(
+            self._install.aptRepo(
                 'sury', "deb {0} $codename$ main".format(repo), gpg)
-            self._requireDeb('php' + ver)
+            self._install.deb('php' + ver)
 
-        elif self._isUbuntu():
-            self._addAptRepo('sury', 'ppa:ondrej/php', None)
-            self._requireDeb('php' + ver)
+        elif detect.isUbuntu():
+            self._install.aptRepo('sury', 'ppa:ondrej/php', None)
+            self._install.deb('php' + ver)
 
-        elif self._isSCLSupported():
+        elif detect.isSCLSupported():
             if self._isPHPSCL(env):
                 ver = ver.replace('.', '')
 
-                self._requireSCL()
+                self._install.yumSCL()
 
-                self._requireYum([
+                self._install.yum([
                     'rh-php{0}'.format(ver),
                     'rh-php{0}-php-devel'.format(ver),
                 ])
             else:
                 self._errorExit('Only SCL packages are supported so far')
 
-        elif self._isMacOS():
-            self._requireBrewTap('homebrew/homebrew-php')
+        elif detect.isMacOS():
+            self._install.brewTap('homebrew/homebrew-php')
             ver = ver.replace('.', '')
             base_formula = 'homebrew/php/php{0}'.format(ver)
 
-            self._requireBrewUnlink(search='/homebrew\/php\/php[0-9]{2}$/')
-            self._requireBrew(base_formula)
+            self._install.brewUnlink(search='/homebrew\/php\/php[0-9]{2}$/')
+            self._install.brew(base_formula)
 
             formulas = [
                 'apcu',
                 'opcache',
             ]
 
-            self._requireBrew(['{0}-{1}'.format(base_formula, f)
-                               for f in formulas])
+            self._install.brew(['{0}-{1}'.format(base_formula, f)
+                                for f in formulas])
 
         else:
             self._systemDeps()
@@ -115,7 +117,7 @@ resources due to lack of trusted binary builds.
         php_dir = env['phpDir']
 
         if self._ospath.exists(php_dir):
-            self._rmTree(php_dir)
+            self._path.rmTree(php_dir)
 
         self._have_tool = False
 
@@ -125,16 +127,17 @@ resources due to lack of trusted binary builds.
     def initEnv(self, env):
         ospath = self._ospath
         os = self._os
+        detect = self._detect
 
         #---
         # TODO: rewrite similar to ruby, and add dynamic detection
-        if self._isDebian() or self._isUbuntu():
+        if detect.isDebian() or detect.isUbuntu():
             php_latest = '7.1'
-        elif self._isSCLSupported():
+        elif detect.isSCLSupported():
             php_latest = '7.0'
-        elif self._isAlpineLinux():
+        elif detect.isAlpineLinux():
             php_latest = '7.0'
-        elif self._isMacOS():
+        elif detect.isMacOS():
             php_latest = '7.1'
         else:
             php_latest = None
@@ -152,7 +155,7 @@ resources due to lack of trusted binary builds.
                 self._warn('Forcing PHP 5.6 for PHP 5.x requirement')
             elif php_ver == '7':
                 php_ver = php_latest
-            elif self._isMacOS():
+            elif detect.isMacOS():
                 # Homebrew supports all
                 pass
             elif php_ver > php_latest:
@@ -175,11 +178,11 @@ resources due to lack of trusted binary builds.
             super(phpTool, self).initEnv(env)
             return
         elif phpBinOnly:
-            if self._isDebian() or self._isUbuntu():
+            if detect.isDebian() or detect.isUbuntu():
                 bin_name = 'php' + php_ver
                 super(phpTool, self).initEnv(env, bin_name)
 
-            elif self._isSCLSupported():
+            elif detect.isSCLSupported():
                 if self._isPHPSCL(env):
                     ver = env['phpVer'].replace('.', '')
                     try:
@@ -188,22 +191,22 @@ resources due to lack of trusted binary builds.
                     except self._ext.subprocess.CalledProcessError:
                         return
 
-                    self._updateEnvFromOutput(env_to_set)
+                    self._path.updateEnvFromOutput(env_to_set)
                     super(phpTool, self).initEnv(env)
                 else:
                     pass
 
-            elif self._isAlpineLinux():
+            elif detect.isAlpineLinux():
                 bin_name = 'php' + php_ver[0]
                 super(phpTool, self).initEnv(env, bin_name)
 
-            elif self._isMacOS():
+            elif detect.isMacOS():
                 brew_prefix = env['brewDir']
                 formula = 'php' + php_ver.replace('.', '')
                 php_dir = ospath.join(brew_prefix, 'opt', formula, 'bin')
 
                 if ospath.exists(php_dir):
-                    self._addBinPath(php_dir, True)
+                    self._path.addBinPath(php_dir, True)
                     super(phpTool, self).initEnv(env)
 
             return
@@ -238,7 +241,7 @@ resources due to lack of trusted binary builds.
 
         if ospath.exists(php_bin):
             self._have_tool = True
-            self._addBinPath(php_bin_dir, True)
+            self._path.addBinPath(php_bin_dir, True)
             env.setdefault('phpBin', php_bin)
 
     def _buildDeps(self, env):
@@ -246,14 +249,14 @@ resources due to lack of trusted binary builds.
         os = self._os
         environ = self._environ
 
-        self._requireBuildDep(env, [
+        self._builddep.require(env, [
             'ssl',
             'mysqlclient',
             'postgresql',
         ])
         # APT
         #---
-        self._requireDeb([
+        self._install.deb([
             'build-essential',
             'bison',
             'automake',
@@ -305,9 +308,9 @@ resources due to lack of trusted binary builds.
 
         # Extra repo before the rest
         #---
-        self._requireYumEPEL()
+        self._install.yumEPEL()
 
-        self._requireRpm([
+        self._install.rpm([
             'binutils',
             'patch',
             'git',
@@ -340,11 +343,11 @@ resources due to lack of trusted binary builds.
             'pcre-devel',
         ])
 
-        self._requireYum('bzip2-devel')
-        self._requireZypper('libbz2-devel')
+        self._install.yum('bzip2-devel')
+        self._install.zypper('libbz2-devel')
 
-        self._requireEmergeDepsOnly(['dev-lang/php'])
-        self._requirePacman([
+        self._install.emergeDepsOnly(['dev-lang/php'])
+        self._install.pacman([
             'patch',
             'git',
             'gcc',
@@ -375,20 +378,20 @@ resources due to lack of trusted binary builds.
         ])
 
         #---
-        systemctl = self._which('systemctl')
+        systemctl = self._path.which('systemctl')
 
         if systemctl:
-            self._requireDeb(['libsystemd-dev'])
-            self._requireRpm(['systemd-devel'])
+            self._install.deb(['libsystemd-dev'])
+            self._install.rpm(['systemd-devel'])
             with_systemd = ' --with-fpm-systemd'
         else:
             with_systemd = ' --without-fpm-systemd'
 
         multiarch = None
-        dpkgarch = self._which('dpkg-architecture')
+        dpkgarch = self._path.which('dpkg-architecture')
 
         if dpkgarch:
-            multiarch = self._callExternal(
+            multiarch = self._exec.callExternal(
                 [dpkgarch, '-qDEB_HOST_MULTIARCH']).strip()
 
         if multiarch:
@@ -457,7 +460,7 @@ resources due to lack of trusted binary builds.
             ' + with_systemd + with_libdir
 
     def _systemDeps(self):
-        self._requireDeb([
+        self._install.deb([
             'php.*-cli',
             'php.*-fpm',
             "php.*-apcu",
@@ -481,7 +484,7 @@ resources due to lack of trusted binary builds.
         ])
 
         # SuSe-like
-        self._requireZypper([
+        self._install.zypper([
             'php?',
             'php*-fpm',
             'php*-bcmath',
@@ -517,7 +520,7 @@ resources due to lack of trusted binary builds.
         ])
 
         # RedHat-like
-        self._requireYum([
+        self._install.yum([
             'php-cli',
             'php-fpm',
             'php-pecl-apcu',
@@ -528,22 +531,22 @@ resources due to lack of trusted binary builds.
         ])
 
         try:
-            self._requireDeb([
+            self._install.deb([
                 "php.*-mbstring",
                 "php.*-opcache",
                 "php.*-zip",
             ])
-            self._requireYum([
+            self._install.yum([
                 'php-pecl-sqlite',
             ])
         except:
             pass
 
-        self._requireEmerge(['dev-lang/php'])
-        self._requirePacman(['php'])
+        self._install.emerge(['dev-lang/php'])
+        self._install.pacman(['php'])
 
-        self._requireApkCommunity()
-        self._requireApk([
+        self._install.apkCommunity()
+        self._install.apk([
             'php7',
             'php7-xml',
             'php7-xmlreader',

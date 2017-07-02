@@ -225,7 +225,7 @@ class ToolMixIn(DataSlots):
                 postdeps = set()
 
         #---
-        if self._isMacOS() and tools:
+        if self._detect.isMacOS() and tools:
             # Make sure Homebrew is always implicit first tool
             dep_generations.append(set(['brew']))
 

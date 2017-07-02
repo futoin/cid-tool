@@ -27,36 +27,37 @@ javaVer supports:
         if env.get('javaBin', None):
             return
 
+        detect = self._detect
         ver = env['javaVer']
 
-        if self._isMacOS():
+        if detect.isMacOS():
             if ver == '7':
-                self._requireBrewTap('caskroom/versions')
-                self._requireBrew('zulu7', True)
+                self._install.brewTap('caskroom/versions')
+                self._install.brew('zulu7', True)
             else:
-                self._requireBrew('zulu', True)
+                self._install.brew('zulu', True)
             return
 
-        if self._isAlpineLinux():
-            self._requireApkCommunity()
-            self._requireApk('openjdk{0}-jre'.format(ver))
+        if detect.isAlpineLinux():
+            self._install.apkCommunity()
+            self._install.apk('openjdk{0}-jre'.format(ver))
             return
 
-        self._addAptRepo(
+        self._install.aptRepo(
             'zulu', 'deb http://repos.azulsystems.com/debian stable main', self._ZULU_GPG_KEY)
-        self._addYumRepo('zulu', 'http://repos.azulsystems.com/rhel/zulu.repo',
-                         self._ZULU_GPG_KEY, releasevermax=7)
-        self._addZypperRepo(
+        self._install.yumRepo('zulu', 'http://repos.azulsystems.com/rhel/zulu.repo',
+                              self._ZULU_GPG_KEY, releasevermax=7)
+        self._install.zypperRepo(
             'zulu', 'http://repos.azulsystems.com/sles/latest', self._ZULU_GPG_KEY)
 
         # leaving here for possible future use
-        # self._requireDeb(['openjdk-{0}-jre-headless'.format(ver)])
-        # self._requireYum(['java-1.{0}.0-openjdk'.format(ver)])
-        # self._requireZypper(['java-1_{0}_0-openjdk'.format(ver)])
-        self._requirePackages(['zulu-{0}'.format(ver)])
+        # self._install.deb(['openjdk-{0}-jre-headless'.format(ver)])
+        # self._install.yum(['java-1.{0}.0-openjdk'.format(ver)])
+        # self._install.zypper(['java-1_{0}_0-openjdk'.format(ver)])
+        self._install.debrpm(['zulu-{0}'.format(ver)])
 
-        self._requirePacman(['jre{0}-openjdk'.format(ver)])
-        self._requireEmerge(['=dev-java/oracle-jre-bin-1.{0}*'.format(ver)])
+        self._install.pacman(['jre{0}-openjdk'.format(ver)])
+        self._install.emerge(['=dev-java/oracle-jre-bin-1.{0}*'.format(ver)])
 
     def uninstallTool(self, env):
         pass
@@ -65,6 +66,7 @@ javaVer supports:
         ospath = self._ospath
         environ = self._environ
         glob = self._ext.glob
+        detect = self._detect
 
         if env.get('javaBin', None):
             bin_dir = ospath.dirname(env['javaBin'])
@@ -72,7 +74,7 @@ javaVer supports:
 
             environ['JAVA_HOME'] = java_home
             environ['JRE_HOME'] = java_home
-            self._addBinPath(bin_dir, True)
+            self._path.addBinPath(bin_dir, True)
 
             super(javaTool, self).initEnv(env, 'java')
             return
@@ -93,15 +95,15 @@ javaVer supports:
             #"/opt/jdk/jdk1.{0}*/bin/java".format(ver),
         ]
 
-        if self._isGentoo() or self._isArchLinux():
+        if detect.isGentoo() or detect.isArchLinux():
             candidates += [
                 "/usr/lib/jvm/java-{0}-openjdk*/jre/bin/java".format(ver),
             ]
-        elif self._isAlpineLinux():
+        elif detect.isAlpineLinux():
             candidates += [
                 "/usr/lib/jvm/java-1.{0}-openjdk/jre/bin/java".format(ver),
             ]
-        elif self._isMacOS():
+        elif detect.isMacOS():
             candidates += [
                 "/Library/Java/JavaVirtualMachines/zulu-{0}.jdk/Contents/Home/jre/bin/java".format(
                     ver)
@@ -121,13 +123,13 @@ javaVer supports:
                 env['javaBin'] = bin_name
                 environ['JAVA_HOME'] = java_home
                 environ['JRE_HOME'] = java_home
-                self._addBinPath(bin_dir, True)
+                self._path.addBinPath(bin_dir, True)
                 self._have_tool = True
                 break
 
     def onRun(self, config, svc, args):
         env = config['env']
-        self._callInteractive([
+        self._exec.callInteractive([
             env[self._name + 'Bin'], '-jar', svc['path']
         ] + args)
 

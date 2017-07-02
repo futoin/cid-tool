@@ -10,7 +10,7 @@ Home: https://www.rust-lang.org
     __slots__ = ()
 
     def getDeps(self):
-        if self._useSystem():
+        if self._isGlobalRust():
             return []
 
         return ['rustup']
@@ -18,15 +18,15 @@ Home: https://www.rust-lang.org
     def getVersionParts(self):
         return 3
 
-    def _useSystem(self):
-        return self._isAlpineLinux()
+    def _isGlobalRust(self):
+        return self._detect.isAlpineLinux()
 
     def _installTool(self, env):
-        if self._useSystem():
-            self._requireApk('rust')
+        if self._isGlobalRust():
+            self._install.apk('rust')
             return
 
-        self._callExternal([
+        self._exec.callExternal([
             env['rustupBin'], 'toolchain', 'install', env['rustVer']
         ])
 
@@ -34,10 +34,10 @@ Home: https://www.rust-lang.org
         self._installTool(env)
 
     def uninstallTool(self, env):
-        if self._useSystem():
+        if self._isGlobalRust():
             return
 
-        self._callExternal([
+        self._exec.callExternal([
             env['rustupBin'], 'toolchain', 'uninstall', env['rustVer']
         ])
         self._have_tool = False
@@ -46,12 +46,12 @@ Home: https://www.rust-lang.org
         return ['rustBin', 'rustVer']
 
     def initEnv(self, env):
-        if not self._useSystem():
+        if not self._isGlobalRust():
             ver = env.setdefault('rustVer', 'stable')
             self._environ['RUSTUP_TOOLCHAIN'] = ver
 
             try:
-                res = self._callExternal([
+                res = self._exec.callExternal([
                     env['rustupBin'], 'which', 'rustc'
                 ], verbose=False)
             except:

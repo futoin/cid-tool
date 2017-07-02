@@ -51,7 +51,7 @@ It's possible to override uWSGI options with .tune.uwsgi parameter map.
                 cfg_svc_tune['socketAddress'], cfg_svc_tune['socketPort'])
 
         #
-        mem_limit = int(self._parseMemory(
+        mem_limit = int(self._configutil.parseMemory(
             cfg_svc_tune['connMemory']) / 1024 / 1024)
         conf = {
             'uwsgi': cfg_svc_tune.get('uwsgi', {})
@@ -83,12 +83,12 @@ It's possible to override uWSGI options with .tune.uwsgi parameter map.
         if svc['path']:
             uwsgi_conf['wsgi-file'] = svc['path']
 
-        self._writeIni(conf_file, conf)
+        self._path.writeIni(conf_file, conf)
 
     def onRun(self, config, svc, args):
         env = config['env']
         deploy = config['deploy']
-        self._callInteractive([
+        self._exec.callInteractive([
             env['uwsgiBin'],
             svc['tune']['uwsgiConf']
         ])

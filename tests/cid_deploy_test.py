@@ -11,10 +11,10 @@ import requests
 
 from .cid_utbase import cid_UTBase
 from futoin.cid.details.resourcealgo import ResourceAlgo
-from futoin.cid.mixins.util import UtilMixIn
-from futoin.cid.mixins.path import PathMixIn
+from futoin.cid.util import exec as _exec
+from futoin.cid.util import config as _configutil
 
-class cid_deploy_Test( cid_UTBase, UtilMixIn, PathMixIn ) :
+class cid_deploy_Test( cid_UTBase ) :
     __test__ = True
     
     TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'deploycmd')
@@ -383,7 +383,7 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn, PathMixIn ) :
                 
     def test_20_memdetect_system(self):
         if self.IS_MACOS:
-            sysmem = int(self._callExternal(['sysctl', '-n', 'hw.memsize'], verbose=False).strip())
+            sysmem = int(_exec.callExternal(['sysctl', '-n', 'hw.memsize'], verbose=False).strip())
         else:
             sysmem = int(self._readFile('/proc/meminfo').split()[1])*1024
             
@@ -414,7 +414,7 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn, PathMixIn ) :
         
     def test_30_cpudetect_system(self):
         if self.IS_MACOS:
-            cpus = int(self._callExternal(['sysctl', '-n', 'hw.ncpu'], verbose=False).strip())
+            cpus = int(_exec.callExternal(['sysctl', '-n', 'hw.ncpu'], verbose=False).strip())
         else:
             cpus = self._readFile('/proc/cpuinfo').split("\n")
             cpus = filter(lambda x: x.split(':')[0].strip() == 'processor', cpus)
@@ -504,8 +504,8 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn, PathMixIn ) :
         for (sn, sl) in autoServices.items():
             service_mem[sn] = 0
             for s in sl:
-                mem = self._parseMemory(s['maxMemory'])
-                self._parseMemory(s['connMemory'])
+                mem = _configutil.parseMemory(s['maxMemory'])
+                _configutil.parseMemory(s['connMemory'])
                 total_mem += mem
                 service_mem[sn] += mem
                 
@@ -530,7 +530,7 @@ class cid_deploy_Test( cid_UTBase, UtilMixIn, PathMixIn ) :
         self.assertAlmostEqual(int(base * 300 / 350 + 3*1024) * mb, service_mem['scalableMulti'], delta=mb)
         self.assertEqual(4 * 1024 * mb, service_mem['nonScalable'])
 
-class cid_devserve_Test( cid_UTBase, UtilMixIn ) :
+class cid_devserve_Test( cid_UTBase ) :
     __test__ = True
     
     TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'devserve')
@@ -577,14 +577,14 @@ class cid_devserve_Test( cid_UTBase, UtilMixIn ) :
         # 1,2,delay,3,delay
         self.assertEqual('111', self._readFile('shortrun.txt'))
         
-class cid_service_Test( cid_UTBase, UtilMixIn ) :
+class cid_service_Test( cid_UTBase ) :
     #__test__ = True
     
     TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'service')
     _create_test_dir = True
 
 
-class cid_multiapp_Base( cid_UTBase, UtilMixIn ) :
+class cid_multiapp_Base( cid_UTBase ) :
     _create_test_dir = True
     
     def _writeFiles(self):

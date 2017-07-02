@@ -3,11 +3,8 @@
 from ..mixins.log import LogMixIn
 from ..mixins.ondemand import OnDemandMixIn
 
-from ..mixins.util import UtilMixIn
-from ..mixins.package import PackageMixIn
 
-
-class ResourceAlgo(LogMixIn, OnDemandMixIn,  UtilMixIn, PackageMixIn):
+class ResourceAlgo(LogMixIn, OnDemandMixIn):
     def pageSize(self):
         return self._os.sysconf('SC_PAGE_SIZE')
 
@@ -15,7 +12,7 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn,  UtilMixIn, PackageMixIn):
         try:
             return self.pageSize() * self._os.sysconf('SC_PHYS_PAGES')
         except ValueError:
-            if self._isMacOS():
+            if self._detect.isMacOS():
                 return int(self._ext.subprocess.check_output(['sysctl', '-n', 'hw.memsize']).strip())
             else:
                 self._errorExit('Failed to detect system memory size')
@@ -24,7 +21,7 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn,  UtilMixIn, PackageMixIn):
         cgroupFile = cgroupFile or '/sys/fs/cgroup/memory/memory.limit_in_bytes'
 
         if self._ospath.exists(cgroupFile):
-            return int(self._readTextFile(cgroupFile).strip())
+            return int(self._path.readTextFile(cgroupFile).strip())
 
         return None
 
@@ -32,7 +29,7 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn,  UtilMixIn, PackageMixIn):
         maxTotalMemory = config.get('deploy', {}).get('maxTotalMemory', None)
 
         if maxTotalMemory:
-            return self._parseMemory(maxTotalMemory)
+            return self._configutil.parseMemory(maxTotalMemory)
 
         sysMem = self.systemMemory()
         cgroupMem = self.cgroupMemory()
@@ -43,7 +40,7 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn,  UtilMixIn, PackageMixIn):
             return sysMem / 2
 
     def systemCpuCount(self):
-        if self._isMacOS():
+        if self._detect.isMacOS():
             return int(self._ext.subprocess.check_output(['sysctl', '-n', 'hw.ncpu']).strip())
 
         os = self._os
@@ -55,7 +52,7 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn,  UtilMixIn, PackageMixIn):
         if not self._ospath.exists(cgroupFile):
             return None
 
-        cpus = self._readTextFile(cgroupFile).strip()
+        cpus = self._path.readTextFile(cgroupFile).strip()
         cpus = cpus.split(',')
         count = 0
 
@@ -114,11 +111,11 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn,  UtilMixIn, PackageMixIn):
                 if f not in ei:
                     self._errorExit(
                         '"{0}" is missing from {1} entry point'.format(f, en))
-                ei[f] = self._parseMemory(ei[f]) // granularity
+                ei[f] = self._configutil.parseMemory(ei[f]) // granularity
 
             for f in ('maxMemory', 'maxTotalMemory', 'debugOverhead', 'debugConnOverhead'):
                 if f in ei:
-                    ei[f] = self._parseMemory(ei[f]) // granularity
+                    ei[f] = self._configutil.parseMemory(ei[f]) // granularity
 
             for f in ('socketProtocol',):
                 if f not in ei:
@@ -243,7 +240,7 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn,  UtilMixIn, PackageMixIn):
                 ic['socketProtocol'] = ei['socketProtocol']
 
                 for m in ('maxMemory', 'connMemory', 'maxRequestSize'):
-                    ic[m] = self._toMemory(ic[m] * granularity)
+                    ic[m] = self._configutil.toMemory(ic[m] * granularity)
 
             autoServices[en] = instances
 

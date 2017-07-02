@@ -41,7 +41,7 @@ avoid setting these variables in process environment.
 
     def rmsPromote(self, config, src_pool, dst_pool, package_list):
         # TODO: find out how to copy on server
-        tmpdir = self._tmpCacheDir(prefix='nexus')
+        tmpdir = self._path.tmpCacheDir(prefix='nexus')
         os = self._os
 
         try:
@@ -51,7 +51,7 @@ avoid setting these variables in process environment.
             self.rmsUpload(config, dst_pool, package_list)
             os.chdir(cwd)
         finally:
-            self._rmTree(tmpdir)
+            self._path.rmTree(tmpdir)
 
     def rmsGetList(self, config, rms_pool, package_hint):
         rms_pool = rms_pool.split('/', 1)
@@ -158,7 +158,7 @@ avoid setting these variables in process environment.
         if 'nexusUser' in env and 'nexusPassword' in env:
             kwargs['auth'] = (env['nexusUser'], env['nexusPassword'])
 
-        kwargs['timeout'] = self._timeouts(env, 'requests')
+        kwargs['timeout'] = self._configutil.timeouts(env, 'requests')
 
         self._info('HTTP call {0} {1}'.format(method, url))
         return self._ext.requests.request(method, url, **kwargs)

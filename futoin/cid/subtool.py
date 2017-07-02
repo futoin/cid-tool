@@ -2,20 +2,17 @@
 from .mixins.ondemand import OnDemandMixIn
 from .mixins.log import LogMixIn
 
-from .mixins.util import UtilMixIn
-from .mixins.path import PathMixIn
-from .mixins.package import PackageMixIn
-from .mixins.version import VersionMixIn
-
 __all__ = ['SubTool']
 
 
-class SubTool(LogMixIn, OnDemandMixIn,
-              PathMixIn, PackageMixIn, UtilMixIn, VersionMixIn):
+class SubTool(LogMixIn, OnDemandMixIn):
     __slots__ = (
         '_name',
         '_have_tool',
     )
+
+    # TODO: get rid of
+    SYSTEM_VER = 'system'
 
     def __init__(self, name):
         super(SubTool, self).__init__()
@@ -24,6 +21,10 @@ class SubTool(LogMixIn, OnDemandMixIn,
 
     def getDeps(self):
         return []
+
+    def getVersionParts(self):
+        """Override, if tool has different number of meaningful parts"""
+        return 2
 
     def envDeps(self, env):
         pass
@@ -62,7 +63,7 @@ class SubTool(LogMixIn, OnDemandMixIn,
             if bin_name is None:
                 bin_name = name
 
-            tool_path = self._which(bin_name)
+            tool_path = self._path.which(bin_name)
             if tool_path:
                 env[bin_env] = tool_path.strip()
                 self._have_tool = True
@@ -73,7 +74,7 @@ class SubTool(LogMixIn, OnDemandMixIn,
         files = self.autoDetectFiles()
 
         if files:
-            return self._autoDetectByCfg(config, files)
+            return self._detect.autoDetectByCfg(self._name, config, files)
 
         return False
 
@@ -85,7 +86,7 @@ class SubTool(LogMixIn, OnDemandMixIn,
         self.initEnv(env)
 
         if not self._have_tool:
-            if self._isExternalToolsSetup(env):
+            if self._detect.isExternalToolsSetup(env):
                 self._errorExit(
                     'Tool "{0}" must be installed externally (env config)'.format(self._name))
             else:
@@ -127,7 +128,25 @@ updates = {
         bin = env.get(self._name + 'Bin', None)
 
         if bin:
-            self._callInteractive([bin] + args, replace=replace)
+            self._exec.callInteractive([bin] + args, replace=replace)
         else:
             self._errorExit(
                 'Exec command has not been implemented for "{0}"'.format(self._name))
+
+    def _getTune(self, config, key, default=None):
+        return config.get('toolTune', {}).get(self._name, {}).get(key, default)
+
+    def sanitizeVersion(self, env):
+        """Should be called implicitly by standard CID functionality"""
+        ver_var = self._name + 'Ver'
+        ver = env.get(ver_var, None)
+
+        if ver:
+            end = self.getVersionParts()
+            new_ver = ver.split('.')[:end]
+            new_ver = '.'.join(new_ver)
+
+            if env[ver_var] != new_ver:
+                self._warn('Too precise version "{0}" for "{1}" - trimmed to "{2}"'
+                           .format(ver, self._name, new_ver))
+                env[ver_var] = new_ver

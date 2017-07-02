@@ -34,7 +34,7 @@ class DeployMixIn(DataSlots):
         if not package_list:
             self._errorExit("No package found")
 
-        package = self._getLatest(package_list)
+        package = self._versionutil.latest(package_list)
         self._info('Found package {0}'.format(package))
 
         # cleanup first, in case of incomplete actions
@@ -151,7 +151,7 @@ class DeployMixIn(DataSlots):
         if not tag_list:
             self._errorExit("No tags found")
 
-        vcs_ref = self._getLatest(tag_list)
+        vcs_ref = self._versionutil.latest(tag_list)
         target_dir = vcs_ref.replace(os.sep, '_').replace(':', '_')
         self._info('Found tag {0}'.format(vcs_ref))
 
@@ -195,7 +195,7 @@ class DeployMixIn(DataSlots):
         config = self._config
 
         # Update tools
-        if not self._isExternalToolsSetup(config['env']):
+        if not self._detect.isExternalToolsSetup(config['env']):
             self._info('Updating tools')
             self.tool_update(None)
 
@@ -220,9 +220,10 @@ class DeployMixIn(DataSlots):
                     def_dir, persist_dst,
                     preserve_symlinks=1, preserve_mode=0
                 )
-                self._rmTree(def_dir)
+                self._path.rmTree(def_dir)
                 os.symlink(sym_target, def_dir)
-                self._chmodTree(persist_dst, wdir_wperm, wfile_wperm, False)
+                self._path.chmodTree(
+                    persist_dst, wdir_wperm, wfile_wperm, False)
             elif ospath.isfile(def_dir):
                 self._info('moving file', ' >> ')
                 self._ext.shutil.move(def_dir, persist_dst)
@@ -232,7 +233,8 @@ class DeployMixIn(DataSlots):
             elif ospath.isdir(persist_dst):
                 self._info('symlink existing dir', ' >> ')
                 os.symlink(sym_target, def_dir)
-                self._chmodTree(persist_dst, wdir_wperm, wfile_wperm, False)
+                self._path.chmodTree(
+                    persist_dst, wdir_wperm, wfile_wperm, False)
             else:
                 self._info('create & symlink dir', ' >> ')
                 os.makedirs(persist_dst, wdir_wperm)
@@ -256,7 +258,7 @@ class DeployMixIn(DataSlots):
 
         file_perm = stat.S_IRUSR | stat.S_IRGRP
         dir_perm = file_perm | stat.S_IXUSR | stat.S_IXGRP
-        self._chmodTree(tmp, dir_perm, file_perm, True)
+        self._path.chmodTree(tmp, dir_perm, file_perm, True)
 
         # Setup services
         self._deployConfig()
@@ -305,7 +307,7 @@ class DeployMixIn(DataSlots):
                 continue
 
             if ospath.isdir(f):
-                self._rmTree(f)
+                self._path.rmTree(f)
             else:
                 os.chmod(f, self._ext.stat.S_IRWXU)
                 os.remove(f)
@@ -338,7 +340,7 @@ class DeployMixIn(DataSlots):
 
         self._info('Writing deployment config in {0}'.format(
             self._os.getcwd()))
-        self._writeJSONConfig(self._FUTOIN_JSON, new_config)
+        self._path.writeJSONConfig(self._FUTOIN_JSON, new_config)
 
     def _reloadServices(self):
         self._requireDeployLock()
@@ -369,8 +371,8 @@ class DeployMixIn(DataSlots):
         # DO NOT use realpath as it may point to "old current"
         config['wcDir'] = self._ospath.join(config['deployDir'], 'current')
 
-        self._mkDir(runtimeDir)
-        self._mkDir(tmpDir)
+        self._path.mkDir(runtimeDir)
+        self._path.mkDir(tmpDir)
 
         auto_services = config['deploy']['autoServices']
 

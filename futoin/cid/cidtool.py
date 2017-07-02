@@ -12,9 +12,6 @@ from .mixins.service import ServiceMixIn
 from .mixins.log import LogMixIn
 
 
-from .mixins.path import PathMixIn
-from .mixins.util import UtilMixIn
-from .mixins.package import PackageMixIn
 from .coloring import Coloring
 
 from .vcstool import VcsTool
@@ -50,13 +47,13 @@ def cid_action(f):
                         f(self, *args, **kwargs)
                     elif cmd.startswith('@cid'):
                         cmd = self._ext.shlex.split(cmd)
-                        self._callExternal([self._sys.executable, '-mfutoin.cid'] + cmd[1:],
-                                           user_interaction=True)
+                        self._exec.callExternal([self._sys.executable, '-mfutoin.cid'] + cmd[1:],
+                                                user_interaction=True)
                     elif cmd in actions:
                         filt_args = list(filter(None, args))
                         self._call_actions(cmd, actions, filt_args)
                     else:
-                        self._callExternal(
+                        self._exec.callExternal(
                             ['sh', '-c', cmd], user_interaction=True)
         else:
             f(self, *args, **kwargs)
@@ -64,8 +61,7 @@ def cid_action(f):
 
 
 #=============================================================================
-class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolMixIn, DataSlots,
-              PathMixIn, UtilMixIn, PackageMixIn):
+class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolMixIn, DataSlots):
     __slots__ = ()
     __TO_GZIP = '\.(js|json|css|svg|txt)$'
 
@@ -83,15 +79,16 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         for cmd in act:
             if cmd.startswith('@cid'):
                 cmd = self._ext.shlex.split(cmd)
-                self._callExternal([self._sys.executable, '-mfutoin.cid'] + cmd[1:] + args,
-                                   user_interaction=True)
+                self._exec.callExternal([self._sys.executable, '-mfutoin.cid'] + cmd[1:] + args,
+                                        user_interaction=True)
             elif cmd in actions:
                 self._call_actions(cmd, actions, args)
             else:
                 if args:
                     cmd = '{0} {1}'.format(
                         cmd, self._ext.subprocess.list2cmdline(args))
-                self._callExternal(['sh', '-c', cmd], user_interaction=True)
+                self._exec.callExternal(
+                    ['sh', '-c', cmd], user_interaction=True)
 
     @cid_action
     def tag(self, branch, next_version=None):
@@ -498,7 +495,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                 self._infoLabel('Renaming: ', '{0} to {1}'.format(wcDir, dst))
                 os.rename(wcDir, dst)
             except OSError:
-                self._rmTree(wcDir)
+                self._path.rmTree(wcDir)
 
         # Make sure to keep VCS info when switch to another location
         # for checkout.
@@ -529,7 +526,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
     def tool_install(self, tool):
         self._processWcDir()
 
-        if self._isExternalToolsSetup(self._env):
+        if self._detect.isExternalToolsSetup(self._env):
             self._errorExit(
                 'environment requires external installation of tools')
 
@@ -552,7 +549,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
     def tool_uninstall(self, tool):
         self._processWcDir()
 
-        if self._isExternalToolsSetup(self._env):
+        if self._detect.isExternalToolsSetup(self._env):
             self._errorExit(
                 'environment requires external management of tools')
 
@@ -576,7 +573,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
     def tool_update(self, tool):
         self._processWcDir()
 
-        if self._isExternalToolsSetup(self._env):
+        if self._detect.isExternalToolsSetup(self._env):
             self._errorExit(
                 'environment requires external management of tools')
 
@@ -751,7 +748,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         elif 'name' not in config:
             new_config['name'] = ospath.basename(config['wcDir'])
 
-        self._writeJSONConfig(self._FUTOIN_JSON, new_config)
+        self._path.writeJSONConfig(self._FUTOIN_JSON, new_config)
 
     def vcs_checkout(self, vcs_ref):
         self._processWcDir()
@@ -838,7 +835,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         if tag_hint:
             tag_list = self._ext.fnmatch.filter(tag_list, tag_hint)
 
-        self._versionSort(tag_list)
+        self._versionutil.sort(tag_list)
 
         print("\n".join(tag_list))
 
@@ -854,7 +851,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         if branch_hint:
             branch_list = self._ext.fnmatch.filter(branch_list, branch_hint)
 
-        self._versionSort(branch_list)
+        self._versionutil.sort(branch_list)
 
         print("\n".join(branch_list))
 
@@ -891,7 +888,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             package_list = self._ext.fnmatch.filter(
                 package_list, package_pattern)
 
-        self._versionSort(package_list)
+        self._versionutil.sort(package_list)
 
         print("\n".join(package_list))
 
@@ -1015,7 +1012,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             self._serviceAdapt()
             self._serviceListPrint()
             self._serviceMaster()
-            self._rmTree(deploy_dir)
+            self._path.rmTree(deploy_dir)
             deploy_dir = None
         finally:
             if deploy_dir:
@@ -1024,6 +1021,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
 
     def sudoers(self, entity, skip_key_mgmt):
         ospath = self._ospath
+        detect = self._detect
 
         if not entity:
             entity = self._ext.pwd.getpwuid(self._os.geteuid())[0]
@@ -1031,7 +1029,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         lines = ['']
         commands = []
 
-        if self._isDebian() or self._isUbuntu():
+        if detect.isDebian() or detect.isUbuntu():
             lines += [
                 '# env whitelist',
                 'Defaults  env_keep += "DEBIAN_FRONTEND"',
@@ -1051,7 +1049,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                     '/usr/bin/apt-key add *',
                 ]
 
-        elif self._isFedora():
+        elif detect.isFedora():
             commands += [
                 '# package installation only',
                 '/usr/bin/dnf install *',
@@ -1065,7 +1063,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                     '/usr/bin/rpm --import *',
                 ]
 
-        elif self._isCentOS() or self._isOracleLinux() or self._isRHEL():
+        elif detect.isCentOS() or detect.isOracleLinux() or detect.isRHEL():
             commands += [
                 '# package installation only',
                 '/usr/bin/yum install *',
@@ -1079,7 +1077,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                     '/usr/bin/rpm --import *',
                 ]
 
-        elif self._isOpenSUSE() or self._isSLES():
+        elif detect.isOpenSUSE() or detect.isSLES():
             commands += [
                 '# package installation only',
                 '/usr/bin/zypper install *',
@@ -1093,19 +1091,19 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                     '/bin/rpm --import *',
                 ]
 
-        elif self._isArchLinux():
+        elif detect.isArchLinux():
             commands += [
                 '# package installation only',
                 '/usr/bin/pacman *',
             ]
 
-        elif self._isGentoo():
+        elif detect.isGentoo():
             commands += [
                 '# package installation only',
                 '/usr/bin/emerge *',
             ]
 
-        elif self._isAlpineLinux():
+        elif detect.isAlpineLinux():
             commands += [
                 '# package installation only',
                 '/sbin/apk add *',
@@ -1114,7 +1112,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                 '/usr/bin/tee -a /etc/apk/repositories',
             ]
 
-        elif self._isMacOS():
+        elif detect.isMacOS():
             commands += [
                 '# case for global brew install',
                 '/usr/local/bin/brew install *',
@@ -1159,7 +1157,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                 '/sbin/rc-service * start',
             ]
 
-        if self._isLinux():
+        if detect.isLinux():
             commands += [
                 '',
                 '# allow access to Docker (may have no sense)',
@@ -1187,7 +1185,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
 
     def builddep(self, deps):
         if not deps:
-            res = self._availableBuildDeps()
+            res = self._builddep.available()
             print("\n".join(res))
             return
 
@@ -1199,4 +1197,4 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         self._initTools()
 
         env = self._env
-        self._requireBuildDep(env, list(deps - tools))
+        self._builddep.require(env, list(deps - tools))

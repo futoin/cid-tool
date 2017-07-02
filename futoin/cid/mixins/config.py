@@ -133,17 +133,17 @@ class ConfigMixIn(DataSlots):
         dc = {}
         pc = {}
 
-        gc = self._loadJSONConfig(global_config_file, gc)
+        gc = self._path.loadJSONConfig(global_config_file, gc)
 
         if user_config_path not in (deploy_config_file, project_config_file):
-            uc = self._loadJSONConfig(user_config_path, uc)
+            uc = self._path.loadJSONConfig(user_config_path, uc)
 
         if not startup:
             if project_config_file != deploy_config_file:
-                pc = self._loadJSONConfig(project_config_file, pc)
+                pc = self._path.loadJSONConfig(project_config_file, pc)
 
             if deploy_config_file:
-                dc = self._loadJSONConfig(deploy_config_file, dc)
+                dc = self._path.loadJSONConfig(deploy_config_file, dc)
 
         #---
         self._global_config = gc
@@ -409,7 +409,7 @@ class ConfigMixIn(DataSlots):
 
     def __sanitizeMemory(self, key, val, errors):
         try:
-            self._parseMemory(val)
+            self._configutil.parseMemory(val)
         except:
             errors.append(
                 'Memory value "{0}" must be positive '
@@ -430,7 +430,7 @@ class ConfigMixIn(DataSlots):
 
         env.setdefault('binDir', self._ospath.join(
             self._environ['HOME'], 'bin'))
-        self._addBinPath(env['binDir'])
+        self._path.addBinPath(env['binDir'])
 
         #---
         env_vars = self.FUTOIN_ENV_VARS

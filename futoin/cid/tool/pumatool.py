@@ -43,7 +43,7 @@ class pumaTool(GemToolMixIn, RuntimeTool):
 
         #---
         resource = self._ext.resource
-        heap_limit = self._parseMemory(svc_tune['maxMemory'])
+        heap_limit = self._configutil.parseMemory(svc_tune['maxMemory'])
         # both limit RAM and HEAP (not the same)
         resource.setrlimit(resource.RLIMIT_RSS, (heap_limit, heap_limit))
         resource.setrlimit(resource.RLIMIT_DATA, (heap_limit, heap_limit))
@@ -64,4 +64,4 @@ class pumaTool(GemToolMixIn, RuntimeTool):
             svc['path']
         ] + puma_args + args
 
-        self._callInteractive(cmd)
+        self._exec.callInteractive(cmd)

@@ -37,21 +37,23 @@ if binary versions are not found for specific system.
             return
 
         self._buildDeps(env)
-        self._callExternal([
+        self._exec.callExternal([
             env['rvmBin'], 'install', ruby_ver, '--autolibs=read-only'
         ])
-        self._callExternal([
+        self._exec.callExternal([
             env['rvmBin'], 'cleanup', 'all'
         ])
 
     def _installBinaries(self, env):
+        detect = self._detect
+
         ver = env['rubyVer']
         pkgver = ver
 
-        if self._isDebian() or self._isUbuntu():
+        if detect.isDebian() or detect.isUbuntu():
             repo = env['rubyBrightboxRepo']
 
-            self._addAptRepo(
+            self._install.aptRepo(
                 'brightbox-ruby',
                 "deb {0} $codename$ main".format(repo),
                 self._GPG_BIRGHTBOX_REPO,
@@ -69,40 +71,40 @@ if binary versions are not found for specific system.
 
             if ver == '1.9':
                 pkgver = '1.9.[0-9]'
-            self._requireDeb([
+            self._install.deb([
                 'ruby{0}'.format(pkgver),
                 'ruby{0}-dev'.format(pkgver),
             ])
             ruby_bin = self._ext.glob.glob('/usr/bin/ruby{0}*'.format(ver))[0]
 
-        elif self._isSCLSupported():
+        elif detect.isSCLSupported():
             sclname = self._rubySCLName(ver)
 
-            self._requireSCL()
+            self._install.yumSCL()
 
-            self._requireYum(sclname)
+            self._install.yum(sclname)
 
             # required for LD_LIBRARY_PATH
-            env_to_set = self._callExternal(
+            env_to_set = self._exec.callExternal(
                 ['scl', 'enable', sclname, 'env'], verbose=False)
-            self._updateEnvFromOutput(env_to_set)
+            self._path.updateEnvFromOutput(env_to_set)
 
-            ruby_bin = self._callExternal(
+            ruby_bin = self._exec.callExternal(
                 ['scl', 'enable', sclname, 'which ruby'], verbose=False).strip()
 
-        elif self._isMacOS():
+        elif detect.isMacOS():
             formula = 'ruby@{0}'.format(ver)
-            self._requireBrew(formula)
+            self._install.brew(formula)
             return
         else:
             self._systemDeps()
             return
 
-        self._callExternal([
+        self._exec.callExternal([
             env['rvmBin'], 'remove', 'ext-system-{0}'.format(ver)
         ], suppress_fail=True)
 
-        self._callExternal([
+        self._exec.callExternal([
             env['rvmBin'], 'mount', ruby_bin, '-n', 'system-{0}'.format(ver)
         ])
 
@@ -144,7 +146,7 @@ if binary versions are not found for specific system.
         ruby_ver = env['rubyVer']
 
         if ruby_ver != self.SYSTEM_VER and not env['rubyBinOnly']:
-            self._callExternal([
+            self._exec.callExternal([
                 env['rvmBin'], 'uninstall', env['rubyVer']
             ])
             self._have_tool = False
@@ -155,18 +157,20 @@ if binary versions are not found for specific system.
     def initEnv(self, env):
         environ = self._environ
         ospath = self._ospath
+        detect = self._detect
+        path = self._path
 
         if 'GEM_HOME' in environ:
-            self._delEnvPath('PATH', environ['GEM_HOME'])
-            self._delEnvPath('GEM_PATH', environ['GEM_HOME'])
+            path.delEnvPath('PATH', environ['GEM_HOME'])
+            path.delEnvPath('GEM_PATH', environ['GEM_HOME'])
             del environ['GEM_HOME']
 
         #---
-        if self._isDebian() or self._isUbuntu():
+        if detect.isDebian() or detect.isUbuntu():
             bb_repo = 'http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu'
             ruby_binaries = ['1.9', '2.0', '2.1', '2.2', '2.3', '2.4']
 
-            code_name = self._osCodeName()
+            code_name = self._detect.osCodeName()
 
             if code_name == 'zesty':
                 # 1.9 build is broken on LaunchPad
@@ -176,9 +180,9 @@ if binary versions are not found for specific system.
 
             env.setdefault('rubyBrightboxRepo', bb_repo)
 
-        elif self._isSCLSupported():
+        elif detect.isSCLSupported():
             ruby_binaries = ['1.9', '2.0', '2.2', '2.3', '2.4']
-        elif self._isMacOS():
+        elif detect.isMacOS():
             ruby_binaries = ['1.8', '1.9', '2.0', '2.2', '2.3', '2.4']
         else:
             ruby_binaries = None
@@ -194,16 +198,16 @@ if binary versions are not found for specific system.
                 rvm_ruby_ver = 'ext-system-{0}'.format(ruby_ver)
 
                 # required for LD_LIBRARY_PATH
-                if self._isSCLSupported():
+                if detect.isSCLSupported():
                     sclname = self._rubySCLName(ruby_ver)
 
                     try:
-                        env_to_set = self._callExternal(
+                        env_to_set = self._exec.callExternal(
                             ['scl', 'enable', sclname, 'env'], verbose=False)
-                        self._updateEnvFromOutput(env_to_set)
+                        self._path.updateEnvFromOutput(env_to_set)
                     except self._ext.subprocess.CalledProcessError:
                         pass
-                elif self._isMacOS():
+                elif detect.isMacOS():
                     env['rubyBinOnly'] = True
                     formula = 'ruby@{0}'.format(ruby_ver)
                     brew_prefix = env['brewDir']
@@ -211,10 +215,10 @@ if binary versions are not found for specific system.
                         brew_prefix, 'opt', formula, 'bin')
 
                     if ospath.exists(ruby_bin_dir):
-                        self._addBinPath(ruby_bin_dir, True)
+                        self._path.addBinPath(ruby_bin_dir, True)
                         super(rubyTool, self).initEnv(env)
                     return
-                elif self._isDebian() or self._isUbuntu():
+                elif detect.isDebian() or detect.isUbuntu():
                     self._fixRvmLinks(env, rvm_ruby_ver, ruby_ver)
         else:
             rubyBinOnly = False
@@ -240,15 +244,15 @@ if binary versions are not found for specific system.
             return
 
         if env_to_set:
-            self._updateEnvFromOutput(env_to_set)
+            self._path.updateEnvFromOutput(env_to_set)
             super(rubyTool, self).initEnv(env)
 
     def _buildDeps(self, env):
-        self._requireBuildDep(env, 'ssl')
+        self._builddep.require(env, 'ssl')
 
         # APT
         #---
-        self._requireDeb([
+        self._install.deb([
             'build-essential',
             'gawk',
             'make',
@@ -272,9 +276,9 @@ if binary versions are not found for specific system.
 
         # Extra repo before the rest
         #---
-        self._requireYumEPEL()
+        self._install.yumEPEL()
 
-        self._requireRpm([
+        self._install.rpm([
             'binutils',
             'patch',
             'libyaml-devel',
@@ -296,25 +300,25 @@ if binary versions are not found for specific system.
         ])
 
         #---
-        self._requireEmergeDepsOnly(['dev-lang/ruby'])
-        self._requirePacman(['ruby'])
-        self._requireApk('build-base')
+        self._install.emergeDepsOnly(['dev-lang/ruby'])
+        self._install.pacman(['ruby'])
+        self._install.apk('build-base')
 
     def _systemDeps(self):
-        self._requirePackages(['ruby'])
-        self._requireEmerge(['dev-lang/ruby'])
-        self._requirePacman(['ruby'])
-        self._requireApk(['ruby',
-                          'ruby-bigdecimal',
-                          'ruby-libs',
-                          'ruby-io-console',
-                          'ruby-irb',
-                          'ruby-json',
-                          'ruby-minitest',
-                          'ruby-net-telnet',
-                          'ruby-power_assert',
-                          'ruby-xmlrpc'
-                          ])
+        self._install.debrpm(['ruby'])
+        self._install.emerge(['dev-lang/ruby'])
+        self._install.pacman(['ruby'])
+        self._install.apk(['ruby',
+                           'ruby-bigdecimal',
+                           'ruby-libs',
+                           'ruby-io-console',
+                           'ruby-irb',
+                           'ruby-json',
+                           'ruby-minitest',
+                           'ruby-net-telnet',
+                           'ruby-power_assert',
+                           'ruby-xmlrpc'
+                           ])
 
     _GPG_BIRGHTBOX_REPO = '''
 -----BEGIN PGP PUBLIC KEY BLOCK-----

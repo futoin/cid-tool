@@ -5,7 +5,7 @@ import os
 
 __all__ = [
     'tailor_ondemand',
-    'ext_demander',
+    'ext',
     'OnDemandMixIn',
 ]
 
@@ -60,6 +60,18 @@ _ext_demand_map = {
     'tempfile': 'tempfile',
     'resource': 'resource',
     'binascii': 'binascii',
+    'platform': 'platform',
+    #
+    'os': 'os',
+    'ospath': 'os.path',
+    'sys': 'sys',
+    'detect': '.util.detect',
+    'exec': '.util.exec',
+    'install': '.util.install',
+    'path': '.util.path',
+    'builddep': '.util.builddep',
+    'versionutil': '.util.version',
+    'configutil': '.util.config',
 }
 
 if sys.version_info >= (3, 0):
@@ -67,7 +79,7 @@ if sys.version_info >= (3, 0):
 else:
     _ext_demand_map['urllib'] = 'urllib2'
 
-ext_demander = tailor_ondemand(_ext_demand_map)()
+ext = tailor_ondemand(_ext_demand_map)()
 
 #---
 _cid_demand_map = {
@@ -76,12 +88,15 @@ _cid_demand_map = {
     '_sys': 'sys',
     '_detect': '.util.detect',
     '_exec': '.util.exec',
-    '_package': '.util.package',
+    '_install': '.util.install',
     '_path': '.util.path',
+    '_builddep': '.util.builddep',
+    '_versionutil': '.util.version',
+    '_configutil': '.util.config',
 }
 
 
 class OnDemandMixIn(tailor_ondemand(_cid_demand_map)):
     __slots__ = ()
-    _ext = ext_demander
+    _ext = ext
     _environ = os.environ

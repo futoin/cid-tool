@@ -12,17 +12,18 @@ class PipToolMixIn(SubTool):
         return self._name
 
     def _installTool(self, env):
-        self._requireBuildDep(env, 'python')
+        self._builddep.require(env, 'python')
 
-        self._callExternal([env['pipBin'], 'install', '-q', self._pipName()])
+        self._exec.callExternal(
+            [env['pipBin'], 'install', '-q', self._pipName()])
 
     def updateTool(self, env):
-        self._callExternal([env['pipBin'], 'install', '-q',
-                            '--upgrade', self._pipName()])
+        self._exec.callExternal([env['pipBin'], 'install', '-q',
+                                 '--upgrade', self._pipName()])
 
     def uninstallTool(self, env):
-        self._callExternal([env['pipBin'], 'uninstall',
-                            '--yes', '-q', self._pipName()])
+        self._exec.callExternal([env['pipBin'], 'uninstall',
+                                 '--yes', '-q', self._pipName()])
         self._have_tool = False
 
     def initEnv(self, env, bin_name=None):
@@ -44,21 +45,21 @@ class PipToolMixIn(SubTool):
 
     def _requirePythonDev(self, env):
         if int(env['pythonVer'].split('.')[0]) == 3:
-            self._requireDeb(['python3-dev'])
-            self._requireZypper(['python3-devel'])
-            self._requireYumEPEL()
-            self._requireYum(['python34-devel'])
-            self._requirePacman(['python'])
-            self._requireApk('python3-dev')
+            self._install.deb(['python3-dev'])
+            self._install.zypper(['python3-devel'])
+            self._install.yumEPEL()
+            self._install.yum(['python34-devel'])
+            self._install.pacman(['python'])
+            self._install.apk('python3-dev')
         else:
-            self._requireDeb(['python-dev'])
-            self._requireZypper(['python-devel'])
-            self._requireYumEPEL()
-            self._requireYum(['python-devel'])
-            self._requirePacman(['python2'])
-            self._requireApk('python2-dev')
+            self._install.deb(['python-dev'])
+            self._install.zypper(['python-devel'])
+            self._install.yumEPEL()
+            self._install.yum(['python-devel'])
+            self._install.pacman(['python2'])
+            self._install.apk('python2-dev')
 
-        self._requireEmergeDepsOnly(['dev-lang/python'])
+        self._install.emergeDepsOnly(['dev-lang/python'])
 
     def _requirePip(self, env, package):
-        self._callExternal([env['pipBin'], 'install', '-q', package])
+        self._exec.callExternal([env['pipBin'], 'install', '-q', package])

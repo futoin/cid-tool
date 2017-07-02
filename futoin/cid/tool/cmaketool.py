@@ -22,16 +22,16 @@ Build folder is configurable through cmakeBuildDir env.
         return ['cmakeBin', 'cmakeBuildDir']
 
     def _installTool(self, env):
-        self._requireDeb(['build-essential'])
-        self._requireRpm(['gcc', 'gcc-c++'])
-        self._requirePacman(['gcc'])
-        self._requireBuildEssential()
+        self._install.deb(['build-essential'])
+        self._install.rpm(['gcc', 'gcc-c++'])
+        self._install.pacman(['gcc'])
+        self._builddep.essential()
 
-        self._requirePackages(['cmake'])
-        self._requireEmerge(['dev-util/cmake'])
-        self._requirePacman(['cmake'])
-        self._requireApk(['cmake'])
-        self._requireBrew('cmake')
+        self._install.debrpm(['cmake'])
+        self._install.emerge(['dev-util/cmake'])
+        self._install.pacman(['cmake'])
+        self._install.apk(['cmake'])
+        self._install.brew('cmake')
 
     def initEnv(self, env):
         env.setdefault('cmakeBuildDir', 'build')
@@ -41,7 +41,7 @@ Build folder is configurable through cmakeBuildDir env.
         build_dir = config['env']['cmakeBuildDir']
 
         if self._ospath.exists(build_dir):
-            self._rmTree(build_dir)
+            self._path.rmTree(build_dir)
 
     def onBuild(self, config):
         ospath = self._ospath
@@ -49,11 +49,13 @@ Build folder is configurable through cmakeBuildDir env.
         build_dir = config['env']['cmakeBuildDir']
 
         if ospath.exists(build_dir):
-            self._callExternal([config['env']['cmakeBin'], build_dir])
+            self._exec.callExternal([config['env']['cmakeBin'], build_dir])
         else:
             os.mkdir(build_dir)
             os.chdir(build_dir)
-            self._callExternal([config['env']['cmakeBin'], config['wcDir']])
+            self._exec.callExternal(
+                [config['env']['cmakeBin'], config['wcDir']])
             os.chdir(config['wcDir'])
 
-        self._callExternal([config['env']['cmakeBin'], '--build', build_dir])
+        self._exec.callExternal(
+            [config['env']['cmakeBin'], '--build', build_dir])

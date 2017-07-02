@@ -19,18 +19,18 @@ through CID, but you can install source releases through
         return ['gvm', 'bash', 'binutils', 'gcc']
 
     def _installTool(self, env):
-        if self._isAlpineLinux():
-            self._requireApkCommunity()
-            self._requireApk('go')
+        if self._detect.isAlpineLinux():
+            self._install.apkCommunity()
+            self._install.apk('go')
             return
 
         # in case GVM is already installed without these deps
-        self._requireDeb(['bison', 'build-essential'])
-        self._requireRpm(['bison', 'glibc-devel'])
-        self._requireEmergeDepsOnly(['dev-lang/go'])
-        self._requirePacman(['bison', 'glibc', ])
-        self._requireApk('bison')
-        self._requireBuildEssential()
+        self._install.deb(['bison', 'build-essential'])
+        self._install.rpm(['bison', 'glibc-devel'])
+        self._install.emergeDepsOnly(['dev-lang/go'])
+        self._install.pacman(['bison', 'glibc', ])
+        self._install.apk('bison')
+        self._builddep.essential()
 
         self._callBash(env,
                        'source {0} && gvm install {1} --binary'
@@ -51,7 +51,7 @@ through CID, but you can install source releases through
         return ['goVer', 'goBin']
 
     def initEnv(self, env):
-        if self._isAlpineLinux():
+        if self._detect.isAlpineLinux():
             super(goTool, self).initEnv(env)
             return
 
@@ -66,7 +66,7 @@ through CID, but you can install source releases through
                 ver_list = [v.strip() for v in ver_list]
                 ver_list = filter(lambda x: x and rex.match(x), ver_list)
 
-                env['goVer'] = self._getLatest(list(ver_list))
+                env['goVer'] = self._versionutil.latest(list(ver_list))
             except Exception as e:
                 self._warn(str(e))
                 return
@@ -84,11 +84,11 @@ through CID, but you can install source releases through
             return
 
         if env_to_set:
-            self._updateEnvFromOutput(env_to_set)
+            self._path.updateEnvFromOutput(env_to_set)
             super(goTool, self).initEnv(env)
 
     def onRun(self, config, svc, args):
         env = config['env']
-        self._callInteractive([
+        self._exec.callInteractive([
             env[self._name + 'Bin'], 'run', svc['path']
         ] + args)

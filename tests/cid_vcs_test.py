@@ -10,12 +10,16 @@ import glob
 
 class cid_VCS_UTBase ( cid_UTBase ) :
     __test__ = False
+    VCS_REPO = None
     
     @classmethod
     def setUpClass( cls ):
         super(cid_VCS_UTBase, cls).setUpClass()
         
         os.mkdir(cls.TEST_DIR)
+        
+    def _create_repo(self):
+        raise NotImplementedError()
     
     def test_00_prepare( self ):
         self._create_repo()

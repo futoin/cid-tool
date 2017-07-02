@@ -10,8 +10,8 @@ Home: https://curl.haxx.se/
     __slots__ = ()
 
     def _installTool(self, env):
-        self._requirePackages(['curl'])
-        self._requireEmerge(['net-misc/curl'])
-        self._requirePacman(['curl'])
-        self._requireApk(['curl'])
-        self._requireBrew('curl')
+        self._install.debrpm(['curl'])
+        self._install.emerge(['net-misc/curl'])
+        self._install.pacman(['curl'])
+        self._install.apk(['curl'])
+        self._install.brew('curl')

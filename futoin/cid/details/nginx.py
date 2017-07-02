@@ -4,11 +4,6 @@ from collections import OrderedDict
 from ..mixins.log import LogMixIn
 from ..mixins.ondemand import OnDemandMixIn
 
-from ..mixins.util import UtilMixIn
-from ..mixins.path import PathMixIn
-from ..mixins.package import PackageMixIn
-
-
 GPG_KEY = """
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v2.0.22 (GNU/Linux)
@@ -107,7 +102,7 @@ uwsgi_param  HTTP_PROXY         "";
 """
 
 
-class ConfigBuilder(LogMixIn, OnDemandMixIn,  UtilMixIn, PathMixIn, PackageMixIn):
+class ConfigBuilder(LogMixIn, OnDemandMixIn):
     def __init__(self, config, svc):
         self._config = config
         self._nginx_conf = self._ext.copy.deepcopy(
@@ -121,7 +116,7 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn,  UtilMixIn, PathMixIn, PackageMixIn
         nginx_bin = env['nginxBin']
 
         #---
-        if self._isMacOS():
+        if self._detect.isMacOS():
             brew_dir = env.get('brewDir', '')
 
             if brew_dir:
@@ -132,7 +127,7 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn,  UtilMixIn, PathMixIn, PackageMixIn
             self._prefix = ''
 
         #---
-        ver = self._callExternal(
+        ver = self._exec.callExternal(
             [nginx_bin, '-v'],
             verbose=False, merge_stderr=True)
         ver = ver.split('/')[1].strip().split('.')
@@ -192,7 +187,7 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn,  UtilMixIn, PathMixIn, PackageMixIn
         http.setdefault('fastcgi_max_temp_file_size', '0')
         http.setdefault('fastcgi_next_upstream', 'error')
         #
-        if not self._isMacOS():
+        if not self._detect.isMacOS():
             http.setdefault('aio', 'threads')
             if self._version >= (1, 9, 13):
                 http.setdefault('aio_write', 'on')
@@ -230,7 +225,7 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn,  UtilMixIn, PathMixIn, PackageMixIn
         listen += ' '
         listenOptions = 'default_server'
 
-        if self._isLinux() and socket_type != 'unix':
+        if self._detect.isLinux() and socket_type != 'unix':
             listenOptions += ' deferred'
 
         listen += cid_tune.get('listenOptions', listenOptions)
@@ -359,7 +354,7 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn,  UtilMixIn, PathMixIn, PackageMixIn
         return upstream
 
     def _svcBodyLimit(self, instances):
-        return self._parseMemory(instances[0]['maxRequestSize'])
+        return self._configutil.parseMemory(instances[0]['maxRequestSize'])
 
     def _proxyHttp(self, app, svc, instances):
         upstream = self._upstreamCommon(app, svc, instances, True)

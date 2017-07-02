@@ -10,6 +10,7 @@ Home: https://github.com/futoin/specs/blob/master/draft/ftn16_cid_tool.md
 futoin.json is the only file read by FutoIn CID itself.
 """
     __slots__ = ()
+    _FUTOIN_JSON = 'futoin.json'
 
     def autoDetectFiles(self):
         return self._FUTOIN_JSON
@@ -23,4 +24,4 @@ futoin.json is the only file read by FutoIn CID itself.
                 if f in updates:
                     json[f] = updates[f]
 
-        return self._updateJSONConfig(self._FUTOIN_JSON, updater)
+        return self._path.updateJSONConfig(self._FUTOIN_JSON, updater)

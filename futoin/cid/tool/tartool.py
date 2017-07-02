@@ -8,15 +8,15 @@ class tarTool(RunEnvTool):
     __slots__ = ()
 
     def _installTool(self, env):
-        self._requirePackages(['tar'])
-        self._requireEmerge(['app-arch/tar'])
-        self._requirePacman(['tar'])
-        self._requireApk(['tar'])
-        self._requireBrew('gnu-tar')
+        self._install.debrpm(['tar'])
+        self._install.emerge(['app-arch/tar'])
+        self._install.pacman(['tar'])
+        self._install.apk(['tar'])
+        self._install.brew('gnu-tar')
 
     def initEnv(self, env, bin_name=None):
         # Busybox's version is not enough for SDKMan
-        if self._isAlpineLinux() and self._ospath.islink('/bin/tar'):
+        if self._detect.isAlpineLinux() and self._ospath.islink('/bin/tar'):
             return
 
         super(tarTool, self).initEnv(env, bin_name)

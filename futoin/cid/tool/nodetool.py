@@ -15,17 +15,17 @@ Notes on tuning:
     __slots__ = ()
 
     def getDeps(self):
-        if self._isAlpineLinux():
+        if self._detect.isAlpineLinux():
             return []
 
         return ['nvm', 'bash']
 
     def _installTool(self, env):
-        if self._isAlpineLinux():
+        if self._detect.isAlpineLinux():
             if env['nodeVer'] == 'current':
-                self._requireApk('nodejs-current')
+                self._install.apk('nodejs-current')
             else:
-                self._requireApk('nodejs')
+                self._install.apk('nodejs')
             return
 
         self._callBash(env,
@@ -47,7 +47,7 @@ Notes on tuning:
     def initEnv(self, env):
         node_version = env.setdefault('nodeVer', 'stable')
 
-        if self._isAlpineLinux():
+        if self._detect.isAlpineLinux():
             super(nodeTool, self).initEnv(env)
             return
 
@@ -63,7 +63,7 @@ Notes on tuning:
             return
 
         if env_to_set:
-            self._updateEnvFromOutput(env_to_set)
+            self._path.updateEnvFromOutput(env_to_set)
             super(nodeTool, self).initEnv(env)
 
     def tuneDefaults(self):
@@ -106,7 +106,7 @@ Notes on tuning:
         node_args = []
 
         if 'maxMemory' in svc_tune:
-            heap_limit = self._parseMemory(svc_tune['maxMemory'])
+            heap_limit = self._configutil.parseMemory(svc_tune['maxMemory'])
             heap_limit = int(heap_limit * 0.9)
             heap_limit = int(heap_limit // 1024 // 1024)
 
@@ -121,4 +121,4 @@ Notes on tuning:
             svc['path']
         ] + node_args + args
 
-        self._callInteractive(cmd)
+        self._exec.callInteractive(cmd)

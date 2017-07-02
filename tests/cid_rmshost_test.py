@@ -3,7 +3,9 @@ from __future__ import print_function, absolute_import
 
 from .cid_utbase import cid_UTBase
 from futoin.cid.rmstool import RmsTool
-from futoin.cid.subtool import SubTool
+from futoin.cid.util import exec as _exec
+from futoin.cid.util import path as _path
+from futoin.cid.util import install as _install
 
 import os
 import subprocess
@@ -157,18 +159,18 @@ class cid_nexus3_Test ( cid_RMSHost_UTBase ) :
                        'start', 'rms_nexus3'])
 
 #=============================================================================        
-class cid_mysql_Test ( cid_UTBase, SubTool ) :
+class cid_mysql_Test ( cid_UTBase ) :
     __test__ = True
     _create_test_dir = True
     TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'db_mysql')
     
     def test_setup(self):
-        self._requirePackages(['mysql-server', 'mysql-client'])
-        mysql = self._which('mysql')
-        self._callExternal([mysql, '-uroot', '-h', '127.0.0.1', '-e',
+        _install.debrpm(['mysql-server', 'mysql-client'])
+        mysql = _path.which('mysql')
+        _exec.callExternal([mysql, '-uroot', '-h', '127.0.0.1', '-e',
                             "GRANT ALL PRIVILEGES ON *.* TO 'cid'@'%' IDENTIFIED BY 'cid'"],
                             verbose=False)
-        self._callExternal([mysql, '-uroot', '-h', '127.0.0.1', '-e',
+        _exec.callExternal([mysql, '-uroot', '-h', '127.0.0.1', '-e',
                             "CREATE DATABASE IF NOT EXISTS redmine CHARACTER SET utf8; "+
                             "GRANT ALL PRIVILEGES ON redmine.* TO 'redmine'@'%' IDENTIFIED BY 'redmine'"],
                             verbose=False)

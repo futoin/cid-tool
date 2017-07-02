@@ -26,13 +26,13 @@ Home: https://pypi.python.org/pypi/pip
         if ospath.exists(env['pipBin']):
             self.updateTool(env)
         else:
-            self._callExternal([
+            self._exec.callExternal([
                 ospath.join(env['virtualenvDir'], 'bin',
                             'easy_install'), 'pip'
             ])
 
     def updateTool(self, env):
-        self._callExternal([
+        self._exec.callExternal([
             env['pipBin'], 'install', '-q',
             '--upgrade',
             'pip>={0}'.format(env['pipVer']),
@@ -48,7 +48,7 @@ Home: https://pypi.python.org/pypi/pip
         pipVer = env.setdefault('pipVer', '9.0.1')
 
         if ospath.exists(pipBin):
-            pipFactVer = self._callExternal(
+            pipFactVer = self._exec.callExternal(
                 [pipBin, '--version'], verbose=False)
             pipFactVer = [int(v) for v in pipFactVer.split(' ')[1].split('.')]
             pipNeedVer = [int(v) for v in pipVer.split('.')]
@@ -57,5 +57,5 @@ Home: https://pypi.python.org/pypi/pip
 
     def onPrepare(self, config):
         if self._ospath.exists(self.REQUIREMENTS_FILE):
-            self._callExternal(
+            self._exec.callExternal(
                 [config['env']['pipBin'], 'install', '-r', self.REQUIREMENTS_FILE])

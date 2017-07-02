@@ -41,7 +41,7 @@ Override targets with .config.toolTune.
 
         for d in targets:
             if ospath.exists(d):
-                self._rmTree(d)
+                self._path.rmTree(d)
 
     def onBuild(self, config):
         env = config['env']
@@ -52,14 +52,15 @@ Override targets with .config.toolTune.
         if not isinstance(targets, list):
             targets = [targets]
 
-        self._callExternal([env['pythonBin'], 'setup.py'] + targets)
+        self._exec.callExternal([env['pythonBin'], 'setup.py'] + targets)
 
     def onPackage(self, config):
         target = self._getTune(config, 'package', 'dist')
-        self._addPackageFiles(config, self._ospath.join(target, '*'))
+        self._path.addPackageFiles(config, self._ospath.join(target, '*'))
 
     def onCheck(self, config):
         env = config['env']
         self._requirePip(env, 'docutils')
         self._requirePip(env, 'readme')
-        self._callExternal([env['pythonBin'], 'setup.py', 'check', '-mrs'])
+        self._exec.callExternal(
+            [env['pythonBin'], 'setup.py', 'check', '-mrs'])

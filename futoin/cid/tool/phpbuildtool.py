@@ -38,7 +38,7 @@ Home: https://github.com/php-build/php-build
         phpbuild_dir = env['phpbuildDir']
 
         if self._ospath.exists(phpbuild_dir):
-            self._rmTree(phpbuild_dir)
+            self._path.rmTree(phpbuild_dir)
 
         self._have_tool = False
 

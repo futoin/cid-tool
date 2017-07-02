@@ -17,11 +17,11 @@ Note:
         return ['sshBin', 'sshStrictHostKeyChecking']
 
     def _installTool(self, env):
-        self._requireDeb(['openssh-client'])
-        self._requireRpm(['openssh'])
-        self._requireEmerge(['virtual/ssh'])
-        self._requirePacman(['openssh'])
-        self._requireApk('openssh-client')
+        self._install.deb(['openssh-client'])
+        self._install.rpm(['openssh'])
+        self._install.emerge(['virtual/ssh'])
+        self._install.pacman(['openssh'])
+        self._install.apk('openssh-client')
 
     def initEnv(self, env):
         env.setdefault('sshStrictHostKeyChecking', 'yes')

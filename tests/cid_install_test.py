@@ -151,7 +151,7 @@ for t in managed_tools:
     })
     
 if IS_MACOS:
-    cid_Tool_20_jfrog.TOOL_MANAGED = False
+    cid_Tool_20_jfrog.TOOL_MANAGED = False  # pylint: disable=undefined-variable
 
 # 30
 #-----

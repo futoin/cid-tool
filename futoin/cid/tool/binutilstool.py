@@ -15,11 +15,11 @@ If binutilsDir is set it must point to bin folder.
         return ['binutilsDir', 'binutilsPrefix', 'binutilsPostfix']
 
     def _installTool(self, env):
-        self._requireDeb(['binutils'])
-        self._requireRpm(['binutils'])
-        self._requireEmerge(['sys-devel/binutils'])
-        self._requirePacman(['binutils'])
-        self._requireApk(['binutils'])
+        self._install.deb(['binutils'])
+        self._install.rpm(['binutils'])
+        self._install.emerge(['sys-devel/binutils'])
+        self._install.pacman(['binutils'])
+        self._install.apk(['binutils'])
 
     def initEnv(self, env):
         ospath = self._ospath
@@ -33,7 +33,7 @@ If binutilsDir is set it must point to bin folder.
             ld = ospath.join(bu_dir, ld)
             self._have_tool = ospath.exists(bu_dir)
         else:
-            ld = self._which(ld)
+            ld = self._path.which(ld)
 
             if ld:
                 env['binutilsDir'] = ospath.dirname(ld)

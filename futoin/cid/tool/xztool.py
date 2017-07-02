@@ -10,8 +10,8 @@ Home: https://tukaani.org/xz/
     __slots__ = ()
 
     def _installTool(self, env):
-        self._requirePackages(['xz-utils'])
-        self._requireEmerge(['app-arch/xz-utils'])
-        self._requirePacman(['xz-utils'])
-        self._requireApk(['xz'])
-        self._requireBrew('xz')
+        self._install.debrpm(['xz-utils'])
+        self._install.emerge(['app-arch/xz-utils'])
+        self._install.pacman(['xz-utils'])
+        self._install.apk(['xz'])
+        self._install.brew('xz')

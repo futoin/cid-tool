@@ -15,11 +15,11 @@ gpgKeyServer is hkp://keyserver.ubuntu.com:80 by default
         return ['gpgBin', 'gpgKeyServer']
 
     def _installTool(self, env):
-        self._requirePackages(['gnupg', 'gnupg2'])
-        self._requireEmerge(['app-crypt/gnupg'])
-        self._requirePacman(['gnupg'])
-        self._requireApk(['gnupg'])
-        self._requireBrew('gnupg')
+        self._install.debrpm(['gnupg', 'gnupg2'])
+        self._install.emerge(['app-crypt/gnupg'])
+        self._install.pacman(['gnupg'])
+        self._install.apk(['gnupg'])
+        self._install.brew('gnupg')
 
     def initEnv(self, env):
         super(gpgTool, self).initEnv(env)

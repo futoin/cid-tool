@@ -25,14 +25,14 @@ Override targets with .config.toolTune.
         return ['rust']
 
     def _installTool(self, env):
-        if self._isAlpineLinux():
-            self._requireApk('cargo')
+        if self._detect.isAlpineLinux():
+            self._install.apk('cargo')
 
     def uninstallTool(self, env):
         pass
 
     def onPrepare(self, config):
-        self._callExternal([
+        self._exec.callExternal([
             config['env']['cargoBin'], 'clean',
         ])
 
@@ -42,18 +42,18 @@ Override targets with .config.toolTune.
         if not config.get('debugBuild', False):
             args.append('--release')
 
-        self._callExternal([config['env']['cargoBin'], 'build'] + args)
+        self._exec.callExternal([config['env']['cargoBin'], 'build'] + args)
 
     def onPackage(self, config):
-        self._callExternal(
+        self._exec.callExternal(
             [config['env']['cargoBin'], 'package', '--allow-dirty'])
-        self._addPackageFiles(config, 'target/package/*.crate')
+        self._path.addPackageFiles(config, 'target/package/*.crate')
 
     def onCheck(self, config):
-        self._callExternal([config['env']['cargoBin'], 'test'])
+        self._exec.callExternal([config['env']['cargoBin'], 'test'])
 
     def onRunDev(self, config):
-        self._callExternal([config['env']['cargoBin'], 'run'])
+        self._exec.callExternal([config['env']['cargoBin'], 'run'])
 
     def rmsUpload(self, config, rms_pool, package_list):
-        self._callExternal([config['env']['cargoBin'], 'publish'])
+        self._exec.callExternal([config['env']['cargoBin'], 'publish'])

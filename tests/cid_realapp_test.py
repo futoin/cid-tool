@@ -11,11 +11,11 @@ import glob
 import requests
 
 from .cid_utbase import cid_UTBase
-from futoin.cid.subtool import SubTool
+from futoin.cid.mixins.ondemand import ext
 
 DB_HOST = os.environ.get('DB_HOST', '10.11.1.11')
 
-class cid_redmine_Test( cid_UTBase, SubTool ) :
+class cid_redmine_Test( cid_UTBase ) :
     __test__ = True
     
     TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'realapp_redmine')
@@ -59,7 +59,7 @@ production:
   encoding: utf8
 """.format(DB_HOST))
         
-        if self._isAlpineLinux() or self._isArchLinux():
+        if ext.detect.isAlpineLinux() or ext.detect.isArchLinux():
             # Ruby 2.4
             self._call_cid([
                 'deploy', 'vcsref', 'trunk',

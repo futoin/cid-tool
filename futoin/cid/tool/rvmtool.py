@@ -28,7 +28,7 @@ Stable RVM is used by default.
         rvm_get = env.get('rvmGet', self.RVM_GET)
         rvm_gpg_key = env.get('rvmGpgKey', self.RVM_GPG_KEY)
 
-        self._callExternal([
+        self._exec.callExternal([
             env['gpgBin'], '--keyserver', env['gpgKeyServer'],
             '--recv-keys', rvm_gpg_key
         ], suppress_fail=True)
@@ -40,7 +40,7 @@ Stable RVM is used by default.
         installer = self._callCurl(env, [rvm_get])
 
         # AlpineLinux - required for uninstall
-        self._requireApk('procps')
+        self._install.apk('procps')
 
         self._callBash(
             env,
@@ -48,18 +48,18 @@ Stable RVM is used by default.
             input=installer)
 
     def updateTool(self, env):
-        self._callExternal([env['rvmBin'], 'get', env['rvmVer']])
+        self._exec.callExternal([env['rvmBin'], 'get', env['rvmVer']])
 
     def uninstallTool(self, env):
         try:
-            self._callExternal([env['rvmBin'], 'implode', '--force'])
+            self._exec.callExternal([env['rvmBin'], 'implode', '--force'])
         except:
             pass
 
         rvm_dir = env['rvmDir']
 
         if self._ospath.exists(rvm_dir):
-            self._rmTree(rvm_dir)
+            self._path.rmTree(rvm_dir)
 
         self._have_tool = False
 
