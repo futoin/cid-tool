@@ -43,7 +43,7 @@ Home: http://sdkman.io/
         dir = env['sdkmanDir']
 
         if ospath.exists(dir):
-            self._path.rmTree(dir)
+            self._pathutil.rmTree(dir)
 
         self._have_tool = False
 

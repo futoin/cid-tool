@@ -20,17 +20,17 @@ class GemToolMixIn(SubTool):
         if ver:
             version_arg = ['--version', ver]
 
-        self._exec.callExternal([env['gemBin'], 'install', self._gemName(
+        self._executil.callExternal([env['gemBin'], 'install', self._gemName(
         )] + env['gemInstallArgs'].split(' ') + version_arg)
 
     def updateTool(self, env):
         if env.get(self._name + 'Ver', None):
             self._installTool(env)
         else:
-            self._exec.callExternal(
+            self._executil.callExternal(
                 [env['gemBin'], 'update', self._gemName()] + env['gemInstallArgs'].split(' '))
 
     def uninstallTool(self, env):
-        self._exec.callExternal([env['gemBin'], 'uninstall',
-                                 '--force', self._gemName()])
+        self._executil.callExternal([env['gemBin'], 'uninstall',
+                                     '--force', self._gemName()])
         self._have_tool = False

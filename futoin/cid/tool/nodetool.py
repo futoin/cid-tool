@@ -63,7 +63,7 @@ Notes on tuning:
             return
 
         if env_to_set:
-            self._path.updateEnvFromOutput(env_to_set)
+            self._pathutil.updateEnvFromOutput(env_to_set)
             super(nodeTool, self).initEnv(env)
 
     def tuneDefaults(self):
@@ -121,4 +121,4 @@ Notes on tuning:
             svc['path']
         ] + node_args + args
 
-        self._exec.callInteractive(cmd)
+        self._executil.callInteractive(cmd)

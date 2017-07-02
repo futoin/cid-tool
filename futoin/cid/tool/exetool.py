@@ -11,4 +11,4 @@ class exeTool(RuntimeTool):
 
     def onRun(self, config, svc, args):
         env = config['env']
-        self._exec.callInteractive([svc['path']] + args)
+        self._executil.callInteractive([svc['path']] + args)

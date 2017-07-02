@@ -37,10 +37,10 @@ if binary versions are not found for specific system.
             return
 
         self._buildDeps(env)
-        self._exec.callExternal([
+        self._executil.callExternal([
             env['rvmBin'], 'install', ruby_ver, '--autolibs=read-only'
         ])
-        self._exec.callExternal([
+        self._executil.callExternal([
             env['rvmBin'], 'cleanup', 'all'
         ])
 
@@ -85,11 +85,11 @@ if binary versions are not found for specific system.
             self._install.yum(sclname)
 
             # required for LD_LIBRARY_PATH
-            env_to_set = self._exec.callExternal(
+            env_to_set = self._executil.callExternal(
                 ['scl', 'enable', sclname, 'env'], verbose=False)
-            self._path.updateEnvFromOutput(env_to_set)
+            self._pathutil.updateEnvFromOutput(env_to_set)
 
-            ruby_bin = self._exec.callExternal(
+            ruby_bin = self._executil.callExternal(
                 ['scl', 'enable', sclname, 'which ruby'], verbose=False).strip()
 
         elif detect.isMacOS():
@@ -100,11 +100,11 @@ if binary versions are not found for specific system.
             self._systemDeps()
             return
 
-        self._exec.callExternal([
+        self._executil.callExternal([
             env['rvmBin'], 'remove', 'ext-system-{0}'.format(ver)
         ], suppress_fail=True)
 
-        self._exec.callExternal([
+        self._executil.callExternal([
             env['rvmBin'], 'mount', ruby_bin, '-n', 'system-{0}'.format(ver)
         ])
 
@@ -146,7 +146,7 @@ if binary versions are not found for specific system.
         ruby_ver = env['rubyVer']
 
         if ruby_ver != self.SYSTEM_VER and not env['rubyBinOnly']:
-            self._exec.callExternal([
+            self._executil.callExternal([
                 env['rvmBin'], 'uninstall', env['rubyVer']
             ])
             self._have_tool = False
@@ -158,7 +158,7 @@ if binary versions are not found for specific system.
         environ = self._environ
         ospath = self._ospath
         detect = self._detect
-        path = self._path
+        path = self._pathutil
 
         if 'GEM_HOME' in environ:
             path.delEnvPath('PATH', environ['GEM_HOME'])
@@ -202,9 +202,9 @@ if binary versions are not found for specific system.
                     sclname = self._rubySCLName(ruby_ver)
 
                     try:
-                        env_to_set = self._exec.callExternal(
+                        env_to_set = self._executil.callExternal(
                             ['scl', 'enable', sclname, 'env'], verbose=False)
-                        self._path.updateEnvFromOutput(env_to_set)
+                        self._pathutil.updateEnvFromOutput(env_to_set)
                     except self._ext.subprocess.CalledProcessError:
                         pass
                 elif detect.isMacOS():
@@ -215,7 +215,7 @@ if binary versions are not found for specific system.
                         brew_prefix, 'opt', formula, 'bin')
 
                     if ospath.exists(ruby_bin_dir):
-                        self._path.addBinPath(ruby_bin_dir, True)
+                        self._pathutil.addBinPath(ruby_bin_dir, True)
                         super(rubyTool, self).initEnv(env)
                     return
                 elif detect.isDebian() or detect.isUbuntu():
@@ -244,7 +244,7 @@ if binary versions are not found for specific system.
             return
 
         if env_to_set:
-            self._path.updateEnvFromOutput(env_to_set)
+            self._pathutil.updateEnvFromOutput(env_to_set)
             super(rubyTool, self).initEnv(env)
 
     def _buildDeps(self, env):

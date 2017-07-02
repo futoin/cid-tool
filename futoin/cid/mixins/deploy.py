@@ -220,9 +220,9 @@ class DeployMixIn(DataSlots):
                     def_dir, persist_dst,
                     preserve_symlinks=1, preserve_mode=0
                 )
-                self._path.rmTree(def_dir)
+                self._pathutil.rmTree(def_dir)
                 os.symlink(sym_target, def_dir)
-                self._path.chmodTree(
+                self._pathutil.chmodTree(
                     persist_dst, wdir_wperm, wfile_wperm, False)
             elif ospath.isfile(def_dir):
                 self._info('moving file', ' >> ')
@@ -233,7 +233,7 @@ class DeployMixIn(DataSlots):
             elif ospath.isdir(persist_dst):
                 self._info('symlink existing dir', ' >> ')
                 os.symlink(sym_target, def_dir)
-                self._path.chmodTree(
+                self._pathutil.chmodTree(
                     persist_dst, wdir_wperm, wfile_wperm, False)
             else:
                 self._info('create & symlink dir', ' >> ')
@@ -258,7 +258,7 @@ class DeployMixIn(DataSlots):
 
         file_perm = stat.S_IRUSR | stat.S_IRGRP
         dir_perm = file_perm | stat.S_IXUSR | stat.S_IXGRP
-        self._path.chmodTree(tmp, dir_perm, file_perm, True)
+        self._pathutil.chmodTree(tmp, dir_perm, file_perm, True)
 
         # Setup services
         self._deployConfig()
@@ -307,7 +307,7 @@ class DeployMixIn(DataSlots):
                 continue
 
             if ospath.isdir(f):
-                self._path.rmTree(f)
+                self._pathutil.rmTree(f)
             else:
                 os.chmod(f, self._ext.stat.S_IRWXU)
                 os.remove(f)
@@ -340,7 +340,7 @@ class DeployMixIn(DataSlots):
 
         self._info('Writing deployment config in {0}'.format(
             self._os.getcwd()))
-        self._path.writeJSONConfig(self._FUTOIN_JSON, new_config)
+        self._pathutil.writeJSONConfig(self._FUTOIN_JSON, new_config)
 
     def _reloadServices(self):
         self._requireDeployLock()
@@ -371,8 +371,8 @@ class DeployMixIn(DataSlots):
         # DO NOT use realpath as it may point to "old current"
         config['wcDir'] = self._ospath.join(config['deployDir'], 'current')
 
-        self._path.mkDir(runtimeDir)
-        self._path.mkDir(tmpDir)
+        self._pathutil.mkDir(runtimeDir)
+        self._pathutil.mkDir(tmpDir)
 
         auto_services = config['deploy']['autoServices']
 

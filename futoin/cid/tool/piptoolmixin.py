@@ -14,16 +14,16 @@ class PipToolMixIn(SubTool):
     def _installTool(self, env):
         self._builddep.require(env, 'python')
 
-        self._exec.callExternal(
+        self._executil.callExternal(
             [env['pipBin'], 'install', '-q', self._pipName()])
 
     def updateTool(self, env):
-        self._exec.callExternal([env['pipBin'], 'install', '-q',
-                                 '--upgrade', self._pipName()])
+        self._executil.callExternal([env['pipBin'], 'install', '-q',
+                                     '--upgrade', self._pipName()])
 
     def uninstallTool(self, env):
-        self._exec.callExternal([env['pipBin'], 'uninstall',
-                                 '--yes', '-q', self._pipName()])
+        self._executil.callExternal([env['pipBin'], 'uninstall',
+                                     '--yes', '-q', self._pipName()])
         self._have_tool = False
 
     def initEnv(self, env, bin_name=None):
@@ -62,4 +62,4 @@ class PipToolMixIn(SubTool):
         self._install.emergeDepsOnly(['dev-lang/python'])
 
     def _requirePip(self, env, package):
-        self._exec.callExternal([env['pipBin'], 'install', '-q', package])
+        self._executil.callExternal([env['pipBin'], 'install', '-q', package])

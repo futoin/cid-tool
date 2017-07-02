@@ -9,7 +9,7 @@ def apk(packages):
 
         apk = '/sbin/apk'
 
-        _ext.exec.trySudoCall(
+        _ext.executil.trySudoCall(
             [apk, 'add'] + packages,
             errmsg='you may need to install the build deps manually !'
         )
@@ -23,7 +23,7 @@ def apkRepo(url, tag=None):
     repo_file = '/etc/apk/repositories'
 
     # version
-    releasever = _ext.path.readTextFile('/etc/alpine-release')
+    releasever = _ext.pathutil.readTextFile('/etc/alpine-release')
     releasever = releasever.strip().split('.')
     releasever = '.'.join(releasever[:2])
     repoline = url.replace('$releasever', releasever)
@@ -32,16 +32,16 @@ def apkRepo(url, tag=None):
     if tag:
         repoline = '@{0} {1}'.format(tag, repoline)
 
-    repos = _ext.path.readTextFile(repo_file).split("\n")
+    repos = _ext.pathutil.readTextFile(repo_file).split("\n")
     repos = [r.strip() for r in repos]
 
     if repoline not in repos:
-        _ext.exec.trySudoCall(
+        _ext.executil.trySudoCall(
             ['/usr/bin/tee', '-a', repo_file],
             errmsg='you may need to add the repo manually!',
             input=repoline
         )
-        _ext.exec.trySudoCall(
+        _ext.executil.trySudoCall(
             [apk, 'update'],
             errmsg='you may need to update manually!'
         )

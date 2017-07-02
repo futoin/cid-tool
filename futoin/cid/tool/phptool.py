@@ -51,7 +51,7 @@ resources due to lack of trusted binary builds.
 
         old_tmpdir = environ.get('TMPDIR', '/tmp')
         environ['TMPDIR'] = ospath.join(php_dir, '..')
-        self._exec.callExternal(
+        self._executil.callExternal(
             [env['phpbuildBin'], env['phpSrcVer'], env['phpDir']])
         environ['TMPDIR'] = old_tmpdir
 
@@ -117,7 +117,7 @@ resources due to lack of trusted binary builds.
         php_dir = env['phpDir']
 
         if self._ospath.exists(php_dir):
-            self._path.rmTree(php_dir)
+            self._pathutil.rmTree(php_dir)
 
         self._have_tool = False
 
@@ -191,7 +191,7 @@ resources due to lack of trusted binary builds.
                     except self._ext.subprocess.CalledProcessError:
                         return
 
-                    self._path.updateEnvFromOutput(env_to_set)
+                    self._pathutil.updateEnvFromOutput(env_to_set)
                     super(phpTool, self).initEnv(env)
                 else:
                     pass
@@ -206,7 +206,7 @@ resources due to lack of trusted binary builds.
                 php_dir = ospath.join(brew_prefix, 'opt', formula, 'bin')
 
                 if ospath.exists(php_dir):
-                    self._path.addBinPath(php_dir, True)
+                    self._pathutil.addBinPath(php_dir, True)
                     super(phpTool, self).initEnv(env)
 
             return
@@ -241,7 +241,7 @@ resources due to lack of trusted binary builds.
 
         if ospath.exists(php_bin):
             self._have_tool = True
-            self._path.addBinPath(php_bin_dir, True)
+            self._pathutil.addBinPath(php_bin_dir, True)
             env.setdefault('phpBin', php_bin)
 
     def _buildDeps(self, env):
@@ -378,7 +378,7 @@ resources due to lack of trusted binary builds.
         ])
 
         #---
-        systemctl = self._path.which('systemctl')
+        systemctl = self._pathutil.which('systemctl')
 
         if systemctl:
             self._install.deb(['libsystemd-dev'])
@@ -388,10 +388,10 @@ resources due to lack of trusted binary builds.
             with_systemd = ' --without-fpm-systemd'
 
         multiarch = None
-        dpkgarch = self._path.which('dpkg-architecture')
+        dpkgarch = self._pathutil.which('dpkg-architecture')
 
         if dpkgarch:
-            multiarch = self._exec.callExternal(
+            multiarch = self._executil.callExternal(
                 [dpkgarch, '-qDEB_HOST_MULTIARCH']).strip()
 
         if multiarch:

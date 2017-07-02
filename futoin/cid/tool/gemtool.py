@@ -31,19 +31,19 @@ gemInstallArgs is forcibly set by tool depending on its version.
         installArgs = []
 
         if env['rubyVer'] == self.SYSTEM_VER or env['rubyBinOnly']:
-            gemDir = ospath.join(self._path.deployHome(),
+            gemDir = ospath.join(self._pathutil.deployHome(),
                                  '.gem', env['rubyVer'])
             gemDir = env.setdefault('gemDir', gemDir)
             environ['GEM_HOME'] = gemDir
 
-            self._path.addEnvPath('GEM_PATH', gemDir)
-            self._path.addBinPath(ospath.join(gemDir, 'bin'), True)
+            self._pathutil.addEnvPath('GEM_PATH', gemDir)
+            self._pathutil.addBinPath(ospath.join(gemDir, 'bin'), True)
             installArgs += ['--no-user-install', '--no-format-executable']
 
         super(gemTool, self).initEnv(env)
 
         if self._have_tool:
-            version = self._exec.callExternal(
+            version = self._executil.callExternal(
                 [env['gemBin'], '--version'], verbose=False).strip()
 
             if version >= '2':

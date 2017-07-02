@@ -4,14 +4,14 @@ from .. import log as _log
 
 
 def deb(packages):
-    apt_get = _ext.path.which('apt-get')
+    apt_get = _ext.pathutil.which('apt-get')
 
     if apt_get:
         if not isinstance(packages, list):
             packages = [packages]
 
         _ext.os.environ['DEBIAN_FRONTEND'] = 'noninteractive'
-        _ext.exec.trySudoCall(
+        _ext.executil.trySudoCall(
             [apt_get, 'install', '-y',
                 '--no-install-recommends',
                 '-o', 'Dpkg::Options::=--force-confdef',
@@ -27,7 +27,7 @@ def aptRepo(name, entry, gpg_key=None, codename_map=None, repo_base=None):
         'ca-certificates',
         'lsb-release',
     ])
-    apt_add_repository = _ext.path.which('apt-add-repository')
+    apt_add_repository = _ext.pathutil.which('apt-add-repository')
 
     if not apt_add_repository:
         return
@@ -38,11 +38,11 @@ def aptRepo(name, entry, gpg_key=None, codename_map=None, repo_base=None):
         except:
             pass
 
-        tmp_dir = _ext.path.tmpCacheDir(prefix='cidgpg')
+        tmp_dir = _ext.pathutil.tmpCacheDir(prefix='cidgpg')
         tf = _ext.ospath.join(tmp_dir, 'key.gpg')
-        _ext.path.writeBinaryFile(tf, gpg_key)
+        _ext.pathutil.writeBinaryFile(tf, gpg_key)
 
-        _ext.exec.trySudoCall(
+        _ext.executil.trySudoCall(
             ['apt-key', 'add', tf],
             errmsg='you may need to import the PGP key manually!'
         )
@@ -63,12 +63,12 @@ def aptRepo(name, entry, gpg_key=None, codename_map=None, repo_base=None):
 
     entry = entry.replace('$codename$', codename)
 
-    _ext.exec.trySudoCall(
+    _ext.executil.trySudoCall(
         [apt_add_repository, '--yes', entry],
         errmsg='you may need to add the repo manually!'
     )
 
-    _ext.exec.trySudoCall(
+    _ext.executil.trySudoCall(
         ['apt-get', 'update'],
         errmsg='you may need to update APT cache manually!'
     )

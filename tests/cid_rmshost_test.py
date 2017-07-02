@@ -3,7 +3,7 @@ from __future__ import print_function, absolute_import
 
 from .cid_utbase import cid_UTBase
 from futoin.cid.rmstool import RmsTool
-from futoin.cid.util import exec as _exec
+from futoin.cid.util import exec as _executil
 from futoin.cid.util import path as _path
 from futoin.cid.util import install as _install
 
@@ -167,10 +167,10 @@ class cid_mysql_Test ( cid_UTBase ) :
     def test_setup(self):
         _install.debrpm(['mysql-server', 'mysql-client'])
         mysql = _path.which('mysql')
-        _exec.callExternal([mysql, '-uroot', '-h', '127.0.0.1', '-e',
+        _executil.callExternal([mysql, '-uroot', '-h', '127.0.0.1', '-e',
                             "GRANT ALL PRIVILEGES ON *.* TO 'cid'@'%' IDENTIFIED BY 'cid'"],
                             verbose=False)
-        _exec.callExternal([mysql, '-uroot', '-h', '127.0.0.1', '-e',
+        _executil.callExternal([mysql, '-uroot', '-h', '127.0.0.1', '-e',
                             "CREATE DATABASE IF NOT EXISTS redmine CHARACTER SET utf8; "+
                             "GRANT ALL PRIVILEGES ON redmine.* TO 'redmine'@'%' IDENTIFIED BY 'redmine'"],
                             verbose=False)

@@ -83,12 +83,12 @@ It's possible to override uWSGI options with .tune.uwsgi parameter map.
         if svc['path']:
             uwsgi_conf['wsgi-file'] = svc['path']
 
-        self._path.writeIni(conf_file, conf)
+        self._pathutil.writeIni(conf_file, conf)
 
     def onRun(self, config, svc, args):
         env = config['env']
         deploy = config['deploy']
-        self._exec.callInteractive([
+        self._executil.callInteractive([
             env['uwsgiBin'],
             svc['tune']['uwsgiConf']
         ])

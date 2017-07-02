@@ -84,11 +84,11 @@ through CID, but you can install source releases through
             return
 
         if env_to_set:
-            self._path.updateEnvFromOutput(env_to_set)
+            self._pathutil.updateEnvFromOutput(env_to_set)
             super(goTool, self).initEnv(env)
 
     def onRun(self, config, svc, args):
         env = config['env']
-        self._exec.callInteractive([
+        self._executil.callInteractive([
             env[self._name + 'Bin'], 'run', svc['path']
         ] + args)

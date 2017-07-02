@@ -41,7 +41,7 @@ Build folder is configurable through cmakeBuildDir env.
         build_dir = config['env']['cmakeBuildDir']
 
         if self._ospath.exists(build_dir):
-            self._path.rmTree(build_dir)
+            self._pathutil.rmTree(build_dir)
 
     def onBuild(self, config):
         ospath = self._ospath
@@ -49,13 +49,13 @@ Build folder is configurable through cmakeBuildDir env.
         build_dir = config['env']['cmakeBuildDir']
 
         if ospath.exists(build_dir):
-            self._exec.callExternal([config['env']['cmakeBin'], build_dir])
+            self._executil.callExternal([config['env']['cmakeBin'], build_dir])
         else:
             os.mkdir(build_dir)
             os.chdir(build_dir)
-            self._exec.callExternal(
+            self._executil.callExternal(
                 [config['env']['cmakeBin'], config['wcDir']])
             os.chdir(config['wcDir'])
 
-        self._exec.callExternal(
+        self._executil.callExternal(
             [config['env']['cmakeBin'], '--build', build_dir])

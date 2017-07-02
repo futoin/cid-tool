@@ -18,24 +18,24 @@ class NpmToolMixIn(SubTool):
         cmd = [env['npmBin'], 'install', '-g', self._npmName()]
 
         if self._isGlobalNpm():
-            self._exec.trySudoCall(cmd)
+            self._executil.trySudoCall(cmd)
         else:
-            self._exec.callExternal(cmd)
+            self._executil.callExternal(cmd)
 
     def updateTool(self, env):
         cmd = [env['npmBin'], 'update', '-g', self._npmName()]
 
         if self._isGlobalNpm():
-            self._exec.trySudoCall(cmd)
+            self._executil.trySudoCall(cmd)
         else:
-            self._exec.callExternal(cmd)
+            self._executil.callExternal(cmd)
 
     def uninstallTool(self, env):
         cmd = [env['npmBin'], 'uninstall', '-g', self._npmName()]
 
         if self._isGlobalNpm():
-            self._exec.trySudoCall(cmd)
+            self._executil.trySudoCall(cmd)
         else:
-            self._exec.callExternal(cmd)
+            self._executil.callExternal(cmd)
 
         self._have_tool = False

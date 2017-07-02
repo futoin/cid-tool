@@ -1,15 +1,15 @@
 
 from ...mixins.ondemand import ext as _ext
 
+_pacman = _ext.pathutil.which('pacman')
+
 
 def pacman(packages):
-    pacman = _ext.path.which('pacman')
-
-    if pacman:
+    if _pacman:
         if not isinstance(packages, list):
             packages = [packages]
 
-        _ext.exec.trySudoCall(
-            [pacman, '-S', '--noconfirm', '--needed'] + packages,
+        _ext.executil.trySudoCall(
+            [_pacman, '-S', '--noconfirm', '--needed'] + packages,
             errmsg='you may need to install the build deps manually !'
         )

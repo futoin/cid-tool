@@ -277,9 +277,9 @@ def tmpCacheDir(**kwargs):
 
             if s.st_mtime <= base_ts:
                 if stat.S_ISDIR(s.st_mode):
-                    _ext.path.rmTree(fp)
+                    _ext.pathutil.rmTree(fp)
                 else:
                     os.remove(fp)
-        _ext.path.writeTextFile(placeholder, '')
+        _ext.pathutil.writeTextFile(placeholder, '')
 
     return _ext.tempfile.mkdtemp(dir=tmp_dir, **kwargs)

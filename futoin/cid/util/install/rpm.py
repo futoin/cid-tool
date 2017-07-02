@@ -1,32 +1,32 @@
 
 from ...mixins.ondemand import ext as _ext
 
+_yum = _ext.pathutil.which('yum')
+_dnf = _ext.pathutil.which('dnf')
+_zypper = _ext.pathutil.which('zypper')
+_rpm = _ext.pathutil.which('rpm')
+
 
 def yum(packages):
-    yum = _ext.path.which('dnf')
-
-    if not yum:
-        yum = _ext.path.which('yum')
+    yum = _dnf or _yum
 
     if yum:
         if not isinstance(packages, list):
             packages = [packages]
 
-        _ext.exec.trySudoCall(
+        _ext.executil.trySudoCall(
             [yum, 'install', '-y'] + packages,
             errmsg='you may need to install the packages manually !'
         )
 
 
 def zypper(packages):
-    zypper = _ext.path.which('zypper')
-
-    if zypper:
+    if _zypper:
         if not isinstance(packages, list):
             packages = [packages]
 
-        _ext.exec.trySudoCall(
-            [zypper, 'install', '-y'] + packages,
+        _ext.executil.trySudoCall(
+            [_zypper, 'install', '-y'] + packages,
             errmsg='you may need to install the packages manually !'
         )
 
@@ -40,19 +40,17 @@ def rpmKey(gpg_key):
     if not gpg_key:
         return
 
-    rpm = _ext.path.which('rpm')
-
-    if not rpm:
+    if not _rpm:
         return
 
     os = _ext.os
 
-    tmp_dir = _ext.path.tmpCacheDir(prefix='cidgpg')
+    tmp_dir = _ext.pathutil.tmpCacheDir(prefix='cidgpg')
     tf = os.path.join(tmp_dir, 'key.gpg')
-    _ext.path.writeBinaryFile(tf, gpg_key)
+    _ext.pathutil.writeBinaryFile(tf, gpg_key)
 
-    _ext.exec.trySudoCall(
-        [rpm, '--import', tf],
+    _ext.executil.trySudoCall(
+        [_rpm, '--import', tf],
         errmsg='you may need to import the PGP key manually!'
     )
 
@@ -62,11 +60,8 @@ def rpmKey(gpg_key):
 def yumRepo(name, url, gpg_key=None, releasevermax=None, repo_url=False):
     rpmKey(gpg_key)
 
-    dnf = _ext.path.which('dnf')
-    yum = _ext.path.which('yum')
-
     if repo_url:
-        tmp_dir = _ext.path.tmpCacheDir(prefix='cidrepo')
+        tmp_dir = _ext.pathutil.tmpCacheDir(prefix='cidrepo')
         repo_file = '{0}.repo'.format(name)
         repo_file = _ext.ospath.join(tmp_dir, repo_file)
 
@@ -82,13 +77,13 @@ def yumRepo(name, url, gpg_key=None, releasevermax=None, repo_url=False):
 
         url = repo_file
 
-    if dnf:
+    if _dnf:
         yum(['dnf-plugins-core'])
         repo_file = None
 
         if releasevermax is not None:
-            dump = _ext.exec.callExternal(
-                [dnf, 'config-manager', '--dump'], verbose=False)
+            dump = _ext.executil.callExternal(
+                [_dnf, 'config-manager', '--dump'], verbose=False)
             for l in dump.split("\n"):
                 l = l.split(' = ')
 
@@ -104,7 +99,7 @@ def yumRepo(name, url, gpg_key=None, releasevermax=None, repo_url=False):
                         repo_info = repo_info.replace(
                             '$releasever', str(releasevermax))
 
-                        tmp_dir = _ext.path.tmpCacheDir(prefix='cidrepo')
+                        tmp_dir = _ext.pathutil.tmpCacheDir(prefix='cidrepo')
                         repo_file = url.split('/')[-1]
                         repo_file = _ext.ospath.join(tmp_dir, repo_file)
 
@@ -114,18 +109,18 @@ def yumRepo(name, url, gpg_key=None, releasevermax=None, repo_url=False):
                         url = repo_file
                     break
 
-        _ext.exec.trySudoCall(
-            [dnf, 'config-manager', '--add-repo', url],
+        _ext.executil.trySudoCall(
+            [_dnf, 'config-manager', '--add-repo', url],
             errmsg='you may need to add the repo manually!'
         )
 
         if repo_file:
             _ext.os.remove(repo_file)
 
-    elif yum:
+    elif _yum:
         yum(['yum-utils'])
-        yumcfgmgr = _ext.path.which('yum-config-manager')
-        _ext.exec.trySudoCall(
+        yumcfgmgr = _ext.pathutil.which('yum-config-manager')
+        _ext.executil.trySudoCall(
             [yumcfgmgr, '--add-repo', url],
             errmsg='you may need to add the repo manually!'
         )
@@ -134,29 +129,28 @@ def yumRepo(name, url, gpg_key=None, releasevermax=None, repo_url=False):
 def zypperRepo(name, url, gpg_key=None, yum=False):
     rpmKey(gpg_key)
 
-    zypper = _ext.path.which('zypper')
-
-    if zypper:
+    if _zypper:
         if yum:
-            cmd = [zypper, 'addrepo', '-t', 'YUM', url, name]
+            cmd = [_zypper, 'addrepo', '-t', 'YUM', url, name]
         else:
-            cmd = [zypper, 'addrepo', url, name]
+            cmd = [_zypper, 'addrepo', url, name]
 
-        _ext.exec.trySudoCall(
+        _ext.executil.trySudoCall(
             cmd,
             errmsg='you may need to add the repo manually!'
         )
 
 
 def yumEnable(repo):
-    yum(['yum-utils'])
+    if _yum:
+        yum(['yum-utils'])
 
-    yumcfgmgr = _ext.path.which('yum-config-manager')
+        yumcfgmgr = _ext.pathutil.which('yum-config-manager')
 
-    _ext.exec.trySudoCall(
-        [yumcfgmgr, '--enable', repo],
-        errmsg='You may need to enable the repo manually'
-    )
+        _ext.executil.trySudoCall(
+            [yumcfgmgr, '--enable', repo],
+            errmsg='You may need to enable the repo manually'
+        )
 
 
 def yumEPEL():
@@ -172,6 +166,9 @@ def yumEPEL():
 
 def yumSCL():
     detect = _ext.detect
+
+    if not detect.isSCLSupported():
+        return
 
     if detect.isRHEL():
         yumEnable('rhel-server-rhscl-7-rpms')

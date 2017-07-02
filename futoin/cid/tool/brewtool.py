@@ -28,28 +28,29 @@ Hint: Unprivileged brew does not work well with many bottles, you may want to us
             homebrew_git = env['brewGit']
             homebrew_dir = env['brewDir']
 
-            git = self._path.which('git')
+            git = self._pathutil.which('git')
 
             if not git:
-                xcode_select = self._path.which('xcode-select')
-                self._exec.callExternal(
+                xcode_select = self._pathutil.which('xcode-select')
+                self._executil.callExternal(
                     [xcode_select, '--install'], suppress_fail=True)
-                git = self._path.which('git')
+                git = self._pathutil.which('git')
 
-            self._exec.callExternal([git, 'clone', homebrew_git, homebrew_dir])
+            self._executil.callExternal(
+                [git, 'clone', homebrew_git, homebrew_dir])
         else:
             # should be system-available
-            curl = self._path.which('curl')
-            ruby = self._path.which('ruby')
+            curl = self._pathutil.which('curl')
+            ruby = self._pathutil.which('ruby')
             homebrew_install = env['brewInstall']
 
             curl_args = self._configutil.timeouts(env, 'curl')
 
-            brew_installer = self._exec.callExternal(
+            brew_installer = self._executil.callExternal(
                 [curl, '-fsSL', homebrew_install] + curl_args
             )
 
-            self._exec.callExternal([ruby, '-'], input=brew_installer)
+            self._executil.callExternal([ruby, '-'], input=brew_installer)
 
     def _isLocalBrew(self, env):
         return env['brewDir'] != self._GLOBAL_BREW_DIR
@@ -84,7 +85,7 @@ Hint: Unprivileged brew does not work well with many bottles, you may want to us
             brew = ospath.join(bin_dir, 'brew')
 
             if ospath.exists(brew):
-                self._path.addBinPath(bin_dir, True)
+                self._pathutil.addBinPath(bin_dir, True)
                 env['brewBin'] = brew
                 self._have_tool = True
         else:

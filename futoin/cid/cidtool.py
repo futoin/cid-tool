@@ -47,13 +47,13 @@ def cid_action(f):
                         f(self, *args, **kwargs)
                     elif cmd.startswith('@cid'):
                         cmd = self._ext.shlex.split(cmd)
-                        self._exec.callExternal([self._sys.executable, '-mfutoin.cid'] + cmd[1:],
-                                                user_interaction=True)
+                        self._executil.callExternal([self._sys.executable, '-mfutoin.cid'] + cmd[1:],
+                                                    user_interaction=True)
                     elif cmd in actions:
                         filt_args = list(filter(None, args))
                         self._call_actions(cmd, actions, filt_args)
                     else:
-                        self._exec.callExternal(
+                        self._executil.callExternal(
                             ['sh', '-c', cmd], user_interaction=True)
         else:
             f(self, *args, **kwargs)
@@ -79,15 +79,15 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         for cmd in act:
             if cmd.startswith('@cid'):
                 cmd = self._ext.shlex.split(cmd)
-                self._exec.callExternal([self._sys.executable, '-mfutoin.cid'] + cmd[1:] + args,
-                                        user_interaction=True)
+                self._executil.callExternal([self._sys.executable, '-mfutoin.cid'] + cmd[1:] + args,
+                                            user_interaction=True)
             elif cmd in actions:
                 self._call_actions(cmd, actions, args)
             else:
                 if args:
                     cmd = '{0} {1}'.format(
                         cmd, self._ext.subprocess.list2cmdline(args))
-                self._exec.callExternal(
+                self._executil.callExternal(
                     ['sh', '-c', cmd], user_interaction=True)
 
     @cid_action
@@ -495,7 +495,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                 self._infoLabel('Renaming: ', '{0} to {1}'.format(wcDir, dst))
                 os.rename(wcDir, dst)
             except OSError:
-                self._path.rmTree(wcDir)
+                self._pathutil.rmTree(wcDir)
 
         # Make sure to keep VCS info when switch to another location
         # for checkout.
@@ -748,7 +748,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         elif 'name' not in config:
             new_config['name'] = ospath.basename(config['wcDir'])
 
-        self._path.writeJSONConfig(self._FUTOIN_JSON, new_config)
+        self._pathutil.writeJSONConfig(self._FUTOIN_JSON, new_config)
 
     def vcs_checkout(self, vcs_ref):
         self._processWcDir()
@@ -1012,7 +1012,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             self._serviceAdapt()
             self._serviceListPrint()
             self._serviceMaster()
-            self._path.rmTree(deploy_dir)
+            self._pathutil.rmTree(deploy_dir)
             deploy_dir = None
         finally:
             if deploy_dir:

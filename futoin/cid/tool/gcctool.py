@@ -32,7 +32,7 @@ If gccBin is set it must point to bin folder.
                 self._have_tool = True
         else:
             gcc = pref + 'gcc' + postf
-            gcc = self._path.which(gcc)
+            gcc = self._pathutil.which(gcc)
 
             if gcc:
                 env['gccBin'] = gcc

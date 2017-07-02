@@ -26,7 +26,7 @@ Home: https://www.rust-lang.org
             self._install.apk('rust')
             return
 
-        self._exec.callExternal([
+        self._executil.callExternal([
             env['rustupBin'], 'toolchain', 'install', env['rustVer']
         ])
 
@@ -37,7 +37,7 @@ Home: https://www.rust-lang.org
         if self._isGlobalRust():
             return
 
-        self._exec.callExternal([
+        self._executil.callExternal([
             env['rustupBin'], 'toolchain', 'uninstall', env['rustVer']
         ])
         self._have_tool = False
@@ -51,7 +51,7 @@ Home: https://www.rust-lang.org
             self._environ['RUSTUP_TOOLCHAIN'] = ver
 
             try:
-                res = self._exec.callExternal([
+                res = self._executil.callExternal([
                     env['rustupBin'], 'which', 'rustc'
                 ], verbose=False)
             except:

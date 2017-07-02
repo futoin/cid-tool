@@ -62,7 +62,7 @@ jdkVer supports:
             environ['JAVA_HOME'] = java_home
             environ['JDK_HOME'] = java_home
 
-            self._path.addBinPath(bin_dir, True)
+            self._pathutil.addBinPath(bin_dir, True)
 
             super(jdkTool, self).initEnv(env, 'javac')
             return
@@ -112,6 +112,6 @@ jdkVer supports:
                 environ['JAVA_HOME'] = java_home
                 environ['JDK_HOME'] = java_home
 
-                self._path.addBinPath(bin_dir, True)
+                self._pathutil.addBinPath(bin_dir, True)
                 self._have_tool = True
                 break

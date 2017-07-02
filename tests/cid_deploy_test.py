@@ -11,7 +11,7 @@ import requests
 
 from .cid_utbase import cid_UTBase
 from futoin.cid.details.resourcealgo import ResourceAlgo
-from futoin.cid.util import exec as _exec
+from futoin.cid.util import exec as _executil
 from futoin.cid.util import config as _configutil
 
 class cid_deploy_Test( cid_UTBase ) :
@@ -383,7 +383,7 @@ class cid_deploy_Test( cid_UTBase ) :
                 
     def test_20_memdetect_system(self):
         if self.IS_MACOS:
-            sysmem = int(_exec.callExternal(['sysctl', '-n', 'hw.memsize'], verbose=False).strip())
+            sysmem = int(_executil.callExternal(['sysctl', '-n', 'hw.memsize'], verbose=False).strip())
         else:
             sysmem = int(self._readFile('/proc/meminfo').split()[1])*1024
             
@@ -414,7 +414,7 @@ class cid_deploy_Test( cid_UTBase ) :
         
     def test_30_cpudetect_system(self):
         if self.IS_MACOS:
-            cpus = int(_exec.callExternal(['sysctl', '-n', 'hw.ncpu'], verbose=False).strip())
+            cpus = int(_executil.callExternal(['sysctl', '-n', 'hw.ncpu'], verbose=False).strip())
         else:
             cpus = self._readFile('/proc/cpuinfo').split("\n")
             cpus = filter(lambda x: x.split(':')[0].strip() == 'processor', cpus)

@@ -64,4 +64,4 @@ class pumaTool(GemToolMixIn, RuntimeTool):
             svc['path']
         ] + puma_args + args
 
-        self._exec.callInteractive(cmd)
+        self._executil.callInteractive(cmd)

@@ -37,13 +37,13 @@ In RMS mode support tuning through .toolTune.npm:
         if self._isGlobalNpm():
             return
 
-        self._exec.callExternal([env['npmBin'], 'update', '-g', 'npm'])
+        self._executil.callExternal([env['npmBin'], 'update', '-g', 'npm'])
 
     def uninstallTool(self, env):
         pass
 
     def loadConfig(self, config):
-        content = self._path.loadJSONConfig(self.PACKAGE_JSON)
+        content = self._pathutil.loadJSONConfig(self.PACKAGE_JSON)
         if content is None:
             return
 
@@ -57,17 +57,17 @@ In RMS mode support tuning through .toolTune.npm:
                 if f in updates:
                     json[f] = updates[f]
 
-        return self._path.updateJSONConfig(self.PACKAGE_JSON, updater)
+        return self._pathutil.updateJSONConfig(self.PACKAGE_JSON, updater)
 
     def onPrepare(self, config):
         if self._ospath.exists(self.PACKAGE_JSON):
             npmBin = config['env']['npmBin']
-            self._exec.callExternal([npmBin, 'install'])
+            self._executil.callExternal([npmBin, 'install'])
 
     def onPackage(self, config):
         if self._ospath.exists(self.PACKAGE_JSON):
             npmBin = config['env']['npmBin']
-            self._exec.callExternal([npmBin, 'prune', '--production'])
+            self._executil.callExternal([npmBin, 'prune', '--production'])
 
     def rmsUpload(self, config, rms_pool, package_list):
         npmBin = config['env']['npmBin']
@@ -81,7 +81,7 @@ In RMS mode support tuning through .toolTune.npm:
         if 'access' in tune:
             cmd += ['--access', tune['access']]
 
-        self._exec.callExternal(cmd)
+        self._executil.callExternal(cmd)
 
     def rmsPoolList(self, config):
         return [

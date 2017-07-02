@@ -80,7 +80,7 @@ def haveGroup(grpname):
     return gid in _ext.os.getgroups()
 
 
-def _isSCLSupported():
+def isSCLSupported():
     "Check if Software Collections are supported"
     return (
         isCentOS() or

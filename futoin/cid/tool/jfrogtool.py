@@ -71,7 +71,7 @@ Home: https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
                     pkg)
             )
 
-        self._path.addBinPath(bin_dir)
+        self._pathutil.addBinPath(bin_dir)
 
         super(jfrogTool, self).initEnv(env)
 

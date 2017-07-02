@@ -24,19 +24,19 @@ Home: https://www.mercurial-scm.org/
         return '.hg'
 
     def _getCurrentBranch(self, config):
-        return self._exec.callExternal([
+        return self._executil.callExternal([
             config['env']['hgBin'], 'branch'
         ]).strip()
 
     def vcsGetRepo(self, config, wc_dir=None):
         wc_dir = wc_dir or self._os.getcwd()
-        return self._exec.callExternal([
+        return self._executil.callExternal([
             config['env']['hgBin'], '--repository', wc_dir, 'paths', 'default'
         ], verbose=False).strip()
 
     def _hgCheckoutTool(self, config):
         hgBin = config['env']['hgBin']
-        help_res = self._exec.callExternal(
+        help_res = self._executil.callExternal(
             [hgBin, 'checkout', '--help'], verbose=False)
         tool_args = []
 
@@ -56,37 +56,38 @@ Home: https://www.mercurial-scm.org/
                 if remote_info != config['vcsRepo']:
                     self._errorExit("Hg remote mismatch: " + remote_info)
 
-            self._exec.callExternal([hgBin, 'pull'])
+            self._executil.callExternal([hgBin, 'pull'])
         else:
-            self._exec.callExternal(
+            self._executil.callExternal(
                 [hgBin, 'clone', config['vcsRepo'], wc_dir])
 
         if not vcs_ref:
             # skip default branch
             return
 
-        for v in self._exec.callExternal([hgBin, 'branches'], verbose=False).strip().split("\n"):
+        for v in self._executil.callExternal([hgBin, 'branches'], verbose=False).strip().split("\n"):
             if v and v.split()[0] == vcs_ref:
                 break
         else:
-            for v in self._exec.callExternal([hgBin, 'tags'], verbose=False).strip().split("\n"):
+            for v in self._executil.callExternal([hgBin, 'tags'], verbose=False).strip().split("\n"):
                 if v and v.split()[0] == vcs_ref:
                     break
             else:
                 self._errorExit(
                     'Unknown VCS ref {0}. Hint: closed branches are ignored!'.format(vcs_ref))
 
-        self._exec.callExternal([hgBin, 'checkout', '--check',
-                                 vcs_ref] + self._hgCheckoutTool(config))
+        self._executil.callExternal([hgBin, 'checkout', '--check',
+                                     vcs_ref] + self._hgCheckoutTool(config))
 
     def vcsCommit(self, config, message, files):
         hgBin = config['env']['hgBin']
         files = files or ['-A']
-        self._exec.callExternal([hgBin, 'commit', '-A', '-m', message] + files)
+        self._executil.callExternal(
+            [hgBin, 'commit', '-A', '-m', message] + files)
 
     def vcsTag(self, config, tag, message):
         hgBin = config['env']['hgBin']
-        self._exec.callExternal([hgBin, 'tag', '-m', message, tag])
+        self._executil.callExternal([hgBin, 'tag', '-m', message, tag])
 
     def vcsPush(self, config, refs):
         refs = refs or []
@@ -105,11 +106,11 @@ Home: https://www.mercurial-scm.org/
 
             opts.append('-b')
             opts.append(r)
-        self._exec.callExternal([hgBin, 'push'] + opts)
+        self._executil.callExternal([hgBin, 'push'] + opts)
 
     def vcsGetRevision(self, config):
         hgBin = config['env']['hgBin']
-        return self._exec.callExternal([hgBin, 'identify', '--id'], verbose=False).strip()
+        return self._executil.callExternal([hgBin, 'identify', '--id'], verbose=False).strip()
 
     def _hgCache(self, config, vcs_cache_dir):
         ospath = self._ospath
@@ -121,7 +122,7 @@ Home: https://www.mercurial-scm.org/
             if ospath.exists('.hg') and self.vcsGetRepo(config, vcs_cache_dir) == vcsrepo:
                 vcs_cache_dir = '.'
             else:
-                vcs_cache_dir = self._path.cacheDir('hg')
+                vcs_cache_dir = self._pathutil.cacheDir('hg')
                 vcs_cache_dir = ospath.join(
                     vcs_cache_dir,
                     vcsrepo.replace('/', '_').replace(':', '_')
@@ -134,13 +135,14 @@ Home: https://www.mercurial-scm.org/
             if remote_info != vcsrepo:
                 self._warn('removing Hg cache on remote URL mismatch: {0} != {1}'
                            .format(remote_info, vcsrepo))
-                self._path.rmTree(vcs_cache_dir)
+                self._pathutil.rmTree(vcs_cache_dir)
             else:
-                self._exec.callExternal(
+                self._executil.callExternal(
                     [hgBin, '--cwd', vcs_cache_dir, 'pull'])
 
         if not ospath.isdir(vcs_cache_dir):
-            self._exec.callExternal([hgBin, 'clone', vcsrepo, vcs_cache_dir])
+            self._executil.callExternal(
+                [hgBin, 'clone', vcsrepo, vcs_cache_dir])
 
         return vcs_cache_dir
 
@@ -149,7 +151,7 @@ Home: https://www.mercurial-scm.org/
 
         hgBin = config['env']['hgBin']
 
-        res = self._exec.callExternal([
+        res = self._executil.callExternal([
             hgBin, '--repository', vcs_cache_dir, 'branches'
         ], verbose=False).strip().split("\n")
 
@@ -166,7 +168,7 @@ Home: https://www.mercurial-scm.org/
 
         hgBin = config['env']['hgBin']
 
-        res = self._exec.callExternal([
+        res = self._executil.callExternal([
             hgBin, '--repository', vcs_cache_dir, 'tags'
         ], verbose=False).strip().split("\n")
 
@@ -180,7 +182,7 @@ Home: https://www.mercurial-scm.org/
 
         hgBin = config['env']['hgBin']
 
-        res = self._exec.callExternal([
+        res = self._executil.callExternal([
             hgBin, '--repository', vcs_cache_dir, 'branches'
         ], verbose=False).strip().split("\n")
 
@@ -193,7 +195,7 @@ Home: https://www.mercurial-scm.org/
         os = self._os
         vcs_cache_dir = self._hgCache(config, vcs_cache_dir)
 
-        self._exec.callExternal([
+        self._executil.callExternal([
             config['env']['hgBin'],
             '--repository', vcs_cache_dir,
             'archive',
@@ -211,7 +213,7 @@ Home: https://www.mercurial-scm.org/
 
     def vcsBranch(self, config, vcs_ref):
         hgBin = config['env']['hgBin']
-        self._exec.callExternal([hgBin, 'branch', vcs_ref])
+        self._executil.callExternal([hgBin, 'branch', vcs_ref])
         # We do not use bookmarks, so the only way to actually create the
         # branch.
         self.vcsCommit(config, "CID new branch " + vcs_ref, [])
@@ -223,7 +225,7 @@ Home: https://www.mercurial-scm.org/
         hgBin = config['env']['hgBin']
 
         try:
-            self._exec.callExternal(
+            self._executil.callExternal(
                 [hgBin, 'merge', '--tool', 'internal:merge', vcs_ref])
         except self._ext.subprocess.CalledProcessError:
             if cleanup:
@@ -242,26 +244,26 @@ Home: https://www.mercurial-scm.org/
         old_cwd = os.getcwd()
         os.chdir(vcs_cache_dir)
 
-        self._exec.callExternal([hgBin, 'checkout', '--check',
-                                 vcs_ref] + self._hgCheckoutTool(config))
+        self._executil.callExternal([hgBin, 'checkout', '--check',
+                                     vcs_ref] + self._hgCheckoutTool(config))
         self.vcsCommit(config, "CID branch delete", ['--close-branch'])
         self.vcsPush(config, [vcs_ref])
         os.chdir(old_cwd)
 
     def vcsRevert(self, config):
         hgBin = config['env']['hgBin']
-        self._exec.callExternal([
+        self._executil.callExternal([
             hgBin,
             'update', '--clean',
         ] + self._hgCheckoutTool(config))
-        self._exec.callExternal([
+        self._executil.callExternal([
             hgBin,
             '--config', 'extensions.purge=',
             'purge', '-I', '*.orig', '-I', '**/*.orig', '--all'
         ])
 
     def vcsIsMerged(self, config, vcs_ref):
-        res = self._exec.callExternal([
+        res = self._executil.callExternal([
             config['env']['hgBin'],
             'merge', '--preview',
             '--tool=internal:merge',

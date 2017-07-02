@@ -23,7 +23,7 @@ Primary purpose is to support Puppet module development.
 
         if self._have_tool and puppet_ver:
             try:
-                found_ver = self._exec.callExternal(
+                found_ver = self._executil.callExternal(
                     [env['puppetBin'], '--version'], verbose=False)
                 self._have_tool = found_ver.find(puppet_ver) >= 0
             except:
@@ -34,7 +34,7 @@ Primary purpose is to support Puppet module development.
         return self.METADATA_FILE
 
     def loadConfig(self, config):
-        content = self._path.loadJSONConfig(self.METADATA_FILE)
+        content = self._pathutil.loadJSONConfig(self.METADATA_FILE)
         if content is None:
             return
 
@@ -50,15 +50,15 @@ Primary purpose is to support Puppet module development.
                 if f in updates:
                     json[f] = updates[f]
 
-        return self._path.updateJSONConfig(self.METADATA_FILE, updater)
+        return self._pathutil.updateJSONConfig(self.METADATA_FILE, updater)
 
     def onPrepare(self, config):
         if self._ospath.exists('pkg'):
-            self._path.rmTree('pkg')
+            self._pathutil.rmTree('pkg')
 
     def onBuild(self, config):
         puppetBin = config['env']['puppetBin']
-        self._exec.callExternal([puppetBin, 'module', 'build'])
+        self._executil.callExternal([puppetBin, 'module', 'build'])
 
     def onPackage(self, config):
         package_file = 'pkg/{0}-{1}.tar.gz'.format(
@@ -70,4 +70,4 @@ Primary purpose is to support Puppet module development.
             self._errorExit(
                 'Puppet Module built package is missing: ' + package_file)
 
-        self._path.addPackageFiles(config, package_file)
+        self._pathutil.addPackageFiles(config, package_file)

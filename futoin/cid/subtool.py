@@ -63,7 +63,7 @@ class SubTool(LogMixIn, OnDemandMixIn):
             if bin_name is None:
                 bin_name = name
 
-            tool_path = self._path.which(bin_name)
+            tool_path = self._pathutil.which(bin_name)
             if tool_path:
                 env[bin_env] = tool_path.strip()
                 self._have_tool = True
@@ -128,7 +128,7 @@ updates = {
         bin = env.get(self._name + 'Bin', None)
 
         if bin:
-            self._exec.callInteractive([bin] + args, replace=replace)
+            self._executil.callInteractive([bin] + args, replace=replace)
         else:
             self._errorExit(
                 'Exec command has not been implemented for "{0}"'.format(self._name))

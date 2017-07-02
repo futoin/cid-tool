@@ -26,7 +26,7 @@ Build uses the default target.
         self._install.apk(['make'])
 
     def onPrepare(self, config):
-        self._exec.callExternal([config['env']['makeBin'], 'clean'])
+        self._executil.callExternal([config['env']['makeBin'], 'clean'])
 
     def onBuild(self, config):
         target = self._getTune(config, 'build')
@@ -36,4 +36,4 @@ Build uses the default target.
         else:
             args = []
 
-        self._exec.callExternal([config['env']['makeBin']] + args)
+        self._executil.callExternal([config['env']['makeBin']] + args)

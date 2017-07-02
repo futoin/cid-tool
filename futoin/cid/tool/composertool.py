@@ -28,7 +28,7 @@ composerDir is equal to user's ~/bin/ folder by default.
         if not self._ospath.exists(composer_dir):
             self._os.makedirs(composer_dir)
 
-        self._exec.callExternal(
+        self._executil.callExternal(
             [
                 php_bin, '--',
                 '--install-dir=' + composer_dir,
@@ -38,7 +38,7 @@ composerDir is equal to user's ~/bin/ folder by default.
             binary_input=True)
 
     def updateTool(self, env):
-        self._exec.callExternal([env['composerBin'], 'self-update'])
+        self._executil.callExternal([env['composerBin'], 'self-update'])
 
     def uninstallTool(self, env):
         self._os.remove(env['composerBin'])
@@ -54,7 +54,7 @@ composerDir is equal to user's ~/bin/ folder by default.
         composer_bin = env.setdefault(
             'composerBin', ospath.join(composer_dir, 'composer'))
 
-        self._path.addBinPath(composer_dir)
+        self._pathutil.addBinPath(composer_dir)
 
         self._have_tool = ospath.exists(composer_bin)
 
@@ -65,7 +65,7 @@ composerDir is equal to user's ~/bin/ folder by default.
         return ['php'] + CurlToolMixIn.getDeps(self)
 
     def loadConfig(self, config):
-        content = self._path.loadJSONConfig(self.COMPOSER_JSON)
+        content = self._pathutil.loadJSONConfig(self.COMPOSER_JSON)
         if content is None:
             return
 
@@ -79,13 +79,13 @@ composerDir is equal to user's ~/bin/ folder by default.
                 if f in updates:
                     json[f] = updates[f]
 
-        return self._path.updateJSONConfig(self.COMPOSER_JSON, updater, indent=4)
+        return self._pathutil.updateJSONConfig(self.COMPOSER_JSON, updater, indent=4)
 
     def onPrepare(self, config):
         composerBin = config['env']['composerBin']
-        self._exec.callExternal([composerBin, 'install'])
+        self._executil.callExternal([composerBin, 'install'])
 
     def onPackage(self, config):
         composerBin = config['env']['composerBin']
-        self._exec.callExternal(
+        self._executil.callExternal(
             [composerBin, 'install', '--no-dev', '--no-scripts'])

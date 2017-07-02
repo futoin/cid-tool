@@ -50,7 +50,7 @@ Note: rmsRepo is ignored and rmsPool is actual repo URL or uses ~/.pypirc entry
 
         cmd += package_list
 
-        self._exec.callExternal(cmd, user_interaction=True)
+        self._executil.callExternal(cmd, user_interaction=True)
 
     def rmsPoolList(self, config):
         return [

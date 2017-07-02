@@ -13,7 +13,7 @@ class RuntimeTool(SubTool):
 
     def onRun(self, config, svc, args):
         env = config['env']
-        self._exec.callInteractive([
+        self._executil.callInteractive([
             env[self._name + 'Bin'], svc['path']
         ] + args)
 

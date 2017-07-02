@@ -24,4 +24,4 @@ futoin.json is the only file read by FutoIn CID itself.
                 if f in updates:
                     json[f] = updates[f]
 
-        return self._path.updateJSONConfig(self._FUTOIN_JSON, updater)
+        return self._pathutil.updateJSONConfig(self._FUTOIN_JSON, updater)

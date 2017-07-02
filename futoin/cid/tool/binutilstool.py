@@ -33,7 +33,7 @@ If binutilsDir is set it must point to bin folder.
             ld = ospath.join(bu_dir, ld)
             self._have_tool = ospath.exists(bu_dir)
         else:
-            ld = self._path.which(ld)
+            ld = self._pathutil.which(ld)
 
             if ld:
                 env['binutilsDir'] = ospath.dirname(ld)

@@ -127,7 +127,7 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
             self._prefix = ''
 
         #---
-        ver = self._exec.callExternal(
+        ver = self._executil.callExternal(
             [nginx_bin, '-v'],
             verbose=False, merge_stderr=True)
         ver = ver.split('/')[1].strip().split('.')

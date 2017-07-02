@@ -168,17 +168,17 @@ Additional notes:
             max_request_size)
         #
         tmp_path = ospath.join(deploy['tmpDir'], 'nginx')
-        self._path.mkDir(tmp_path)
+        self._pathutil.mkDir(tmp_path)
 
         #
         conf_builder = ConfigBuilder(config, svc)
         nginx_conf = conf_builder.build(name_id, pid_file, tmp_path)
-        self._path.writeTextFile(conf_file, nginx_conf)
+        self._pathutil.writeTextFile(conf_file, nginx_conf)
 
         # Verify
         #---
         env = config['env']
-        self._exec.callExternal([
+        self._executil.callExternal([
             env['nginxBin'],
             '-q', '-t',
             '-p', runtime_dir,
@@ -188,7 +188,7 @@ Additional notes:
     def onRun(self, config, svc, args):
         env = config['env']
         deploy = config['deploy']
-        self._exec.callInteractive([
+        self._executil.callInteractive([
             env['nginxBin'],
             '-p', deploy['runtimeDir'],
             '-c', svc['tune']['nginxConf'],
@@ -197,7 +197,7 @@ Additional notes:
     def onStop(self, config, pid, tune):
         env = config['env']
         deploy = config['deploy']
-        self._exec.callExternal([
+        self._executil.callExternal([
             env['nginxBin'],
             '-s', 'stop',
             '-p', deploy['runtimeDir'],
@@ -207,7 +207,7 @@ Additional notes:
     def onReload(self, config, pid, tune):
         env = config['env']
         deploy = config['deploy']
-        self._exec.callExternal([
+        self._executil.callExternal([
             env['nginxBin'],
             '-s', 'reload',
             '-p', deploy['runtimeDir'],

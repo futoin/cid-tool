@@ -21,7 +21,7 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn):
         cgroupFile = cgroupFile or '/sys/fs/cgroup/memory/memory.limit_in_bytes'
 
         if self._ospath.exists(cgroupFile):
-            return int(self._path.readTextFile(cgroupFile).strip())
+            return int(self._pathutil.readTextFile(cgroupFile).strip())
 
         return None
 
@@ -52,7 +52,7 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn):
         if not self._ospath.exists(cgroupFile):
             return None
 
-        cpus = self._path.readTextFile(cgroupFile).strip()
+        cpus = self._pathutil.readTextFile(cgroupFile).strip()
         cpus = cpus.split(',')
         count = 0
 

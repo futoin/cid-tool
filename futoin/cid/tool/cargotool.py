@@ -32,7 +32,7 @@ Override targets with .config.toolTune.
         pass
 
     def onPrepare(self, config):
-        self._exec.callExternal([
+        self._executil.callExternal([
             config['env']['cargoBin'], 'clean',
         ])
 
@@ -42,18 +42,19 @@ Override targets with .config.toolTune.
         if not config.get('debugBuild', False):
             args.append('--release')
 
-        self._exec.callExternal([config['env']['cargoBin'], 'build'] + args)
+        self._executil.callExternal(
+            [config['env']['cargoBin'], 'build'] + args)
 
     def onPackage(self, config):
-        self._exec.callExternal(
+        self._executil.callExternal(
             [config['env']['cargoBin'], 'package', '--allow-dirty'])
-        self._path.addPackageFiles(config, 'target/package/*.crate')
+        self._pathutil.addPackageFiles(config, 'target/package/*.crate')
 
     def onCheck(self, config):
-        self._exec.callExternal([config['env']['cargoBin'], 'test'])
+        self._executil.callExternal([config['env']['cargoBin'], 'test'])
 
     def onRunDev(self, config):
-        self._exec.callExternal([config['env']['cargoBin'], 'run'])
+        self._executil.callExternal([config['env']['cargoBin'], 'run'])
 
     def rmsUpload(self, config, rms_pool, package_list):
-        self._exec.callExternal([config['env']['cargoBin'], 'publish'])
+        self._executil.callExternal([config['env']['cargoBin'], 'publish'])

@@ -32,14 +32,14 @@ if not set by user.
         user_name = None
 
         try:
-            user_email = self._exec.callExternal([
+            user_email = self._executil.callExternal([
                 gitBin, 'config', 'user.email',
             ], verbose=False).strip()
         except:
             pass
 
         try:
-            user_name = self._exec.callExternal([
+            user_name = self._executil.callExternal([
                 gitBin, 'config', 'user.name',
             ], verbose=False).strip()
         except:
@@ -47,27 +47,27 @@ if not set by user.
 
         if not user_email:
             self._info('Setting fallback user.email for repo')
-            self._exec.callExternal([
+            self._executil.callExternal([
                 gitBin, 'config', 'user.email',
                 env.get('gitUserEmail', 'noreply@futoin.org')
             ])
 
         if not user_name:
             self._info('Setting fallback user.name for repo')
-            self._exec.callExternal([
+            self._executil.callExternal([
                 gitBin, 'config', 'user.name',
                 env.get('gitUserName', 'FutoIn CITool')
             ])
 
     def _getCurrentBranch(self, config):
-        return self._exec.callExternal([
+        return self._executil.callExternal([
             config['env']['gitBin'], 'rev-parse', '--abbrev-ref', 'HEAD'
         ], verbose=False).strip()
 
     def vcsGetRepo(self, config, wc_dir=None):
         git_dir = wc_dir or self._ospath.join(self._os.getcwd(), '.git')
 
-        return self._exec.callExternal([
+        return self._executil.callExternal([
             config['env']['gitBin'],
             '--git-dir={0}'.format(git_dir),
             'config',
@@ -91,34 +91,35 @@ if not set by user.
                 self._errorExit("Git remote mismatch: '{0}' != '{1}'"
                                 .format(vcsRepo, remote_url))
 
-            self._exec.callExternal([gitBin, 'fetch', '-q'])
+            self._executil.callExternal([gitBin, 'fetch', '-q'])
         else:
-            self._exec.callExternal([gitBin, 'clone', '-q', vcsRepo, wc_dir])
+            self._executil.callExternal(
+                [gitBin, 'clone', '-q', vcsRepo, wc_dir])
 
             try:
-                self._exec.callExternal(
+                self._executil.callExternal(
                     [gitBin, 'rev-parse', 'HEAD'], verbose=False)
             except self._ext.subprocess.CalledProcessError:
                 # exit on empty repository
                 return
 
-        remote_branch = self._exec.callExternal([
+        remote_branch = self._executil.callExternal([
             gitBin, 'branch', '-q', '--all', '--list', 'origin/' + vcs_ref
         ], verbose=False).strip()
 
-        if self._exec.callExternal([gitBin, 'branch', '-q', '--list', vcs_ref], verbose=False).strip():
-            self._exec.callExternal([gitBin, 'checkout', '-q', vcs_ref])
+        if self._executil.callExternal([gitBin, 'branch', '-q', '--list', vcs_ref], verbose=False).strip():
+            self._executil.callExternal([gitBin, 'checkout', '-q', vcs_ref])
 
             if remote_branch:
-                self._exec.callExternal(
+                self._executil.callExternal(
                     [gitBin, 'branch', '-q', '--set-upstream-to', 'origin/' + vcs_ref])
-                self._exec.callExternal(
+                self._executil.callExternal(
                     [gitBin, 'rebase', 'origin/' + vcs_ref])
         elif remote_branch:
-            self._exec.callExternal(
+            self._executil.callExternal(
                 [gitBin, 'checkout', '-q', '--track', '-b', vcs_ref, 'origin/' + vcs_ref])
         else:
-            self._exec.callExternal([gitBin, 'checkout', '-q', vcs_ref])
+            self._executil.callExternal([gitBin, 'checkout', '-q', vcs_ref])
 
     def vcsCommit(self, config, message, files):
         env = config['env']
@@ -126,17 +127,17 @@ if not set by user.
         self._checkGitConfig(env)
 
         if files:
-            self._exec.callExternal([gitBin, 'add'] + files)
+            self._executil.callExternal([gitBin, 'add'] + files)
         else:
-            self._exec.callExternal([gitBin, 'add', '-A'])
+            self._executil.callExternal([gitBin, 'add', '-A'])
             files = []
 
-        self._exec.callExternal(
+        self._executil.callExternal(
             [gitBin, 'commit', '-q', '-m', message] + files)
 
     def vcsTag(self, config, tag, message):
         gitBin = config['env']['gitBin']
-        self._exec.callExternal([gitBin, 'tag', '-a', '-m', message, tag])
+        self._executil.callExternal([gitBin, 'tag', '-a', '-m', message, tag])
 
     def vcsPush(self, config, refs, repo=None, check_empty=True):
         refs = refs or []
@@ -145,23 +146,23 @@ if not set by user.
 
         if check_empty:
             try:
-                self._exec.callExternal(
+                self._executil.callExternal(
                     [gitBin, 'rev-parse', 'HEAD'], verbose=False)
             except self._ext.subprocess.CalledProcessError:
                 # exit on empty repository
                 return
 
-        self._exec.callExternal(
+        self._executil.callExternal(
             [gitBin, '-c', 'push.default=current', 'push', '-q', repo] + refs)
 
     def vcsGetRevision(self, config):
         gitBin = config['env']['gitBin']
-        return self._exec.callExternal([
+        return self._executil.callExternal([
             gitBin, 'rev-parse', 'HEAD'
         ], verbose=False).strip()
 
     def vcsGetRefRevision(self, config, vcs_cache_dir, branch):
-        res = self._exec.callExternal([
+        res = self._executil.callExternal([
             config['env']['gitBin'],
             'ls-remote', '--refs',
             config['vcsRepo'],
@@ -179,7 +180,7 @@ if not set by user.
         else:
             tag_hint = []
 
-        res = self._exec.callExternal([
+        res = self._executil.callExternal([
             config['env']['gitBin'],
             'ls-remote', '--tags', '--refs',
             config['vcsRepo']
@@ -195,7 +196,7 @@ if not set by user.
         else:
             branch_hint = []
 
-        res = self._exec.callExternal([
+        res = self._executil.callExternal([
             config['env']['gitBin'],
             'ls-remote', '--heads', '--refs',
             config['vcsRepo']
@@ -221,10 +222,10 @@ if not set by user.
                 if not self._gitCompareRepo(vcsRepo,  remote_url):
                     self._warn('removing git cache on remote URL mismatch: {0} != {1}'
                                .format(remote_url, vcsRepo))
-                    self._path.rmTree(vcs_cache_dir)
+                    self._pathutil.rmTree(vcs_cache_dir)
 
             if not ospath.exists(vcs_cache_dir):
-                self._exec.callExternal([
+                self._executil.callExternal([
                     env['gitBin'],
                     'clone',
                     '--mirror',
@@ -234,7 +235,7 @@ if not set by user.
                     vcs_cache_dir
                 ])
             else:
-                self._exec.callExternal([
+                self._executil.callExternal([
                     env['gitBin'],
                     '--git-dir={0}'.format(vcs_cache_dir),
                     'fetch'
@@ -243,7 +244,7 @@ if not set by user.
             cache_repo = 'file://' + vcs_cache_dir
 
         if ospath.exists(dst_path):
-            self._path.rmTree(dst_path)
+            self._pathutil.rmTree(dst_path)
 
         self._os.makedirs(dst_path)
 
@@ -254,7 +255,7 @@ if not set by user.
         env = config['env']
         gitBin = env['gitBin']
 
-        self._exec.callExternal([
+        self._executil.callExternal([
             config['env']['gitBin'],
             'checkout', '-b', vcs_ref,
         ])
@@ -268,7 +269,7 @@ if not set by user.
         gitBin = env['gitBin']
 
         try:
-            self._exec.callExternal([
+            self._executil.callExternal([
                 config['env']['gitBin'],
                 'merge', '--no-ff', 'origin/' + vcs_ref,
             ])
@@ -289,7 +290,7 @@ if not set by user.
 
         if have_local:
             try:
-                self._exec.callExternal([
+                self._executil.callExternal([
                     config['env']['gitBin'],
                     'branch', '-D', vcs_ref,
                 ])
@@ -298,16 +299,16 @@ if not set by user.
 
             self.vcsPush(config, ['--force', '--delete', vcs_ref])
 
-            self._exec.callExternal([
+            self._executil.callExternal([
                 config['env']['gitBin'],
                 'fetch', '--all', '--prune',
             ])
         else:
             # a dirty hack to avoid error message of not found
             # local git repo
-            repo = self._path.tmpCacheDir(prefix='git_')
+            repo = self._pathutil.tmpCacheDir(prefix='git_')
 
-            self._exec.callExternal([
+            self._executil.callExternal([
                 config['env']['gitBin'],
                 'init', repo,
             ], verbose=False)
@@ -319,24 +320,24 @@ if not set by user.
                                   vcs_ref], config['vcsRepo'], False)
             os.chdir(oldcwd)
 
-            self._path.rmTree(repo)
+            self._pathutil.rmTree(repo)
 
     def vcsRevert(self, config):
         ospath = self._ospath
 
         if ospath.exists(ospath.join('.git', 'MERGE_HEAD')):
-            self._exec.callExternal([
+            self._executil.callExternal([
                 config['env']['gitBin'],
                 'merge', '--abort',
             ])
 
-        self._exec.callExternal([
+        self._executil.callExternal([
             config['env']['gitBin'],
             'reset', '--hard',
         ])
 
     def vcsIsMerged(self, config, vcs_ref):
-        res = self._exec.callExternal([
+        res = self._executil.callExternal([
             config['env']['gitBin'],
             'branch', '-r', '--merged', 'HEAD', 'origin/{0}'.format(vcs_ref)
         ], verbose=False).strip()

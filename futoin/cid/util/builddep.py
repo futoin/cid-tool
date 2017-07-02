@@ -37,10 +37,9 @@ def require(env, dep):
     for d in dep:
         m = '{0}{1}'
         m = m.format(_BUIID_DEP_PREFIX, d.replace('-', ''))
-        m = getattr(globals(), m, None)
+        m = globals().get(m, None)
 
         if m:
-            # pylint: disable=not-callable
             m(env)
         else:
             _log.errorExit('Unknown build dep "{0}"'.format(d))
@@ -57,7 +56,7 @@ def available():
     return ret
 
 
-def __bdep_ruby(env):
+def _bdep_ruby(env):
     detect = _ext.detect
     ver = env['rubyVer']
 
@@ -87,7 +86,7 @@ def __bdep_ruby(env):
         ])
 
 
-def __bdep_python(env):
+def _bdep_python(env):
     if int(env['pythonVer'].split('.')[0]) == 3:
         _ext.install.deb(['python3-dev'])
         _ext.install.zypper(['python3-devel'])
@@ -100,10 +99,10 @@ def __bdep_python(env):
         _ext.install.apk(['python2-dev'])
 
 
-def __bdep_ssl(env):
-    apt_cache = _ext.path.which('apt-cache')
+def _bdep_ssl(env):
+    apt_cache = _ext.pathutil.which('apt-cache')
 
-    if apt_cache and _ext.exec.callExternal([apt_cache, 'search', 'libssl1.0-dev']).strip():
+    if apt_cache and _ext.executil.callExternal([apt_cache, 'search', 'libssl1.0-dev']).strip():
         _ext.install.deb('libssl1.0-dev')
     else:
         _ext.install.deb('libssl-dev')
@@ -114,7 +113,7 @@ def __bdep_ssl(env):
     _ext.install.brew('openssl')
 
 
-def __bdep_mysqlclient(env):
+def _bdep_mysqlclient(env):
     _ext.install.deb('libmysqlclient-dev')
     _ext.install.deb('default-libmysqlclient-dev')
 
@@ -128,7 +127,7 @@ def __bdep_mysqlclient(env):
     _ext.install.brew('mysql')
 
 
-def __bdep_postgresql(env):
+def _bdep_postgresql(env):
     _ext.install.deb('libpq-dev')
     _ext.install.rpm(['postgresql-devel', 'postgresql-libs'])
     _ext.install.pacman('postgresql')
@@ -136,7 +135,7 @@ def __bdep_postgresql(env):
     _ext.install.brew('postgresql')
 
 
-def __bdep_imagemagick(env):
+def _bdep_imagemagick(env):
     _ext.install.deb('libmagick-dev')
     _ext.install.rpm(['imagemagick', 'imagemagick-devel'])
     _ext.install.pacman('imagemagick')
@@ -144,14 +143,14 @@ def __bdep_imagemagick(env):
     _ext.install.brew('imagemagick')
 
 
-def __bdep_tzdata(env):
+def _bdep_tzdata(env):
     _ext.install.deb('tzdata')
     _ext.install.rpm('tzdata')
     _ext.install.pacman('tzdata')
     _ext.install.apk('tzdata')
 
 
-def __bdep_libxml2(env):
+def _bdep_libxml2(env):
     _ext.install.deb('libxml2-dev')
     _ext.install.rpm('libxml2-devel')
     _ext.install.pacman('libxml2')

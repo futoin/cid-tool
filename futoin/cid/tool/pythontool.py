@@ -67,7 +67,7 @@ system packages OS-specific way.
 
         if self._have_tool and 'pythonRawBin' not in env:
             env['pythonRawBin'] = env['pythonBin']
-            python_ver_fact = self._exec.callExternal(
+            python_ver_fact = self._executil.callExternal(
                 [env['pythonRawBin'], '-c', self.VER_CMD],
                 verbose=False
             ).strip()

@@ -114,10 +114,10 @@ Docker EE or other installation methods are out of scope for now.
         cmd = [env['dockerBin'], 'build', '-t', tag, '.']
 
         if self._isDockerAdmin():
-            self._exec.callExternal(cmd)
+            self._executil.callExternal(cmd)
         else:
-            sudo = self._path.which('sudo')
-            self._exec.callExternal([sudo] + cmd)
+            sudo = self._pathutil.which('sudo')
+            self._executil.callExternal([sudo] + cmd)
 
     def onExec(self, env, args, replace=True):
         bin = env['dockerBin']
@@ -125,20 +125,20 @@ Docker EE or other installation methods are out of scope for now.
         if self._isDockerAdmin():
             cmd = [bin] + args
         else:
-            sudo = self._path.which('sudo')
+            sudo = self._pathutil.which('sudo')
             cmd = [sudo, bin] + args
 
-        self._exec.callInteractive(cmd, replace=replace)
+        self._executil.callInteractive(cmd, replace=replace)
 
     def onRun(self, config, svc, args):
         env = config['env']
         cmd = [env['dockerBin'], 'run', svc['path']]
 
         if self._isDockerAdmin():
-            self._exec.callExternal(cmd)
+            self._executil.callExternal(cmd)
         else:
-            sudo = self._path.which('sudo')
-            self._exec.callExternal([sudo] + cmd)
+            sudo = self._pathutil.which('sudo')
+            self._executil.callExternal([sudo] + cmd)
 
     def _isDockerAdmin(self):
         detect = self._detect

@@ -38,7 +38,7 @@ Home: https://github.com/creationix/nvm
         nvm_dir = env['nvmDir']
 
         if ospath.exists(nvm_dir):
-            self._path.rmTree(nvm_dir)
+            self._pathutil.rmTree(nvm_dir)
 
         self._have_tool = False
 

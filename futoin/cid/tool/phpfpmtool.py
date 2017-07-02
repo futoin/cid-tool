@@ -128,7 +128,7 @@ Note: file upload is OFF by default.
 
         # fallback, find any
         #---
-        phpfpm_bin = self._path.which(bin_name)
+        phpfpm_bin = self._pathutil.which(bin_name)
 
         if phpfpm_bin:
             env['phpfpmBin'] = phpfpm_bin
@@ -212,14 +212,14 @@ Note: file upload is OFF by default.
         pool_ini['chdir'] = config['wcDir']
         pool_ini.setdefault('clear_env', 'yes')
 
-        self._path.writeIni(fpm_conf, fpm_ini)
+        self._pathutil.writeIni(fpm_conf, fpm_ini)
 
         #
         tmp_dir = ospath.join(deploy['tmpDir'], 'php')
-        self._path.mkDir(tmp_dir)
+        self._pathutil.mkDir(tmp_dir)
 
         upload_dir = ospath.join(deploy['tmpDir'], 'phpupload')
-        self._path.mkDir(upload_dir)
+        self._pathutil.mkDir(upload_dir)
 
         #
         php_ini = svc_tune.get('phpini', {})
@@ -254,10 +254,10 @@ Note: file upload is OFF by default.
             if k in cid_tune:
                 php_ini[k] = cid_tune
 
-        self._path.writeIni(php_conf, {'php': php_ini})
+        self._pathutil.writeIni(php_conf, {'php': php_ini})
 
         # Validate
-        self._exec.callExternal([
+        self._executil.callExternal([
             env['phpfpmBin'],
             '-c', php_conf,
             '--fpm-config', fpm_conf,
@@ -267,7 +267,7 @@ Note: file upload is OFF by default.
     def onRun(self, config, svc, args):
         env = config['env']
         svc_tune = svc['tune']
-        self._exec.callInteractive([
+        self._executil.callInteractive([
             env['phpfpmBin'],
             '-c', svc_tune['phpConf'],
             '--fpm-config', svc_tune['fpmConf'],

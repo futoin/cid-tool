@@ -18,4 +18,4 @@ Home: https://gruntjs.com/
 
     def onBuild(self, config):
         gruntBin = config['env']['gruntBin']
-        self._exec.callExternal([gruntBin])
+        self._executil.callExternal([gruntBin])

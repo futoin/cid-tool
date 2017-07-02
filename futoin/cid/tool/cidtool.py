@@ -15,7 +15,7 @@ class cidTool(PipToolMixIn, BuildTool):
         source_dir = self._environ.get('CID_SOURCE_DIR', None)
 
         if source_dir:
-            self._exec.callExternal(
+            self._executil.callExternal(
                 [env['pipBin'], 'install', '-q', '-e', source_dir])
         else:
             PipToolMixIn._installTool(self, env)

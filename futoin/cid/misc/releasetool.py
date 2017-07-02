@@ -37,11 +37,11 @@ class releaseTool(BuildTool):
 
         RELEASE_FILE = self._ospath.join('futoin', 'cid', '__init__.py')
 
-        res = self._path.updateTextFile(
+        res = self._pathutil.updateTextFile(
             RELEASE_FILE,
             py_updater
         )
-        res += self._path.updateTextFile(
+        res += self._pathutil.updateTextFile(
             self.CHANGELOG_FILE,
             cl_updater
         )

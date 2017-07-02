@@ -30,7 +30,7 @@ Home: https://pypi.python.org/pypi/virtualenv
         # virtualenv depends on ensurepip and provides no setuptools
         # ensurepip is not packaged on all OSes...
         if False:  # and int(python_ver[0]) == 3 and int(python_ver[1]) >= 3:
-            self._exec.callExternal([
+            self._executil.callExternal([
                 env['pythonRawBin'],
                 '-m', 'venv',
                 '--system-site-packages',
@@ -41,7 +41,7 @@ Home: https://pypi.python.org/pypi/virtualenv
             ])
         else:
             # Looks quite stupid, but it's a workaround for different OSes
-            pip = self._path.which('pip')
+            pip = self._pathutil.which('pip')
 
             if not pip:
                 self._install.debrpm(['python-virtualenv'])
@@ -57,23 +57,23 @@ Home: https://pypi.python.org/pypi/virtualenv
                 self._install.apk('py2-pip')
 
                 if self._detect.isMacOS():
-                    self._exec.trySudoCall(['easy_install', 'pip'])
+                    self._executil.trySudoCall(['easy_install', 'pip'])
 
-                pip = self._path.which('pip')
+                pip = self._pathutil.which('pip')
 
             if pip:
                 pip_cmd = [pip, 'install', '-q', '--upgrade',
                            'virtualenv>={0}'.format(env['virtualenvVer'])]
 
                 # TODO: use  --user without sudo
-                self._exec.trySudoCall(pip_cmd)
+                self._executil.trySudoCall(pip_cmd)
 
-            virtualenv = self._path.which('virtualenv')
+            virtualenv = self._pathutil.which('virtualenv')
 
             if not virtualenv:
                 self._errorExit('Failed to find virtualenv')
 
-            self._exec.callExternal([
+            self._executil.callExternal([
                 virtualenv,
                 '--python={0}'.format(env['pythonRawBin']),
                 '--clear',
@@ -87,7 +87,7 @@ Home: https://pypi.python.org/pypi/virtualenv
         ospath = self._ospath
         virtualenv_dir = '.virtualenv-{0}'.format(env['pythonFactVer'])
         virtualenv_dir = env.setdefault(
-            'virtualenvDir', ospath.join(self._path.deployHome(), virtualenv_dir))
+            'virtualenvDir', ospath.join(self._pathutil.deployHome(), virtualenv_dir))
 
         env.setdefault('virtualenvVer', '15.1.0')
 
@@ -101,6 +101,6 @@ Home: https://pypi.python.org/pypi/virtualenv
                                         verbose=False
                                         )
 
-            self._path.updateEnvFromOutput(env_to_set)
+            self._pathutil.updateEnvFromOutput(env_to_set)
             # reverse-dep hack
             env['pythonBin'] = ospath.join(virtualenv_dir, 'bin', 'python')

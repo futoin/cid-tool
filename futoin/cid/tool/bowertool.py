@@ -16,7 +16,7 @@ Home: https://bower.io/
         return self.BOWER_JSON
 
     def loadConfig(self, config):
-        content = self._path.loadJSONConfig(self.BOWER_JSON)
+        content = self._pathutil.loadJSONConfig(self.BOWER_JSON)
         if content is None:
             return
 
@@ -34,16 +34,16 @@ Home: https://bower.io/
             if 'version' in json:
                 del json['version']
 
-        return self._path.updateJSONConfig(self.BOWER_JSON, updater)
+        return self._pathutil.updateJSONConfig(self.BOWER_JSON, updater)
 
     def onPrepare(self, config):
         bowerBin = config['env']['bowerBin']
-        self._exec.callExternal([bowerBin, 'install'])
+        self._executil.callExternal([bowerBin, 'install'])
 
     def onPackage(self, config):
         # Bower does not remove dev deps by itself
         if self._ospath.exists('bower_components'):
-            self._path.rmTree('bower_components')
+            self._pathutil.rmTree('bower_components')
 
         bowerBin = config['env']['bowerBin']
-        self._exec.callExternal([bowerBin, 'install', '--production'])
+        self._executil.callExternal([bowerBin, 'install', '--production'])

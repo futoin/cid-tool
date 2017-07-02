@@ -3,20 +3,30 @@ from ...mixins.ondemand import ext as _ext
 from .. import log as _log
 
 
+def _brew():
+    brew = globals().get('_brew', None)
+
+    if brew is None:
+        brew = _ext.pathutil.which('brew')
+        globals()['_brew'] = brew
+
+    return brew
+
+
 def brewTap(tap):
     if not _ext.detect.isMacOS():
         return
 
-    brew = _ext.path.which('brew')
+    brew = _brew()
     brew_sudo = _ext.os.environ.get('brewSudo', '').split()
-    _ext.exec.callExternal(brew_sudo + [brew, 'tap', tap], cwd='/')
+    _ext.executil.callExternal(brew_sudo + [brew, 'tap', tap], cwd='/')
 
 
 def brewUnlink(formula=None, search=None):
     if not _ext.detect.isMacOS():
         return
 
-    brew = _ext.path.which('brew')
+    brew = _brew()
     brew_sudo = _ext.os.environ.get('brewSudo', '').split()
 
     flist = []
@@ -28,12 +38,13 @@ def brewUnlink(formula=None, search=None):
             flist.append(formula)
 
     if search:
-        flist += _ext.exec.callExternal([brew,
-                                         'search', search], cwd='/').split()
+        flist += _ext.executil.callExternal([brew,
+                                             'search', search], cwd='/').split()
 
     for f in flist:
         try:
-            _ext.exec.callExternal(brew_sudo + [brew, 'unlink', f], cwd='/')
+            _ext.executil.callExternal(
+                brew_sudo + [brew, 'unlink', f], cwd='/')
         except _ext.subprocess.CalledProcessError:
             _log.warn('You may need to unlink the formula manually!')
 
@@ -45,23 +56,23 @@ def brew(packages, cask=False):
     if not isinstance(packages, list):
         packages = [packages]
 
-    brew = _ext.path.which('brew')
+    brew = _brew()
     brew_sudo = _ext.os.environ.get('brewSudo', '').split()
 
     for package in packages:
         try:
             if cask:
-                _ext.exec.callExternal(
+                _ext.executil.callExternal(
                     brew_sudo + [brew, 'cask', 'install', package],
                     cwd='/',
                     user_interaction=True)
             elif brew == '/usr/local/bin/brew':
-                _ext.exec.callExternal(
+                _ext.executil.callExternal(
                     brew_sudo + [brew, 'install',
                                  '--force-bottle', package],
                     cwd='/')
             else:
-                _ext.exec.callExternal(
+                _ext.executil.callExternal(
                     brew_sudo + [brew, 'install', package],
                     cwd='/')
         except _ext.subprocess.CalledProcessError:
@@ -76,12 +87,12 @@ def dmg(packages):
         packages = [packages]
 
     os = _ext.os
-    path = _ext.path
+    path = _ext.pathutil
     glob = _ext.glob
 
-    curl = _ext.path.which('curl')
-    hdiutil = _ext.path.which('hdiutil')
-    installer = _ext.path.which('installer')
+    curl = _ext.pathutil.which('curl')
+    hdiutil = _ext.pathutil.which('hdiutil')
+    installer = _ext.pathutil.which('installer')
     volumes_dir = '/Volumes'
 
     for package in packages:
@@ -89,7 +100,7 @@ def dmg(packages):
         local_name = os.path.join(os.environ['HOME'])
 
         # TODO: change to use env timeouts
-        _ext.exec.callExternal([
+        _ext.executil.callExternal([
             curl,
             '-fsSL',
             '--connect-timeout', '10',
@@ -99,10 +110,10 @@ def dmg(packages):
         ])
 
         volumes = set(os.listdir(volumes_dir))
-        _ext.exec.trySudoCall([hdiutil, 'attach', local_name])
+        _ext.executil.trySudoCall([hdiutil, 'attach', local_name])
         volume = (set(os.listdir(volumes_dir)) - volumes)[0]
 
         pkg = glob.glob(os.path.join(volumes_dir, volume, '*.pkg'))
-        _ext.exec.trySudoCall([installer, '-package', pkg, '-target', '/'])
+        _ext.executil.trySudoCall([installer, '-package', pkg, '-target', '/'])
 
-        _ext.exec.trySudoCall([hdiutil, 'dettach', local_name])
+        _ext.executil.trySudoCall([hdiutil, 'dettach', local_name])

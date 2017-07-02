@@ -74,7 +74,7 @@ javaVer supports:
 
             environ['JAVA_HOME'] = java_home
             environ['JRE_HOME'] = java_home
-            self._path.addBinPath(bin_dir, True)
+            self._pathutil.addBinPath(bin_dir, True)
 
             super(javaTool, self).initEnv(env, 'java')
             return
@@ -123,13 +123,13 @@ javaVer supports:
                 env['javaBin'] = bin_name
                 environ['JAVA_HOME'] = java_home
                 environ['JRE_HOME'] = java_home
-                self._path.addBinPath(bin_dir, True)
+                self._pathutil.addBinPath(bin_dir, True)
                 self._have_tool = True
                 break
 
     def onRun(self, config, svc, args):
         env = config['env']
-        self._exec.callInteractive([
+        self._executil.callInteractive([
             env[self._name + 'Bin'], '-jar', svc['path']
         ] + args)
 

@@ -11,12 +11,12 @@ class BashToolMixIn(object):
         else:
             cmd_args = ['-s']
 
-        return self._exec.callExternal(
+        return self._executil.callExternal(
             [env['bashBin'], '--noprofile', '--norc'] + cmd_args + bash_args,
             *args, **nargs)
 
     def _callBashInteractive(self, env, cmd, replace=True):
-        return self._exec.callInteractive([
+        return self._executil.callInteractive([
             env['bashBin'],
             '--noprofile', '--norc',
             '-c', cmd,

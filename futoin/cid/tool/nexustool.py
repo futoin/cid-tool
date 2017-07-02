@@ -41,7 +41,7 @@ avoid setting these variables in process environment.
 
     def rmsPromote(self, config, src_pool, dst_pool, package_list):
         # TODO: find out how to copy on server
-        tmpdir = self._path.tmpCacheDir(prefix='nexus')
+        tmpdir = self._pathutil.tmpCacheDir(prefix='nexus')
         os = self._os
 
         try:
@@ -51,7 +51,7 @@ avoid setting these variables in process environment.
             self.rmsUpload(config, dst_pool, package_list)
             os.chdir(cwd)
         finally:
-            self._path.rmTree(tmpdir)
+            self._pathutil.rmTree(tmpdir)
 
     def rmsGetList(self, config, rms_pool, package_hint):
         rms_pool = rms_pool.split('/', 1)
