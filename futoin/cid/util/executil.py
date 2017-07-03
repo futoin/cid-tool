@@ -164,7 +164,7 @@ def trySudoCall(cmd, errmsg=None, **kwargs):
         _log.warn(errmsg)
 
 
-def _startService(name):
+def startService(name):
     openrc = '/sbin/rc-service'
     systemctl = '/bin/systemctl'
     ospath = _ext.ospath

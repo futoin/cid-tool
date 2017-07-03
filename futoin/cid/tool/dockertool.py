@@ -93,7 +93,7 @@ Docker EE or other installation methods are out of scope for now.
             self._install.apkCommunity()
             self._install.apk(['docker'])
 
-            self._startService('docker')
+            self._executil.startService('docker')
 
             return
 
@@ -104,7 +104,7 @@ Docker EE or other installation methods are out of scope for now.
         else:
             self._install.debrpm(['docker-ce'])
 
-        self._startService('docker')
+        self._executil.startService('docker')
 
     def onBuild(self, config):
         ospath = self._ospath
