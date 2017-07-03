@@ -13,8 +13,8 @@ class pumaTool(GemToolMixIn, RuntimeTool):
 
     def tuneDefaults(self):
         return {
-            'minMemory': '8M',
-            'connMemory': '4M',
+            'minMemory': '128M',
+            'connMemory': '8M',
             'connFD': 8,
             'socketTypes': ['unix', 'tcp'],
             'socketType': 'unix',

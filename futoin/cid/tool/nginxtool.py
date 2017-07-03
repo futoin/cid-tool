@@ -61,6 +61,7 @@ Additional notes:
             'reloadable': True,
             'multiCore': True,
             'maxRequestSize': '1M',
+            'memoryWeight' : 10,
         }
 
     def _installTool(self, env):
