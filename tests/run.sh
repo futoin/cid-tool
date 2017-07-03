@@ -197,3 +197,8 @@ if [ "$fast" != 'fast' ]; then
 else
     run_common $(python -c 'import sys; sys.stdout.write(str(sys.version_info.major))')
 fi
+
+if [ -n "$rmshost" ]; then
+    sudo sed -i 's/^bind-address/#bind-address/g' /etc/mysql/my.cnf
+    sudo systemctl restart mysql
+fi
