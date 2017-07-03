@@ -4,11 +4,11 @@ from .. import log as _log
 
 
 def _brew():
-    brew = globals().get('_brew', None)
+    brew = globals().get('_brew_bin', None)
 
     if brew is None:
         brew = _ext.pathutil.which('brew')
-        globals()['_brew'] = brew
+        globals()['_brew_bin'] = brew
 
     return brew
 
