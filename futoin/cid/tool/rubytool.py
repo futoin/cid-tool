@@ -54,8 +54,8 @@ if binary versions are not found for specific system.
             code_name = self._detect.osCodeName()
 
             if code_name in ['stretch', 'buster', 'sid', 'testing']:
-                self._install.aptRepo('jessie-ssl10',
-                                      'deb http://deb.debian.org/debian jessie main')
+                self._install.aptRepo('jessie-ssl10bp',
+                                      'deb http://deb.debian.org/debian jessie-backports main')
 
             repo = env['rubyBrightboxRepo']
 
