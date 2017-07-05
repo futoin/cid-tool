@@ -129,6 +129,7 @@ if [ -n "$tests" ]; then
     :
 elif [ -z "$1" ]; then
     tests=
+    tests+=" tests/cid_realapp_test.py"
     tests+=" tests/cid_vcs_test.py"
     tests+=" tests/cid_rms_test.py"
     tests+=" tests/cid_install_test.py"
@@ -138,7 +139,6 @@ elif [ -z "$1" ]; then
     tests+=" tests/cid_misc_test.py"
     tests+=" tests/cid_deploy_test.py"
     tests+=" tests/cid_service_test.py"
-    tests+=" tests/cid_realapp_test.py"
 else
     tests="$*"
 fi

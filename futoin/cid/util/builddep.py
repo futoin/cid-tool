@@ -98,8 +98,10 @@ def _bdep_python(env):
         _ext.install.rpm(['python-devel'])
         _ext.install.apk(['python2-dev'])
 
-
 def _bdep_ssl(env):
+    _bdep_ssl10(env)
+
+def _bdep_ssl10(env):
     apt_cache = _ext.pathutil.which('apt-cache')
 
     if apt_cache and _ext.executil.callExternal([apt_cache, 'search', 'libssl1.0-dev']).strip():
@@ -108,10 +110,10 @@ def _bdep_ssl(env):
         _ext.install.deb('libssl-dev')
     _ext.install.rpm('openssl-devel')
     _ext.install.rpm('libopenssl-devel')
-    _ext.install.apk('ressl-dev')
-    _ext.install.pacman('openssl')
+    _ext.install.apk('libressl-dev')
+    #_ext.install.pacman('openssl')
+    _ext.install.pacman('openssl-1.0')
     _ext.install.brew('openssl')
-
 
 def _bdep_mysqlclient(env):
     _ext.install.deb('libmysqlclient-dev')
@@ -123,6 +125,7 @@ def _bdep_mysqlclient(env):
         _ext.install.yum('mysql-devel')
 
     _ext.install.zypper('libmysqlclient-devel')
+    _ext.install.pacman('libmariadbclient')
     _ext.install.apk('mariadb-dev')
     _ext.install.brew('mysql')
 

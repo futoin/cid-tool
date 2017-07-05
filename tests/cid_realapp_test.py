@@ -24,7 +24,10 @@ class cid_redmine_Test( cid_UTBase ) :
     def test01_deploy(self):
         self._call_cid(['deploy', 'setup'])
         
-        self._call_cid(['deploy', 'set', 'env', 'rubyVer', '2.3'])
+        if ext.detect.isAlpineLinux() or ext.detect.isArchLinux():
+            self._call_cid(['deploy', 'set', 'env', 'rubyVer', 'system'])
+        else:
+            self._call_cid(['deploy', 'set', 'env', 'rubyVer', '2.3'])
 
         self._call_cid(['deploy', 'set', 'action', 'prepare', 'app-config', 'database-config', 'app-install'])
         self._call_cid(['deploy', 'set', 'action', 'app-config',
