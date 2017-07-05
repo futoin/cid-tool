@@ -851,6 +851,8 @@ class cid_multirb_Test( cid_multiapp_Base ) :
                     'path' : 'app.ru',
                     'tune' : {
                         'internal': True,
+                        'minMemory': '8M',
+                        'connMemory': '4M',
                     },
                 },
                 'rbtcpapp' : {
@@ -859,6 +861,8 @@ class cid_multirb_Test( cid_multiapp_Base ) :
                     'tune' : {
                         'internal': True,
                         'socketType' : 'tcp',
+                        'minMemory': '8M',
+                        'connMemory': '4M',
                     },
                 },
                 'web' : {

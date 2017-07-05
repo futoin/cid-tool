@@ -34,6 +34,7 @@ class cid_redmine_Test( cid_UTBase ) :
                         '@cid build-dep ruby mysql-client imagemagick tzdata libxml2',
                         #'env',
                         #'@cid tool env bundler',
+                        "@cid tool exec gem -- env",
                         '@cid tool exec bundler -- install --without "development test rmagick"'])
         self._call_cid(['deploy', 'set', 'action', 'migrate',
                         '@cid tool exec bundler -- exec rake generate_secret_token',

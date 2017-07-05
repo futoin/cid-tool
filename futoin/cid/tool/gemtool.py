@@ -35,8 +35,9 @@ gemInstallArgs is forcibly set by tool depending on its version.
                                  '.gem', env['rubyVer'])
             gemDir = env.setdefault('gemDir', gemDir)
             environ['GEM_HOME'] = gemDir
+            environ['GEM_PATH'] = gemDir
 
-            self._pathutil.addEnvPath('GEM_PATH', gemDir)
+            #self._pathutil.addEnvPath('GEM_PATH', gemDir)
             self._pathutil.addBinPath(ospath.join(gemDir, 'bin'), True)
             installArgs += ['--no-user-install', '--no-format-executable']
 
