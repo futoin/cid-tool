@@ -22,7 +22,7 @@ More details:
 """
     __slots__ = ()
 
-    REMOTE_PATTERN = '^(ssh://)?([a-zA-Z][a-zA-Z0-9_]+@[a-zA-Z][a-zA-Z0-9_]+)(/([0-9]{1,5}))(:(.+))?$'
+    REMOTE_PATTERN = '^(ssh://)?([a-zA-Z][a-zA-Z0-9_]+@[a-zA-Z0-9_.]+)(/([0-9]{1,5}))(:(.+))?$'
     REMOTE_GRP_USER_HOST = 2
     REMOTE_GRP_PORT = 4
     REMOTE_GRP_PATH = 6

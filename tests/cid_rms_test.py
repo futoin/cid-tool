@@ -64,14 +64,14 @@ class cid_RMS_UTBase ( cid_UTBase ) :
         
         if os.path.exists(os.path.join(ssh_dir, 'known_hosts')):
             subprocess.check_output(
-                    [ 'ssh-keygen', '-R', '[localhost]:{0}'.format(port) ],
+                    [ 'ssh-keygen', '-R', '[127.0.0.1]:{0}'.format(port) ],
                     stderr=cls._stderr_log )
         
         cls._call_cid(['tool', 'exec', 'ssh', '--',
                        '-n',
                        '-o', 'BatchMode=yes',
                        '-o', 'StrictHostKeyChecking=no',
-                       '-p', str(port), user+'@localhost',
+                       '-p', str(port), user+'@127.0.0.1',
                        'false',
                       ], ignore=True)
         
@@ -362,7 +362,7 @@ class cid_nexus3_Test ( cid_RMS_UTBase ) :
 class cid_scp_Test ( cid_RMS_UTBase ) :
     __test__ = cid_RMS_UTBase.IS_LINUX
     TEST_DIR = os.path.join(cid_RMS_UTBase.TEST_RUN_DIR, 'rms_scp')
-    RMS_REPO = 'scp:ssh://rms@localhost/8022:rmsroot'
+    RMS_REPO = 'scp:ssh://rms@127.0.0.1/8022:rmsroot'
 
     @classmethod
     def _createRepo( cls ):
@@ -402,7 +402,7 @@ CMD ["/usr/sbin/sshd", "-D"]
 class cid_svn_Test ( cid_RMS_UTBase ) :
     __test__ = cid_RMS_UTBase.IS_LINUX
     TEST_DIR = os.path.join(cid_RMS_UTBase.TEST_RUN_DIR, 'rms_svn')
-    RMS_REPO = 'svn:svn+ssh://rms@localhost:8022/rms'
+    RMS_REPO = 'svn:svn+ssh://rms@127.0.0.1:8022/rms'
 
     @classmethod
     def _createRepo( cls ):
