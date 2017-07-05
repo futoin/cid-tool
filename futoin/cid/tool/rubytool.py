@@ -178,7 +178,7 @@ if binary versions are not found for specific system.
 
             code_name = self._detect.osCodeName()
 
-            if code_name == 'zesty':
+            if code_name in ['zesty', 'stretch', 'buster', 'sid', 'testing']:
                 # 1.9 build is broken on LaunchPad
                 bb_repo = 'http://ppa.launchpad.net/brightbox/ruby-ng-experimental/ubuntu'
 
