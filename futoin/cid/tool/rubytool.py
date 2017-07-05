@@ -211,6 +211,8 @@ if binary versions are not found for specific system.
                         self._pathutil.updateEnvFromOutput(env_to_set)
                     except self._ext.subprocess.CalledProcessError:
                         pass
+                    except OSError:
+                        pass
                 elif detect.isMacOS():
                     env['rubyBinOnly'] = True
                     formula = 'ruby@{0}'.format(ruby_ver)

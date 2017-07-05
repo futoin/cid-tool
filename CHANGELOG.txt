@@ -4,6 +4,7 @@ BREAKING CHANGE: huge internal refactoring
 FIXED: to install libssl1.0.0 from Jessie for Debian Stretch and above
 FIXED: to reset GEM_PATH on top of RVM
 FIXED: to run brew with umask 0022
+FIXED: SCL ruby installation without pre-enabled SCL
 CHANGED: raised default puma requirements
 CHANGED: lower nginx default memory weight to 10
 NEW: ondemand loading mechanism instead of imports
