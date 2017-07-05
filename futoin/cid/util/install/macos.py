@@ -56,28 +56,32 @@ def brew(packages, cask=False):
     if not isinstance(packages, list):
         packages = [packages]
 
+    os = _ext.os
     brew = _brew()
-    brew_sudo = _ext.os.environ.get('brewSudo', '').split()
+    brew_sudo = os.environ.get('brewSudo', '').split()
+    saved_mask = os.umask(0o022)
 
-    for package in packages:
-        try:
-            if cask:
-                _ext.executil.callExternal(
-                    brew_sudo + [brew, 'cask', 'install', package],
-                    cwd='/',
-                    user_interaction=True)
-            elif brew == '/usr/local/bin/brew':
-                _ext.executil.callExternal(
-                    brew_sudo + [brew, 'install',
-                                 '--force-bottle', package],
-                    cwd='/')
-            else:
-                _ext.executil.callExternal(
-                    brew_sudo + [brew, 'install', package],
-                    cwd='/')
-        except _ext.subprocess.CalledProcessError:
-            _log.warn('You may need to enable the package manually')
-
+    try:
+        for package in packages:
+            try:
+                if cask:
+                    _ext.executil.callExternal(
+                        brew_sudo + [brew, 'cask', 'install', package],
+                        cwd='/',
+                        user_interaction=True)
+                elif brew == '/usr/local/bin/brew':
+                    _ext.executil.callExternal(
+                        brew_sudo + [brew, 'install',
+                                    '--force-bottle', package],
+                        cwd='/')
+                else:
+                    _ext.executil.callExternal(
+                        brew_sudo + [brew, 'install', package],
+                        cwd='/')
+            except _ext.subprocess.CalledProcessError:
+                _log.warn('You may need to enable the package manually')
+    finally:
+        os.umask(saved_mask)
 
 def dmg(packages):
     if not _ext.detect.isMacOS():

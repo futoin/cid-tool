@@ -23,6 +23,8 @@ class cid_redmine_Test( cid_UTBase ) :
 
     def test01_deploy(self):
         self._call_cid(['deploy', 'setup'])
+        
+        self._call_cid(['deploy', 'set', 'env', 'rubyVer', '2.3'])
 
         self._call_cid(['deploy', 'set', 'action', 'prepare', 'app-config', 'database-config', 'app-install'])
         self._call_cid(['deploy', 'set', 'action', 'app-config',
@@ -42,8 +44,6 @@ class cid_redmine_Test( cid_UTBase ) :
                         '@cid tool exec bundler -- exec rake redmine:load_default_data RAILS_ENV=production REDMINE_LANG=en',])
         
         self._call_cid(['deploy', 'set', 'persistent', 'files', 'log', 'public/plugin_assets'])
-        
-        self._call_cid(['deploy', 'set', 'env', 'rubyVer', '2.3'])
         
         self._call_cid(['deploy', 'set', 'entrypoint', 'web', 'nginx', 'public', 'socketType=tcp', 'socketPort=1234'])
         self._call_cid(['deploy', 'set', 'entrypoint', 'app', 'puma', 'config.ru', 'internal=1'])
