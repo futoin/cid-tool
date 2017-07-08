@@ -36,6 +36,7 @@ gemInstallArgs is forcibly set by tool depending on its version.
             gemDir = env.setdefault('gemDir', gemDir)
             environ['GEM_HOME'] = gemDir
             environ['GEM_PATH'] = gemDir
+            environ['GEM_SPEC_CACHE'] = ospath.join(gemDir, 'specs')
 
             #self._pathutil.addEnvPath('GEM_PATH', gemDir)
             self._pathutil.addBinPath(ospath.join(gemDir, 'bin'), True)
