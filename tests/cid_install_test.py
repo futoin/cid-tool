@@ -318,6 +318,7 @@ tools_managed2 = [
     'twine',
     'uwsgi',
     'puma',
+    'webpack',
     'yarn',
 ]
 

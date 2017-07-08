@@ -501,6 +501,32 @@ setup(
     def _test_build( self ):
         assert os.path.exists('dist/futoin_cid_testapp-0.0.1-py2.py3-none-any.whl')
         assert os.path.exists('dist/futoin-cid-testapp-0.0.1.tar.gz')
+        
+#=============================================================================
+class cid_webpack_Test(cid_BuildTool_UTBase):
+    __test__ = True
+    
+    @classmethod
+    def setUpTool(cls):
+        cls._writeFile('file.js', """
+// Some boring stuff here
+console.log('hello');
+""")
+        cls._writeFile('webpack.config.js', """
+const path = require('path');
+
+module.exports = {
+  entry: path.resolve(__dirname, 'file.js'),
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'bundle.js'
+  }
+};
+""")
+       
+        
+    def _test_build( self ):
+        assert os.path.exists('dist/bundle.js')
 
 #=============================================================================
 class cid_yarn_Test(cid_BuildTool_UTBase):
@@ -520,7 +546,7 @@ class cid_yarn_Test(cid_BuildTool_UTBase):
             },
         })
         cls._call_cid(['tool', 'exec', 'yarn', '--', 'install'])
-        pathutil.rmTree('node_modules')
+        pathutil.rmTree('node_modules', False)
         
         
     def _test_prepare( self ):

@@ -63,6 +63,7 @@ Supported technologies & tools (so far):
   - **gulp**
   - **nvm** (implicit)
   - **yarn** - uses npm for own install, but disables one for processing
+  - **webpack**
     
 * **php** - system, php-build supported and binary builds (Sury, SCL)
 

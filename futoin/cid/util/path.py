@@ -191,11 +191,12 @@ def mkDir(dir):
             raise
 
 
-def rmTree(dir):
+def rmTree(dir, verbose=True):
     os = _ext.os
     stat = _ext.stat
 
-    _log.infoLabel('Removing: ', dir)
+    if verbose:
+        _log.infoLabel('Removing: ', dir)
 
     os.chmod(dir, stat.S_IRWXU)
     for (path, dirs, files) in os.walk(dir):
