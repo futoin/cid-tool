@@ -62,6 +62,7 @@ Supported technologies & tools (so far):
   - **grunt**
   - **gulp**
   - **nvm** (implicit)
+  - **yarn** - uses npm for own install, but disables one for processing
     
 * **php** - system, php-build supported and binary builds (Sury, SCL)
 

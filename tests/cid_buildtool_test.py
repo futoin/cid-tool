@@ -1,6 +1,7 @@
 
 from .cid_utbase import cid_Tool_UTBase
 import os, re, sys, subprocess, platform, glob, stat
+from futoin.cid.util import path as pathutil
 
 #=============================================================================
 class cid_BuildTool_UTBase(cid_Tool_UTBase):
@@ -500,3 +501,32 @@ setup(
     def _test_build( self ):
         assert os.path.exists('dist/futoin_cid_testapp-0.0.1-py2.py3-none-any.whl')
         assert os.path.exists('dist/futoin-cid-testapp-0.0.1.tar.gz')
+
+#=============================================================================
+class cid_yarn_Test(cid_BuildTool_UTBase):
+    __test__ = True
+    
+    @classmethod
+    def setUpTool(cls):
+        cls._writeJSON('package.json', {
+            "name": "futoin-cid-npm-test",
+            "version" : "0.0.1",
+            "description": "Futoin CID npm Test",
+            "dependencies": {
+                "futoin-asyncsteps": "*"
+            },
+            "devDependencies": {
+                "futoin-executor": "*"
+            },
+        })
+        cls._call_cid(['tool', 'exec', 'yarn', '--', 'install'])
+        pathutil.rmTree('node_modules')
+        
+        
+    def _test_prepare( self ):
+        assert os.path.exists('node_modules/futoin-asyncsteps')
+        assert os.path.exists('node_modules/futoin-executor')
+
+    def _test_package( self ):
+        assert os.path.exists('node_modules/futoin-asyncsteps')
+        assert not os.path.exists('node_modules/futoin-executor')

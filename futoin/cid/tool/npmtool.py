@@ -11,6 +11,8 @@ Home: https://www.npmjs.com/
 In RMS mode support tuning through .toolTune.npm:
     .tag - npm publish --tag
     .access - npm publish --access
+
+Note: it auto-disables, if Yarn tool is detected
 """
     __slots__ = ()
 
@@ -24,6 +26,9 @@ In RMS mode support tuning through .toolTune.npm:
 
     def _isGlobalNpm(self):
         return self._detect.isAlpineLinux()
+
+    def _isYarnInUse(self, config):
+        return 'yarn' in config['toolOrder']
 
     def _installTool(self, env):
         if self._isGlobalNpm():
@@ -60,12 +65,12 @@ In RMS mode support tuning through .toolTune.npm:
         return self._pathutil.updateJSONConfig(self.PACKAGE_JSON, updater)
 
     def onPrepare(self, config):
-        if self._ospath.exists(self.PACKAGE_JSON):
+        if self._ospath.exists(self.PACKAGE_JSON) and not self._isYarnInUse(config):
             npmBin = config['env']['npmBin']
             self._executil.callExternal([npmBin, 'install'])
 
     def onPackage(self, config):
-        if self._ospath.exists(self.PACKAGE_JSON):
+        if self._ospath.exists(self.PACKAGE_JSON) and not self._isYarnInUse(config):
             npmBin = config['env']['npmBin']
             self._executil.callExternal([npmBin, 'prune', '--production'])
 

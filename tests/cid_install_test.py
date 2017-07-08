@@ -317,7 +317,8 @@ tools_managed2 = [
     'dockercompose',
     'twine',
     'uwsgi',
-    'puma'
+    'puma',
+    'yarn',
 ]
 
 if not IS_LINUX:
