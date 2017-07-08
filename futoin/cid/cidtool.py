@@ -38,23 +38,8 @@ def cid_action(f):
         actions = config.get('actions', {})
 
         if fn in actions:
-            for act in actions[fn]:
-                if not isinstance(act, list):
-                    act = [act]
-
-                for cmd in act:
-                    if cmd == '<default>' or cmd == '@default':
-                        f(self, *args, **kwargs)
-                    elif cmd.startswith('@cid'):
-                        cmd = self._ext.shlex.split(cmd)
-                        self._executil.callExternal([self._sys.executable, '-mfutoin.cid'] + cmd[1:],
-                                                    user_interaction=True)
-                    elif cmd in actions:
-                        filt_args = list(filter(None, args))
-                        self._call_actions(cmd, actions, filt_args)
-                    else:
-                        self._executil.callExternal(
-                            ['sh', '-c', cmd], user_interaction=True)
+            filt_args = list(filter(None, args))
+            self._call_actions(fn, actions, filt_args)
         else:
             f(self, *args, **kwargs)
     return custom_f
