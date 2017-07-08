@@ -72,7 +72,7 @@ def brew(packages, cask=False):
                 elif brew == '/usr/local/bin/brew':
                     _ext.executil.callExternal(
                         brew_sudo + [brew, 'install',
-                                    '--force-bottle', package],
+                                     '--force-bottle', package],
                         cwd='/')
                 else:
                     _ext.executil.callExternal(
@@ -82,6 +82,7 @@ def brew(packages, cask=False):
                 _log.warn('You may need to enable the package manually')
     finally:
         os.umask(saved_mask)
+
 
 def dmg(packages):
     if not _ext.detect.isMacOS():

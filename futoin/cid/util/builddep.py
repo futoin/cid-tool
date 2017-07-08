@@ -98,8 +98,10 @@ def _bdep_python(env):
         _ext.install.rpm(['python-devel'])
         _ext.install.apk(['python2-dev'])
 
+
 def _bdep_ssl(env):
     _bdep_ssl10(env)
+
 
 def _bdep_ssl10(env):
     apt_cache = _ext.pathutil.which('apt-cache')
@@ -114,6 +116,7 @@ def _bdep_ssl10(env):
     #_ext.install.pacman('openssl')
     _ext.install.pacman('openssl-1.0')
     _ext.install.brew('openssl')
+
 
 def _bdep_mysqlclient(env):
     _ext.install.deb('libmysqlclient-dev')

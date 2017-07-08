@@ -70,7 +70,8 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                 if orig_action:
                     orig_action(self, *args)
                 else:
-                    self._errorExit('@default is not allowed for "[0}"'.format(name))
+                    self._errorExit(
+                        '@default is not allowed for "[0}"'.format(name))
             elif cmd in actions:
                 self._call_actions(cmd, actions, args)
             else:
