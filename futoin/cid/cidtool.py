@@ -39,7 +39,7 @@ def cid_action(f):
 
         if fn in actions:
             filt_args = list(filter(None, args))
-            self._call_actions(fn, actions, filt_args)
+            self._call_actions(fn, actions, filt_args, f)
         else:
             f(self, *args, **kwargs)
     return custom_f
@@ -55,7 +55,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         self._overrides = overrides
         self._initConfig(True)
 
-    def _call_actions(self, name, actions, args):
+    def _call_actions(self, name, actions, args, orig_action=False):
         act = actions[name]
 
         if not isinstance(act, list):
@@ -66,6 +66,11 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                 cmd = self._ext.shlex.split(cmd)
                 self._executil.callExternal([self._sys.executable, '-mfutoin.cid'] + cmd[1:] + args,
                                             user_interaction=True)
+            elif cmd == '@default':
+                if orig_action:
+                    orig_action(self, *args)
+                else:
+                    self._errorExit('@default is not allowed for "[0}"'.format(name))
             elif cmd in actions:
                 self._call_actions(cmd, actions, args)
             else:
