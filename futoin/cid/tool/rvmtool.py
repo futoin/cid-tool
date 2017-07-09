@@ -57,10 +57,7 @@ Stable RVM is used by default.
             pass
 
         rvm_dir = env['rvmDir']
-
-        if self._ospath.exists(rvm_dir):
-            self._pathutil.rmTree(rvm_dir)
-
+        self._pathutil.rmTree(rvm_dir)
         self._have_tool = False
 
     def envNames(self):

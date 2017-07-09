@@ -306,11 +306,7 @@ class DeployMixIn(DataSlots):
             if f[0] == '.' or f in whitelist:
                 continue
 
-            if ospath.isdir(f):
-                self._pathutil.rmTree(f)
-            else:
-                os.chmod(f, self._ext.stat.S_IRWXU)
-                os.remove(f)
+            self._pathutil.rmTree(f)
 
     def _deployConfig(self):
         self._requireDeployLock()

@@ -39,10 +39,7 @@ Home: https://github.com/moovweb/gvm
 
     def uninstallTool(self, env):
         gvm_dir = env['gvmDir']
-
-        if self._ospath.exists(gvm_dir):
-            self._pathutil.rmTree(gvm_dir)
-
+        self._pathutil.rmTree(gvm_dir)
         self._have_tool = False
 
     def envNames(self):

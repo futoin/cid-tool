@@ -39,12 +39,8 @@ Home: http://sdkman.io/
                        )
 
     def uninstallTool(self, env):
-        ospath = self._ospath
         dir = env['sdkmanDir']
-
-        if ospath.exists(dir):
-            self._pathutil.rmTree(dir)
-
+        self._pathutil.rmTree(dir)
         self._have_tool = False
 
     def initEnv(self, env):

@@ -151,8 +151,7 @@ Home: https://subversion.apache.org/
         ospath = self._ospath
         svn_repo_path = self._detectSVNPath(config, vcs_ref)
 
-        if ospath.exists(dst_path):
-            self._pathutil.rmTree(dst_path)
+        self._pathutil.rmTree(dst_path)
 
         if vcs_cache_dir is None:
             self._callVCSSVN(config, ['export', svn_repo_path, dst_path])

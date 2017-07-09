@@ -40,9 +40,7 @@ Home: https://www.rustup.rs/
 
         for v in ['rustupDir', 'cargoDir']:
             dir = env[v]
-
-            if ospath.exists(dir):
-                self._pathutil.rmTree(dir)
+            self._pathutil.rmTree(dir)
 
         self._have_tool = False
 

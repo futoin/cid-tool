@@ -115,10 +115,7 @@ resources due to lack of trusted binary builds.
             return super(phpTool, self).uninstallTool(env)
 
         php_dir = env['phpDir']
-
-        if self._ospath.exists(php_dir):
-            self._pathutil.rmTree(php_dir)
-
+        self._pathutil.rmTree(php_dir)
         self._have_tool = False
 
     def envNames(self):

@@ -68,16 +68,7 @@ class SdkmanToolMixIn(BashToolMixIn, JavaToolMixIn):
         ospath = self._ospath
         tool_dir = ospath.join(
             env['sdkmanDir'], 'candidates', self._sdkName())
-        if ospath.exists(tool_dir):
-            self._info('Removing: {0}'.format(tool_dir))
-            self._pathutil.rmTree(tool_dir)
-        #self._setAutoAnswer( env )
-        # self._callSdkman( env,
-        #    'uninstall {0} {1}'.format(
-        #        self._sdkName(),
-        #        env.get(self._name + 'Ver', '')
-        #    )
-        #)
+        self._pathutil.rmTree(tool_dir)
 
     def initEnv(self, env):
         ospath = self._ospath

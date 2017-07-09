@@ -192,35 +192,35 @@ def mkDir(dir):
 
 
 def rmTree(dir, verbose=True):
-    os = _ext.os
     stat = _ext.stat
+
+    if not _ext.ospath.exists(dir):
+        return
 
     if verbose:
         _log.infoLabel('Removing: ', dir)
 
-    os.chmod(dir, stat.S_IRWXU)
-    for (path, dirs, files) in os.walk(dir):
-        for id in dirs + files:
-            id = os.path.join(path, id)
-            st_mode = os.lstat(id).st_mode
+    chmodTree(dir, stat.S_IRWXU, stat.S_IRUSR | stat.S_IWUSR)
 
-            if stat.S_ISLNK(st_mode):
-                if 'lchmod' in os.__dict__:
-                    try:
-                        # pylint: disable=no-member
-                        os.lchmod(id, stat.S_IRWXU)
-                    except OSError:
-                        # lchmod is false available in some Linux builds
-                        pass
-            else:
-                os.chmod(id, stat.S_IRWXU)
-
-    _ext.shutil.rmtree(dir)
+    if _ext.ospath.isdir(dir):
+        _ext.shutil.rmtree(dir)
+    else:
+        _ext.os.unlink(dir)
 
 
 def chmodTree(dir, dperm, fperm, keep_execute=False):
     os = _ext.os
+    ospath = _ext.ospath
     stat = _ext.stat
+
+    st_mode = os.lstat(dir).st_mode
+
+    if stat.S_ISLNK(st_mode):
+        lchmod(dir, fperm)
+        return
+    elif stat.S_ISDIR(st_mode):
+        os.chmod(dir, dperm)
+        return
 
     walk_list = os.walk(dir)
     os.chmod(dir, dperm)
@@ -232,13 +232,7 @@ def chmodTree(dir, dperm, fperm, keep_execute=False):
             st_mode = os.lstat(f).st_mode
 
             if stat.S_ISLNK(st_mode):
-                if 'lchmod' in os.__dict__:
-                    try:
-                        # pylint: disable=no-member
-                        os.lchmod(f, fperm)
-                    except OSError:
-                        # lchmod is false available in some Linux builds
-                        pass
+                lchmod(f, fperm)
                 continue
 
             if stat.S_ISDIR(st_mode):
@@ -248,6 +242,18 @@ def chmodTree(dir, dperm, fperm, keep_execute=False):
                 os.chmod(f, fperm | xperm)
             else:
                 os.chmod(f, fperm)
+
+
+def lchmod(target, perm):
+    lchmod = getattr(_ext.os, 'lchmod', None)
+
+    if lchmod:
+        try:
+            lchmod(target, perm)
+        except OSError as e:
+            # lchmod is falsely available in some Linux builds
+            if e.errno != _ext.errno.ENOTSUP:
+                raise
 
 
 def cacheDir(key):

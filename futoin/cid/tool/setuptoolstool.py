@@ -33,15 +33,13 @@ Override targets with .config.toolTune.
             ospath.join(virtualenv_dir, 'bin', 'easy_install'))
 
     def onPrepare(self, config):
-        ospath = self._ospath
         targets = self._getTune(config, 'prepare', ['build', 'dist'])
 
         if not isinstance(targets, list):
             targets = [targets]
 
         for d in targets:
-            if ospath.exists(d):
-                self._pathutil.rmTree(d)
+            self._pathutil.rmTree(d)
 
     def onBuild(self, config):
         env = config['env']

@@ -34,12 +34,8 @@ Home: https://github.com/creationix/nvm
                        .format(nvm_dir, nvm_ver))
 
     def uninstallTool(self, env):
-        ospath = self._ospath
         nvm_dir = env['nvmDir']
-
-        if ospath.exists(nvm_dir):
-            self._pathutil.rmTree(nvm_dir)
-
+        self._pathutil.rmTree(nvm_dir)
         self._have_tool = False
 
     def envNames(self):

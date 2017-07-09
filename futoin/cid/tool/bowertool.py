@@ -42,8 +42,7 @@ Home: https://bower.io/
 
     def onPackage(self, config):
         # Bower does not remove dev deps by itself
-        if self._ospath.exists('bower_components'):
-            self._pathutil.rmTree('bower_components')
+        self._pathutil.rmTree('bower_components')
 
         bowerBin = config['env']['bowerBin']
         self._executil.callExternal([bowerBin, 'install', '--production'])

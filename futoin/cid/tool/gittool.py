@@ -243,9 +243,7 @@ if not set by user.
 
             cache_repo = 'file://' + vcs_cache_dir
 
-        if ospath.exists(dst_path):
-            self._pathutil.rmTree(dst_path)
-
+        self._pathutil.rmTree(dst_path)
         self._os.makedirs(dst_path)
 
         self._callBash(env, '{0} archive --remote={1} --format=tar {2} | {3} x -C {4}'

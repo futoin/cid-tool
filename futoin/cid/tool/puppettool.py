@@ -53,8 +53,7 @@ Primary purpose is to support Puppet module development.
         return self._pathutil.updateJSONConfig(self.METADATA_FILE, updater)
 
     def onPrepare(self, config):
-        if self._ospath.exists('pkg'):
-            self._pathutil.rmTree('pkg')
+        self._pathutil.rmTree('pkg')
 
     def onBuild(self, config):
         puppetBin = config['env']['puppetBin']

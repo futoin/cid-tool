@@ -36,10 +36,7 @@ Home: https://github.com/php-build/php-build
 
     def uninstallTool(self, env):
         phpbuild_dir = env['phpbuildDir']
-
-        if self._ospath.exists(phpbuild_dir):
-            self._pathutil.rmTree(phpbuild_dir)
-
+        self._pathutil.rmTree(phpbuild_dir)
         self._have_tool = False
 
     def envNames(self):

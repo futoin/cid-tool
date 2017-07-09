@@ -39,9 +39,7 @@ Build folder is configurable through cmakeBuildDir env.
 
     def onPrepare(self, config):
         build_dir = config['env']['cmakeBuildDir']
-
-        if self._ospath.exists(build_dir):
-            self._pathutil.rmTree(build_dir)
+        self._pathutil.rmTree(build_dir)
 
     def onBuild(self, config):
         ospath = self._ospath
