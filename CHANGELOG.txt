@@ -1,6 +1,7 @@
 
 === (next) ===
 FIXED: to run Yarn before other npm tools
+FIXED: fixed to use "npm pack", if npm is used as RMS
 CHANGED: added configutil.listify() and refactored code
 CHANGED: futoin.cid.misc.releaseTool to be more generic
 

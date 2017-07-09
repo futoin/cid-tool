@@ -70,9 +70,16 @@ Note: it auto-disables, if Yarn tool is detected
             self._executil.callExternal([npmBin, 'install'])
 
     def onPackage(self, config):
+        npmBin = config['env']['npmBin']
+
         if self._ospath.exists(self.PACKAGE_JSON) and not self._isYarnInUse(config):
-            npmBin = config['env']['npmBin']
             self._executil.callExternal([npmBin, 'prune', '--production'])
+
+        if config.get('rms', None) == self._name:
+            self._executil.callExternal([npmBin, 'pack'])
+            package = '{0}-{1}.tgz'.format(
+                config['name'], config['version'])
+            self._pathutil.addPackageFiles(config, package)
 
     def rmsUpload(self, config, rms_pool, package_list):
         npmBin = config['env']['npmBin']
