@@ -1,5 +1,6 @@
 
 === (next) ===
+FIXED: to run Yarn before other npm tools
 CHANGED: added configutil.listify() and refactored code
 CHANGED: futoin.cid.misc.releaseTool to be more generic
 

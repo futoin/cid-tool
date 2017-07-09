@@ -12,6 +12,10 @@ Note: auto-detected only if yarn.lock is present
 """
     __slots__ = ()
 
+    def getOrder(self):
+        # required to run before other npm-based tools
+        return -10
+
     def autoDetectFiles(self):
         return 'yarn.lock'
 
