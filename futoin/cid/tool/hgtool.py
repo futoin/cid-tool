@@ -270,3 +270,11 @@ Home: https://www.mercurial-scm.org/
             vcs_ref
         ], verbose=False).strip()
         return res == ''
+
+    def vcsClean(self, config):
+        hgBin = config['env']['hgBin']
+        self._executil.callExternal([
+            hgBin,
+            '--config', 'extensions.purge=',
+            'purge', '--all',
+        ])

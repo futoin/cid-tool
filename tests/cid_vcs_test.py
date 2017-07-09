@@ -457,7 +457,22 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         self._call_cid( [ 'vcs', 'ismerged', 'branch_M1' ], returncode=1 )
         self._call_cid( [ 'vcs', 'ismerged', 'branch_M2' ], returncode=1 )
 
-
+    def test_90_vcs_clean( self ):
+        # Prepare
+        self._call_cid( [ 'vcs', 'checkout', 'branch_A', '--vcsRepo', self.VCS_REPO, '--wcDir', 'vcs_clean' ] )
+        os.chdir('vcs_clean')
+        
+        os.mkdir('dir2remove')
+        self._writeFile(os.path.join('dir2remove', 'inner.txt'), 'INNER')
+        self._writeFile('2remove.txt', 'TOP')
+        self._writeFile('ignored.txt', 'IGNORED')
+        self._ignore('ignored.txt')
+        
+        self._call_cid(['vcs', 'clean'])
+        
+        self.assertFalse(os.path.exists('dir2remove'))
+        self.assertFalse(os.path.exists('2remove.txt'))
+        self.assertFalse(os.path.exists('ignored.txt'))
 
 
 #=============================================================================        
@@ -473,6 +488,9 @@ class cid_git_Test ( cid_VCS_UTBase ) :
                          '--git-dir',  self.REPO_DIR,
                          'symbolic-ref', 'HEAD', 'refs/heads/branch_A' ] )
         
+    def _ignore(self, path):
+        self._writeFile('.gitignore', path)
+        
 #=============================================================================
 class cid_hg_Test ( cid_VCS_UTBase ) :
     __test__ = True
@@ -482,6 +500,9 @@ class cid_hg_Test ( cid_VCS_UTBase ) :
 
     def _create_repo( self ):
         self._call_cid( [ 'tool', 'exec', 'hg', '--', 'init', self.REPO_DIR ] )
+
+    def _ignore(self, path):
+        self._writeFile('.hgignore', path)
 
 #=============================================================================
 class cid_svn_Test ( cid_VCS_UTBase ) :
@@ -495,4 +516,8 @@ class cid_svn_Test ( cid_VCS_UTBase ) :
         subprocess.check_output(['svnadmin', 'create', self.REPO_DIR ])
         
         self._call_cid( [ 'tool', 'exec', 'svn', '--', 'mkdir', '-m', 'Creating trunk', 'file://' + self.REPO_DIR + '/trunk' ] )
+
+    def _ignore(self, path):
+        self._call_cid( [ 'tool', 'exec', 'svn', '--', 'propset', 'svn:ignore', path, '.' ] )
+        
         

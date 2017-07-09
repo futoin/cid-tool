@@ -867,6 +867,15 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             self._info('Branch {0} is NOT merged'.format(vcs_ref))
             self._sys.exit(1)
 
+    def vcs_clean(self):
+        self._processWcDir()
+
+        config = self._config
+        vcstool = self._getVcsTool()
+
+        self._info('Removing all unversioned items.')
+        vcstool.vcsClean(config)
+
     def rms_list(self, rms_pool, package_pattern):
         self._processWcDir()
 

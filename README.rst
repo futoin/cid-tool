@@ -477,7 +477,9 @@ Please see details in the FTN16 spec: ::
         
     cid vcs ismerged <vcs_ref> [--wcDir=<wc_dir>]
         Check if branch is merged into current branch.
-
+        
+    cid vcs clean [--wcDir=<wc_dir>]
+        Remove unversioned files and directories, including ignored.
         
     cid rms ...
         Abstract RMS helpers for CI environments & scripts.

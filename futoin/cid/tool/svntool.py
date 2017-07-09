@@ -220,6 +220,22 @@ Home: https://subversion.apache.org/
 
         return res == ''
 
+    def vcsClean(self, config):
+        svn_info = self._executil.callExternal([
+            config['env']['svnBin'], 'status', '--no-ignore', '--xml'
+        ], verbose=False)
+
+        svn_info = self._ext.minidom.parseString(svn_info)
+        entries = svn_info.getElementsByTagName('entry')
+        pathutil = self._pathutil
+
+        for entry in entries:
+            p = entry.getAttribute('path')
+            wcstatus = entry.getElementsByTagName('wc-status')
+
+            if wcstatus[0].getAttribute('item') in ('unversioned', 'ignored'):
+                pathutil.rmTree(p)
+
     def rmsUpload(self, config, rms_pool, package_list):
         ospath = self._ospath
         rms_repo = config['rmsRepo']

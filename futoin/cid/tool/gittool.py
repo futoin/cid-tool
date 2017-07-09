@@ -340,3 +340,9 @@ if not set by user.
             'branch', '-r', '--merged', 'HEAD', 'origin/{0}'.format(vcs_ref)
         ], verbose=False).strip()
         return res != ''
+
+    def vcsClean(self, config):
+        self._executil.callExternal([
+            config['env']['gitBin'],
+            'clean', '-f', '-x', '-d',
+        ])

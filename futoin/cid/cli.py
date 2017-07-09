@@ -38,6 +38,7 @@ Usage:
     cid vcs branches [<branch_pattern>] [--vcsRepo=<vcs_repo>] [--cacheDir=<cache_dir>] [--wcDir=<wc_dir>]
     cid vcs reset [--wcDir=<wc_dir>]
     cid vcs ismerged <vcs_ref> [--wcDir=<wc_dir>]
+    cid vcs clean [--wcDir=<wc_dir>]
     cid rms list <rms_pool> [<package_pattern>] [--rmsRepo=<rms_repo>]
     cid rms retrieve <rms_pool> <packages>... [--rmsRepo=<rms_repo>]
     cid rms pool create <rms_pool> [--rmsRepo=<rms_repo>]
@@ -257,6 +258,8 @@ def runInner():
                 cit.vcs_reset()
             elif args['ismerged']:
                 cit.vcs_ismerged(args['<vcs_ref>'])
+            elif args['clean']:
+                cit.vcs_clean()
             else:
                 raise RuntimeError("Not implemented yet.")
         elif args['rms'] and not args['deploy']:
