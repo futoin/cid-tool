@@ -34,9 +34,7 @@ Override targets with .config.toolTune.
 
     def onPrepare(self, config):
         targets = self._getTune(config, 'prepare', ['build', 'dist'])
-
-        if not isinstance(targets, list):
-            targets = [targets]
+        targets = self._configutil.listify(targets)
 
         for d in targets:
             self._pathutil.rmTree(d)
@@ -46,9 +44,7 @@ Override targets with .config.toolTune.
         self._requirePip(env, 'wheel')
 
         targets = self._getTune(config, 'build', ['sdist', 'bdist_wheel'])
-
-        if not isinstance(targets, list):
-            targets = [targets]
+        targets = self._configutil.listify(targets)
 
         self._executil.callExternal([env['pythonBin'], 'setup.py'] + targets)
 

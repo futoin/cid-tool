@@ -1,4 +1,7 @@
 
+=== (next) ===
+CHANGED: added configutil.listify() and refactored code
+
 === 0.7.994 (2017-07-09) ===
 FIXED: bug when action hook is set a string, but not list of strings
 CHANGED: to set GEM_SPEC_CACHE also under GEM_HOME

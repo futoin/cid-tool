@@ -159,16 +159,14 @@ def writeBinaryFile(file_name, content):
 
 def writeIni(file_name, content):
     str_content = []
+    listify = _ext.configutil.listify
 
     for (sn, sv) in content.items():
         str_content.append('[{0}]'.format(sn))
 
         for (cn, cv) in sv.items():
-            if isinstance(cv, list):
-                for cvi in cv:
-                    str_content.append('{0} = {1}'.format(cn, cvi))
-            else:
-                str_content.append('{0} = {1}'.format(cn, cv))
+            for cvi in listify(cv):
+                str_content.append('{0} = {1}'.format(cn, cvi))
 
         str_content.append('')
 

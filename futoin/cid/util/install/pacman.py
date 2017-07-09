@@ -6,8 +6,7 @@ _pacman = _ext.pathutil.which('pacman')
 
 def pacman(packages):
     if _pacman:
-        if not isinstance(packages, list):
-            packages = [packages]
+        packages = _ext.configutil.listify(packages)
 
         _ext.executil.trySudoCall(
             [_pacman, '-S', '--noconfirm', '--needed'] + packages,

@@ -11,8 +11,7 @@ def yum(packages):
     yum = _dnf or _yum
 
     if yum:
-        if not isinstance(packages, list):
-            packages = [packages]
+        packages = _ext.configutil.listify(packages)
 
         _ext.executil.trySudoCall(
             [yum, 'install', '-y'] + packages,
@@ -22,8 +21,7 @@ def yum(packages):
 
 def zypper(packages):
     if _zypper:
-        if not isinstance(packages, list):
-            packages = [packages]
+        packages = _ext.configutil.listify(packages)
 
         _ext.executil.trySudoCall(
             [_zypper, 'install', '-y'] + packages,

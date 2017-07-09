@@ -29,8 +29,7 @@ def essential():
 
 
 def require(env, dep):
-    if not isinstance(dep, list):
-        dep = [dep]
+    dep = _ext.configutil.listify(dep)
 
     essential()
 

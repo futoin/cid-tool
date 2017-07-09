@@ -1,4 +1,7 @@
 
+#==================
+
+
 def timeouts(env, fmt):
     timeouts = env['timeouts']
     connect_to = int(timeouts['connect'])
@@ -48,3 +51,10 @@ def toMemory(val):
 
     return res
 #==================
+
+
+def listify(val):
+    if isinstance(val, list):
+        return val
+
+    return [val]

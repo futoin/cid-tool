@@ -7,8 +7,7 @@ def deb(packages):
     apt_get = _ext.pathutil.which('apt-get')
 
     if apt_get:
-        if not isinstance(packages, list):
-            packages = [packages]
+        packages = _ext.configutil.listify(packages)
 
         _ext.os.environ['DEBIAN_FRONTEND'] = 'noninteractive'
         _ext.executil.trySudoCall(

@@ -32,10 +32,8 @@ def brewUnlink(formula=None, search=None):
     flist = []
 
     if formula is not None:
-        if isinstance(formula, list):
-            flist += formula
-        else:
-            flist.append(formula)
+        formula = _ext.configutil.listify(formula)
+        flist += formula
 
     if search:
         flist += _ext.executil.callExternal([brew,
@@ -53,8 +51,7 @@ def brew(packages, cask=False):
     if not _ext.detect.isMacOS():
         return
 
-    if not isinstance(packages, list):
-        packages = [packages]
+    packages = _ext.configutil.listify(packages)
 
     os = _ext.os
     brew = _brew()
@@ -88,8 +85,7 @@ def dmg(packages):
     if not _ext.detect.isMacOS():
         return
 
-    if not isinstance(packages, list):
-        packages = [packages]
+    packages = _ext.configutil.listify(packages)
 
     os = _ext.os
     path = _ext.pathutil

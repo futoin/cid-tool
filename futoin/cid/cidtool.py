@@ -57,9 +57,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
 
     def _call_actions(self, name, actions, args, orig_action=False):
         act = actions[name]
-
-        if not isinstance(act, list):
-            act = [act]
+        act = self._configutil.listify(act)
 
         for cmd in act:
             if cmd.startswith('@cid'):
@@ -677,8 +675,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
 
         auto_detect = t.autoDetectFiles()
         if auto_detect:
-            if not isinstance(auto_detect, list):
-                auto_detect = [auto_detect]
+            auto_detect = self._configutil.listify(auto_detect)
             print(Coloring.infoLabel('* Auto-detection (files): ') +
                   ', '.join(auto_detect))
 

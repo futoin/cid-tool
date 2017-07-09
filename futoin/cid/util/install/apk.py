@@ -4,8 +4,7 @@ from ...mixins.ondemand import ext as _ext
 
 def apk(packages):
     if _ext.detect.isAlpineLinux():
-        if not isinstance(packages, list):
-            packages = [packages]
+        packages = _ext.configutil.listify(packages)
 
         apk = '/sbin/apk'
 

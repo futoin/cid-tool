@@ -6,8 +6,7 @@ _emerge = _ext.pathutil.which('emerge')
 
 def emerge(packages):
     if _emerge:
-        if not isinstance(packages, list):
-            packages = [packages]
+        packages = _ext.configutil.listify(packages)
 
         _ext.executil.trySudoCall(
             [_emerge] + packages,
@@ -16,7 +15,5 @@ def emerge(packages):
 
 
 def emergeDepsOnly(packages):
-    if not isinstance(packages, list):
-        packages = [packages]
-
+    packages = _ext.configutil.listify(packages)
     emerge(['--onlydeps'] + packages)
