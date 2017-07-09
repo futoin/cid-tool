@@ -6,6 +6,7 @@ CHANGED: changes rmTree()/chmodTree() API to support signle files
 NEW: added YARN package manager support
 NEW: added webpack support
 NEW: "cid vcs clean" command
+NEW: added "futoin" as namespace package to co-exist with others
 
 === 0.7.993 (2017-07-05) ===
 BREAKING CHANGE: huge internal refactoring

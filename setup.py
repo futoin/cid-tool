@@ -13,7 +13,8 @@ with open(os.path.join(project_path, 'README.rst'), 'r') as f:
 config = {
     'name': 'futoin-cid',
     'version': version,
-    
+    'namespace_packages': ['futoin'],
+
     'description': 'FutoIn Continuous Integration & Delivery Tool',
     'long_description': long_description,
 
