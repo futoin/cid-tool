@@ -20,7 +20,10 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         
     def _create_repo(self):
         raise NotImplementedError()
-    
+
+    def _ignore(self, path):
+        raise NotImplementedError()
+
     def test_00_prepare( self ):
         self._create_repo()
         
