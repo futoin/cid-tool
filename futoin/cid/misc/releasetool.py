@@ -3,10 +3,16 @@ from ..buildtool import BuildTool
 
 
 class releaseTool(BuildTool):
-    "FutoIn CID-specific release processing"
-    __slots__ = ()
+    """FutoIn CID-specific release processing
 
-    CHANGELOG_FILE = 'CHANGELOG.txt'
+Python: replaces "*__version__"' with "__version__ = '{version}'"
+Changelog: replaces "=== \(next\) ===" with "=== {version} ({date}) ==="
+
+Tune:
+    .python = [] - list of Python files
+    .changelog = 'CHANGELOG.txt' - list of ChangeLog files
+"""
+    __slots__ = ()
 
     def autoDetect(self, config):
         return True
@@ -35,16 +41,22 @@ class releaseTool(BuildTool):
                     flags=re.MULTILINE
                 )
 
-        RELEASE_FILE = self._ospath.join('futoin', 'cid', '__init__.py')
+        res = []
+        #---
+        py_files = self._getTune(config, 'python', [])
+        py_files = self._configutil.listify(py_files)
 
-        res = self._pathutil.updateTextFile(
-            RELEASE_FILE,
-            py_updater
-        )
-        res += self._pathutil.updateTextFile(
-            self.CHANGELOG_FILE,
-            cl_updater
-        )
+        for pyf in py_files:
+            res += self._pathutil.updateTextFile(pyf, py_updater)
+
+        #---
+        cl_files = self._getTune(config, 'changelog', 'CHANGELOG.txt')
+        cl_files = self._configutil.listify(cl_files)
+
+        for clf in cl_files:
+            res += self._pathutil.updateTextFile(clf, cl_updater)
+
+        #---
         return res
 
     def initEnv(self, env):

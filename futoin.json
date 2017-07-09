@@ -4,6 +4,11 @@
   "plugins": {
     "release": "futoin.cid.misc.releasetool"
   },
+  "toolTune": {
+    "release": {
+      "python": "futoin/cid/__init__.py"
+    }
+  },
   "vcs": "git",
   "rms": "twine",
   "rmsRepo": "ignored",
