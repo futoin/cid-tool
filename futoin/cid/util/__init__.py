@@ -28,7 +28,10 @@ def complex_memo(f):
             return cached[key]
 
         val = f(*args, **kwargs)
-        cached[key] = val
+
+        if val is not None:
+            cached[key] = val
+
         return val
 
     return wrap
