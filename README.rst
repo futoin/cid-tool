@@ -173,7 +173,7 @@ Tested on the following OSes:
     
 * **OpenSUSE**
 
-  - **42.1 Leap**
+  - **42.2 Leap**
   - There are known issues with some tools due to lack of community support.
     
 * **Oracle Linux**

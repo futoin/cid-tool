@@ -23,7 +23,7 @@ which apk 2>/dev/null && apk update || true
         'debian_stretch' => 'debian/stretch64',
         'ubuntu_xenial' => 'bento/ubuntu-16.04',
         'centos_7' => 'centos/7',
-        'opensuse_leap' => 'bento/opensuse-leap-42.1',
+        'opensuse_leap' => 'bento/opensuse-leap-42.2',
         'fedora_25' => 'bento/fedora-25',
         'archlinux' => 'ogarcia/archlinux-x64',
         'alpinelinux' => 'maier/alpine-3.6-x86_64',
