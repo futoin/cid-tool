@@ -81,6 +81,25 @@ def brew(packages, cask=False):
         os.umask(saved_mask)
 
 
+def brewSearch(pattern):
+    if not _ext.detect.isMacOS():
+        return
+
+    os = _ext.os
+    brew = _brew()
+    brew_sudo = os.environ.get('brewSudo', '').split()
+    saved_mask = os.umask(0o022)
+
+    try:
+        res = _ext.executil.callExternal(
+            brew_sudo + [brew, 'search', pattern],
+            cwd='/', verbose=False)
+    finally:
+        os.umask(saved_mask)
+
+    return list(filter(None, res.strip().split('\n')))
+
+
 def dmg(packages):
     if not _ext.detect.isMacOS():
         return

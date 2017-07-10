@@ -26,8 +26,10 @@ class cid_redmine_Test( cid_UTBase ) :
         
         if ext.detect.isAlpineLinux() or ext.detect.isArchLinux():
             self._call_cid(['deploy', 'set', 'env', 'rubyVer', 'system'])
+            db = 'redmine_trunk'
         else:
             self._call_cid(['deploy', 'set', 'env', 'rubyVer', '2.3'])
+            db = 'redmine'
 
         self._call_cid(['deploy', 'set', 'action', 'prepare', 'app-config', 'database-config', 'app-install'])
         self._call_cid(['deploy', 'set', 'action', 'app-config',
@@ -56,12 +58,12 @@ class cid_redmine_Test( cid_UTBase ) :
         self._writeFile('.database.yml', """
 production:
   adapter: mysql2
-  database: redmine
+  database: {1}
   host: {0}
   username: redmine
   password: redmine
   encoding: utf8
-""".format(DB_HOST))
+""".format(DB_HOST, db))
         
         if ext.detect.isAlpineLinux() or ext.detect.isArchLinux():
             # Ruby 2.4
@@ -78,6 +80,71 @@ production:
         self._writeFile(os.path.join('persistent', 'public', 'plugin_assets', 'file.txt'), 'STATICFILE')
     
     def test02_execute(self):
+        pid = os.fork()
+        
+        if not pid:
+            self._redirectAsyncStdIO()
+            os.execv(self.CIDTEST_BIN, [self.CIDTEST_BIN, 'service', 'master'])
+        
+        try:
+            res = self._firstGet('http://127.0.0.1:1234/plugin_assets/file.txt')
+            self.assertEqual('STATICFILE', res.text.strip())
+            
+            res = self._firstGet('http://127.0.0.1:1234/')
+            
+            if res.text.find('redmine') < 0:
+                print(res)
+                self.assertFalse(True)
+                
+        finally:
+            os.kill(pid, signal.SIGTERM)
+            try: os.waitpid(pid, 0)
+            except OSError: pass
+
+
+class cid_nextcloud_Test( cid_UTBase ) :
+    __test__ = True
+    
+    TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'realapp_nextcloud')
+    _create_test_dir = True
+
+    def test01_deploy(self):
+        self._call_cid(['deploy', 'setup'])
+        
+        exts = [
+            'ctype',
+            'dom',
+            'gd',
+            'iconv',
+            'json',
+            'xml',
+            'mbstring',
+            'posix',
+            'simplexml',
+            'xmlreader',
+            'xmlwriter',
+            'zip',
+            'zlib',
+            'pdo_mysql',
+            'curl',
+            'fileinfo',
+            'bz2',
+            'intl',
+            'mcrypt',
+            'openssl',
+            'ldap',
+            'ftp',
+            'imap',
+            'exif',
+            'gmp',
+            'apcu',
+            'imagick',
+        ]
+        
+        self._call_cid(['deploy', 'set', 'env', 'phpExtRequire', ' '.join(exts)])
+
+    def test02_execute(self):
+        return # TODO:
         pid = os.fork()
         
         if not pid:

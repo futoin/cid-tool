@@ -28,6 +28,8 @@ composerDir is equal to user's ~/bin/ folder by default.
         if not self._ospath.exists(composer_dir):
             self._os.makedirs(composer_dir)
 
+        self._phputil.installExtensions(env, 'zip', True)
+
         self._executil.callExternal(
             [
                 php_bin, '--',
@@ -62,7 +64,7 @@ composerDir is equal to user's ~/bin/ folder by default.
         return self.COMPOSER_JSON
 
     def getDeps(self):
-        return ['php'] + CurlToolMixIn.getDeps(self)
+        return ['php', 'git'] + CurlToolMixIn.getDeps(self)
 
     def loadConfig(self, config):
         content = self._pathutil.loadJSONConfig(self.COMPOSER_JSON)

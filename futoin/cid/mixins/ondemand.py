@@ -72,6 +72,7 @@ _ext_demand_map = {
     'builddep': '.util.builddep',
     'versionutil': '.util.version',
     'configutil': '.util.config',
+    'phputil': '.util.phputil',
 }
 
 if sys.version_info >= (3, 0):
@@ -93,6 +94,7 @@ _cid_demand_map = {
     '_builddep': '.util.builddep',
     '_versionutil': '.util.version',
     '_configutil': '.util.config',
+    '_phputil': '.util.phputil',
 }
 
 

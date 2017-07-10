@@ -171,7 +171,17 @@ class cid_mysql_Test ( cid_UTBase ) :
                             "GRANT ALL PRIVILEGES ON *.* TO 'cid'@'%' IDENTIFIED BY 'cid'"],
                             verbose=False)
         _executil.callExternal([mysql, '-uroot', '-h', '127.0.0.1', '-e',
-                            "CREATE DATABASE IF NOT EXISTS redmine CHARACTER SET utf8; "+
+                            "DROP DATABASE IF EXISTS redmine;"
+                            "CREATE DATABASE redmine CHARACTER SET utf8; "
                             "GRANT ALL PRIVILEGES ON redmine.* TO 'redmine'@'%' IDENTIFIED BY 'redmine'"],
                             verbose=False)
-        
+        _executil.callExternal([mysql, '-uroot', '-h', '127.0.0.1', '-e',
+                            "DROP DATABASE IF EXISTS redmine_trunk;"
+                            "CREATE DATABASE redmine_trunk CHARACTER SET utf8; "
+                            "GRANT ALL PRIVILEGES ON redmine_trunk.* TO 'redmine'@'%' IDENTIFIED BY 'redmine'"],
+                            verbose=False)
+        _executil.callExternal([mysql, '-uroot', '-h', '127.0.0.1', '-e',
+                            "DROP DATABASE IF EXISTS nextcloud;"
+                            "CREATE DATABASE nextcloud CHARACTER SET utf8; "
+                            "GRANT ALL PRIVILEGES ON nextcloud.* TO 'nextcloud'@'%' IDENTIFIED BY 'nextcloud'"],
+                            verbose=False)

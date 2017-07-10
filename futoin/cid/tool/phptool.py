@@ -26,21 +26,19 @@ You can control installed extensions by setting:
     __slots__ = ()
 
     def getDeps(self):
-        return (
-            ['phpbuild'] +
-            BashToolMixIn.getDeps(self) +
-            CurlToolMixIn.getDeps(self))
+        deps = BashToolMixIn.getDeps(self) + CurlToolMixIn.getDeps(self)
+
+        if not self._phputil.binaryVersions():
+            deps += ['phpbuild']
+
+        return deps
 
     def _installTool(self, env):
         ospath = self._ospath
         environ = self._environ
         php_ver = env['phpVer']
 
-        if php_ver == self.SYSTEM_VER:
-            self._systemDeps()
-            return
-
-        if env['phpBinOnly']:
+        if php_ver == self.SYSTEM_VER or env['phpBinOnly']:
             self._installBinaries(env)
             return
 
@@ -63,6 +61,7 @@ You can control installed extensions by setting:
         detect = self._detect
 
         ver = env['phpVer']
+        php_pkg = self._phputil.basePackage(ver)
 
         if detect.isDebian():
             repo = env.get('phpSuryRepo', 'https://packages.sury.org/php')
@@ -70,46 +69,35 @@ You can control installed extensions by setting:
 
             self._install.aptRepo(
                 'sury', "deb {0} $codename$ main".format(repo), gpg)
-            self._install.deb('php' + ver)
+            self._install.deb(php_pkg)
 
         elif detect.isUbuntu():
             self._install.aptRepo('sury', 'ppa:ondrej/php', None)
-            self._install.deb('php' + ver)
+            self._install.deb(php_pkg)
 
         elif detect.isSCLSupported():
-            if self._isPHPSCL(env):
-                ver = ver.replace('.', '')
-
-                self._install.yumSCL()
-
-                self._install.yum([
-                    'rh-php{0}'.format(ver),
-                    'rh-php{0}-php-devel'.format(ver),
-                ])
-            else:
-                self._errorExit('Only SCL packages are supported so far')
+            self._install.yumSCL()
+            self._install.yum(php_pkg)
 
         elif detect.isMacOS():
             self._install.brewTap('homebrew/homebrew-php')
-            ver = ver.replace('.', '')
-            base_formula = 'homebrew/php/php{0}'.format(ver)
-
             self._install.brewUnlink(search='/homebrew\/php\/php[0-9]{2}$/')
-            self._install.brew(base_formula)
+            self._install.brew(php_pkg)
 
-            formulas = [
-                'apcu',
-                'opcache',
-            ]
-
-            self._install.brew(['{0}-{1}'.format(base_formula, f)
-                                for f in formulas])
+        elif detect.isAlpineLinux():
+            self._install.apkCommunity()
+            self._install.apk(php_pkg)
 
         else:
-            self._systemDeps()
+            self._install.zypper(php_pkg)
+            self._install.yum('{0}-cli'.format(php_pkg))
+            self._install.emerge('dev-lang/php')
+            self._install.pacman(php_pkg)
 
-    def _isPHPSCL(self, env):
-        return env['phpVer'] in ('5.6', '7.0')
+        self._phputil.installExtensions(env, [
+            'apcu',
+            'curl',
+        ], True)
 
     def updateTool(self, env):
         pass
@@ -123,46 +111,36 @@ You can control installed extensions by setting:
         self._have_tool = False
 
     def envNames(self):
-        return ['phpDir', 'phpBin', 'phpVer', 'phpfpmVer', 'phpBinOnly', 'phpSuryRepo']
+        return ['phpDir', 'phpBin', 'phpVer', 'phpfpmVer', 'phpBinOnly', 'phpSuryRepo',
+                'phpExtRequire', 'phpExtTry']
 
     def initEnv(self, env):
         ospath = self._ospath
         os = self._os
         detect = self._detect
-
-        #---
-        # TODO: rewrite similar to ruby, and add dynamic detection
-        if detect.isDebian() or detect.isUbuntu():
-            php_latest = '7.1'
-        elif detect.isSCLSupported():
-            php_latest = '7.0'
-        elif detect.isAlpineLinux():
-            php_latest = '7.0'
-        elif detect.isMacOS():
-            php_latest = '7.1'
-        else:
-            php_latest = None
+        phputil = self._phputil
 
         #---
         if 'phpfpmVer' in env:
             php_ver = env.setdefault('phpVer', env['phpfpmVer'])
 
-        if php_latest:
+        #---
+        php_binaries = phputil.binaryVersions()
+
+        if php_binaries:
+            php_latest = php_binaries[-1]
             php_ver = env.setdefault('phpVer', php_latest)
             phpBinOnly = True
 
-            if php_ver[0] == '5' and php_ver != '5.6':
+            if php_ver.split('.')[0] == '5' and php_ver != '5.6':
                 php_ver = '5.6'
                 self._warn('Forcing PHP 5.6 for PHP 5.x requirement')
-            elif php_ver == '7':
+            elif php_ver == '7' and php_latest.split('.')[0] == '7':
                 php_ver = php_latest
-            elif detect.isMacOS():
-                # Homebrew supports all
-                pass
-            elif php_ver > php_latest:
+            elif php_ver.split('.') > php_latest.split('.'):
                 phpBinOnly = False
                 self._warn(
-                    'Binary builds are supported only for 5.6 - {0}'.format(php_latest))
+                    'Binary builds are supported only for: {0}'.format(', '.join(php_binaries)))
 
             env['phpVer'] = php_ver
         else:
@@ -172,34 +150,50 @@ You can control installed extensions by setting:
         if phpBinOnly:
             env['phpBinOnly'] = phpBinOnly
         else:
-            phpBinOnly = env.setdefault('phpBinOnly', phpBinOnly)
+            phpBinOnly = env.setdefault('phpBinOnly', True)
 
         #---
         if php_ver == self.SYSTEM_VER:
             super(phpTool, self).initEnv(env)
-            return
         elif phpBinOnly:
             if detect.isDebian() or detect.isUbuntu():
                 bin_name = 'php' + php_ver
-                super(phpTool, self).initEnv(env, bin_name)
+                bin_src = ospath.join('/usr/bin', bin_name)
+                phputil.createBinDir(env, php_ver, bin_src, 'php')
+                super(phpTool, self).initEnv(env)
 
             elif detect.isSCLSupported():
-                if self._isPHPSCL(env):
-                    ver = env['phpVer'].replace('.', '')
-                    try:
-                        env_to_set = self._callBash(
-                            env, 'scl enable rh-php{0} env'.format(ver), verbose=False)
-                    except self._ext.subprocess.CalledProcessError:
-                        return
-
+                try:
+                    ver = php_ver.replace('.', '')
+                    env_to_set = self._callBash(
+                        env, 'scl enable rh-php{0} env'.format(ver),
+                        verbose=False)
                     self._pathutil.updateEnvFromOutput(env_to_set)
                     super(phpTool, self).initEnv(env)
-                else:
+                except self._ext.subprocess.CalledProcessError:
+                    pass
+                except OSError:
                     pass
 
+            elif detect.isArchLinux():
+                if phputil.isArchLatest(php_ver):
+                    bin_name = 'php'
+                else:
+                    bin_name = 'php' + php_ver.replace('.', '')
+
+                bin_src = ospath.join('/usr/bin', bin_name)
+                phputil.createBinDir(env, php_ver, bin_src, 'php')
+                super(phpTool, self).initEnv(env)
+
             elif detect.isAlpineLinux():
-                bin_name = 'php' + php_ver[0]
-                super(phpTool, self).initEnv(env, bin_name)
+                if phputil.isAlpineSplit():
+                    bin_name = 'php' + php_ver[0]
+                else:
+                    bin_name = 'php'
+
+                bin_src = ospath.join('/usr/bin', bin_name)
+                phputil.createBinDir(env, php_ver, bin_src, 'php')
+                super(phpTool, self).initEnv(env)
 
             elif detect.isMacOS():
                 brew_prefix = env['brewDir']
@@ -210,7 +204,6 @@ You can control installed extensions by setting:
                     self._pathutil.addBinPath(php_dir, True)
                     super(phpTool, self).initEnv(env)
 
-            return
         else:
             def_dir = ospath.join(
                 env['phpbuildDir'], 'share', 'php-build', 'definitions')
@@ -224,26 +217,25 @@ You can control installed extensions by setting:
             if not defs:
                 self._errorExit('PHP version "{0}" not found'.format(php_ver))
 
-            def castver(v):
-                try:
-                    return int(v)
-                except:
-                    return -1
-
-            defs.sort(key=lambda v: [castver(u) for u in v.split('.')])
-            php_ver = defs[-1]
+            php_ver = self._versionutil.latest(defs)
 
             env['phpSrcVer'] = php_ver
 
-        php_dir = ospath.join(os.environ['HOME'], '.php', php_ver)
-        php_dir = env.setdefault('phpDir', php_dir)
-        php_bin_dir = ospath.join(php_dir, 'bin')
-        php_bin = ospath.join(php_bin_dir, 'php')
+            php_dir = ospath.join(os.environ['HOME'], '.php', php_ver)
+            php_dir = env.setdefault('phpDir', php_dir)
+            php_bin_dir = ospath.join(php_dir, 'bin')
+            php_bin = ospath.join(php_bin_dir, 'php')
 
-        if ospath.exists(php_bin):
-            self._have_tool = True
-            self._pathutil.addBinPath(php_bin_dir, True)
-            env.setdefault('phpBin', php_bin)
+            if ospath.exists(php_bin):
+                self._have_tool = True
+                self._pathutil.addBinPath(php_bin_dir, True)
+                env.setdefault('phpBin', php_bin)
+
+        #---
+        php_required_ext = env.get('phpExtRequire', '').split()
+        php_try_ext = env.get('phpExtTry', '').split()
+        phputil.installExtensions(env, php_required_ext, False)
+        phputil.installExtensions(env, php_try_ext, True)
 
     def _buildDeps(self, env):
         ospath = self._ospath
@@ -459,129 +451,6 @@ You can control installed extensions by setting:
             --with-mhash=yes \
             --with-system-tzdata \
             ' + with_systemd + with_libdir
-
-    def _systemDeps(self):
-        self._install.deb([
-            'php.*-cli',
-            'php.*-fpm',
-            "php.*-apcu",
-            "php.*-curl",
-            "php.*-gd",
-            "php.*-geoip",
-            "php.*-gmp",
-            "php.*-imagick",
-            "php.*-imap",
-            "php.*-intl",
-            "php.*-json",
-            "php.*-ldap",
-            "php.*-mcrypt",
-            "php.*-msgpack",
-            "php.*-ssh2",
-            "php.*-soap",
-            "php.*-sqlite",
-            "php.*-xml",
-            "php.*-xmlrpc",
-            "php.*-xsl",
-        ])
-
-        # SuSe-like
-        self._install.zypper([
-            'php?',
-            'php*-fpm',
-            'php*-bcmath',
-            'php*-bz2',
-            'php*-calendar',
-            'php*-ctype',
-            'php*-curl',
-            'php*-dom',
-            'php*-exif',
-            'php*-fileinfo',
-            'php*-gettext',
-            'php*-gmp',
-            'php*-iconv',
-            'php*-imap',
-            'php*-intl',
-            'php*-json',
-            'php*-ldap',
-            'php*-mbstring',
-            'php*-mcrypt',
-            'php*-pcntl',
-            'php*-pdo',
-            'php*-phar',
-            'php*-soap',
-            'php*-sockets',
-            'php*-sqlite',
-            'php*-tidy',
-            'php*-xmlreader',
-            'php*-xmlrpc',
-            'php*-xmlwriter',
-            'php*-xsl',
-            'php*-zip',
-            'php*-zlib',
-        ])
-
-        # RedHat-like
-        self._install.yum([
-            'php-cli',
-            'php-fpm',
-            'php-pecl-apcu',
-            'php-pecl-imagick',
-            'php-pecl-msgpack',
-            'php-pecl-ssh2',
-            'php-pecl-zendopcache',
-        ])
-
-        try:
-            self._install.deb([
-                "php.*-mbstring",
-                "php.*-opcache",
-                "php.*-zip",
-            ])
-            self._install.yum([
-                'php-pecl-sqlite',
-            ])
-        except:
-            pass
-
-        self._install.emerge(['dev-lang/php'])
-        self._install.pacman(['php'])
-
-        self._install.apkCommunity()
-        self._install.apk([
-            'php7',
-            'php7-xml',
-            'php7-xmlreader',
-            'php7-xmlrpc',
-            'php7-zip',
-            'php7-zlib',
-            'php7-phar',
-            'php7-posix',
-            'php7-session',
-            'php7-soap',
-            'php7-sockets',
-            'php7-json',
-            'php7-mbstring',
-            'php7-mcrypt',
-            'php7-opcache',
-            'php7-openssl',
-            'php7-pdo',
-            'php7-bz2',
-            'php7-ctype',
-            'php7-curl',
-            'php7-dom',
-            'php7-enchant',
-            'php7-exif',
-            'php7-gd',
-            'php7-gettext',
-            'php7-gmp',
-            'php7-iconv',
-            'php7-imap',
-            'php7-intl',
-            'php7-bcmath',
-            'php7-fpm',
-            'php7-pear',
-            'php7-apcu',
-        ])
 
     def tuneDefaults(self):
         return {

@@ -43,48 +43,33 @@ Note: file upload is OFF by default.
         }
 
     def _installTool(self, env):
+        self._phputil.installExtensions(env, 'opcache', True)
+
         php_ver = env['phpVer']
 
-        if php_ver == self.SYSTEM_VER:
-            self._systemDeps()
-            return
-
-        if env['phpBinOnly']:
+        if php_ver == self.SYSTEM_VER or env['phpBinOnly']:
             self._installBinaries(env)
             return
 
     def _installBinaries(self, env):
         ver = env['phpVer']
+        base_pkg = self._phputil.basePackage(ver)
 
         detect = self._detect
 
         if detect.isDebian() or detect.isUbuntu():
-            self._install.deb('php{0}-fpm'.format(ver))
+            self._install.deb('{0}-fpm'.format(base_pkg))
 
         elif detect.isSCLSupported():
-            if self._isPHPSCL(env):
-                ver = ver.replace('.', '')
+            self._install.yum('{0}-php-fpm'.format(base_pkg))
 
-                self._install.yumSCL()
-
-                self._install.yum([
-                    'rh-php{0}-php-fpm'.format(ver),
-                ])
-            else:
-                self._errorExit('Only SCL packages are supported so far')
         else:
-            self._systemDeps()
-
-    def _isPHPSCL(self, env):
-        return env['phpfpmVer'] in ('5.6', '7.0')
-
-    def _systemDeps(self):
-        self._install.deb(['php.*-fpm'])
-        self._install.zypper(['php*-fpm'])
-        self._install.yum(['php-fpm'])
-        self._install.pacman(['php-fpm'])
-        self._install.apkCommunity()
-        self._install.apk(['php7-fpm'])
+            fpm_pkg = '{0}-fpm'.format(base_pkg)
+            # self._install.brew(nothing)
+            self._install.zypper(fpm_pkg)
+            self._install.yum(fpm_pkg)
+            self._install.pacman(fpm_pkg)
+            self._install.apk(fpm_pkg)
 
     def envNames(self):
         return ['phpfpmBin', 'phpfpmVer']

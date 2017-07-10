@@ -1,5 +1,9 @@
 
 === (next) ===
+BREAKING CHANGE: seriously refactored PHP support
+ - changed to allow only binary installs by default
+ - added auto-detection of avialable & installed/enabled extensions
+ - added concept of phpExtRequire and phpExtTry
 FIXED: bug with implicitly broken chmodTree() after recent changes
 FIXED: pkg_resource import bug on some clean systems
 CHANGED: updated for OpenSUSE 42.2 Leap for testing
