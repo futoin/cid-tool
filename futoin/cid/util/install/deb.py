@@ -4,6 +4,12 @@ from .. import log as _log
 
 
 def deb(packages):
+    detect = _ext.detect
+
+    # WTF? Why did they need to do that...
+    if detect.isOpenSUSE() or detect.isSLES():
+        return
+
     apt_get = _ext.pathutil.which('apt-get')
 
     if apt_get:

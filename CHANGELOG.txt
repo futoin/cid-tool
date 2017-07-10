@@ -6,6 +6,7 @@ BREAKING CHANGE: seriously refactored PHP support
  - added concept of phpExtRequire and phpExtTry
 FIXED: bug with implicitly broken chmodTree() after recent changes
 FIXED: pkg_resource import bug on some clean systems
+FIXED: not to exec fake "apt-get" on SUSE-like
 CHANGED: updated for OpenSUSE 42.2 Leap for testing
 NEW: added caching decorators for detect API and some other
 
