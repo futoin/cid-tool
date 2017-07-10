@@ -26,19 +26,13 @@ if binary versions are not found for specific system.
         return ['rvm']
 
     def _installTool(self, env):
-        ruby_ver = env['rubyVer']
-
-        if ruby_ver == self.SYSTEM_VER:
-            self._systemDeps()
-            return
-
-        if env['rubyBinOnly']:
+        if env['rubyFoundBinary']:
             self._installBinaries(env)
             return
 
         self._buildDeps(env)
         self._executil.callExternal([
-            env['rvmBin'], 'install', ruby_ver, '--autolibs=read-only'
+            env['rvmBin'], 'install', env['rubySourceVer'], '--autolibs=read-only'
         ])
         self._executil.callExternal([
             env['rvmBin'], 'cleanup', 'all'
@@ -48,6 +42,7 @@ if binary versions are not found for specific system.
         detect = self._detect
 
         ver = env['rubyVer']
+        rvm_ruby_ver = 'system-{0}'.format(ver)
         pkgver = ver
 
         if detect.isDebian() or detect.isUbuntu():
@@ -104,14 +99,14 @@ if binary versions are not found for specific system.
             return
         else:
             self._systemDeps()
-            return
+            rvm_ruby_ver = 'system'
 
         self._executil.callExternal([
-            env['rvmBin'], 'remove', 'ext-system-{0}'.format(ver)
+            env['rvmBin'], 'remove', 'ext-{0}'.format(rvm_ruby_ver)
         ], suppress_fail=True)
 
         self._executil.callExternal([
-            env['rvmBin'], 'mount', ruby_bin, '-n', 'system-{0}'.format(ver)
+            env['rvmBin'], 'mount', ruby_bin, '-n', rvm_ruby_ver
         ])
 
     def _rubySCLName(self, ver):
@@ -145,20 +140,20 @@ if binary versions are not found for specific system.
                 os.symlink(res[0], f)
 
     def updateTool(self, env):
-        if env['rubyVer'] != self.SYSTEM_VER and not env['rubyBinOnly']:
+        if not env['rubyFoundBinary']:
             self._installTool(env)
 
     def uninstallTool(self, env):
         ruby_ver = env['rubyVer']
 
-        if ruby_ver != self.SYSTEM_VER and not env['rubyBinOnly']:
+        if not env['rubyFoundBinary']:
             self._executil.callExternal([
                 env['rvmBin'], 'uninstall', env['rubyVer']
             ])
             self._have_tool = False
 
     def envNames(self):
-        return ['rubyVer', 'rubyBin', 'rubyBinOnly']
+        return ['rubyVer', 'rubyBin', 'rubyBinOnly', 'rubyForceBuild', 'rubySourceVer']
 
     def initEnv(self, env):
         environ = self._environ
@@ -170,6 +165,14 @@ if binary versions are not found for specific system.
             path.delEnvPath('PATH', environ['GEM_HOME'])
             path.delEnvPath('GEM_PATH', environ['GEM_HOME'])
             del environ['GEM_HOME']
+
+        #---
+        rubyForceBuild = env.setdefault('rubyForceBuild', False)
+        rubyBinOnly = env.setdefault('rubyBinOnly', not rubyForceBuild)
+
+        if rubyBinOnly and rubyForceBuild:
+            self._warn('"rubyBinOnly" and "rubyForceBuild" do not make sense'
+                       ' when set together!')
 
         #---
         if detect.isDebian() or detect.isUbuntu():
@@ -192,13 +195,13 @@ if binary versions are not found for specific system.
             ruby_binaries = None
 
         #---
-        if ruby_binaries:
+        if ruby_binaries and not rubyForceBuild:
             ruby_ver = env.setdefault('rubyVer', ruby_binaries[-1])
-            rubyBinOnly = ruby_ver in ruby_binaries
+            foundBinary = ruby_ver in ruby_binaries
 
             rvm_ruby_ver = ruby_ver
 
-            if rubyBinOnly:
+            if foundBinary:
                 rvm_ruby_ver = 'ext-system-{0}'.format(ruby_ver)
 
                 # required for LD_LIBRARY_PATH
@@ -214,7 +217,7 @@ if binary versions are not found for specific system.
                     except OSError:
                         pass
                 elif detect.isMacOS():
-                    env['rubyBinOnly'] = True
+                    env['rubyFoundBinary'] = True
                     formula = 'ruby@{0}'.format(ruby_ver)
                     brew_prefix = env['brewDir']
                     ruby_bin_dir = ospath.join(
@@ -227,17 +230,16 @@ if binary versions are not found for specific system.
                 elif detect.isDebian() or detect.isUbuntu():
                     self._fixRvmLinks(env, rvm_ruby_ver, ruby_ver)
         else:
-            rubyBinOnly = False
-            ruby_ver = env.setdefault('rubyVer', self.SYSTEM_VER)
-            rvm_ruby_ver = ruby_ver
-
-        if rubyBinOnly:
-            env['rubyBinOnly'] = rubyBinOnly
-        else:
-            rubyBinOnly = env.setdefault('rubyBinOnly', rubyBinOnly)
+            ruby_ver = env.setdefault('rubyVer', '')
+            foundBinary = not ruby_ver
+            rvm_ruby_ver = ruby_ver or 'ext-system'
 
         #---
         rvm_dir = env['rvmDir']
+        env['rubyFoundBinary'] = foundBinary
+
+        if rubyForceBuild or not foundBinary:
+            rvm_ruby_ver = env.setdefault('rubySourceVer', ruby_ver or 'ruby')
 
         try:
             env_to_set = self._callBash(env,
