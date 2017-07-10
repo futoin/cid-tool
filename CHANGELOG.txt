@@ -4,6 +4,8 @@ BREAKING CHANGE: seriously refactored PHP support
  - changed to allow only binary installs by default
  - added auto-detection of avialable & installed/enabled extensions
  - added concept of phpExtRequire and phpExtTry
+ - new logic with phpForceBuild and phpBinOnly envs
+ - fine selection of source builds with phpSourceVer
 FIXED: bug with implicitly broken chmodTree() after recent changes
 FIXED: pkg_resource import bug on some clean systems
 FIXED: not to exec fake "apt-get" on SUSE-like

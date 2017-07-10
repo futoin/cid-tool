@@ -27,10 +27,8 @@ You can control installed extensions by setting:
 
     def getDeps(self):
         deps = BashToolMixIn.getDeps(self) + CurlToolMixIn.getDeps(self)
-
-        if not self._phputil.binaryVersions():
-            deps += ['phpbuild']
-
+        # TODO: need to disable for binary only installs
+        deps += ['phpbuild']
         return deps
 
     def _installTool(self, env):
@@ -54,7 +52,7 @@ You can control installed extensions by setting:
         old_tmpdir = environ.get('TMPDIR', '/tmp')
         environ['TMPDIR'] = ospath.join(php_dir, '..')
         self._executil.callExternal(
-            [env['phpbuildBin'], env['phpSrcVer'], env['phpDir']])
+            [env['phpbuildBin'], env['phpSourceVer'], env['phpDir']])
         environ['TMPDIR'] = old_tmpdir
 
     def _installBinaries(self, env):
@@ -109,7 +107,7 @@ You can control installed extensions by setting:
 
     def envNames(self):
         return ['phpDir', 'phpBin', 'phpVer', 'phpfpmVer', 'phpBinOnly', 'phpSuryRepo',
-                'phpExtRequire', 'phpExtTry']
+                'phpExtRequire', 'phpExtTry', 'phpForceBuild', 'phpSourceVer']
 
     def initEnv(self, env):
         ospath = self._ospath
@@ -122,12 +120,20 @@ You can control installed extensions by setting:
             php_ver = env.setdefault('phpVer', env['phpfpmVer'])
 
         #---
+        phpForceBuild = env.setdefault('phpForceBuild', False)
+        phpBinOnly = env.setdefault('phpBinOnly', not phpForceBuild)
+
+        if phpBinOnly and phpForceBuild:
+            self._warn('"phpBinOnly" and "phpForceBuild" do not make sense'
+                       ' when set together!')
+
+        #---
         php_binaries = phputil.binaryVersions()
 
         if php_binaries:
             php_latest = php_binaries[-1]
             php_ver = env.setdefault('phpVer', php_latest)
-            phpBinOnly = True
+            foundBinary = True
 
             if php_ver.split('.')[0] == '5' and php_ver != '5.6':
                 php_ver = '5.6'
@@ -135,24 +141,19 @@ You can control installed extensions by setting:
             elif php_ver == '7' and php_latest.split('.')[0] == '7':
                 php_ver = php_latest
             elif php_ver.split('.') > php_latest.split('.'):
-                phpBinOnly = False
+                foundBinary = False
                 self._warn(
                     'Binary builds are supported only for: {0}'.format(', '.join(php_binaries)))
 
             env['phpVer'] = php_ver
         else:
-            phpBinOnly = False
+            foundBinary = False
             php_ver = env.setdefault('phpVer', self.SYSTEM_VER)
-
-        if phpBinOnly:
-            env['phpBinOnly'] = phpBinOnly
-        else:
-            phpBinOnly = env.setdefault('phpBinOnly', True)
 
         #---
         if php_ver == self.SYSTEM_VER:
             super(phpTool, self).initEnv(env)
-        elif phpBinOnly:
+        elif foundBinary and not phpForceBuild:
             if detect.isDebian() or detect.isUbuntu():
                 bin_name = 'php' + php_ver
                 bin_src = ospath.join('/usr/bin', bin_name)
@@ -198,13 +199,14 @@ You can control installed extensions by setting:
                     self._pathutil.addBinPath(php_dir, True)
                     super(phpTool, self).initEnv(env)
 
-        else:
+        elif not phpBinOnly:
             def_dir = ospath.join(
                 env['phpbuildDir'], 'share', 'php-build', 'definitions')
 
             if not ospath.exists(def_dir):
                 return
 
+            php_ver = env.setdefault('phpSourceVer', php_ver)
             defs = os.listdir(def_dir)
             defs = self._ext.fnmatch.filter(defs, php_ver + '*')
 
@@ -213,7 +215,8 @@ You can control installed extensions by setting:
 
             php_ver = self._versionutil.latest(defs)
 
-            env['phpSrcVer'] = php_ver
+            env['phpSourceVer'] = php_ver
+            env['phpForceBuild'] = True
 
             php_dir = ospath.join(os.environ['HOME'], '.php', php_ver)
             php_dir = env.setdefault('phpDir', php_dir)
