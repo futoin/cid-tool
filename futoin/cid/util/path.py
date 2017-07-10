@@ -216,8 +216,8 @@ def chmodTree(dir, dperm, fperm, keep_execute=False):
     if stat.S_ISLNK(st_mode):
         lchmod(dir, fperm)
         return
-    elif stat.S_ISDIR(st_mode):
-        os.chmod(dir, dperm)
+    elif not stat.S_ISDIR(st_mode):
+        os.chmod(dir, fperm)
         return
 
     walk_list = os.walk(dir)
