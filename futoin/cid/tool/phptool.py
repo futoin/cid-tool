@@ -94,10 +94,7 @@ You can control installed extensions by setting:
             self._install.emerge('dev-lang/php')
             self._install.pacman(php_pkg)
 
-        self._phputil.installExtensions(env, [
-            'apcu',
-            'curl',
-        ], True)
+        env['phpJustInstalled'] = True
 
     def updateTool(self, env):
         pass
@@ -159,8 +156,7 @@ You can control installed extensions by setting:
             if detect.isDebian() or detect.isUbuntu():
                 bin_name = 'php' + php_ver
                 bin_src = ospath.join('/usr/bin', bin_name)
-                phputil.createBinDir(env, php_ver, bin_src, 'php')
-                super(phpTool, self).initEnv(env)
+                self._have_tool = phputil.createBinDir(env, bin_src)
 
             elif detect.isSCLSupported():
                 try:
@@ -182,8 +178,7 @@ You can control installed extensions by setting:
                     bin_name = 'php' + php_ver.replace('.', '')
 
                 bin_src = ospath.join('/usr/bin', bin_name)
-                phputil.createBinDir(env, php_ver, bin_src, 'php')
-                super(phpTool, self).initEnv(env)
+                self._have_tool = phputil.createBinDir(env, bin_src)
 
             elif detect.isAlpineLinux():
                 if phputil.isAlpineSplit():
@@ -192,8 +187,7 @@ You can control installed extensions by setting:
                     bin_name = 'php'
 
                 bin_src = ospath.join('/usr/bin', bin_name)
-                phputil.createBinDir(env, php_ver, bin_src, 'php')
-                super(phpTool, self).initEnv(env)
+                self._have_tool = phputil.createBinDir(env, bin_src)
 
             elif detect.isMacOS():
                 brew_prefix = env['brewDir']
@@ -232,10 +226,17 @@ You can control installed extensions by setting:
                 env.setdefault('phpBin', php_bin)
 
         #---
-        php_required_ext = env.get('phpExtRequire', '').split()
-        php_try_ext = env.get('phpExtTry', '').split()
-        phputil.installExtensions(env, php_required_ext, False)
-        phputil.installExtensions(env, php_try_ext, True)
+        if self._have_tool:
+            if env.get('phpJustInstalled', False):
+                self._phputil.installExtensions(env, [
+                    'apcu',
+                    'curl',
+                ], True)
+
+            php_required_ext = env.get('phpExtRequire', '').split()
+            php_try_ext = env.get('phpExtTry', '').split()
+            phputil.installExtensions(env, php_required_ext, False)
+            phputil.installExtensions(env, php_try_ext, True)
 
     def _buildDeps(self, env):
         ospath = self._ospath

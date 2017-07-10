@@ -82,26 +82,36 @@ def basePackage(ver):
     return 'php'
 
 
-def createBinDir(env, php_ver, src, bin_name):
+def createBinDir(env, src_bin):
     ospath = _ext.ospath
     os = _ext.os
     pathutil = _ext.pathutil
 
-    php_dir = ospath.join(os.environ['HOME'], '.php', php_ver)
+    php_dir = ospath.join(os.environ['HOME'], '.php', env['phpVer'])
     php_dir = env.setdefault('phpDir', php_dir)
 
     php_bin_dir = ospath.join(php_dir, 'bin')
-    php_bin = ospath.join(php_bin_dir, bin_name)
+    php_bin = ospath.join(php_bin_dir, 'php')
 
-    if not ospath.exists(php_bin):
-        os.makedirs(php_bin)
+    if not ospath.exists(php_bin_dir):
+        os.makedirs(php_bin_dir)
 
-    dst = ospath.join(php_bin, bin_name)
-    pathutil.rmTree(dst)
     _ext.pathutil.addBinPath(php_bin_dir, True)
 
-    if ospath.exists(src):
-        os.symlink(src, dst)
+    if ospath.exists(src_bin):
+        if ospath.islink(php_bin) and os.readlink(php_bin) == src_bin:
+            pass
+        else:
+            pathutil.rmTree(php_bin)
+            os.symlink(src_bin, php_bin)
+
+        env['phpBin'] = php_bin
+        return True
+
+    elif 'phpBin' in env:
+        del env['phpBin']
+
+    return False
 
 
 @_simple_memo
