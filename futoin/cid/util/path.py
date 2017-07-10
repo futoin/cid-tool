@@ -1,8 +1,10 @@
 
 from ..mixins.ondemand import ext as _ext
 from . import log as _log
+from . import complex_memo as _complex_memo
 
 
+@_complex_memo
 def which(program):
     "Copied from stackoverflow"
 

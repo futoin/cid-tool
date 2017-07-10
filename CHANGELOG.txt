@@ -1,6 +1,7 @@
 
 === (next) ===
 FIXED: bug with implicitly broken chmodTree() after recent changes
+NEW: added caching decorators for detect API and some other
 
 === 0.7.995 (2017-07-09) ===
 FIXED: to run Yarn before other npm tools

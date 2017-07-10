@@ -18,6 +18,10 @@ You can forbid source builds by setting phpBinOnly to non-empty string.
 
 However, if phpVer is set then we use php-build which make consume a lot of time and
 resources due to lack of trusted binary builds.
+
+You can control installed extensions by setting:
+* phpExtRequire - required extensions to be installed or fail
+* phpExtTry - nice to have extensions
 """
     __slots__ = ()
 
