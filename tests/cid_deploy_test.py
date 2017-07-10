@@ -6,6 +6,7 @@ import signal
 import stat
 import pwd
 import grp
+from nose.plugins.attrib import attr
 
 import requests
 
@@ -615,7 +616,7 @@ class cid_multiapp_Base( cid_UTBase ) :
             try: os.waitpid(pid, 0)
             except OSError: pass
 
-        
+@attr(tool='php')
 class cid_multiphp_Test( cid_multiapp_Base ) :
     __test__ = True
     TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'deploy_php')
@@ -681,7 +682,7 @@ echo "ADMINPHP\\n";
         self.assertTrue(res.ok)
         self.assertEquals("ADMINPHP\n", res.text)
 
-        
+@attr(tool='node')
 class cid_multijs_Test( cid_multiapp_Base ) :
     __test__ = True
     TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'deploy_js')
@@ -766,7 +767,7 @@ server.listen(process.env.PORT);
         self.assertTrue(res.ok)
         self.assertEquals("NODEJS-TCP\n", res.text)
 
-
+@attr(tool='python')
 class cid_multipy_Test( cid_multiapp_Base ) :
     __test__ = True
     TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'deploy_py')
@@ -838,7 +839,7 @@ def application(env, start_response):
         self.assertTrue(res.ok)
         self.assertEquals("PYTHON-TCP\n", res.text)
         
-        
+@attr(tool='ruby')
 class cid_multirb_Test( cid_multiapp_Base ) :
     __test__ = True
     TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'deploy_rb')

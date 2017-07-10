@@ -9,12 +9,14 @@ import grp
 import glob
 
 import requests
+from nose.plugins.attrib import attr
 
 from .cid_utbase import cid_UTBase
 from futoin.cid.mixins.ondemand import ext
 
 DB_HOST = os.environ.get('DB_HOST', '10.11.1.11')
 
+@attr(tool='ruby')
 class cid_redmine_Test( cid_UTBase ) :
     __test__ = True
     
@@ -101,7 +103,7 @@ production:
             try: os.waitpid(pid, 0)
             except OSError: pass
 
-
+@attr(tool='php')
 class cid_nextcloud_Test( cid_UTBase ) :
     __test__ = True
     

@@ -1,5 +1,6 @@
 
 from __future__ import print_function, absolute_import
+from nose.plugins.attrib import attr
 
 from .cid_utbase import cid_UTBase
 from futoin.cid.rmstool import RmsTool
@@ -141,28 +142,35 @@ object Hi {
 
     def test12_run_test_cid(self):
         self._test_run('test-cid', 'FROM-SUB-CID')
-        
+    
     def test20_run_exe_ep( self ):
         self._test_run('exe_ep', 'EXE')
-        
+    
+    @attr(tool='go')
     def test21_run_go_ep( self ):
         self._test_run('go_ep', 'GO')
-        
+    
+    @attr(tool='java')
     def test22_run_java_ep( self ):
         self._test_run('java_ep', 'JAVA')
     
+    @attr(tool='node')
     def test23_run_node_ep( self ):
         self._test_run('node_ep', 'NODE')
     
+    @attr(tool='php')
     def test24_run_php_ep( self ):
         self._test_run('php_ep', 'PHP')
     
+    @attr(tool='python')
     def test24_run_python_ep( self ):
         self._test_run('python_ep', 'PYTHON')
     
+    @attr(tool='ruby')
     def test25_run_ruby_ep( self ):
         self._test_run('ruby_ep', 'RUBY')
     
+    @attr(tool='java')
     def test26_run_scala_ep( self ):
         self._test_run('scala_ep', 'SCALA')
     

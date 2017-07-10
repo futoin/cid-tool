@@ -22,6 +22,7 @@ class cid_UTBase ( unittest.TestCase ) :
     IS_LINUX = platform.system() == 'Linux'
     IS_MACOS = platform.system() == 'Darwin'
     NO_COMPILE = os.environ.get('CIDTEST_NO_COMPILE', '0') == '1'
+    ALLOW_SRC_BUILDS = not NO_COMPILE
     
     CIDTEST_BIN = CIDTEST_BIN
     TEST_DIR = 'invalid'

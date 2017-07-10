@@ -2,6 +2,7 @@
 from .cid_utbase import cid_Tool_UTBase
 import os, re, sys, subprocess, platform, glob, stat
 from futoin.cid.util import path as pathutil
+from nose.plugins.attrib import attr
 
 #=============================================================================
 class cid_BuildTool_UTBase(cid_Tool_UTBase):
@@ -47,6 +48,7 @@ class cid_BuildTool_UTBase(cid_Tool_UTBase):
 
 
 #=============================================================================
+@attr(tool='java')
 class cid_ant_Test(cid_BuildTool_UTBase):
     __test__ = True
     
@@ -100,6 +102,7 @@ public class HelloWorld {
 
 
 #=============================================================================
+@attr(tool='node')
 class cid_bower_Test(cid_BuildTool_UTBase):
     __test__ = True
     
@@ -126,6 +129,7 @@ class cid_bower_Test(cid_BuildTool_UTBase):
 
 
 #=============================================================================
+@attr(tool='ruby')
 class cid_bundler_Test(cid_BuildTool_UTBase):
     __test__ = True
     
@@ -146,6 +150,7 @@ gem 'thor', '0.19.1'
 
 
 #=============================================================================
+@attr(tool='rust')
 class cid_cargo_Test(cid_BuildTool_UTBase):
     __test__ = True
     
@@ -201,6 +206,7 @@ else :
     composer_require = "futoin/core-php-ri-asyncsteps"
     composer_require_dev = "futoin/core-php-ri-executor"
 
+@attr(tool='php')
 class cid_composer_Test(cid_BuildTool_UTBase):
     __test__ = True
     
@@ -238,6 +244,7 @@ CMD echo "Hello World!"
 ''')
 
 #=============================================================================
+@attr(tool='java')
 class cid_gradle_Test(cid_BuildTool_UTBase):
     __test__ = True
     
@@ -269,6 +276,7 @@ task test_file {
 
 
 #=============================================================================
+@attr(tool='node')
 class cid_grunt_Test(cid_BuildTool_UTBase):
     __test__ = True
     
@@ -301,6 +309,7 @@ module.exports = function(grunt) {
 
 
 #=============================================================================
+@attr(tool='node')
 class cid_gulp_Test(cid_BuildTool_UTBase):
     __test__ = True
     
@@ -352,6 +361,7 @@ clean:
 
 
 #=============================================================================
+@attr(tool='java')
 class cid_maven_Test(cid_BuildTool_UTBase):
     __test__ = True
     
@@ -376,6 +386,7 @@ class cid_maven_Test(cid_BuildTool_UTBase):
 
 
 #=============================================================================
+@attr(tool='node')
 class cid_npm_Test(cid_BuildTool_UTBase):
     __test__ = True
     
@@ -403,6 +414,7 @@ class cid_npm_Test(cid_BuildTool_UTBase):
 
 
 #=============================================================================
+@attr(tool='python')
 class cid_pip_Test(cid_BuildTool_UTBase):
     __test__ = True
     
@@ -446,8 +458,9 @@ class cid_puppet_Test(cid_BuildTool_UTBase):
 
 #=============================================================================
 # SBT takes very long time for initial startup
+@attr(tool='java')
 class cid_sbt_Test(cid_BuildTool_UTBase):
-    __test__ = os.environ.get('CIDTEST_NO_COMPILE', '0') != '1'
+    __test__ = cid_BuildTool_UTBase.ALLOW_SRC_BUILDS
     
     @classmethod
     def setUpTool(cls):
@@ -472,6 +485,7 @@ version := "0.1"
 
 
 #=============================================================================
+@attr(tool='python')
 class cid_setuptools_Test(cid_BuildTool_UTBase):
     __test__ = True
     
@@ -503,6 +517,7 @@ setup(
         assert os.path.exists('dist/futoin-cid-testapp-0.0.1.tar.gz')
         
 #=============================================================================
+@attr(tool='node')
 class cid_webpack_Test(cid_BuildTool_UTBase):
     __test__ = True
     
@@ -529,6 +544,7 @@ module.exports = {
         assert os.path.exists('dist/bundle.js')
 
 #=============================================================================
+@attr(tool='node')
 class cid_yarn_Test(cid_BuildTool_UTBase):
     __test__ = True
     
@@ -556,3 +572,4 @@ class cid_yarn_Test(cid_BuildTool_UTBase):
     def _test_package( self ):
         assert os.path.exists('node_modules/futoin-asyncsteps')
         assert not os.path.exists('node_modules/futoin-executor')
+        

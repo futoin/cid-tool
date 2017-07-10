@@ -2,6 +2,7 @@
 from .cid_utbase import cid_Tool_UTBase
 import os, subprocess, sys
 import platform, re
+from nose.plugins.attrib import attr
 
 IS_LINUX = cid_Tool_UTBase.IS_LINUX
 IS_MACOS = cid_Tool_UTBase.IS_MACOS
@@ -116,11 +117,12 @@ if is_alpinelinux:
 
 for t in system_tools:
     cls = 'cid_Tool_10_' + t
-    globals()[cls] = type(cls, (cid_Tool_UTCommon, ), {
+    clstype = type(cls, (cid_Tool_UTCommon, ), {
         '__test__' : True,
         'TOOL_NAME' : t,
         'TOOL_MANAGED' : False,
     })
+    globals()[cls] = attr(tool=t)(clstype)
 
     
 # 20
@@ -145,10 +147,11 @@ if is_alpinelinux:
 
 for t in managed_tools:
     cls = 'cid_Tool_20_' + t
-    globals()[cls] = type(cls, (cid_Tool_UTCommon, ), {
+    clstype = type(cls, (cid_Tool_UTCommon, ), {
         '__test__' : True,
         'TOOL_NAME' : t,
     })
+    globals()[cls] = attr(tool=t)(clstype)
     
 if IS_MACOS:
     cid_Tool_20_jfrog.TOOL_MANAGED = False  # pylint: disable=undefined-variable
@@ -157,10 +160,11 @@ if IS_MACOS:
 #-----
 for t in ['node', 'go']:
     cls = 'cid_Tool_30_' + t
-    globals()[cls] = type(cls, (cid_Tool_UTCommon, ), {
+    clstype = type(cls, (cid_Tool_UTCommon, ), {
         '__test__' : True,
         'TOOL_NAME' : t,
     })
+    globals()[cls] = attr(tool=t)(clstype)
     
 mixed_tools = {
     'java': {
@@ -188,6 +192,12 @@ mixed_tools = {
             'scl': ['5.6', '7.0'],
             'brew' : ['5.6', '7.0', '7.1']
         },
+        'src': {
+            'env': {
+                'phpVer': '7.2',
+                'phpForceBuild': '1',
+            }
+        }
     },
     'phpfpm' : {
         'managed': False,
@@ -204,6 +214,12 @@ mixed_tools = {
             'scl': ['1.9', '2.0', '2.2', '2.3'],
             'brew' : ['1.8', '1.9', '2.1', '2.2', '2.3', '2.4']
         },
+        'src': {
+            'env': {
+                'rubyVer': '2.4',
+                'rubyForceBuild': '1',
+            }
+        }
     },
     'rust' : {
         'ver': '1.8.0',
@@ -212,38 +228,27 @@ mixed_tools = {
     
 if is_alpinelinux:
     del mixed_tools['rust']
-        
-if os.environ.get('CIDTEST_NO_COMPILE', '0') == '1':
-    linux_distro = platform.linux_distribution()
-    
-    # Workaround for birghtbox issues on Stretch
-    if linux_distro[0].startswith('debian') and linux_distro[1][0] == '9' and False:
-        del mixed_tools['ruby']['binver']['deb']
-else:
-    mixed_tools['php']['ver'] = '7.1'
-    mixed_tools['php']['env'] = {'phpBinOnly' : ''}
-
-    mixed_tools['ruby']['ver'] = '2.4'
-    mixed_tools['ruby']['env'] = {'rubyBinOnly' : ''}
     
 for t, ti in mixed_tools.items():
     cls = "cid_Tool_31_{0}".format(t)
     tenv = ti.get('env', {})
     if 'ver' in ti:
         tenv[ "{0}Ver".format(t) ] = ti['ver']
-    globals()[cls] = type(cls, (cid_Tool_UTCommon, ), {
+    clstype = type(cls, (cid_Tool_UTCommon, ), {
         '__test__' : True,
         'TOOL_NAME' : t,
         'TOOL_ENV': tenv,
         'TOOL_MANAGED' : ti.get('managed', True),
     })
+    globals()[cls] = attr(tool=t)(clstype)
     #--
     cls = "cid_Tool_30_{0}_system".format(t)
-    globals()[cls] = type(cls, (cid_Tool_UTCommon, ), {
+    clstype = type(cls, (cid_Tool_UTCommon, ), {
         '__test__' : True,
         'TOOL_NAME' : t,
         'TOOL_MANAGED' : False,
     })
+    globals()[cls] = attr(tool=t)(clstype)
     
     if 'binver' in ti:
         linux_distro = platform.linux_distribution()
@@ -257,12 +262,13 @@ for t, ti in mixed_tools.items():
                 cls = "cid_Tool_32_{0}_deb_{1}".format(t, bv.replace('.', ''))
                 tenv = {}
                 tenv[ "{0}Ver".format(t) ] = bv
-                globals()[cls] = type(cls, (cid_Tool_UTCommon, ), {
+                clstype = type(cls, (cid_Tool_UTCommon, ), {
                     '__test__' : True,
                     'TOOL_NAME' : t,
                     'TOOL_ENV': tenv,
                     'TOOL_MANAGED' : False,
                 })
+                globals()[cls] = attr(tool=t)(clstype)
 
         if 'scl' in binver and (
             linux_distro[0].startswith('CentOS') or
@@ -273,24 +279,36 @@ for t, ti in mixed_tools.items():
                 cls = "cid_Tool_32_{0}_scl_{1}".format(t, bv.replace('.', ''))
                 tenv = {}
                 tenv[ "{0}Ver".format(t) ] = bv
-                globals()[cls] = type(cls, (cid_Tool_UTCommon, ), {
+                clstype = type(cls, (cid_Tool_UTCommon, ), {
                     '__test__' : True,
                     'TOOL_NAME' : t,
                     'TOOL_ENV': tenv,
                     'TOOL_MANAGED' : False,
                 })
+                globals()[cls] = attr(tool=t)(clstype)
 
         if 'brew' in binver and cid_Tool_UTBase.IS_MACOS:
             for bv in binver['brew']:
                 cls = "cid_Tool_32_{0}_brew_{1}".format(t, bv.replace('.', ''))
                 tenv = {}
                 tenv[ "{0}Ver".format(t) ] = bv
-                globals()[cls] = type(cls, (cid_Tool_UTCommon, ), {
+                clstype = type(cls, (cid_Tool_UTCommon, ), {
                     '__test__' : True,
                     'TOOL_NAME' : t,
                     'TOOL_ENV': tenv,
                     'TOOL_MANAGED' : False,
                 })
+                globals()[cls] = attr(tool=t)(clstype)
+                
+    if 'src' in ti and cid_Tool_UTBase.ALLOW_SRC_BUILDS:
+        #--
+        cls = "cid_Tool_33_{0}_srcbuild".format(t)
+        clstype = type(cls, (cid_Tool_UTCommon, ), {
+            '__test__' : True,
+            'TOOL_NAME' : t,
+            'TOOL_ENV': ti['src']['env'],
+        })
+        globals()[cls] = attr(tool=t)(clstype)
 
 # 40 - unmanaged
 #-----
@@ -302,11 +320,12 @@ tools_umanaged = [
 
 for t in tools_umanaged:
     cls = 'cid_Tool_40_' + t
-    globals()[cls] = type(cls, (cid_Tool_UTCommon, ), {
+    clstype = type(cls, (cid_Tool_UTCommon, ), {
         '__test__' : True,
         'TOOL_NAME' : t,
         'TOOL_MANAGED' : False,
     })
+    globals()[cls] = attr(tool=t)(clstype)
 
 # 50 - managed
 #-----
@@ -327,7 +346,8 @@ if not IS_LINUX:
 
 for t in tools_managed2:
     cls = 'cid_Tool_50_' + t
-    globals()[cls] = type(cls, (cid_Tool_UTCommon, ), {
+    clstype = type(cls, (cid_Tool_UTCommon, ), {
         '__test__' : True,
         'TOOL_NAME' : t,
     })
+    globals()[cls] = attr(tool=t)(clstype)

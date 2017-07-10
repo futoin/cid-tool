@@ -34,7 +34,7 @@
     ],
     "check": [
       "@default",
-      "@cid tool exec pip -- install -q pylint",
+      "@cid tool exec pip -- install -q pylint nose",
       "pylint -E futoin --ignore=contrib",
       "pylint -E tests/"
     ]
