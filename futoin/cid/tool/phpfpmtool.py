@@ -77,6 +77,7 @@ Note: file upload is OFF by default.
     def initEnv(self, env):
         ospath = self._ospath
         detect = self._detect
+        phputil = self._phputil
 
         php_ver = env['phpVer']
         phpfpm_ver = env.setdefault('phpfpmVer', php_ver)
@@ -96,6 +97,18 @@ Note: file upload is OFF by default.
             if detect.isDebian() or detect.isUbuntu():
                 bin_name = 'php-fpm' + php_ver
 
+            elif detect.isArchLinux():
+                if phputil.isArchLatest(php_ver):
+                    bin_name = 'php-fpm'
+                else:
+                    bin_name = 'php' + php_ver.replace('.', '')
+
+            elif detect.isAlpineLinux():
+                if phputil.isAlpineSplit():
+                    bin_name = 'php-fpm' + php_ver[0]
+                else:
+                    bin_name = 'php-fpm'
+
         else:
             bin_name = '{0}-fpm'.format(ospath.basename(php_bin))
 
@@ -113,6 +126,7 @@ Note: file upload is OFF by default.
 
         # fallback, find any
         #---
+        self._pathutil.addBinPath('/usr/sbin')
         phpfpm_bin = self._pathutil.which(bin_name)
 
         if phpfpm_bin:

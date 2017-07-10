@@ -18,7 +18,8 @@ def binaryVersions():
         return ['5.6', '7.0']
 
     if detect.isArchLinux():
-        return ['5.6', '7.0', '7.1']
+        # return ['5.6', '7.0', '7.1']
+        return None
 
     if detect.isAlpineLinux():
         alpine_ver = detect.alpineLinuxVersion()
@@ -109,9 +110,10 @@ def isAlpineSplit():
 
 
 def isArchLatest(ver):
-    return ver == '7.1'
+    # return ver == '7.1'
+    return True
 
-# do not cache
+# NOTE: do not cache
 
 
 def extPackages(env):
@@ -245,7 +247,7 @@ def extPackages(env):
         else:
             _log.errorExit('Unknown generic PHP ext "{0}"'.format(k))
 
-    return res
+    return known
 
 
 def knownExtensions():
@@ -361,5 +363,5 @@ def installExtensions(env, exts, permissive=True):
                 else:
                     _log.errorExit(msg)
         else:
-            _log.errorExit('Unknown PHP extension "{0}\nKnown: \n* {1}'.format(
-                mapping, '\n*'.join(knownExtensions())))
+            _log.errorExit('Unknown PHP extension "{0}"\nKnown: \n* {1}'.format(
+                ext, '\n* '.join(knownExtensions())))

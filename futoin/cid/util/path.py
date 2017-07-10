@@ -4,8 +4,12 @@ from . import log as _log
 from . import complex_memo as _complex_memo
 
 
-@_complex_memo
 def which(program):
+    return cachedWhich(program, _ext.os.environ["PATH"])
+
+
+@_complex_memo
+def cachedWhich(program, env_path):
     "Copied from stackoverflow"
 
     os = _ext.os
@@ -15,11 +19,12 @@ def which(program):
         return ospath.isfile(fpath) and os.access(fpath, os.X_OK)
 
     fpath, fname = ospath.split(program)
+
     if fpath:
         if is_exe(program):
             return program
     else:
-        for path in os.environ["PATH"].split(os.pathsep):
+        for path in env_path.split(os.pathsep):
             path = path.strip('"')
             exe_file = ospath.join(path, program)
 
