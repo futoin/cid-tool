@@ -30,7 +30,7 @@ which apk 2>/dev/null && apk update || true
         'macos_sierra' => 'jhcook/macos-sierra',
 
         # behaves similar to CentOS, but limited
-        #'ol_7' => 'boxcutter/ol73',
+        'ol_7' => 'boxcutter/ol73',
         #'rhel_7' => 'iamseth/rhel-7.3',
         #'sles_12' => 'suse/sles12sp1',
 

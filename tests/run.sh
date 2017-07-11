@@ -160,7 +160,9 @@ which systemctl >/dev/null 2>&1 && sudo systemctl mask \
     php7.0-fpm.service \
     php7.1-fpm.service \
     php7-fpm.service \
-    php5-fpm.service
+    php5.6-fpm.service \
+    php5-fpm.service \
+    php-fpm.service
     
 sudo rm -f $CIDTEST_RUN_DIR/stdout.log $CIDTEST_RUN_DIR/stderr.log
 
