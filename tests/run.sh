@@ -5,6 +5,14 @@ if ! test -e bin/cid; then
     exit 1
 fi
 
+if test -e /etc/redhat-release && \
+    which subscription-manager >/dev/null;
+then
+    source ./redhat-credentials
+    sudo subscription-manager register --auto-attach --username=$RHDEV_USER --password=$RHDEV_PASS
+fi
+
+
 CID_SOURCE_DIR=$(pwd)
 CID_BOOT=${CID_SOURCE_DIR}/bin/cid
 TEST_ROOT=${CID_SOURCE_DIR}

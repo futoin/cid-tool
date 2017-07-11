@@ -178,12 +178,16 @@ Tested on the following OSes:
     
 * **Oracle Linux**
 
-  - **7** - supported as CentOS. Not included in standard test cycle.
+  - **7**
     
 * **RedHat Enterprise Linux**
 
-  - **7** - supported as CentOS. Not included in standard test cycle.
-    
+  - **7**
+
+* **SLES**
+
+  - Very preliminary support, permanent testing license & Vagrant box is required.
+
 * **Ubuntu**
 
   - **14.04 LTS - Trusty**

@@ -31,7 +31,7 @@ which apk 2>/dev/null && apk update || true
 
         # behaves similar to CentOS, but limited
         'ol_7' => 'boxcutter/ol73',
-        #'rhel_7' => 'iamseth/rhel-7.3',
+        'rhel_7' => 'iamseth/rhel-7.3',
         #'sles_12' => 'suse/sles12sp1',
 
         # not part of standard test cycle
@@ -55,7 +55,7 @@ which apk 2>/dev/null && apk update || true
             
             group = 'root'
             
-            if ['ubuntu_trusty', 'centos_7', 'debian_stretch', 'alpinelinux'].include? name
+            if ['ubuntu_trusty', 'centos_7', 'debian_stretch', 'alpinelinux', 'ol_7'].include? name
                 nic_type = '82540EM'
             else
                 nic_type = 'virtio'

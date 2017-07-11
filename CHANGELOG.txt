@@ -13,6 +13,7 @@ FIXED: pkg_resource import bug on some clean systems
 FIXED: not to exec fake "apt-get" on SUSE-like
 FIXED: missing yum/dnf repo enable sudoers entry
 CHANGED: updated for OpenSUSE 42.2 Leap for testing
+CHANGED: enabled OL & RHEL for regular testing
 NEW: added caching decorators for detect API and some other
 NEW: added IUS PHP 7.1 for RH-based
 
