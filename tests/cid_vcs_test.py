@@ -3,6 +3,7 @@ from __future__ import print_function, absolute_import
 
 from .cid_utbase import cid_UTBase
 from futoin.cid.rmstool import RmsTool
+from futoin.cid.util import executil
 
 import os
 import subprocess
@@ -119,10 +120,8 @@ class cid_VCS_UTBase ( cid_UTBase ) :
         
         self._goToBase()
         content = subprocess.check_output( 'tar tJf rms_repo/Prod/wc-CI-1.3.1-*.txz | /usr/bin/sort -f', shell=True )
-        try:
-            content = str(content, 'utf8')
-        except TypeError:
-            content = str(content)
+        content = executil.toString(content)
+
         req_content=[
             '',
             '.package.checksums',

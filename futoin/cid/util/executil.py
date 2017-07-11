@@ -59,7 +59,7 @@ def callExternal(cmd, suppress_fail=False, verbose=True,
 
         if input:
             if not binary_input:
-                input = input.encode(encoding=encoding)
+                input = toBytes(input, encoding)
 
             try:
                 p.stdin.write(input)
@@ -77,12 +77,7 @@ def callExternal(cmd, suppress_fail=False, verbose=True,
                 on_chunk = on_binary_chunk
             else:
                 def on_str_chunk(x):
-                    try:
-                        x = str(x, encoding)
-                    except TypeError:
-                        pass
-
-                    res_buffers.append(x)
+                    res_buffers.append(toString(x, encoding))
 
                 on_chunk = on_str_chunk
 
@@ -177,3 +172,17 @@ def startService(name):
         trySudoCall(
             [openrc, name, 'start'],
             errmsg='you may need to start the service manually')
+
+
+def toString(value, encoding='UTF-8'):
+    try:
+        return str(value, encoding)
+    except TypeError:
+        return str(value)
+
+
+def toBytes(value, encoding='UTF-8'):
+    try:
+        return str(value).encode(encoding=encoding)
+    except TypeError:
+        return bytes(value)

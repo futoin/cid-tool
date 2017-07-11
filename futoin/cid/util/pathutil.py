@@ -155,10 +155,7 @@ def writeTextFile(file_name, content):
 
 
 def writeBinaryFile(file_name, content):
-    try:
-        content = content.encode(encoding='UTF-8')
-    except:
-        pass
+    content = _ext.executil.toBytes(content)
 
     with open(file_name, 'wb') as content_file:
         content_file.write(content)
@@ -178,14 +175,7 @@ def writeIni(file_name, content):
         str_content.append('')
 
     str_content = "\n".join(str_content)
-
-    try:
-        str_content = str_content.encode(encoding='UTF-8')
-    except:
-        pass
-
-    with open(file_name, 'wb') as content_file:
-        content_file.write(str_content)
+    writeTextFile(file_name, str_content)
 
 
 def mkDir(dir):

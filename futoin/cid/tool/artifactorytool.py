@@ -243,12 +243,7 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
 
     def _genServerId(self):
         rndm = self._ext.binascii.hexlify(self._os.urandom(8))
-
-        try:
-            rndm = str(rndm, 'utf8')
-        except:
-            pass
-
+        rndm = self._executil.toString(rndm)
         return 'cid-' + rndm
 
     def _checkFileUpload(self, config, rms_pool, package_list):

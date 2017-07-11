@@ -200,19 +200,8 @@ add_executable (helloDemo hello.cpp)
 
 
 #=============================================================================
-php_ver = subprocess.check_output("echo '<?php echo phpversion();' | php 2>/dev/null || echo '5.4'", shell=True)
-
-try:
-    php_ver = str(php_ver, 'utf8')
-except:
-    pass
-
-if php_ver < '5.5':
-    composer_require = 'psr/log'
-    composer_require_dev = 'symfony/polyfill-mbstring'
-else :
-    composer_require = "futoin/core-php-ri-asyncsteps"
-    composer_require_dev = "futoin/core-php-ri-executor"
+composer_require = "futoin/core-php-ri-asyncsteps"
+composer_require_dev = "futoin/core-php-ri-executor"
 
 @attr(tool='php')
 class cid_composer_Test(cid_BuildTool_UTBase):

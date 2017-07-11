@@ -92,12 +92,7 @@ def isAMD64():
 @_simple_memo
 def osCodeName():
     codename = _ext.subprocess.check_output(['lsb_release', '-cs'])
-
-    try:
-        codename = str(codename, 'utf8')
-    except:
-        pass
-
+    codename = _ext.executil.toString(codename)
     return codename.strip()
 
 

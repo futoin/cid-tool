@@ -89,11 +89,7 @@ def yumRepo(name, url, gpg_key=None, releasevermax=None, repo_url=False):
 
             if not repo_info:
                 repo_info = _ext.urllib.urlopen(url).read()
-
-                try:
-                    repo_info = str(repo_info, 'utf8')
-                except:
-                    pass
+                repo_info = _ext.executil.toString(repo_info)
 
             repo_info = repo_info.replace('$releasever', str(dist_ver))
 

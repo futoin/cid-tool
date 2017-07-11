@@ -9,6 +9,7 @@ import shutil
 import json
 import platform
 from collections import OrderedDict
+from futoin.cid.util import executil
 
 CIDTEST_BIN = os.environ.get('CIDTEST_BIN', None)
 
@@ -119,10 +120,7 @@ class cid_UTBase ( unittest.TestCase ) :
             raise RuntimeError( "Failed" )
         
         if retout:
-            try: res = str(res, 'utf8')
-            except: pass
-        
-            return res
+            return executil.toString(retout)
         
         return True
         
