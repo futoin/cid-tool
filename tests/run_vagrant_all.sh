@@ -12,6 +12,11 @@ for vm in $VM_LIST; do
     fi
 
     $(dirname $0)/run_vagrant.sh $vm $args "$@";
+
+    [ $vm = 'cid_rhel_7' ] && \
+        [ $CID_DESTROY -eq 1 ] && \
+        vagrant ssh $vm -- sudo subscription-manager unregister
+
     [ $CID_DESTROY -eq 1 ] && vagrant destroy -f $vm
     
     args=$CID_FAST

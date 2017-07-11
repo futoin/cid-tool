@@ -120,7 +120,7 @@ class cid_UTBase ( unittest.TestCase ) :
             raise RuntimeError( "Failed" )
         
         if retout:
-            return executil.toString(retout)
+            return executil.toString(res)
         
         return True
         

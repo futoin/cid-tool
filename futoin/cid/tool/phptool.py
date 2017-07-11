@@ -36,7 +36,7 @@ You can control installed extensions by setting:
         environ = self._environ
         php_ver = env['phpVer']
 
-        if php_ver == self.SYSTEM_VER or env['phpBinOnly']:
+        if not env['phpSourceBuild']:
             self._installBinaries(env)
             return
 
@@ -128,6 +128,7 @@ You can control installed extensions by setting:
         #---
         phpForceBuild = env.setdefault('phpForceBuild', False)
         phpBinOnly = env.setdefault('phpBinOnly', not phpForceBuild)
+        env['phpSourceBuild'] = False
 
         if phpBinOnly and phpForceBuild:
             self._warn('"phpBinOnly" and "phpForceBuild" do not make sense'
@@ -172,11 +173,14 @@ You can control installed extensions by setting:
                 else:
                     try:
                         ver = php_ver.replace('.', '')
-                        env_to_set = self._callBash(
-                            env, 'scl enable rh-php{0} env'.format(ver),
-                            verbose=False)
+                        sclname = 'rh-php{0}'.format(ver)
+                        env_to_set = self._executil.callExternal(
+                            ['scl', 'enable', sclname, 'env'], verbose=False)
                         self._pathutil.updateEnvFromOutput(env_to_set)
                         super(phpTool, self).initEnv(env)
+
+                        if self._have_tool:
+                            self._have_tool = env['phpBin'].startswith('/opt')
                     except self._ext.subprocess.CalledProcessError:
                         return
                     except OSError:
@@ -227,6 +231,7 @@ You can control installed extensions by setting:
 
             env['phpSourceVer'] = php_ver
             env['phpForceBuild'] = True
+            env['phpSourceBuild'] = True
 
             php_dir = ospath.join(os.environ['HOME'], '.php', php_ver)
             php_dir = env.setdefault('phpDir', php_dir)

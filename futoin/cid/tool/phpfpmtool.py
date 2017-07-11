@@ -47,7 +47,7 @@ Note: file upload is OFF by default.
 
         php_ver = env['phpVer']
 
-        if php_ver == self.SYSTEM_VER or env['phpBinOnly']:
+        if not env['phpSourceBuild']:
             self._installBinaries(env)
             return
 
@@ -94,7 +94,15 @@ Note: file upload is OFF by default.
 
         php_bin = env['phpBin']
 
-        if env['phpBinOnly']:
+        if env['phpSourceBuild'] or detect.isSCLSupported():
+            phpfpm_bin = ospath.join(php_bin, '..', '..', 'sbin', 'php-fpm')
+            phpfpm_bin = ospath.realpath(phpfpm_bin)
+
+            if ospath.exists(phpfpm_bin):
+                env['phpfpmBin'] = phpfpm_bin
+                self._have_tool = True
+                return
+        else:
             bin_name = 'php-fpm'
 
             if detect.isDebian() or detect.isUbuntu():
@@ -104,7 +112,7 @@ Note: file upload is OFF by default.
                 if phputil.isArchLatest(php_ver):
                     bin_name = 'php-fpm'
                 else:
-                    bin_name = 'php' + php_ver.replace('.', '')
+                    bin_name = 'php{0}-fpm'.format(php_ver.replace('.', ''))
 
             elif detect.isAlpineLinux():
                 if phputil.isAlpineSplit():
@@ -112,30 +120,27 @@ Note: file upload is OFF by default.
                 else:
                     bin_name = 'php-fpm'
 
-        else:
-            bin_name = '{0}-fpm'.format(ospath.basename(php_bin))
+            #--
+            phpfpm_bin = ospath.realpath(
+                ospath.join(php_bin, '..', '..', 'sbin',
+                            '{0}*'.format(bin_name))
+            )
+            phpfpm_bin = self._ext.glob.glob(phpfpm_bin)
 
-        #--
-        phpfpm_bin = ospath.realpath(
-            ospath.join(php_bin, '..', '..', 'sbin',
-                        '{0}*'.format(bin_name))
-        )
-        phpfpm_bin = self._ext.glob.glob(phpfpm_bin)
+            if phpfpm_bin:
+                env['phpfpmBin'] = phpfpm_bin[0]
+                self._have_tool = True
+                return
 
-        if phpfpm_bin:
-            env['phpfpmBin'] = phpfpm_bin[0]
-            self._have_tool = True
-            return
+            # fallback, find any
+            #---
+            self._pathutil.addBinPath('/usr/sbin')
+            phpfpm_bin = self._pathutil.which(bin_name)
 
-        # fallback, find any
-        #---
-        self._pathutil.addBinPath('/usr/sbin')
-        phpfpm_bin = self._pathutil.which(bin_name)
-
-        if phpfpm_bin:
-            env['phpfpmBin'] = phpfpm_bin
-            self._have_tool = True
-            return
+            if phpfpm_bin:
+                env['phpfpmBin'] = phpfpm_bin
+                self._have_tool = True
+                return
 
     def onPreConfigure(self, config, runtime_dir, svc, cfg_svc_tune):
         ospath = self._ospath
