@@ -1051,6 +1051,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                 '# package installation only',
                 '/usr/bin/dnf install *',
                 '/usr/bin/dnf config-manager --add-repo *',
+                '/usr/bin/dnf config-manager --enable *',
             ]
 
             if not skip_key_mgmt:
@@ -1065,6 +1066,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                 '# package installation only',
                 '/usr/bin/yum install *',
                 '/usr/bin/yum-config-manager --add-repo *',
+                '/usr/bin/yum-config-manager --enable *',
             ]
 
             if not skip_key_mgmt:
