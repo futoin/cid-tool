@@ -91,7 +91,7 @@ Additional notes:
                     'zesty': 'yakkety',
                 })
 
-        elif detect.isCentOS() or detect.isOracleLinux():
+        elif detect.isCentOS():
             dist_ver = self._detect.linuxDistVersion().split('.')[0]
 
             self._install.yumRepo(
@@ -107,10 +107,12 @@ Additional notes:
                 self._GPG_KEY,
                 repo_url=True)
 
-        elif detect.isRHEL():
+        elif detect.isRHEL() or detect.isOracleLinux():
+            dist_ver = self._detect.linuxDistVersion().split('.')[0]
+
             self._install.yumRepo(
                 'nginx',
-                '{0}/rhel/$releasever/$basearch/'.format(base_url),
+                '{0}/rhel/{1}/$basearch/'.format(base_url, dist_ver),
                 self._GPG_KEY,
                 repo_url=True)
 
