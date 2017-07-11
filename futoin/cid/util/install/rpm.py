@@ -155,7 +155,7 @@ def yumEPEL():
     detect = _ext.detect
 
     if detect.isOracleLinux() or detect.isRHEL():
-        ver = _ext.platform.linux_distribution()[1].split('.')[0]
+        ver = _ext.detect.linuxDistVersion().split('.')[0]
         yum(
             ['https://dl.fedoraproject.org/pub/epel/epel-release-latest-{0}.noarch.rpm'.format(ver)])
     else:
@@ -168,15 +168,32 @@ def yumSCL():
     if not detect.isSCLSupported():
         return
 
+    ver = _ext.detect.linuxDistVersion().split('.')[0]
+
     if detect.isRHEL():
-        yumEnable('rhel-server-rhscl-7-rpms')
+        yumEnable('rhel-server-rhscl-{0}-rpms'.format(ver))
     elif detect.isCentOS():
         yum('centos-release-scl-rh')
     elif detect.isOracleLinux():
-        yumRepo('public-yum-o17',
-                'http://yum.oracle.com/public-yum-ol7.repo')
-        yumEnable('ol7_software_collections')
-        yumEnable('ol7_latest')
-        yumEnable('ol7_optional_latest')
+        yumRepo('public-yum-o1{0}'.format(ver),
+                'http://yum.oracle.com/public-yum-ol{0}.repo'.format(ver))
+        yumEnable('ol{0}_software_collections'.format(ver))
+        yumEnable('ol{0}_latest'.format(ver))
+        yumEnable('ol{0}_optional_latest'.format(ver))
 
     yum('scl-utils')
+
+
+def yumIUS():
+    detect = _ext.detect
+
+    if not detect.isSCLSupported():
+        return
+
+    yumEPEL()
+    ver = _ext.detect.linuxDistVersion().split('.')[0]
+
+    if detect.isCentOS():
+        yum('https://centos{0}.iuscommunity.org/ius-release.rpm'.format(ver))
+    else:
+        yum('https://rhel{0}.iuscommunity.org/ius-release.rpm'.format(ver))

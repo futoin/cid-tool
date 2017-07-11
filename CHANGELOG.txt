@@ -13,6 +13,7 @@ FIXED: pkg_resource import bug on some clean systems
 FIXED: not to exec fake "apt-get" on SUSE-like
 CHANGED: updated for OpenSUSE 42.2 Leap for testing
 NEW: added caching decorators for detect API and some other
+NEW: added IUS PHP 7.1 for RH-based
 
 === 0.7.995 (2017-07-09) ===
 FIXED: to run Yarn before other npm tools

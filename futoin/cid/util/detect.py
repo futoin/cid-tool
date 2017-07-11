@@ -67,6 +67,14 @@ def alpineLinuxVersion():
 
 
 @_simple_memo
+def linuxDistVersion():
+    if isAlpineLinux():
+        return alpineLinuxVersion()
+
+    return _ext.platform.linux_distribution()[1]
+
+
+@_simple_memo
 def isLinux():
     return _ext.platform.system() == 'Linux'
 

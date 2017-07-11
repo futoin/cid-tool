@@ -146,7 +146,12 @@ gem 'thor', '0.19.1'
             
         with open('res.txt', 'r') as f:
             res = f.readlines()
-            res.index('thor (0.19.1)\n')
+            
+            try:
+                res.index('thor (0.19.1)\n')
+            except:
+                self._stderr_log.write(str(res))
+                raise
 
 
 #=============================================================================

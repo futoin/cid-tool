@@ -57,40 +57,46 @@ You can control installed extensions by setting:
 
     def _installBinaries(self, env):
         detect = self._detect
+        phputil = self._phputil
+        install = self._install
 
         ver = env['phpVer']
-        php_pkg = self._phputil.basePackage(ver)
+        php_pkg = phputil.basePackage(ver)
 
         if detect.isDebian():
             repo = env.get('phpSuryRepo', 'https://packages.sury.org/php')
             gpg = self._callCurl(env, [repo + '/apt.gpg'], binary_output=True)
 
-            self._install.aptRepo(
+            install.aptRepo(
                 'sury', "deb {0} $codename$ main".format(repo), gpg)
-            self._install.deb(php_pkg)
+            install.deb(php_pkg)
 
         elif detect.isUbuntu():
-            self._install.aptRepo('sury', 'ppa:ondrej/php', None)
-            self._install.deb(php_pkg)
+            install.aptRepo('sury', 'ppa:ondrej/php', None)
+            install.deb(php_pkg)
 
         elif detect.isSCLSupported():
-            self._install.yumSCL()
-            self._install.yum(php_pkg)
+            if phputil.isIUSVer(ver):
+                install.yumIUS()
+                install.yum(php_pkg + '-cli')
+            else:
+                install.yumSCL()
+                install.yum(php_pkg)
 
         elif detect.isMacOS():
-            self._install.brewTap('homebrew/homebrew-php')
-            self._install.brewUnlink(search='/homebrew\/php\/php[0-9]{2}$/')
-            self._install.brew(php_pkg)
+            install.brewTap('homebrew/homebrew-php')
+            install.brewUnlink(search='/homebrew\/php\/php[0-9]{2}$/')
+            install.brew(php_pkg)
 
         elif detect.isAlpineLinux():
-            self._install.apkCommunity()
-            self._install.apk(php_pkg)
+            install.apkCommunity()
+            install.apk(php_pkg)
 
         else:
-            self._install.zypper(php_pkg)
-            self._install.yum('{0}-cli'.format(php_pkg))
-            self._install.emerge('dev-lang/php')
-            self._install.pacman(php_pkg)
+            install.zypper(php_pkg)
+            install.yum('{0}-cli'.format(php_pkg))
+            install.emerge('dev-lang/php')
+            install.pacman(php_pkg)
 
         env['phpJustInstalled'] = True
 
@@ -160,17 +166,21 @@ You can control installed extensions by setting:
                 self._have_tool = phputil.createBinDir(env, bin_src)
 
             elif detect.isSCLSupported():
-                try:
-                    ver = php_ver.replace('.', '')
-                    env_to_set = self._callBash(
-                        env, 'scl enable rh-php{0} env'.format(ver),
-                        verbose=False)
-                    self._pathutil.updateEnvFromOutput(env_to_set)
+                if phputil.isIUSVer(php_ver):
+                    # IUS allows only one version installed as default
                     super(phpTool, self).initEnv(env)
-                except self._ext.subprocess.CalledProcessError:
-                    pass
-                except OSError:
-                    pass
+                else:
+                    try:
+                        ver = php_ver.replace('.', '')
+                        env_to_set = self._callBash(
+                            env, 'scl enable rh-php{0} env'.format(ver),
+                            verbose=False)
+                        self._pathutil.updateEnvFromOutput(env_to_set)
+                        super(phpTool, self).initEnv(env)
+                    except self._ext.subprocess.CalledProcessError:
+                        return
+                    except OSError:
+                        return
 
             elif detect.isArchLinux():
                 if phputil.isArchLatest(php_ver):

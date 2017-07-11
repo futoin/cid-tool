@@ -15,7 +15,7 @@ def binaryVersions():
         return ['5.6', '7.0', '7.1']
 
     if detect.isSCLSupported():
-        return ['5.6', '7.0']
+        return ['5.6', '7.0', '7.1']
 
     if detect.isArchLinux():
         # return ['5.6', '7.0', '7.1']
@@ -53,7 +53,10 @@ def basePackage(ver):
         return 'php{0}'.format(ver)
 
     if detect.isSCLSupported():
-        return 'rh-php{0}'.format(ver_nodot)
+        if isIUSVer(ver):
+            return 'php{0}u'.format(ver_nodot)
+        else:
+            return 'rh-php{0}'.format(ver_nodot)
 
     if detect.isArchLinux():
         if isArchLatest(ver):
@@ -123,19 +126,23 @@ def isArchLatest(ver):
     # return ver == '7.1'
     return True
 
-# NOTE: do not cache
+
+def isIUSVer(ver):
+    return ver == '7.1'
 
 
-def extPackages(env):
-    base_pkg = basePackage(env['phpVer'])
+def extPackages(env):  # NOTE: do not cache
+    ver = env['phpVer']
+    base_pkg = basePackage(ver)
     pkg_prefix = '{0}-'.format(base_pkg)
     pkg_prefix2 = None
     detect = _ext.detect
+    install = _ext.install
 
     known = {k: None for k in knownExtensions()}
     update = {}
     pkg2key = {}
-    found = None
+    found = []
     #---
     res = _ext.executil.callExternal(
         [env['phpBin'], '-m'],
@@ -160,41 +167,22 @@ def extPackages(env):
             'sqlite3': 'sqlite',
         }
 
-        apt_cache = _ext.pathutil.which('apt-cache')
-        found = _ext.executil.callExternal(
-            [apt_cache, 'search', pkg_prefix],
-            verbose=False)
-        found = found.strip().split('\n')
-
     elif detect.isSCLSupported():
-        pkg_prefix = '{0}-php-'.format(base_pkg)
-        pkg_prefix2 = '{0}-php-pecl-'.format(base_pkg)
+        if isIUSVer(ver):
+            pkg_prefix2 = '{0}-pecl-'.format(base_pkg)
+        else:
+            pkg_prefix = '{0}-php-'.format(base_pkg)
+            pkg_prefix2 = '{0}-php-pecl-'.format(base_pkg)
+
         pkg2key = {
             'mysqlnd': 'mysql',
             'process': 'pcntl',
         }
 
-        yum = _ext.pathutil.which('yum')
-        found = _ext.executil.callExternal(
-            [yum, 'search', '-q', pkg_prefix],
-            verbose=False).strip()
-        found += _ext.executil.callExternal(
-            [yum, 'search', '-q', pkg_prefix2],
-            verbose=False).strip()
-        found = found.split('\n')
-
-    elif detect.isArchLinux():
-        pass
-
-    elif detect.isAlpineLinux():
-        apk = '/sbin/apk'
-        found = _ext.executil.callExternal(
-            [apk, 'search', pkg_prefix],
-            verbose=False)
-        found = found.strip().split('\n')
+    elif detect.isArchLinux() or detect.isGentoo():
+        pkg_prefix = None
 
     elif detect.isMacOS():
-        found = _ext.install.brewSearch(pkg_prefix)
         pkg2key = {
             'pdo-pgsql': 'pgsql',
         }
@@ -206,43 +194,24 @@ def extPackages(env):
             'process': 'pcntl',
         }
 
-        dnf = _ext.pathutil.which('dnf')
-        found = _ext.executil.callExternal(
-            [dnf, 'search', '-q', pkg_prefix],
-            verbose=False).strip()
-        found += _ext.executil.callExternal(
-            [dnf, 'search', '-q', pkg_prefix2],
-            verbose=False).strip()
-        found = found.split('\n')
+    #---
+    if pkg_prefix:
+        found += install.search(pkg_prefix)
 
-    elif detect.isOpenSUSE() or detect.isSLES():
-        zypper = _ext.pathutil.which('zypper')
-        res = _ext.executil.callExternal(
-            [zypper, 'search', '-t', 'package', pkg_prefix],
-            verbose=False)
-
-        found = []
-
-        for f in res.split('\n'):
-            f = f.split('|')
-
-            if len(f) > 2:
-                f = f[1].strip()
-                found.append(f)
+    if pkg_prefix2:
+        found += install.search(pkg_prefix2)
 
     #---
     if found:
-        for r in found:
-            r = r.split()
-
-            if not r:
-                continue
-
-            p = r[0]
-            k = p.replace(pkg_prefix, '')
-
+        for p in found:
+            # NOTE: in that order!
             if pkg_prefix2:
                 k = p.replace(pkg_prefix2, '')
+
+            k = p.replace(pkg_prefix, '')
+
+            if not k:
+                continue
 
             k = pkg2key.get(k, k)
 
