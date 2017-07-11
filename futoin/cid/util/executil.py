@@ -183,6 +183,6 @@ def toString(value, encoding='UTF-8'):
 
 def toBytes(value, encoding='UTF-8'):
     try:
-        return str(value).encode(encoding=encoding)
-    except TypeError:
-        return bytes(value)
+        return value.encode(encoding=encoding)
+    except AttributeError:
+        return value

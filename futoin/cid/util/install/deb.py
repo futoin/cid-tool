@@ -38,8 +38,6 @@ def aptRepo(name, entry, gpg_key=None, codename_map=None, repo_base=None):
         return
 
     if gpg_key:
-        gpg_key = _ext.executil.toBytes(gpg_key)
-
         tmp_dir = _ext.pathutil.tmpCacheDir(prefix='cidgpg')
         tf = _ext.ospath.join(tmp_dir, 'key.gpg')
         _ext.pathutil.writeBinaryFile(tf, gpg_key)
