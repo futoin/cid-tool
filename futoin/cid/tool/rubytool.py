@@ -40,6 +40,9 @@ if binary versions are not found for specific system.
 
     def _installBinaries(self, env):
         detect = self._detect
+        install = self._install
+        pathutil = self._pathutil
+        executil = self._executil
 
         ver = env['rubyVer']
         rvm_ruby_ver = 'system-{0}'.format(ver)
@@ -49,12 +52,12 @@ if binary versions are not found for specific system.
             code_name = self._detect.osCodeName()
 
             if code_name in ['stretch', 'buster', 'sid', 'testing']:
-                self._install.aptRepo('jessie-ssl10bp',
-                                      'deb http://deb.debian.org/debian jessie-backports main')
+                install.aptRepo('jessie-ssl10bp',
+                                'deb http://deb.debian.org/debian jessie-backports main')
 
             repo = env['rubyBrightboxRepo']
 
-            self._install.aptRepo(
+            install.aptRepo(
                 'brightbox-ruby',
                 "deb {0} $codename$ main".format(repo),
                 self._GPG_BIRGHTBOX_REPO,
@@ -72,7 +75,7 @@ if binary versions are not found for specific system.
 
             if ver == '1.9':
                 pkgver = '1.9.[0-9]'
-            self._install.deb([
+            install.deb([
                 'ruby{0}'.format(pkgver),
                 'ruby{0}-dev'.format(pkgver),
             ])
@@ -81,31 +84,32 @@ if binary versions are not found for specific system.
         elif detect.isSCLSupported():
             sclname = self._rubySCLName(ver)
 
-            self._install.yumSCL()
+            install.yumSCL()
 
-            self._install.yum(sclname)
+            install.yum(sclname)
 
             # required for LD_LIBRARY_PATH
-            env_to_set = self._executil.callExternal(
+            env_to_set = executil.callExternal(
                 ['scl', 'enable', sclname, 'env'], verbose=False)
-            self._pathutil.updateEnvFromOutput(env_to_set)
+            pathutil.updateEnvFromOutput(env_to_set)
 
-            ruby_bin = self._executil.callExternal(
+            ruby_bin = executil.callExternal(
                 ['scl', 'enable', sclname, 'which ruby'], verbose=False).strip()
 
         elif detect.isMacOS():
             formula = 'ruby@{0}'.format(ver)
-            self._install.brew(formula)
+            install.brew(formula)
             return
         else:
             self._systemDeps()
             rvm_ruby_ver = 'system'
+            ruby_bin = pathutil.which('ruby')
 
-        self._executil.callExternal([
+        executil.callExternal([
             env['rvmBin'], 'remove', 'ext-{0}'.format(rvm_ruby_ver)
         ], suppress_fail=True)
 
-        self._executil.callExternal([
+        executil.callExternal([
             env['rvmBin'], 'mount', ruby_bin, '-n', rvm_ruby_ver
         ])
 
@@ -230,9 +234,9 @@ if binary versions are not found for specific system.
                 elif detect.isDebian() or detect.isUbuntu():
                     self._fixRvmLinks(env, rvm_ruby_ver, ruby_ver)
         else:
-            ruby_ver = env.setdefault('rubyVer', '')
-            foundBinary = not ruby_ver
-            rvm_ruby_ver = ruby_ver or 'ext-system'
+            ruby_ver = env.setdefault('rubyVer', self.SYSTEM_VER)
+            foundBinary = ruby_ver == self.SYSTEM_VER
+            rvm_ruby_ver = foundBinary and ruby_ver or 'ext-system'
 
         #---
         rvm_dir = env['rvmDir']
