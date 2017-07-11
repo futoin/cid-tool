@@ -28,6 +28,7 @@ composerDir is equal to user's ~/bin/ folder by default.
         if not self._ospath.exists(composer_dir):
             self._os.makedirs(composer_dir)
 
+        self._phputil.installExtensions(env, ['phar', 'openssl'])
         self._phputil.installExtensions(env, 'zip', True)
 
         self._executil.callExternal(

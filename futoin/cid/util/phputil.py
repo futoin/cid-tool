@@ -223,8 +223,8 @@ def extPackages(env):
 
         found = []
 
-        for f in found:
-            f = f.split(' | ')
+        for f in res.split('\n'):
+            f = f.split('|')
 
             if len(f) > 2:
                 f = f[1].strip()
@@ -232,7 +232,7 @@ def extPackages(env):
 
     #---
     if found:
-        for r in res:
+        for r in found:
             r = r.split()
 
             if not r:
