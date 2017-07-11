@@ -42,25 +42,25 @@ def search(pattern):
     if apt_cache:
         found = _ext.executil.callExternal(
             [apt_cache, 'search', pattern],
-            verbose=False)
+            suppress_fail=True)
         found = found.strip().split('\n')
 
     elif dnf or yum:
         found = _ext.executil.callExternal(
             [dnf or yum, 'search', '-q', pattern],
-            verbose=False)
-        found = found.strip().split('\n')
+            suppress_fail=True)
+        found = (found or '').strip().split('\n')
         found = [(f + '.').split('.')[0] for f in found]
 
     elif zypper:
         zypper = _ext.pathutil.which('zypper')
         res = _ext.executil.callExternal(
             [zypper, 'search', '-t', 'package', pattern],
-            verbose=False)
+            suppress_fail=True)
 
         found = []
 
-        for f in res.split('\n'):
+        for f in (res or '').split('\n'):
             f = f.split('|')
 
             if len(f) > 2 and f[1] and f[1][0] != '-':
@@ -74,7 +74,7 @@ def search(pattern):
         apk = '/sbin/apk'
         found = _ext.executil.callExternal(
             [apk, 'search', pattern],
-            verbose=False)
+            suppress_fail=True)
         found = found.strip().split('\n')
         found = ['-'.join(f.split('-')[:-2]) for f in found]
 

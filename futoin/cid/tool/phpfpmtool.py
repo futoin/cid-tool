@@ -61,7 +61,10 @@ Note: file upload is OFF by default.
             self._install.deb('{0}-fpm'.format(base_pkg))
 
         elif detect.isSCLSupported():
-            self._install.yum('{0}-php-fpm'.format(base_pkg))
+            if self._phputil.isIUSVer(ver):
+                self._install.yum('{0}-fpm'.format(base_pkg))
+            else:
+                self._install.yum('{0}-php-fpm'.format(base_pkg))
 
         else:
             fpm_pkg = '{0}-fpm'.format(base_pkg)

@@ -58,70 +58,71 @@ def rpmKey(gpg_key):
 def yumRepo(name, url, gpg_key=None, releasevermax=None, repo_url=False):
     rpmKey(gpg_key)
 
+    repo_file = None
+    repo_info = None
+    pathutil = _ext.pathutil
+
+    #---
     if repo_url:
-        tmp_dir = _ext.pathutil.tmpCacheDir(prefix='cidrepo')
+        tmp_dir = pathutil.tmpCacheDir(prefix='cidrepo')
         repo_file = '{0}.repo'.format(name)
         repo_file = _ext.ospath.join(tmp_dir, repo_file)
 
-        with open(repo_file, 'w') as f:
-            f.write("\n".join([
-                '[nginx]',
-                'name={0} repo'.format(name),
-                'baseurl={0}'.format(url),
-                'gpgcheck=1',
-                'enabled=1',
-                ''
-            ]))
+        repo_info = "\n".join([
+            '[nginx]',
+            'name={0} repo'.format(name),
+            'baseurl={0}'.format(url),
+            'gpgcheck=1',
+            'enabled=1',
+            ''
+        ])
 
+        pathutil.writeTextFile(repo_file, repo_info)
         url = repo_file
 
-    if _dnf:
-        yum(['dnf-plugins-core'])
-        repo_file = None
+    #---
+    try:
+        dist_ver = _ext.detect.linuxDistVersion().split('.')[0]
 
-        if releasevermax is not None:
-            dump = _ext.executil.callExternal(
-                [_dnf, 'config-manager', '--dump'], verbose=False)
-            for l in dump.split("\n"):
-                l = l.split(' = ')
+        if releasevermax is not None and int(dist_ver) > releasevermax:
+            dist_ver = releasevermax
 
-                if l[0] == 'releasever':
-                    if int(l[1]) > releasevermax:
-                        repo_info = _ext.urllib.urlopen(url).read()
+            if not repo_info:
+                repo_info = _ext.urllib.urlopen(url).read()
 
-                        try:
-                            repo_info = str(repo_info, 'utf8')
-                        except:
-                            pass
+                try:
+                    repo_info = str(repo_info, 'utf8')
+                except:
+                    pass
 
-                        repo_info = repo_info.replace(
-                            '$releasever', str(releasevermax))
+            repo_info = repo_info.replace('$releasever', str(dist_ver))
 
-                        tmp_dir = _ext.pathutil.tmpCacheDir(prefix='cidrepo')
-                        repo_file = url.split('/')[-1]
-                        repo_file = _ext.ospath.join(tmp_dir, repo_file)
+            if not repo_file:
+                tmp_dir = _ext.pathutil.tmpCacheDir(prefix='cidrepo')
+                repo_file = url.split('/')[-1]
+                repo_file = _ext.ospath.join(tmp_dir, repo_file)
 
-                        with open(repo_file, 'w') as f:
-                            f.write(repo_info)
+            pathutil.writeTextFile(repo_file, repo_info)
+            url = repo_file
 
-                        url = repo_file
-                    break
+        #---
+        if _dnf:
+            yum(['dnf-plugins-core'])
+            _ext.executil.trySudoCall(
+                [_dnf, 'config-manager', '--add-repo', url],
+                errmsg='you may need to add the repo manually!'
+            )
 
-        _ext.executil.trySudoCall(
-            [_dnf, 'config-manager', '--add-repo', url],
-            errmsg='you may need to add the repo manually!'
-        )
-
+        elif _yum:
+            yum(['yum-utils'])
+            yumcfgmgr = _ext.pathutil.which('yum-config-manager')
+            _ext.executil.trySudoCall(
+                [yumcfgmgr, '--add-repo', url],
+                errmsg='you may need to add the repo manually!'
+            )
+    finally:
         if repo_file:
-            _ext.os.remove(repo_file)
-
-    elif _yum:
-        yum(['yum-utils'])
-        yumcfgmgr = _ext.pathutil.which('yum-config-manager')
-        _ext.executil.trySudoCall(
-            [yumcfgmgr, '--add-repo', url],
-            errmsg='you may need to add the repo manually!'
-        )
+            _ext.pathutil.rmTree(repo_file)
 
 
 def zypperRepo(name, url, gpg_key=None, yum=False):
@@ -140,7 +141,14 @@ def zypperRepo(name, url, gpg_key=None, yum=False):
 
 
 def yumEnable(repo):
-    if _yum:
+    if _dnf:
+        yum(['dnf-plugins-core'])
+        _ext.executil.trySudoCall(
+            [_dnf, 'config-manager', '--enable', repo],
+            errmsg='you may need to add the repo manually!'
+        )
+
+    elif _yum:
         yum(['yum-utils'])
 
         yumcfgmgr = _ext.pathutil.which('yum-config-manager')

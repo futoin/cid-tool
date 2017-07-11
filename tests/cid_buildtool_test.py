@@ -150,8 +150,11 @@ gem 'thor', '0.19.1'
             try:
                 res.index('thor (0.19.1)\n')
             except:
-                self._stderr_log.write(str(res))
-                raise
+                try:
+                    res.index('thor (0.19.1)')
+                except:
+                    self._stderr_log.write(str(res))
+                    raise
 
 
 #=============================================================================

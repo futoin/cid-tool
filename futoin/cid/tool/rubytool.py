@@ -192,7 +192,10 @@ if binary versions are not found for specific system.
             env.setdefault('rubyBrightboxRepo', bb_repo)
 
         elif detect.isSCLSupported():
-            ruby_binaries = ['1.9', '2.0', '2.2', '2.3', '2.4']
+            if detect.isCentOS():
+                ruby_binaries = ['1.9', '2.0', '2.2', '2.3', '2.4']
+            else:
+                ruby_binaries = ['1.9', '2.0', '2.2', '2.3']
         elif detect.isMacOS():
             ruby_binaries = ['1.8', '1.9', '2.0', '2.2', '2.3', '2.4']
         else:

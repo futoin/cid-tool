@@ -92,9 +92,11 @@ Additional notes:
                 })
 
         elif detect.isCentOS() or detect.isOracleLinux():
+            dist_ver = self._detect.linuxDistVersion().split('.')[0]
+
             self._install.yumRepo(
                 'nginx',
-                '{0}/centos/$releasever/$basearch/'.format(base_url),
+                '{0}/centos/{1}/$basearch/'.format(base_url, dist_ver),
                 self._GPG_KEY,
                 repo_url=True)
 

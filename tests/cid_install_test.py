@@ -273,7 +273,7 @@ for t, ti in mixed_tools.items():
         if 'scl' in binver and (
             linux_distro[0].startswith('CentOS') or
             linux_distro[0].startswith('Red Hat') or
-            linux_distro[0].startswith('SUSE')
+            linux_distro[0].startswith('Oracle')
             ):
             for bv in binver['scl']:
                 cls = "cid_Tool_32_{0}_scl_{1}".format(t, bv.replace('.', ''))
