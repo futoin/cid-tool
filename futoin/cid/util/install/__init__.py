@@ -76,6 +76,7 @@ def search(pattern):
             [apk, 'search', pattern],
             verbose=False)
         found = found.strip().split('\n')
+        found = ['-'.join(f.split('-')[:-2]) for f in found]
 
     res = []
 
