@@ -13,7 +13,7 @@ import requests
 from .cid_utbase import cid_UTBase
 from futoin.cid.details.resourcealgo import ResourceAlgo
 from futoin.cid.util import executil as _executil
-from futoin.cid.util import config as _configutil
+from futoin.cid.util import configutil as _configutil
 
 class cid_deploy_Test( cid_UTBase ) :
     __test__ = True

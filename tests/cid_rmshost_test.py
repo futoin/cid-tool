@@ -4,7 +4,7 @@ from __future__ import print_function, absolute_import
 from .cid_utbase import cid_UTBase
 from futoin.cid.rmstool import RmsTool
 from futoin.cid.util import executil as _executil
-from futoin.cid.util import path as _path
+from futoin.cid.util import pathutil as _pathutil
 from futoin.cid.util import install as _install
 
 import os
@@ -166,7 +166,7 @@ class cid_mysql_Test ( cid_UTBase ) :
     
     def test_setup(self):
         _install.debrpm(['mysql-server', 'mysql-client'])
-        mysql = _path.which('mysql')
+        mysql = _pathutil.which('mysql')
         _executil.callExternal([mysql, '-uroot', '-h', '127.0.0.1', '-e',
                             "GRANT ALL PRIVILEGES ON *.* TO 'cid'@'%' IDENTIFIED BY 'cid'"],
                             verbose=False)

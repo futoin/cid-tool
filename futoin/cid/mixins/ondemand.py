@@ -68,10 +68,10 @@ _ext_demand_map = {
     'detect': '.util.detect',
     'executil': '.util.executil',
     'install': '.util.install',
-    'pathutil': '.util.path',
+    'pathutil': '.util.pathutil',
     'builddep': '.util.builddep',
-    'versionutil': '.util.version',
-    'configutil': '.util.config',
+    'versionutil': '.util.versionutil',
+    'configutil': '.util.configutil',
     'phputil': '.util.phputil',
 }
 
@@ -90,10 +90,10 @@ _cid_demand_map = {
     '_detect': '.util.detect',
     '_executil': '.util.executil',
     '_install': '.util.install',
-    '_pathutil': '.util.path',
+    '_pathutil': '.util.pathutil',
     '_builddep': '.util.builddep',
-    '_versionutil': '.util.version',
-    '_configutil': '.util.config',
+    '_versionutil': '.util.versionutil',
+    '_configutil': '.util.configutil',
     '_phputil': '.util.phputil',
 }
 

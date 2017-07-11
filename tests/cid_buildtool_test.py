@@ -1,7 +1,7 @@
 
 from .cid_utbase import cid_Tool_UTBase
 import os, re, sys, subprocess, platform, glob, stat
-from futoin.cid.util import path as pathutil
+from futoin.cid.util import pathutil
 from nose.plugins.attrib import attr
 
 #=============================================================================
