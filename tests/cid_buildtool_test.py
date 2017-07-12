@@ -137,25 +137,15 @@ class cid_bundler_Test(cid_BuildTool_UTBase):
     def setUpTool(cls):
         cls._writeFile('Gemfile', '''
 source 'https://rubygems.org'
-gem 'thor', '0.19.1'
+gem 'thor'
 ''')
         
     def _test_prepare( self ):
         with open('res.txt', 'w') as f:
             self._call_cid( [ 'tool', 'exec', 'gem', '--', 'list' ], stdout=f )
             
-        with open('res.txt', 'r') as f:
-            res = f.readlines()
-            
-            try:
-                res.index('thor (0.19.1)\n')
-            except:
-                try:
-                    res.index('thor (0.19.1)')
-                except:
-                    self._stderr_log.write(str(res))
-                    raise
-
+        res = pathutil.readTextFile('res.txt')
+        self.assertIn('thor ', res)
 
 #=============================================================================
 @attr(tool='rust')
