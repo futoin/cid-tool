@@ -84,6 +84,8 @@ def brewSearch(pattern):
     brew_sudo = os.environ.get('brewSudo', '').split()
     saved_mask = os.umask(0o022)
 
+    pattern = '/{0}/'.format(pattern)
+
     try:
         res = _ext.executil.callExternal(
             brew_sudo + [brew, 'search', pattern],

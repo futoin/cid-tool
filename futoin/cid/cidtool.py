@@ -1118,10 +1118,16 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             ]
 
         elif detect.isMacOS():
+            lines += [
+                '# env whitelist',
+                'Defaults  env_keep += "HOMEBREW_NO_GITHUB_API"',
+            ]
+
             commands += [
                 '# case for global brew install',
                 '/usr/local/bin/brew install *',
                 '/usr/local/bin/brew cask install *',
+                '/usr/local/bin/brew search *',
                 '# note: security problem, if optional URL paremeter is used',
                 '/usr/local/bin/brew tap homebrew/*',
                 '/usr/local/bin/brew tap caskroom/*',

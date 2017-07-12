@@ -74,6 +74,7 @@ Hint: Unprivileged brew does not work well with many bottles, you may want to us
             if brewSudo:
                 self._environ['brewSudo'] = brewSudo
 
+        self._environ['HOMEBREW_NO_GITHUB_API'] = '1'
         env.setdefault('brewGit',
                        'https://github.com/Homebrew/brew.git')
         env.setdefault('brewInstall',
