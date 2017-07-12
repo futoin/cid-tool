@@ -186,7 +186,7 @@ Tested on the following OSes:
 
 * **SLES**
 
-  - Very preliminary support, permanent testing license & Vagrant box is required.
+  - **12**
 
 * **Ubuntu**
 

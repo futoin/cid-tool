@@ -13,6 +13,19 @@ then
     sudo subscription-manager register --auto-attach --username=$RHDEV_USER --password=$RHDEV_PASS
 fi
 
+# SLES subscription
+#---
+
+if which SUSEConnect >/dev/null && \
+    sudo SUSEConnect  --status-text | grep -q 'Not Registered';
+then
+    source ./suse-credentials
+    sudo rm -f /etc/zypp/repos.d/sles12-dvd1.repo
+    sudo SUSEConnect -r "${SLESDEV_RCODE}" -e "${SLESDEV_EMAIL}"
+    sudo zypper refresh
+fi
+#---
+
 
 CID_SOURCE_DIR=$(pwd)
 CID_BOOT=${CID_SOURCE_DIR}/bin/cid

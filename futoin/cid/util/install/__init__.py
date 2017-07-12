@@ -55,8 +55,9 @@ def search(pattern):
     elif zypper:
         zypper = _ext.pathutil.which('zypper')
         res = _ext.executil.callExternal(
-            [zypper, 'search', '-t', 'package', pattern],
-            suppress_fail=True)
+            [zypper, '--non-interactive', '--no-refresh',
+                'search', '-t', 'package', pattern],
+            suppress_fail=False)  # make user aware of failures @SLES
 
         found = []
 

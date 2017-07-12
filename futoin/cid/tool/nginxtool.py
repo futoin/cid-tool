@@ -117,9 +117,10 @@ Additional notes:
                 repo_url=True)
 
         elif detect.isSLES():
+            sles_ver = self._detect.linuxDistMajorVer()
             self._install.zypperRepo(
                 'nginx',
-                '{0}/sles/$releasever/$basearch/'.format(base_url),
+                '{0}/sles/{1}/'.format(base_url, sles_ver),
                 self._GPG_KEY,
                 yum=True)
 

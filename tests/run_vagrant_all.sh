@@ -21,6 +21,10 @@ for vm in $VM_LIST; do
         [ $CID_DESTROY -eq 1 ] && \
         vagrant ssh $vm -- sudo subscription-manager unregister
 
+    [ $vm = 'cid_sles_12' ] && \
+        [ $CID_DESTROY -eq 1 ] && \
+        vagrant ssh $vm -- sudo SUSEConnect --de-register
+
     [ $CID_DESTROY -eq 1 ] && vagrant destroy -f $vm
     
     args=$CID_FAST

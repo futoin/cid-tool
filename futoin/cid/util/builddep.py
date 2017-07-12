@@ -7,6 +7,9 @@ _SYSTEM_VER = 'system'
 
 
 def essential():
+    _ext.install.SUSEConnectVerArch('sle-module-toolchain')
+    _ext.install.SUSEConnectVerArch('sle-sdk', True)
+
     _ext.install.deb([
         'build-essential',
     ])

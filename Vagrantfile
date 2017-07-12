@@ -32,7 +32,7 @@ which apk 2>/dev/null && apk update || true
         # behaves similar to CentOS, but limited
         'ol_7' => 'boxcutter/ol73',
         'rhel_7' => 'iamseth/rhel-7.3',
-        #'sles_12' => 'suse/sles12sp1',
+        'sles_12' => 'elastic/sles-12-x86_64',
 
         # not part of standard test cycle
         #'funtoo' => 'tonyczeh/funtoo-generic64-pure64',
@@ -76,7 +76,8 @@ which apk 2>/dev/null && apk update || true
                     v.memory = 4096
                 end
             elsif name == 'sles_12'
-                dist_controller = 'SCSI'
+                dist_controller = 'IDE Controller'
+                nic_type = '82540EM'
             else
                 dist_controller = 'SATA Controller'
             end

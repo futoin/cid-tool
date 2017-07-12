@@ -11,6 +11,12 @@ Home: https://subversion.apache.org/
     __slots__ = ()
 
     def _installTool(self, env):
+        if self._detect.isSLES():
+            self._install.zypperRepo(
+                None,
+                'http://download.opensuse.org/repositories/devel:tools:scm:svn'
+                '/SLE_12_SP2/devel:tools:scm:svn.repo')
+
         self._install.debrpm(['subversion'])
         self._install.emerge(['dev-vcs/subversion'])
         self._install.pacman(['subversion'])

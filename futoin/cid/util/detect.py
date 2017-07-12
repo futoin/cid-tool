@@ -95,8 +95,20 @@ def isAMD64():
 
 
 @_simple_memo
+def basearch():
+    return _ext.platform.machine()
+
+
+@_simple_memo
 def osCodeName():
     codename = _ext.subprocess.check_output(['lsb_release', '-cs'])
+    codename = _ext.executil.toString(codename)
+    return codename.strip()
+
+
+@_simple_memo
+def osRelease():
+    codename = _ext.subprocess.check_output(['lsb_release', '-rs'])
     codename = _ext.executil.toString(codename)
     return codename.strip()
 

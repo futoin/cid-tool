@@ -30,19 +30,20 @@ Docker EE or other installation methods are out of scope for now.
 
     def _installTool(self, env):
         detect = self._detect
+        install = self._install
         repo = env.get('dockerRepos', 'https://download.docker.com')
 
         if detect.isCentOS():
-            self._install.yumRepo(
+            install.yumRepo(
                 'docker', repo + '/linux/centos/docker-ce.repo')
 
         elif detect.isFedora():
-            self._install.yumRepo(
+            install.yumRepo(
                 'docker', repo + '/linux/fedora/docker-ce.repo')
 
         elif detect.isDebian():
             gpg = self._callCurl(env, [repo + '/linux/debian/gpg'])
-            self._install.aptRepo(
+            install.aptRepo(
                 'docker',
                 'deb [arch=amd64] {0}/linux/debian $codename$ stable'.format(
                     repo),
@@ -51,7 +52,7 @@ Docker EE or other installation methods are out of scope for now.
 
         elif detect.isUbuntu():
             gpg = self._callCurl(env, [repo + '/linux/ubuntu/gpg'])
-            self._install.aptRepo(
+            install.aptRepo(
                 'docker',
                 'deb [arch=amd64] {0}/linux/ubuntu $codename$ stable'.format(
                     repo),
@@ -63,43 +64,31 @@ Docker EE or other installation methods are out of scope for now.
             )
 
         elif detect.isRHEL():
-            self._install.yumRHELRepo('server-extras-rpms')
-            self._install.yum(['docker'])
+            install.yumRHELRepo('server-extras-rpms')
+            install.yum(['docker'])
             self._executil.startService('docker')
             return
 
         elif detect.isOracleLinux():
-            self._install.yumOLPublic('addons')
-            self._install.yum(['docker'])
+            install.yumOLPublic('addons')
+            install.yum(['docker'])
             self._executil.startService('docker')
             return
 
-        # elif detect.isOpenSUSE() or detect.isSLES():
-        #    virt_repo = 'https://download.opensuse.org/repositories/Virtualization'
-        #
-        #    with open('/etc/os-release', 'r') as rf:
-        #        releasever = re.search('VERSION="([0-9.]+)"', rf.read()).group(1)
-        #
-        #
-        #    if detect.isOpenSUSE():
-        #        virt_repo += '/openSUSE_Leap_'+releasever
-        #    else:
-        #        virt_repo += '/SLE_'+releasever
-        #
-        #    virt_gpg = self._callCurl(env, [virt_repo+'/repodata/repomd.xml.key'])
-        #    self._install.zypperRepo('Virtualization', virt_repo+'/Virtualization.repo', virt_gpg)
-        #
-        #    gpg = self._callCurl(env, [repo+'/linux/centos/gpg'])
-        #    self._install.zypperRepo('docker', repo + '/linux/centos/7/x86_64/stable/', gpg, yum=True)
+        elif detect.isSLES():
+            install.SUSEConnectVerArch('sle-module-containers')
+            install.zypper('docker')
+            self._executil.startService('docker')
+            return
 
         else:
-            self._install.yumEPEL()
-            self._install.debrpm(['docker'])
-            self._install.debrpm(['docker-engine'])
-            self._install.emerge(['app-emulation/docker'])
-            self._install.pacman(['docker'])
-            self._install.apkCommunity()
-            self._install.apk(['docker'])
+            install.yumEPEL()
+            install.debrpm(['docker'])
+            install.debrpm(['docker-engine'])
+            install.emerge(['app-emulation/docker'])
+            install.pacman(['docker'])
+            install.apkCommunity()
+            install.apk(['docker'])
 
             self._executil.startService('docker')
 
@@ -108,9 +97,9 @@ Docker EE or other installation methods are out of scope for now.
         ver = env.get('dockerVer', None)
 
         if ver:
-            self._install.debrpm(['docker-ce-' + ver])
+            install.debrpm(['docker-ce-' + ver])
         else:
-            self._install.debrpm(['docker-ce'])
+            install.debrpm(['docker-ce'])
 
         self._executil.startService('docker')
 

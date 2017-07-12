@@ -1085,9 +1085,16 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         elif detect.isOpenSUSE() or detect.isSLES():
             commands += [
                 '# package installation only',
-                '/usr/bin/zypper install *',
-                '/usr/bin/zypper addrepo *',
+                '/usr/bin/zypper --non-interactive install *',
+                '/usr/bin/zypper --non-interactive addrepo *',
+                '/usr/bin/zypper --non-interactive refresh *',
             ]
+
+            if detect.isSLES():
+                commands += [
+                    '# package installation only',
+                    '/usr/bin/SUSEConnect --product *',
+                ]
 
             if not skip_key_mgmt:
                 commands += [

@@ -80,7 +80,7 @@ def basePackage(ver):
         return 'php7'
 
     if detect.isSLES():
-        return 'php5'
+        return 'php7'
 
     return 'php'
 

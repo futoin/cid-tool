@@ -92,6 +92,10 @@ You can control installed extensions by setting:
             install.apkCommunity()
             install.apk(php_pkg)
 
+        elif detect.isSLES():
+            self._install.SUSEConnectVerArch('sle-module-web-scripting')
+            install.zypper(php_pkg)
+
         else:
             install.zypper(php_pkg)
             install.yum('{0}-cli'.format(php_pkg))

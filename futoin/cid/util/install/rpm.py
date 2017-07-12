@@ -28,7 +28,7 @@ def zypper(packages):
     packages = _ext.configutil.listify(packages)
 
     _ext.executil.trySudoCall(
-        [_zypper, 'install', '-y'] + packages,
+        [_zypper, '--non-interactive', 'install', '-y'] + packages,
         errmsg='you may need to install the packages manually !'
     )
 
@@ -135,14 +135,27 @@ def zypperRepo(name, url, gpg_key=None, yum=False):
     rpmKey(gpg_key)
 
     if yum:
-        cmd = [_zypper, 'addrepo', '-t', 'YUM', url, name]
+        cmd = [_zypper, '--non-interactive', 'addrepo', '-t', 'YUM', url, name]
+    elif name:
+        cmd = [_zypper, '--non-interactive', 'addrepo', url, name]
     else:
-        cmd = [_zypper, 'addrepo', url, name]
+        cmd = [_zypper, '--non-interactive', 'addrepo', url]
 
     _ext.executil.trySudoCall(
         cmd,
         errmsg='you may need to add the repo manually!'
     )
+
+    if name:
+        _ext.executil.trySudoCall(
+            [_zypper, '--non-interactive', 'refresh', '-r', name],
+            errmsg='you may need to add the repo manually!'
+        )
+    else:
+        _ext.executil.trySudoCall(
+            [_zypper, '--non-interactive', 'refresh'],
+            errmsg='you may need to add the repo manually!'
+        )
 
 
 def yumEnable(repo):
@@ -229,7 +242,7 @@ def yumRHELRepo(repos):
     for r in repos:
         _ext.executil.trySudoCall(
             [scrmgr, 'repos', '--enable', 'rhel-{0}-{1}'.format(ver, r)],
-            errmsg='you may need to add the repo manually!'
+            errmsg='you may need to enable the repo manually!'
         )
 
 
@@ -248,3 +261,28 @@ def yumOLPublic(repos):
 
     for r in repos:
         yumEnable('ol{0}_{1}'.format(ver, r))
+
+
+def SUSEConnect(ext):
+    if not _ext.detect.isSLES():
+        return
+
+    _ext.executil.trySudoCall(
+        ['/usr/bin/SUSEConnect', '--product', ext, '-r', ''],
+        errmsg='you may need to add the extension manually!'
+    )
+
+
+def SUSEConnectVerArch(ext, full_ver=False):
+    detect = _ext.detect
+
+    if not detect.isSLES():
+        return
+
+    if full_ver:
+        sles_ver = detect.osRelease()
+    else:
+        sles_ver = detect.linuxDistMajorVer()
+
+    base_arch = detect.basearch()
+    SUSEConnect('{0}/{1}/{2}'.format(ext, sles_ver, base_arch))
