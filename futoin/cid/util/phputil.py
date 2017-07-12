@@ -131,18 +131,8 @@ def isIUSVer(ver):
     return ver == '7.1'
 
 
-def extPackages(env):  # NOTE: do not cache
-    ver = env['phpVer']
-    base_pkg = basePackage(ver)
-    pkg_prefix = '{0}-'.format(base_pkg)
-    pkg_prefix2 = None
-    detect = _ext.detect
-    install = _ext.install
-
+def installedExtensions(env):
     known = {k: None for k in knownExtensions()}
-    update = {}
-    pkg2key = {}
-    found = []
     #---
     res = _ext.executil.callExternal(
         [env['phpBin'], '-m'],
@@ -159,6 +149,22 @@ def extPackages(env):  # NOTE: do not cache
 
         if r in known:
             known[r] = True
+
+    return known
+
+
+def extPackages(env, known=None):  # NOTE: do not cache
+    ver = env['phpVer']
+    base_pkg = basePackage(ver)
+    pkg_prefix = '{0}-'.format(base_pkg)
+    pkg_prefix2 = None
+    detect = _ext.detect
+    install = _ext.install
+
+    known = known or installedExtensions(env)
+    update = {}
+    pkg2key = {}
+    found = []
 
     #---
     if detect.isDebian() or detect.isUbuntu():
@@ -318,10 +324,24 @@ def knownExtensions():
 
 
 def installExtensions(env, exts, permissive=True):
-    mapping = extPackages(env)
-    install = _ext.install
-
     exts = _ext.configutil.listify(exts)
+
+    #---
+    known = installedExtensions(env)
+
+    for ext in exts:
+        if ext in known:
+            if known[ext] != True:
+                break
+        else:
+            _log.errorExit('Unknown PHP extension "{0}"\nKnown: \n* {1}'.format(
+                ext, '\n* '.join(knownExtensions())))
+    else:
+        return
+
+    #---
+    mapping = extPackages(env, known)
+    install = _ext.install
 
     for ext in exts:
         if ext in mapping:
