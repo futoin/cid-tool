@@ -2,6 +2,7 @@
 from ..mixins.ondemand import ext as _ext
 from . import simple_memo as _simple_memo
 from . import complex_memo as _complex_memo
+from . import log as _log
 
 
 @_simple_memo
@@ -106,7 +107,12 @@ def isAdmin():
 
 @_complex_memo
 def haveGroup(grpname):
-    gid = _ext.grp.getgrnam(grpname)[2]
+    try:
+        gid = _ext.grp.getgrnam(grpname)[2]
+    except KeyError as e:
+        _log.warn(str(e))
+        return False
+
     return gid in _ext.os.getgroups()
 
 

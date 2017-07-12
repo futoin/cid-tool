@@ -5,6 +5,7 @@ if ! test -e bin/cid; then
     exit 1
 fi
 
+# RedHat subscription
 if test -e /etc/redhat-release && \
     which subscription-manager >/dev/null;
 then
