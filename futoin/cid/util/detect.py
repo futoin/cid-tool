@@ -143,7 +143,7 @@ def installerType():
         return 'emerge'
 
     if isOpenSUSE() or isSLES():
-        return 'zyppr'
+        return 'zypper'
 
     if isMacOS():
         return 'brew'
