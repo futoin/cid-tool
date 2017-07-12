@@ -3,6 +3,7 @@ from .cid_utbase import cid_Tool_UTBase
 import os, subprocess, sys
 import platform, re
 from nose.plugins.attrib import attr
+from futoin.cid.util import detect
 
 IS_LINUX = cid_Tool_UTBase.IS_LINUX
 IS_MACOS = cid_Tool_UTBase.IS_MACOS
@@ -228,6 +229,9 @@ mixed_tools = {
     
 if is_alpinelinux:
     del mixed_tools['rust']
+
+if detect.isSLES():
+    del mixed_tools['php']['src']
     
 for t, ti in mixed_tools.items():
     cls = "cid_Tool_31_{0}".format(t)

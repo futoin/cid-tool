@@ -265,6 +265,11 @@ You can control installed extensions by setting:
         os = self._os
         environ = self._environ
 
+        if self._detect.isSLES():
+            self._errorExit(
+                'PHP source builds are not supported for SLES yet!')
+            return
+
         self._builddep.require(env, [
             'ssl',
             'mysqlclient',
