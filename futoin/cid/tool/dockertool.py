@@ -62,9 +62,17 @@ Docker EE or other installation methods are out of scope for now.
                 repo_base=repo,
             )
 
-        elif detect.isOracleLinux() or detect.isRHEL():
-            self._install.yumRepo(
-                'docker', repo + '/linux/centos/docker-ce.repo')
+        elif detect.isRHEL():
+            self._install.yumRHELRepo('server-extras-rpms')
+            self._install.yum(['docker'])
+            self._executil.startService('docker')
+            return
+
+        elif detect.isOracleLinux():
+            self._install.yumOLPublic('addons')
+            self._install.yum(['docker'])
+            self._executil.startService('docker')
+            return
 
         # elif detect.isOpenSUSE() or detect.isSLES():
         #    virt_repo = 'https://download.opensuse.org/repositories/Virtualization'
