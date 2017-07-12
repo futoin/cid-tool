@@ -1069,6 +1069,12 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                 '/usr/bin/yum-config-manager --enable *',
             ]
 
+            if detect.isRHEL():
+                commands += [
+                    '# RHEL-specific',
+                    '/sbin/subscription-manager repos --enable *',
+                ]
+
             if not skip_key_mgmt:
                 commands += [
                     '',

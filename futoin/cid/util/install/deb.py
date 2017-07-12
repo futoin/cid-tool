@@ -4,28 +4,27 @@ from .. import log as _log
 
 
 def deb(packages):
-    detect = _ext.detect
-
-    # WTF? Why did they need to do that...
-    if detect.isOpenSUSE() or detect.isSLES():
+    if not _ext.detect.isDeb():
         return
 
     apt_get = _ext.pathutil.which('apt-get')
 
-    if apt_get:
-        packages = _ext.configutil.listify(packages)
+    packages = _ext.configutil.listify(packages)
 
-        _ext.os.environ['DEBIAN_FRONTEND'] = 'noninteractive'
-        _ext.executil.trySudoCall(
-            [apt_get, 'install', '-y',
-                '--no-install-recommends',
-                '-o', 'Dpkg::Options::=--force-confdef',
-                '-o', 'Dpkg::Options::=--force-confold'] + packages,
-            errmsg='you may need to install the packages manually !'
-        )
+    _ext.os.environ['DEBIAN_FRONTEND'] = 'noninteractive'
+    _ext.executil.trySudoCall(
+        [apt_get, 'install', '-y',
+            '--no-install-recommends',
+            '-o', 'Dpkg::Options::=--force-confdef',
+            '-o', 'Dpkg::Options::=--force-confold'] + packages,
+        errmsg='you may need to install the packages manually !'
+    )
 
 
 def aptRepo(name, entry, gpg_key=None, codename_map=None, repo_base=None):
+    if not _ext.detect.isDeb():
+        return
+
     deb([
         'software-properties-common',
         'apt-transport-https',

@@ -4,17 +4,11 @@ from .. import log as _log
 
 
 def _brew():
-    brew = globals().get('_brew_bin', None)
-
-    if brew is None:
-        brew = _ext.pathutil.which('brew')
-        globals()['_brew_bin'] = brew
-
-    return brew
+    return _ext.pathutil.which('brew')
 
 
 def brewTap(tap):
-    if not _ext.detect.isMacOS():
+    if not _ext.detect.isBrew():
         return
 
     brew = _brew()
@@ -23,7 +17,7 @@ def brewTap(tap):
 
 
 def brewUnlink(formula=None, search=None):
-    if not _ext.detect.isMacOS():
+    if not _ext.detect.isBrew():
         return
 
     brew = _brew()
@@ -48,7 +42,7 @@ def brewUnlink(formula=None, search=None):
 
 
 def brew(packages, cask=False):
-    if not _ext.detect.isMacOS():
+    if not _ext.detect.isBrew():
         return
 
     packages = _ext.configutil.listify(packages)
@@ -82,7 +76,7 @@ def brew(packages, cask=False):
 
 
 def brewSearch(pattern):
-    if not _ext.detect.isMacOS():
+    if not _ext.detect.isBrew():
         return
 
     os = _ext.os

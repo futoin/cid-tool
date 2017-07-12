@@ -8,6 +8,9 @@ BREAKING CHANGE: seriously refactored PHP support
  - fine selection of source builds with phpSourceVer
 BREAKING CHANGE: new ruby logic:
  - changed to handle rubyForceBuild, rubyBinOnly and rubySourceVer
+BREAKING CHANGE: a single installer is detected per OS now
+ - previously, it could happen that multiple installers are run e.g.:
+   apt-get for OpenSUSE, rpm for ArchLinux, etc.
 FIXED: bug with implicitly broken chmodTree() after recent changes
 FIXED: pkg_resource import bug on some clean systems
 FIXED: not to exec fake "apt-get" on SUSE-like

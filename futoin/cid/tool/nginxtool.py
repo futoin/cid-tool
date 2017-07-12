@@ -92,7 +92,7 @@ Additional notes:
                 })
 
         elif detect.isCentOS():
-            dist_ver = self._detect.linuxDistVersion().split('.')[0]
+            dist_ver = self._detect.linuxDistMajorVer()
 
             self._install.yumRepo(
                 'nginx',
@@ -108,7 +108,7 @@ Additional notes:
                 repo_url=True)
 
         elif detect.isRHEL() or detect.isOracleLinux():
-            dist_ver = self._detect.linuxDistVersion().split('.')[0]
+            dist_ver = self._detect.linuxDistMajorVer()
 
             self._install.yumRepo(
                 'nginx',

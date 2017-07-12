@@ -8,25 +8,29 @@ _rpm = _ext.pathutil.which('rpm')
 
 
 def yum(packages):
+    if not _ext.detect.isYum() and not _ext.detect.isDnf():
+        return
+
     yum = _dnf or _yum
 
-    if yum:
-        packages = _ext.configutil.listify(packages)
+    packages = _ext.configutil.listify(packages)
 
-        _ext.executil.trySudoCall(
-            [yum, 'install', '-y'] + packages,
-            errmsg='you may need to install the packages manually !'
-        )
+    _ext.executil.trySudoCall(
+        [yum, 'install', '-y'] + packages,
+        errmsg='you may need to install the packages manually !'
+    )
 
 
 def zypper(packages):
-    if _zypper:
-        packages = _ext.configutil.listify(packages)
+    if not _ext.detect.isZypper():
+        return
 
-        _ext.executil.trySudoCall(
-            [_zypper, 'install', '-y'] + packages,
-            errmsg='you may need to install the packages manually !'
-        )
+    packages = _ext.configutil.listify(packages)
+
+    _ext.executil.trySudoCall(
+        [_zypper, 'install', '-y'] + packages,
+        errmsg='you may need to install the packages manually !'
+    )
 
 
 def rpm(packages):
@@ -38,7 +42,7 @@ def rpmKey(gpg_key):
     if not gpg_key:
         return
 
-    if not _rpm:
+    if not _ext.detect.isRPM():
         return
 
     os = _ext.os
@@ -56,6 +60,9 @@ def rpmKey(gpg_key):
 
 
 def yumRepo(name, url, gpg_key=None, releasevermax=None, repo_url=False):
+    if not _ext.detect.isYum() and not _ext.detect.isDnf():
+        return
+
     rpmKey(gpg_key)
 
     repo_file = None
@@ -82,7 +89,7 @@ def yumRepo(name, url, gpg_key=None, releasevermax=None, repo_url=False):
 
     #---
     try:
-        dist_ver = _ext.detect.linuxDistVersion().split('.')[0]
+        dist_ver = _ext.detect.linuxDistMajorVer()
 
         if releasevermax is not None and int(dist_ver) > releasevermax:
             dist_ver = releasevermax
@@ -109,7 +116,7 @@ def yumRepo(name, url, gpg_key=None, releasevermax=None, repo_url=False):
                 errmsg='you may need to add the repo manually!'
             )
 
-        elif _yum:
+        else:
             yum(['yum-utils'])
             yumcfgmgr = _ext.pathutil.which('yum-config-manager')
             _ext.executil.trySudoCall(
@@ -122,29 +129,31 @@ def yumRepo(name, url, gpg_key=None, releasevermax=None, repo_url=False):
 
 
 def zypperRepo(name, url, gpg_key=None, yum=False):
+    if not _ext.detect.isZypper():
+        return
+
     rpmKey(gpg_key)
 
-    if _zypper:
-        if yum:
-            cmd = [_zypper, 'addrepo', '-t', 'YUM', url, name]
-        else:
-            cmd = [_zypper, 'addrepo', url, name]
+    if yum:
+        cmd = [_zypper, 'addrepo', '-t', 'YUM', url, name]
+    else:
+        cmd = [_zypper, 'addrepo', url, name]
 
-        _ext.executil.trySudoCall(
-            cmd,
-            errmsg='you may need to add the repo manually!'
-        )
+    _ext.executil.trySudoCall(
+        cmd,
+        errmsg='you may need to add the repo manually!'
+    )
 
 
 def yumEnable(repo):
-    if _dnf:
+    if _ext.detect.isDnf():
         yum(['dnf-plugins-core'])
         _ext.executil.trySudoCall(
             [_dnf, 'config-manager', '--enable', repo],
             errmsg='you may need to add the repo manually!'
         )
 
-    elif _yum:
+    elif _ext.detect.isYum():
         yum(['yum-utils'])
 
         yumcfgmgr = _ext.pathutil.which('yum-config-manager')
@@ -158,12 +167,15 @@ def yumEnable(repo):
 def yumEPEL():
     detect = _ext.detect
 
-    if detect.isOracleLinux() or detect.isRHEL():
-        ver = _ext.detect.linuxDistVersion().split('.')[0]
+    if not detect.isRPM():
+        return
+
+    if detect.isCentOS():
+        yum(['epel-release'])
+    else:
+        ver = detect.linuxDistMajorVer()
         yum(
             ['https://dl.fedoraproject.org/pub/epel/epel-release-latest-{0}.noarch.rpm'.format(ver)])
-    else:
-        yum(['epel-release'])
 
 
 def yumSCL():
@@ -172,18 +184,18 @@ def yumSCL():
     if not detect.isSCLSupported():
         return
 
-    ver = _ext.detect.linuxDistVersion().split('.')[0]
+    ver = detect.linuxDistMajorVer()
 
     if detect.isRHEL():
         yumEnable('rhel-server-rhscl-{0}-rpms'.format(ver))
     elif detect.isCentOS():
         yum('centos-release-scl-rh')
     elif detect.isOracleLinux():
-        yumRepo('public-yum-o1{0}'.format(ver),
-                'http://yum.oracle.com/public-yum-ol{0}.repo'.format(ver))
-        yumEnable('ol{0}_software_collections'.format(ver))
-        yumEnable('ol{0}_latest'.format(ver))
-        yumEnable('ol{0}_optional_latest'.format(ver))
+        yumOLPublic([
+            'software_collections',
+            'latest',
+            'optional_latest',
+        ])
 
     yum('scl-utils')
 
@@ -195,9 +207,44 @@ def yumIUS():
         return
 
     yumEPEL()
-    ver = _ext.detect.linuxDistVersion().split('.')[0]
+    ver = detect.linuxDistMajorVer()
 
     if detect.isCentOS():
         yum('https://centos{0}.iuscommunity.org/ius-release.rpm'.format(ver))
     else:
         yum('https://rhel{0}.iuscommunity.org/ius-release.rpm'.format(ver))
+
+
+def yumRHELRepo(repos):
+    detect = _ext.detect
+
+    if not detect.isRHEL():
+        return
+
+    ver = detect.linuxDistMajorVer()
+    repos = _ext.configutil.listify(repos)
+
+    scrmgr = _ext.pathutil.which('subscription-manager')
+
+    for r in repos:
+        _ext.executil.trySudoCall(
+            [scrmgr, 'repos', '--enable', 'rhel-{0}-{1}'.format(ver, r)],
+            errmsg='you may need to add the repo manually!'
+        )
+
+
+def yumOLPublic(repos):
+    detect = _ext.detect
+
+    if not detect.isOracleLinux():
+        return
+
+    ver = detect.linuxDistMajorVer()
+    repos = _ext.configutil.listify(repos)
+
+    if not _ext.ospath.exists('/etc/yum.repos.d/public-yum-ol{0}.repo'.format(ver)):
+        yumRepo('public-yum-o1{0}'.format(ver),
+                'http://yum.oracle.com/public-yum-ol{0}.repo'.format(ver))
+
+    for r in repos:
+        yumEnable('ol{0}_{1}'.format(ver, r))

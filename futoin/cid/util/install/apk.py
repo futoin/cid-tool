@@ -3,7 +3,7 @@ from ...mixins.ondemand import ext as _ext
 
 
 def apk(packages):
-    if _ext.detect.isAlpineLinux():
+    if _ext.detect.isApk():
         packages = _ext.configutil.listify(packages)
 
         apk = '/sbin/apk'
@@ -15,7 +15,7 @@ def apk(packages):
 
 
 def apkRepo(url, tag=None):
-    if not _ext.detect.isAlpineLinux():
+    if not _ext.detect.isApk():
         return
 
     apk = '/sbin/apk'

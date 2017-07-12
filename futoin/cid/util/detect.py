@@ -74,6 +74,10 @@ def linuxDistVersion():
     return _ext.platform.linux_distribution()[1]
 
 
+def linuxDistMajorVer():
+    return linuxDistVersion().split('.')[0]
+
+
 @_simple_memo
 def isLinux():
     return _ext.platform.system() == 'Linux'
@@ -114,6 +118,114 @@ def isSCLSupported():
         isRHEL() or
         isOracleLinux()
     )
+
+
+@_simple_memo
+def installerType():
+    # Known OS
+    #---
+    if isDebian() or isUbuntu():
+        return 'apt'
+
+    if isArchLinux():
+        return 'pacman'
+
+    if isFedora():
+        return 'dnf'
+
+    if isCentOS() or isRHEL() or isOracleLinux():
+        return 'yum'
+
+    if isAlpineLinux():
+        return 'apk'
+
+    if isGentoo():
+        return 'emerge'
+
+    if isOpenSUSE() or isSLES():
+        return 'zyppr'
+
+    if isMacOS():
+        return 'brew'
+
+    # Fallback
+    #---
+    pathutil = _ext.pathutil
+
+    if pathutil.which('apt-get'):
+        return 'apt'
+
+    if pathutil.which('dnf'):
+        return 'dnf'
+
+    if pathutil.which('zypper'):
+        return 'zypper'
+
+    if pathutil.which('yum'):
+        return 'yum'
+
+    if pathutil.which('pacman'):
+        return 'pacman'
+
+    if _ext.ospath.exists('/sbin/apk'):
+        return 'apk'
+
+    if pathutil.which('emerge'):
+        return 'emerge'
+
+    return None
+
+
+@_simple_memo
+def packageType():
+    installer = installerType()
+
+    if installer == 'apt':
+        return 'deb'
+
+    if installer in ('dnf', 'zypper', 'yum'):
+        return 'rpm'
+
+    if installer == 'emerge':
+        return 'ebuild'
+
+    return installer
+
+
+def isDeb():
+    return packageType() == 'deb'
+
+
+def isRPM():
+    return packageType() == 'rpm'
+
+
+def isEmerge():
+    return installerType() == 'emerge'
+
+
+def isApk():
+    return installerType() == 'apk'
+
+
+def isPacman():
+    return installerType() == 'pacman'
+
+
+def isBrew():
+    return installerType() == 'brew'
+
+
+def isYum():
+    return installerType() == 'yum'
+
+
+def isDnf():
+    return installerType() == 'dnf'
+
+
+def isZypper():
+    return installerType() == 'zypper'
 
 
 def isExternalToolsSetup(env):
