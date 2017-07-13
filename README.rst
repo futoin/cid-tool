@@ -176,17 +176,18 @@ Tested on the following OSes:
   - **42.2 Leap**
   - There are known issues with some tools due to lack of community support.
     
-* **Oracle Linux**
+* **Oracle Linux (OL)**
 
   - **7**
     
-* **RedHat Enterprise Linux**
+* **RedHat Enterprise Linux (RHEL)**
 
   - **7**
 
-* **SLES**
+* **SUSE Linux Enterprise Server (SLES)**
 
   - **12**
+  - *Note: only occasionally tested due to lack of suitable license*
 
 * **Ubuntu**
 
