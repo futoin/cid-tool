@@ -86,6 +86,32 @@ class cid_Tool_UTCommon ( cid_Tool_UTBase ) :
         if not res.startswith(req):
             self.assertEqual(req, res)
 
+    def test_71_tool_envexec( self ):
+        tool_name = self.TOOL_NAME
+        
+        ver_var = tool_name + 'Ver'
+        
+        if ver_var not in self.TOOL_ENV:
+            return
+
+        tool_ver = self.TOOL_ENV[ver_var]
+        
+        if tool_name in ('php', 'phpfpm'):
+            res = self._call_cid( [ 'tool', 'exec', tool_name, '--', '--version' ], retout=True )
+            res2 = self._call_cid( [ 'tool', 'envexec', tool_name, '--', tool_name, '--version' ], retout=True )
+        elif tool_name == 'ruby':
+            res = self._call_cid( [ 'tool', 'exec', tool_name, '--', '--version' ], retout=True )
+            res2 = self._call_cid( [ 'tool', 'envexec', tool_name, '--', tool_name, '--version' ], retout=True )
+        elif tool_name == 'java':
+            res = self._call_cid( [ 'tool', 'exec', tool_name, '--', '-version' ],
+                                 retout=True, merge_stderr=True )
+            res2 = self._call_cid( [ 'tool', 'envexec', tool_name, '--', tool_name, '-version' ],
+                                 retout=True, merge_stderr=True )
+        else:
+            return 
+        
+        self.assertEqual(res, res2)
+
 # 10
 #-----
 system_tools = [

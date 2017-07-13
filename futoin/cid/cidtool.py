@@ -512,6 +512,10 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         t = self._tool_impl[tool]
         t.onExec(self._env, args)
 
+    def tool_envexec(self, tool, command):
+        self._processWcDir()
+        self._executil.callInteractive(command, search_path=True)
+
     def tool_install(self, tool):
         self._processWcDir()
 
@@ -600,7 +604,8 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                 ver = env.get(tool + 'Ver', None)
 
                 if ver:
-                    self._errorExit("Tool '{0}' version '{1}' is missing".format(tool, ver))
+                    self._errorExit(
+                        "Tool '{0}' version '{1}' is missing".format(tool, ver))
                 else:
                     self._errorExit("Tool '{0}' is missing".format(tool))
 

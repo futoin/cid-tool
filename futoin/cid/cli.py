@@ -23,6 +23,7 @@ Usage:
     cid run <command> [--] [<command_arg>...]
     cid ci_build <vcs_ref> [<rms_pool>] [--vcsRepo=<vcs_repo>] [--rmsRepo=<rms_repo>] [--permissive] [--debug] [--wcDir=<wc_dir>]
     cid tool exec <tool_name> [<tool_version>] [-- <tool_arg>...]
+    cid tool envexec <tool_name> [<tool_version>] [-- <any_command>...]
     cid tool (install|uninstall|update|test|env) [<tool_name> [<tool_version>]]
     cid tool (prepare|build|check|package|migrate) <tool_name> [<tool_version>]
     cid tool list
@@ -213,6 +214,8 @@ def runInner():
         if args['tool']:
             if args['exec']:
                 cit.tool_exec(tool, args['<tool_arg>'])
+            if args['envexec']:
+                cit.tool_envexec(tool, args['<any_command>'])
             elif args['list']:
                 cit.tool_list()
             elif args['detect']:

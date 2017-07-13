@@ -110,7 +110,7 @@ def callExternal(cmd, suppress_fail=False, verbose=True,
         raise
 
 
-def callInteractive(cmd, replace=True, *args, **kwargs):
+def callInteractive(cmd, replace=True, search_path=False, *args, **kwargs):
     if replace:
         if args or kwargs:
             _log.errorExit(
@@ -140,7 +140,10 @@ def callInteractive(cmd, replace=True, *args, **kwargs):
                 pass
         #---
 
-        os.execv(cmd[0], cmd)
+        if search_path:
+            os.execvp(cmd[0], cmd)
+        else:
+            os.execv(cmd[0], cmd)
     else:
         callExternal(cmd, user_interaction=True, *args, **kwargs)
 

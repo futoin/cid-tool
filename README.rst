@@ -563,11 +563,14 @@ Please see details in the FTN16 spec: ::
     cid tool ...
         Family tool-centric commands.
     
-    cid tool exec <tool_name> [-- <tool_arg>...]
+    cid tool exec <tool_name> [<tool_version>] [-- <tool_arg>...]
         Execute <tool_name> binary with provided arguments.
         Tool and all its dependencies are automatically installed.
         Note: not all tools support execution.
-    
+
+    cid tool envexec <tool_name> [<tool_version>] [-- <command>...]
+        Execute arbitrary command with environment of specified tool.
+
     cid tool (install|uninstall|update) [<tool_name>] [<tool_version>]
         Manage tools.
         Note: not all tools support all kinds of actions.
