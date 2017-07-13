@@ -172,11 +172,12 @@ def runInner():
         tool_ver = args['<tool_version>']
         overrides['tool'] = tool
         overrides['toolVer'] = tool_ver != '--' and tool_ver or None
-        overrides['toolTest'] = (
+        overrides['toolTest'] = args['tool'] and (
             args['test'] or
             args['uninstall'] or
             args['describe'] or
-            args['detect']
+            args['detect'] or
+            args['env']
         )
 
         #---

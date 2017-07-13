@@ -597,10 +597,15 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             t = tool_impl[tool]
 
             if not t.isInstalled(env):
-                self._errorExit("Tool '%s' is missing" % tool)
+                ver = env.get(tool + 'Ver', None)
+
+                if ver:
+                    self._errorExit("Tool '{0}' version '{1}' is missing".format(tool, ver))
+                else:
+                    self._errorExit("Tool '{0}' is missing".format(tool))
 
     def tool_env(self, tool):
-        self._processWcDir()
+        self.tool_test(tool)
 
         if tool:
             tools = [tool]
