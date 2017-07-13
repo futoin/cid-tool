@@ -23,7 +23,7 @@ Features
 * Intelligent automation of human-like behavior
 * Automatic detection & setup of all tool dependencies
 * Resource limit auto-detection & distribution
-* Rolling deployments for zero downtime
+* Rolling deployments with zero downtime
 * Container-friendly
 * Technology-neutral
 * Easily extendable & portable
@@ -262,7 +262,7 @@ Typical use cases
     cid deploy vcsref master --vcsRepo=git:user@host:git/repo.git \
         --deployDir=/www/staging \
         --limit-memory=1G
-    # See "Resource Limits" section for more info.
+    # See "Resource limits auto-detection" section for more info.
     # Public services listen on 0.0.0.0, unless overridden.
     # UNIX sockets are preferred for internal communications.
 
@@ -295,24 +295,153 @@ Typical use cases
      # * setup of docker-compoer via pip into virtualenv
      # actually, executes
 
-Resource Limits
----------------
+Resource limits auto-detection
+------------------------------
 
-All resource limits are automatically detected based on the following:
+All resource limits are container-friendly (e.g. Docker) and
+automatically detected based on the following:
 
 * RAM:
 
-  1. :code:`--limit-memory` option is used, if present
-  2. cgroup memory limit is used, if less than amount of RAM
-  3. half of RAM is used otherwise
+  1. :code:`--limit-memory` option is used, if present.
+  2. cgroup memory limit is used, if less than amount of RAM.
+  3. half of RAM is used otherwise.
+  4. Memory units: one of B, K, M, G postfixes is required. Example: 1G, 1024M, 1048576K, 1073741824B
 
 * CPU count:
 
-  1. :code:`--limit-cpus` option is used, if present
-  2. cgroup CPU count is used, if present
-  3. all detected CPU cores are used otherwise
+  1. :code:`--limit-cpus` option is used, if present.
+  2. cgroup CPU count is used, if present.
+  3. all detected CPU cores are used otherwise.
 
-Memory units: one of B, K, M, G postfixes is required. Example: 1G, 1024M, 1048576K, 1073741824B
+* Max clients:
+
+  * Auto-detected based on available memory and entry point configuration of :code:`.connMemory`.
+  * Can be used by load balancers and reverse-proxy servers.
+
+* File descriptor limit - auto-detected based on max clients and configured
+  file descriptor count per client.
+  
+* Instance count per entry point:
+
+  1. if not :code:`scalable` then only single instance is configured.
+  2. if not :code:`multiCore` then:
+
+     * get theoretical maximum of instances based on doubled :code:`.minMemory`
+     * get CPU limit count
+     * use :code:`maxInstances` configuration, if any.
+     * use the least value of detected above.
+
+  3. otherwise, configure one instance.
+
+
+
+Resource distribution & Entry Point instance auto-configuration
+---------------------------------------------------------------
+
+Entry points are expected to be set in project :code:`futoin.json` manifest. However,
+they can be set and/or tuned in deployment configuration as well.
+
+Please note that "Application Entry Point" != "Application Instance". The first one generally defines
+application, the second one is automatically derived & auto-configured in deployment based
+on actual resource & configuration constraints.
+
+Based on overall resource limits per deployment, the resources are automatically distributed across
+entry points based on the following constraints:
+
+* :code:`.minMemory` - minimal memory per instance without connections
+* :code:`.connMemory` - extra memory per one connection
+* :code:`.connFD = 16` - file descriptors per connection
+* :code:`.internal = false` - if true, then resource is not exposed
+* :code:`.scalable = true` - if false then it's not allowed to start more than one instance globally
+* :code:`.reloadable = false` - if true then reload WITHOUT INTERRUPTION is supported
+* :code:`.multiCore = true` - if true then single instance can span multiple CPU cores
+* :code:`.exitTimeoutMS = 5000` - how many milliseconds to wait after SIGTERM before sending SIGKILL
+* :code:`.cpuWeight = 100` - arbitrary positive integer
+* :code:`.memWeight = 100` - arbitrary positive integer
+* :code:`.maxMemory` - maximal memory per instance (for very specific cases)
+* :code:`.maxTotalMemory` - maximal memory for all instances (for very specific cases)
+* :code:`.maxInstances` - limit number of instances per deployment
+* :code:`.socketTypes` = ['unix', 'tcp', 'tcp6'] - supported listen socket types
+* :code:`.socketProtocol` = one of ['http', 'fcgi', 'wsgi', 'rack', 'jsgi', 'psgi']
+* :code:`.debugOverhead` - extra memory per instance in "dev" deployment
+* :code:`.debugConnOverhead` - extra memory per connection in "dev" deployment
+* :code:`.socketType` - generally, for setup in deployment config
+* :code:`.socketPort` - default/base port to assign to service (optional)
+* :code:`.maxRequestSize` - maximal size of single request (mostly applicable to HTTP request)
+
+*Note: each tool has own reasonable defaults which can be tunes per entry point.*
+
+
+Zero-downtime deployment approach
+---------------------------------
+
+This approach is used for classical, container and development deployments.
+However, actual zero-downtime benefit is assumed for "classical" non-container
+production case.
+
+Step-by-step:
+
+* a clean target folder is required for safety reasons due to automatic cleanup,
+* deploy lock is taken on target folder,
+* target package:
+
+  * if :code:`devserve` is used, the actual working copy is symlinked
+  * if :code:`vcsref` or :code:`vcsref` then local VCS cache is maintained for bandwidth efficiency
+  * otherwise, last used RMS package is cached
+
+* target version auto-detection:
+
+  * if :code:`vcsref` is used then the latest revision is always used.
+  * if precise version is set - it is used for deployment
+  * if partial package mask is set - it is used with shell-like match filtering
+  * for :code:`rms` a list of available packages is retrieved efficient way
+  * for :code:`vcstag` a list of available tags is retrieved efficient way
+  * the retrieved list of candidates is sorted in natural order (decimal numbers are assumed)
+  * the latest one (greatest by order) is used
+
+* persistent data:
+
+  * :code:`persistent` configuration is used to setup read-write persistent paths.
+  * read-write location root is set to :code:`{deployment root}/persistent/` by default.
+  * if specified file or directory exists in package, it is forcibly copied to read-write location (!).
+  * otherwise, a folder is created in read-write location with symlink from target folder.
+  * it's expected that persistent folder is subject for backup procedures.
+
+* a temporary folder under deployment root is used,
+
+* the actions are executed:
+
+  * actions can be hooked both in project and deployment configuration:
+
+    * :code:`.actions` is a map of named actions to string or list of commands.
+    * Standard actions match some of command names: "prepare", "build", "migrate", etc.
+    * :code:`@cid` in the beginning of command is treated as CID invocation. Example: :code:`@cid build-dep openssl`
+    * :code:`@default` as command executes the default behavior. For deployment config it executes project-specified action configuration.
+    * If command matches any of other defined actions then it is executed with recursion of this logic.
+    * *Note: there is recursion protection other than program stack size.*
+    * See :code:`cid deploy set action` for easy scripting instead of direct JSON manipulations.
+
+  * if VCS deployment or forced with :code:`--build` option
+  
+    * :code:`cid prepare` - suitable for extra setup
+    * :code:`cid build`
+
+  * :code:`cid migrate` - suitable for auto-configuration & database migrations
+  
+* all files and directories are set read-only for security & data safety purposes (enforce persistent locations),
+* temporary folder is renamed to package name without extension, VCS tag or VCS branch with revision name,
+* :code:`current` symlink is set to above,
+* if running :code:`cid service master` is detected then it is refreshed,
+
+  * *note: very slight delay may occur which expected to be smoothed by load balancer*?
+
+* deployment folder is cleaned out of any not expected files and folder (cleanup of old versions & misc.),
+
+  * *note: there are some extra files & folders like .tmp, .runtime, .futoin-deploy.lock, etc.*,
+
+* deploy lock is released,
+* at any point, if something goes wrong the procedure is aborted leaving previous version running as is.
 
 
 Usage
@@ -571,47 +700,71 @@ Please see details in the FTN16 spec: ::
     cid build-dep [<build_dep>...]
         Require specific development files to be installed, e.g.: openssl, mysqlclient,
         postgresql, imagemagick, etc.
+        Without parameters lists available deps.
 
 Excplicit futoin.json example
 -----------------------------
 
 futoin.json is not strictly required, but it allows to use full power of CID.
+Below is real-world application configuration example for deployment right from VCS tag.
 
 .. code-block:: json
 
     {
-      "name": "example-package",
-      "version": "0.4.2",
-      "actions": {
-        "custom_script": [ "run some item" ]
-      },
-      "plugins": {
-        "examplerelease": "some.project.specific.release",
-        "examplehelper": "some.other.helpertool"
-      },
-      "vcs": "git",
-      "tools": {
-        "examplerelease": true,
-        "python": "*",
-        "node": "stable",
-        "gradle": "*"
-      },
-      "toolTune" : {
-        "gradle": {
-          "package": "jar"
+        "name": "redmine",
+        "vcs": "svn",
+        "vcsRepo": "http://svn.redmine.org/redmine",
+        "entryPoints": {
+            "web": {
+                "path": "public",
+                "tool": "nginx",
+                "tune": {
+                    "socketType": "tcp",
+                    "socketPort": "8080"
+                }
+            },
+            "app": {
+                "path": "config.ru",
+                "tool": "puma",
+                "tune": {
+                    "internal": "1"
+                }
+            }
+        },
+        "webcfg": {
+            "main": "app"
+        },
+        "persistent": [
+            "files",
+            "log",
+            "public/plugin_assets"
+        ],
+        "actions": {
+            "prepare": [
+                "app-config",
+                "database-config",
+                "app-install"
+            ],
+            "app-config": [
+                "cp config/configuration.yml.example config/configuration.yml",
+                "rm -rf tmp && ln -s ../.tmp tmp"
+            ],
+            "database-config": [
+                "ln -s ../../.database.yml config/database.yml"
+            ],
+            "app-install": [
+                "@cid build-dep ruby mysqlclient imagemagick tzdata libxml2",
+                "@cid tool exec gem -- env",
+                "@cid tool exec bundler -- install --without \"development test rmagick\""
+            ],
+            "migrate": [
+                "@cid tool exec bundler -- exec rake generate_secret_token",
+                "@cid tool exec bundler -- exec rake db:migrate RAILS_ENV=production",
+                "@cid tool exec bundler -- exec rake redmine:load_default_data RAILS_ENV=production REDMINE_LANG=en"
+            ]
         }
-      },
-      "rms": "scp",
-      "rmsRepo": "rms@somehost",
-      "rmsPool": "ReleaseBuilds",
-      "entryPoints": {
-        "app": {
-          "tool": "python",
-          "path": "app.py",
-          "tune": {}
-        }
-      }
     }
+
 
 
 Development

@@ -1,4 +1,7 @@
 
+=== (next) ===
+NEW: extended README with more detilas
+
 === 0.7.996 (2017-07-12) ===
 BREAKING CHANGE: seriously refactored PHP support
  - changed to allow only binary installs by default
