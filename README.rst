@@ -262,7 +262,9 @@ Typical use cases
     cid deploy vcsref master --vcsRepo=git:user@host:git/repo.git \
         --deployDir=/www/staging \
         --limit-memory=1G
-    # resource limits are preserved across runs, if not overridden
+    # See "Resource Limits" section for more info.
+    # Public services listen on 0.0.0.0, unless overridden.
+    # UNIX sockets are preferred for internal communications.
 
 7. Production deployment from RMS: ::
 
@@ -270,7 +272,8 @@ Typical use cases
         --deployDir=/www/prod \
         --limit-memory=8G \
         --limit-cpus=4
-    # resource limits are preserved across runs, if not overridden
+    # Auto-detection & distribution of resources as stated above.
+    # Forced resource limits are preserved per deployment across runs, if not overridden
 
 8. Alter resource limits before or after deployment: ::
 
@@ -291,6 +294,26 @@ Typical use cases
      # * setup of pip
      # * setup of docker-compoer via pip into virtualenv
      # actually, executes
+
+Resource Limits
+---------------
+
+All resource limits are automatically detected based on the following:
+
+* RAM:
+
+  1. :code:`--limit-memory` option is used, if present
+  2. cgroup memory limit is used, if less than amount of RAM
+  3. half of RAM is used otherwise
+
+* CPU count:
+
+  1. :code:`--limit-cpus` option is used, if present
+  2. cgroup CPU count is used, if present
+  3. all detected CPU cores are used otherwise
+
+Memory units: one of B, K, M, G postfixes is required. Example: 1G, 1024M, 1048576K, 1073741824B
+
 
 Usage
 -----
@@ -594,12 +617,10 @@ futoin.json is not strictly required, but it allows to use full power of CID.
 Development
 -----------
 
-Current goal is to get a feature-complete tool. There is a strong concept,
-but some parts of code became messy. Refactoring is postponed after feature
-stabilization.
+Current goal is to get a feature-complete tool. There is a strong concept and several evolutions passed across years.
 
 Notes for contributing:
 
-1. `./bin/cid run autopep8` - for code auto-formatting
-2. `./bin/cid check` - for static analysis
-3. `./tests/run_vagrant_all.sh [optional filters]` - to make sure nothing is broken
+1. :code:`./bin/cid run autopep8` - for code auto-formatting
+2. :code:`./bin/cid check` - for static analysis
+3. :code:`./tests/run_vagrant_all.sh [optional filters]` - to make sure nothing is broken
