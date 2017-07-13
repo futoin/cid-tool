@@ -21,7 +21,7 @@ if which SUSEConnect >/dev/null && \
 then
     source ./suse-credentials
     sudo rm -f /etc/zypp/repos.d/sles12-dvd1.repo
-    sudo SUSEConnect -r "${SLESDEV_RCODE}" -e "${SLESDEV_EMAIL}"
+    sudo SUSEConnect -r "${SLESDEV_RCODE}" -e "${SLESDEV_EMAIL}" || exit 1
     sudo zypper refresh
 fi
 #---
