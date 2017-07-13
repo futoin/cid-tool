@@ -154,7 +154,18 @@ def trySudoCall(cmd, errmsg=None, **kwargs):
             callExternal(cmd, **kwargs)
             return
 
-        callExternal(['sudo', '-n', '-H'] + cmd, **kwargs)
+        environ = _ext.os.environ
+
+        if environ.get('CID_INTERACTIVE_SUDO', '0') == '1':
+            sudo_cmd = 'sudo -H'
+            user_interaction = True
+        else:
+            sudo_cmd = 'sudo -n -H'
+            user_interaction = False
+
+        sudo_cmd = _ext.os.environ.get('cidSudo', sudo_cmd).split()
+        callExternal(sudo_cmd + cmd,
+                     user_interaction=user_interaction, **kwargs)
     except _ext.subprocess.CalledProcessError:
         if not errmsg:
             errmsg = 'you may need to call the the failed command manually !'

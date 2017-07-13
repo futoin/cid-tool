@@ -4,6 +4,7 @@ CHANGED: "cid tool test" to show version on failure
 CHANGED: "cid tool env" not to auto-install required tool
 NEW: added "cid tool envexec" support
 NEW: extended README with more detilas
+NEW: added "CID_INTERACTIVE_SUDO" env support
 
 === 0.7.996 (2017-07-12) ===
 BREAKING CHANGE: seriously refactored PHP support

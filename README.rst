@@ -225,6 +225,10 @@ Then please run the following command instead: ::
 
     cid sudoers --skip-key-management | sudo tee -a /etc/sudoers
 
+As alternative, you can set :code:`export CID_INTERACTIVE_SUDO=1` environment variable
+to run :code:`sudo` in interactive mode. It is disabled by default to avoid hanging
+in unattended use.
+
 Typical use cases
 -----------------
 
