@@ -77,6 +77,27 @@ Note: file upload is OFF by default.
     def envNames(self):
         return ['phpfpmBin', 'phpfpmVer']
 
+    def _setFPMBin(self, env, phpfpm_bin):
+        os = self._os
+        ospath = self._ospath
+        pathutil = self._pathutil
+
+        if 'phpFakeBinDir' in env:
+            php_bin_dir = env['phpFakeBinDir']
+            orig_bin = phpfpm_bin
+            phpfpm_bin = ospath.join(php_bin_dir, 'php-fpm')
+
+            if ospath.exists(php_bin_dir) and ospath.islink(phpfpm_bin) and os.readlink(phpfpm_bin) == orig_bin:
+                pass
+            else:
+                pathutil.rmTree(phpfpm_bin)
+                os.symlink(orig_bin, phpfpm_bin)
+        else:
+            pathutil.addBinPath(ospath.dirname(phpfpm_bin), True)
+
+        env['phpfpmBin'] = phpfpm_bin
+        self._have_tool = True
+
     def initEnv(self, env):
         ospath = self._ospath
         detect = self._detect
@@ -99,8 +120,7 @@ Note: file upload is OFF by default.
             phpfpm_bin = ospath.realpath(phpfpm_bin)
 
             if ospath.exists(phpfpm_bin):
-                env['phpfpmBin'] = phpfpm_bin
-                self._have_tool = True
+                self._setFPMBin(env, phpfpm_bin)
                 return
         else:
             bin_name = 'php-fpm'
@@ -128,8 +148,7 @@ Note: file upload is OFF by default.
             phpfpm_bin = self._ext.glob.glob(phpfpm_bin)
 
             if phpfpm_bin:
-                env['phpfpmBin'] = phpfpm_bin[0]
-                self._have_tool = True
+                self._setFPMBin(env, phpfpm_bin[0])
                 return
 
             # fallback, find any
@@ -138,8 +157,7 @@ Note: file upload is OFF by default.
             phpfpm_bin = self._pathutil.which(bin_name)
 
             if phpfpm_bin:
-                env['phpfpmBin'] = phpfpm_bin
-                self._have_tool = True
+                self._setFPMBin(env, phpfpm_bin)
                 return
 
     def onPreConfigure(self, config, runtime_dir, svc, cfg_svc_tune):

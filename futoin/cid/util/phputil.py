@@ -109,6 +109,7 @@ def createBinDir(env, src_bin):
             os.symlink(src_bin, php_bin)
 
         env['phpBin'] = php_bin
+        env['phpFakeBinDir'] = php_bin_dir
         return True
 
     elif 'phpBin' in env:

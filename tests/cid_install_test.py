@@ -97,8 +97,9 @@ class cid_Tool_UTCommon ( cid_Tool_UTBase ) :
         tool_ver = self.TOOL_ENV[ver_var]
         
         if tool_name in ('php', 'phpfpm'):
+            tool_bin = tool_name == 'phpfpm' and 'php-fpm' or 'php'
             res = self._call_cid( [ 'tool', 'exec', tool_name, '--', '--version' ], retout=True )
-            res2 = self._call_cid( [ 'tool', 'envexec', tool_name, '--', tool_name, '--version' ], retout=True )
+            res2 = self._call_cid( [ 'tool', 'envexec', tool_name, '--', tool_bin, '--version' ], retout=True )
         elif tool_name == 'ruby':
             res = self._call_cid( [ 'tool', 'exec', tool_name, '--', '--version' ], retout=True )
             res2 = self._call_cid( [ 'tool', 'envexec', tool_name, '--', tool_name, '--version' ], retout=True )
@@ -107,6 +108,8 @@ class cid_Tool_UTCommon ( cid_Tool_UTBase ) :
                                  retout=True, merge_stderr=True )
             res2 = self._call_cid( [ 'tool', 'envexec', tool_name, '--', tool_name, '-version' ],
                                  retout=True, merge_stderr=True )
+            res = res.split("\n")[1]
+            res2 = res2.split("\n")[1]
         else:
             return 
         
