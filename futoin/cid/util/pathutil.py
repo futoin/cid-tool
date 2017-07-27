@@ -95,6 +95,10 @@ def updateEnvFromOutput(env_to_set):
         environ[n] = v
 
 
+def userHome():
+    return _ext.os.environ['HOME']
+
+
 def deployHome():
     environ = _ext.os.environ
     return environ.get('CID_DEPLOY_HOME', environ['HOME'])
@@ -285,3 +289,23 @@ def tmpCacheDir(**kwargs):
         _ext.pathutil.writeTextFile(placeholder, '')
 
     return _ext.tempfile.mkdtemp(dir=tmp_dir, **kwargs)
+
+
+def downloadStream(env, url, cmd):
+    kwargs = {}
+    _ext.configutil.requestsOptions(env, kwargs)
+    kwargs['stream'] = True
+    res = _ext.requests.request('GET', url, **kwargs)
+    _ext.executil.callExternal(cmd, input_stream=res.raw)
+
+
+def downloadExtract(env, url, dst, tar_algo):
+    dst_tmp = dst + '.tmp'
+
+    rmTree(dst_tmp)
+    rmTree(dst)
+
+    _ext.os.makedirs(dst_tmp)
+    cmd = ['tar', 'x' + tar_algo, '-C', dst_tmp]
+    downloadStream(env, url, cmd)
+    _ext.os.rename(dst_tmp, dst)

@@ -171,6 +171,11 @@ class cid_mysql_Test ( cid_UTBase ) :
                             "GRANT ALL PRIVILEGES ON *.* TO 'cid'@'%' IDENTIFIED BY 'cid'"],
                             verbose=False)
         _executil.callExternal([mysql, '-uroot', '-h', '127.0.0.1', '-e',
+                            "DROP DATABASE IF EXISTS liquibase;"
+                            "CREATE DATABASE liquibase CHARACTER SET utf8; "
+                            "GRANT ALL PRIVILEGES ON liquibase.* TO 'liquibase'@'%' IDENTIFIED BY 'liquibase'"],
+                            verbose=False)
+        _executil.callExternal([mysql, '-uroot', '-h', '127.0.0.1', '-e',
                             "DROP DATABASE IF EXISTS redmine;"
                             "CREATE DATABASE redmine CHARACTER SET utf8; "
                             "GRANT ALL PRIVILEGES ON redmine.* TO 'redmine'@'%' IDENTIFIED BY 'redmine'"],

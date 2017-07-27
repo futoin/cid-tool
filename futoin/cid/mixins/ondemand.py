@@ -73,6 +73,7 @@ _ext_demand_map = {
     'versionutil': '.util.versionutil',
     'configutil': '.util.configutil',
     'phputil': '.util.phputil',
+    'github': '.util.github',
 }
 
 if sys.version_info >= (3, 0):

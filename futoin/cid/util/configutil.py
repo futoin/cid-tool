@@ -19,6 +19,12 @@ def timeouts(env, fmt):
     raise NotImplementedError('Unknown format: {0}'.format(fmt))
 
 
+def requestsOptions(env, kwargs):
+    kwargs['timeout'] = timeouts(env, 'requests')
+    headers = kwargs.setdefault('headers', {})
+    headers['User-Agent'] = 'FutoIn CID'
+
+
 #==================
 _memory_mult_table = {
     'B': 1,

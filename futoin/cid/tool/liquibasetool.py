@@ -1,0 +1,105 @@
+
+from ..migrationtool import MigrationTool
+
+
+class liquibaseTool(MigrationTool):
+    """Liquibase - source control for your database.
+
+Home: http://www.liquibase.org/
+
+If LIQUIBASE_HOME is set, the tool must be installed manually.
+If liquibaseVer is used, it must be set to full version (GitHub API limitation).
+
+Liquibase migrate is run only if liquibase.properties file is present.
+"changeLogFile" must be set in liquibase.properties.
+"""
+    __slots__ = ()
+
+    LIQUIBASE_PROPERTIES = 'liquibase.properties'
+
+    def autoDetectFiles(self):
+        return self.LIQUIBASE_PROPERTIES
+
+    def getDeps(self):
+        return ['java', 'tar', 'gzip']
+
+    def getVersionParts(self):
+        return 3
+
+    def envNames(self):
+        return ['liquibaseVer', 'liquibaseDir']
+
+    def _installTool(self, env):
+        ospath = self._ospath
+        os = self._os
+        github = self._ext.github
+
+        lb_dir = env['liquibaseDir']
+        ver = env.get('liquibaseVer', 'latest')
+
+        if ver == 'latest':
+            release = ver
+        else:
+            release = 'tags/liquibase-parent-{0}'.format(ver)
+
+        info = github.releaseInfo(env, 'liquibase/liquibase', release)
+
+        found_ver = info['name'].replace('v', '')
+        dst = ospath.join(lb_dir, found_ver)
+        asset = github.findAsset(info['assets'], 'application/x-gzip')
+
+        if not ospath.exists(dst):
+            self._pathutil.downloadExtract(
+                env, asset['browser_download_url'],
+                dst, 'z')
+
+        if ver != found_ver:
+            latest = ospath.join(lb_dir, 'latest')
+            try:
+                os.unlink(latest)
+            except OSError:
+                pass
+            os.symlink(found_ver, latest)
+
+    def updateTool(self, env):
+        self._installTool(env)
+
+    def uninstallTool(self, env):
+        ver = env.get('liquibaseVer', 'latest')
+        inst_dir = env['liquibaseDir']
+
+        if ver:
+            inst_dir = self._ospath.join(inst_dir, ver)
+
+        self._pathutil.rmTree(inst_dir)
+
+    def initEnv(self, env):
+        ospath = self._ospath
+
+        #---
+        inst_dir = self._environ.get('LIQUIBASE_HOME', None)
+        fail_on_missing = False
+
+        if inst_dir:
+            fail_on_missing = True
+        else:
+            lb_dir = ospath.join(
+                self._pathutil.userHome(),
+                '.local', 'liquibasebin')
+            lb_dir = env.setdefault('liquibaseDir', lb_dir)
+            ver = env.get('liquibaseVer', 'latest')
+            inst_dir = ospath.join(lb_dir, ver)
+
+        lb_bin = ospath.join(inst_dir, 'liquibase')
+
+        if ospath.exists(lb_bin):
+            env['liquibaseBin'] = lb_bin
+            self._environ['LIQUIBASE_HOME'] = inst_dir
+            self._have_tool = True
+        elif fail_on_missing:
+            self._errorExit('Unset LIQUIBASE_HOME or '
+                            'setup the tool manually.')
+
+    def onMigrate(self, config):
+        if self._ospath.exists(self.LIQUIBASE_PROPERTIES):
+            self.onExec(config['env'], ['update'], replace=False)

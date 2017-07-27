@@ -80,6 +80,10 @@ class cid_Tool_UTCommon ( cid_Tool_UTBase ) :
             
             if re.search(req, res):
                 return
+        elif tool_name == 'liquibase':
+            res = self._call_cid( [ 'tool', 'exec', tool_name, '--', '--version' ], retout=True )
+            req = "Liquibase Version: {0}".format(tool_ver)
+            
         else:
             return 
         
@@ -204,6 +208,9 @@ mixed_tools = {
     'jdk': {
         'ver': '8',
         'managed': False,
+    },
+    'liquibase' : {
+        'ver': '3.4.2',
     },
     'python' : {
         'ver': '2.7',

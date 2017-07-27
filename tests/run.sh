@@ -156,6 +156,7 @@ elif [ -z "$1" ]; then
     tests+=" tests/cid_rms_test.py"
     tests+=" tests/cid_install_test.py"
     tests+=" tests/cid_buildtool_test.py"
+    tests+=" tests/cid_migrate_test.py"
     tests+=" tests/cid_runcmd_test.py"
     tests+=" tests/cid_initcmd_test.py"
     tests+=" tests/cid_misc_test.py"

@@ -21,7 +21,8 @@ def callExternal(cmd, suppress_fail=False, verbose=True,
                  merge_stderr=False, cwd=None,
                  user_interaction=False,
                  encoding='UTF-8',
-                 binary_input=False, binary_output=False):
+                 binary_input=False, binary_output=False,
+                 input_stream=None):
 
     sys = _ext.sys
     subprocess = _ext.subprocess
@@ -32,7 +33,7 @@ def callExternal(cmd, suppress_fail=False, verbose=True,
         sys.stderr.flush()
 
     try:
-        if input:
+        if input or input_stream:
             stdin = subprocess.PIPE
         elif user_interaction:
             stdin = None
@@ -66,6 +67,11 @@ def callExternal(cmd, suppress_fail=False, verbose=True,
                 p.stdin.flush()
             finally:
                 p.stdin.close()
+
+        if input_stream:
+            _ext.shutil.copyfileobj(input_stream, p.stdin)
+            p.stdin.flush()
+            p.stdin.close()
 
         if stdout:
             if output_handler:
