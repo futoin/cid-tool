@@ -1,5 +1,5 @@
 
-__version__ = '0.7.997'
+__version__ = '0.7.998'
 
 from .cli import run
 from .subtool import SubTool
