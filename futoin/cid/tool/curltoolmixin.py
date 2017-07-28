@@ -6,9 +6,12 @@ class CurlToolMixIn(object):
         return ['curl']
 
     def _callCurl(self, env, curl_args, *args, **nargs):
-        timeout_args = self._configutil.timeouts(env, 'curl')
+        cmd = [env['curlBin'], '-fsSL']
+        cmd += self._configutil.timeouts(env, 'curl')
+        cmd += ['-A', 'FutoIn CID']
+        cmd += curl_args
 
         return self._executil.callExternal(
-            [env['curlBin'], '-fsSL'] + timeout_args + curl_args,
+            cmd,
             *args, **nargs
         )

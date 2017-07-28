@@ -1,6 +1,7 @@
 
 === (next) ===
 CHANGED: changed to make sure actual PHP FPM is always available as "php-fpm" in path
+CHANGED: curl calls to use "FutoIn CID" user agent
 NEW: added liquibase support
 
 === 0.7.997 (2017-07-13) ===
