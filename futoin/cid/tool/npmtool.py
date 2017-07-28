@@ -67,7 +67,8 @@ Note: it auto-disables, if Yarn tool is detected
     def onPrepare(self, config):
         if self._ospath.exists(self.PACKAGE_JSON) and not self._isYarnInUse(config):
             npmBin = config['env']['npmBin']
-            self._executil.callExternal([npmBin, 'install'])
+            self._executil.callExternal(
+                [npmBin, 'install', '--production=false'])
 
     def onPackage(self, config):
         npmBin = config['env']['npmBin']

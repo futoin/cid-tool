@@ -3,6 +3,7 @@
 FIXED: workaround for npm v5.3 bug https://github.com/npm/npm/issues/17781
 CHANGED: changed to make sure actual PHP FPM is always available as "php-fpm" in path
 CHANGED: curl calls to use "FutoIn CID" user agent
+CHANGED: to set NODE_ENV, RUBY_ENV and RAILS_ENV in environment init
 NEW: added liquibase support
 NEW: added flyway support
 

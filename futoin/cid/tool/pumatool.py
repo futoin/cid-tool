@@ -36,11 +36,6 @@ class pumaTool(GemToolMixIn, RuntimeTool):
             socket = 'tcp://{0}:{1}'.format(
                 svc_tune['socketAddress'], svc_tune['socketPort'])
 
-        if config['env']['type'] == 'dev':
-            ruby_env = 'development'
-        else:
-            ruby_env = 'production'
-
         #---
         resource = self._ext.resource
         heap_limit = self._configutil.parseMemory(svc_tune['maxMemory'])
@@ -53,7 +48,7 @@ class pumaTool(GemToolMixIn, RuntimeTool):
 
         puma_args = [
             '-b', socket,
-            '-e', ruby_env,
+            '-e', self._environ['RUBY_ENV'],
             '-t', '{0}:{0}'.format(threads)
         ]
 

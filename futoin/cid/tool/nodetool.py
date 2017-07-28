@@ -11,6 +11,7 @@ Home: https://nodejs.org/en/
 Notes on tuning:
 * .tune.nodeArgs
 
+Note: NODE_ENV is set based on nodeEnv or .env.type
 """
     __slots__ = ()
 
@@ -42,10 +43,22 @@ Notes on tuning:
         self._have_tool = False
 
     def envNames(self):
-        return ['nodeBin', 'nodeVer']
+        return ['nodeBin', 'nodeVer', 'nodeEnv']
 
     def initEnv(self, env):
         node_version = env.setdefault('nodeVer', 'stable')
+        #---
+        node_env = env.get('nodeEnv', '')
+
+        if node_env:
+            pass
+        elif env['type'] == 'dev':
+            node_env = 'development'
+        else:
+            node_env = 'production'
+
+        self._environ['NODE_ENV'] = node_env
+        #---
 
         if self._detect.isAlpineLinux():
             super(nodeTool, self).initEnv(env)
@@ -94,11 +107,6 @@ Notes on tuning:
                 node_env['HOST'] = svc_tune['socketAddress']
         except KeyError:
             pass
-
-        if config['env']['type'] == 'dev':
-            node_env['NODE_ENV'] = 'development'
-        else:
-            node_env['NODE_ENV'] = 'production'
 
         self._environ.update(node_env)
 

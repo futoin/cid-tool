@@ -19,6 +19,8 @@ Otherwise, System Ruby is used by default.
 If rubyVer is set then RVM is used to setup custom rubies.
 That may lead to long time and resource consumption due to compilation,
 if binary versions are not found for specific system.
+
+Note: RUBY_ENV and RAILS_ENV are set based on rubyEnv or .env.type
 """
     __slots__ = ()
 
@@ -157,7 +159,7 @@ if binary versions are not found for specific system.
             self._have_tool = False
 
     def envNames(self):
-        return ['rubyVer', 'rubyBin', 'rubyBinOnly', 'rubyForceBuild', 'rubySourceVer']
+        return ['rubyVer', 'rubyBin', 'rubyBinOnly', 'rubyForceBuild', 'rubySourceVer', 'rubyEnv']
 
     def initEnv(self, env):
         environ = self._environ
@@ -165,6 +167,20 @@ if binary versions are not found for specific system.
         detect = self._detect
         path = self._pathutil
 
+        #---
+        ruby_env = env.get('rubyEnv', '')
+
+        if ruby_env:
+            pass
+        elif env['type'] == 'dev':
+            ruby_env = 'development'
+        else:
+            ruby_env = 'production'
+
+        environ['RUBY_ENV'] = ruby_env
+        environ['RAILS_ENV'] = ruby_env
+
+        #---
         if 'GEM_HOME' in environ:
             path.delEnvPath('PATH', environ['GEM_HOME'])
             path.delEnvPath('GEM_PATH', environ['GEM_HOME'])

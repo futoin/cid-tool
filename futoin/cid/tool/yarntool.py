@@ -21,7 +21,7 @@ Note: auto-detected only if yarn.lock is present
 
     def onPrepare(self, config):
         yarnBin = config['env']['yarnBin']
-        self._executil.callExternal([yarnBin, 'install'])
+        self._executil.callExternal([yarnBin, 'install', '--production=false'])
 
     def onPackage(self, config):
         yarnBin = config['env']['yarnBin']
