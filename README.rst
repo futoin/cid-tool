@@ -39,6 +39,7 @@ Supported technologies & tools (so far):
 
   - **docker-compose**
     
+* **flyway**
 * **go**
 
   - **gvm**

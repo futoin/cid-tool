@@ -319,7 +319,7 @@ def downloadStream(env, url, cmd):
     _ext.executil.callExternal(cmd, input_stream=res.raw)
 
 
-def downloadExtract(env, url, dst, tar_algo):
+def downloadExtract(env, url, dst, tar_algo, strip=0):
     dst_tmp = dst + '.tmp'
 
     rmTree(dst_tmp)
@@ -327,5 +327,9 @@ def downloadExtract(env, url, dst, tar_algo):
 
     _ext.os.makedirs(dst_tmp)
     cmd = ['tar', 'x' + tar_algo, '-C', dst_tmp]
+
+    if strip:
+        cmd += ['--strip-components={0}'.format(strip)]
+
     downloadStream(env, url, cmd)
     _ext.os.rename(dst_tmp, dst)

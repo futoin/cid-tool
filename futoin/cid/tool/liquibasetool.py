@@ -62,7 +62,7 @@ Others, are more JVM-specific and most likely will be bundled with JVM app.
                 env, asset['browser_download_url'],
                 dst, 'z')
 
-        if ver != found_ver:
+        if ver == 'latest':
             latest = ospath.join(lb_dir, 'latest')
             try:
                 os.unlink(latest)
@@ -77,7 +77,7 @@ Others, are more JVM-specific and most likely will be bundled with JVM app.
         ver = env.get('liquibaseVer', 'latest')
         inst_dir = env['liquibaseDir']
 
-        if ver:
+        if ver != 'latest':
             inst_dir = self._ospath.join(inst_dir, ver)
 
         self._pathutil.rmTree(inst_dir)

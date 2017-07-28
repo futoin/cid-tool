@@ -81,8 +81,16 @@ class cid_Tool_UTCommon ( cid_Tool_UTBase ) :
             if re.search(req, res):
                 return
         elif tool_name == 'liquibase':
-            res = self._call_cid( [ 'tool', 'exec', tool_name, '--', '--version' ], retout=True )
+            res = self._call_cid([ 'tool', 'exec', tool_name, '--', '--version' ],
+                                 retout=True, merge_stderr=True )
+            res = res.split('\n')[1]
             req = "Liquibase Version: {0}".format(tool_ver)
+            
+        elif tool_name == 'flyway':
+            res = self._call_cid([ 'tool', 'exec', tool_name ],
+                                 retout=True, merge_stderr=True )
+            res = res.split('\n')[1]
+            req = "Flyway {0}".format(tool_ver)
             
         else:
             return 
@@ -211,6 +219,9 @@ mixed_tools = {
     },
     'liquibase' : {
         'ver': '3.4.2',
+    },
+    'flyway' : {
+        'ver': '4.1.2',
     },
     'python' : {
         'ver': '2.7',

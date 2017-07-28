@@ -79,8 +79,7 @@ javaVer supports:
             super(javaTool, self).initEnv(env, 'java')
             return
 
-        env.setdefault('javaVer', self._LATEST_JAVA)
-        ver = env['javaVer']
+        ver = env.setdefault('javaVer', self._LATEST_JAVA)
 
         candidates = [
             # Zulu

@@ -3,13 +3,17 @@ from ...mixins.ondemand import ext as _ext
 from .. import log as _log
 
 
+def mavenCentral(env):
+    return env.get('mavenCentral',
+                   'http://repo.maven.apache.org/maven2')
+
+
 def ensureJDBC(env, lib_dir, drivers):
     ospath = _ext.ospath
     pathutil = _ext.pathutil
     ver = env.get('javaVer', '8')
 
-    maven_central = env.get('mavenCentral',
-                            'http://repo.maven.apache.org/maven2')
+    maven_central = mavenCentral(env)
 
     psql_ver = '42.1.3'
 
