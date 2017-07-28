@@ -8,6 +8,7 @@ from .ebuild import *
 from .macos import *
 from .pacman import *
 from .rpm import *
+from .java import *
 
 
 def debrpm(packages):

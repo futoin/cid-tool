@@ -12,6 +12,15 @@ If liquibaseVer is used, it must be set to full version (GitHub API limitation).
 
 Liquibase migrate is run only if liquibase.properties file is present.
 "changeLogFile" must be set in liquibase.properties.
+
+Required drivers can be controlled through liquibaseDrivers variable.
+Currently supported:
+* mysql
+* postgresql
+* sqlite
+* mssql
+
+Others, are more JVM-specific and most likely will be bundled with JVM app.
 """
     __slots__ = ()
 
@@ -27,7 +36,7 @@ Liquibase migrate is run only if liquibase.properties file is present.
         return 3
 
     def envNames(self):
-        return ['liquibaseVer', 'liquibaseDir']
+        return ['liquibaseVer', 'liquibaseDir', 'liquibaseDrivers']
 
     def _installTool(self, env):
         ospath = self._ospath
@@ -93,6 +102,10 @@ Liquibase migrate is run only if liquibase.properties file is present.
         lb_bin = ospath.join(inst_dir, 'liquibase')
 
         if ospath.exists(lb_bin):
+            self._install.ensureJDBC(
+                env,
+                ospath.join(inst_dir, 'lib'),
+                env.get('liquibaseDrivers', '').split())
             env['liquibaseBin'] = lb_bin
             self._environ['LIQUIBASE_HOME'] = inst_dir
             self._have_tool = True

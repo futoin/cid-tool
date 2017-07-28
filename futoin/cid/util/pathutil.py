@@ -291,11 +291,31 @@ def tmpCacheDir(**kwargs):
     return _ext.tempfile.mkdtemp(dir=tmp_dir, **kwargs)
 
 
+def downloadFile(env, url, dst):
+    dst_tmp = dst + '.tmp'
+
+    rmTree(dst_tmp)
+    rmTree(dst)
+
+    kwargs = {}
+    _ext.configutil.requestsOptions(env, kwargs)
+    kwargs['stream'] = True
+    res = _ext.requests.request('GET', url, **kwargs)
+    res.raise_for_status()
+
+    with open(dst_tmp, 'wb') as f:
+        _ext.shutil.copyfileobj(res.raw, f)
+
+    _ext.os.rename(dst_tmp, dst)
+
+
 def downloadStream(env, url, cmd):
     kwargs = {}
     _ext.configutil.requestsOptions(env, kwargs)
     kwargs['stream'] = True
     res = _ext.requests.request('GET', url, **kwargs)
+    res.raise_for_status()
+
     _ext.executil.callExternal(cmd, input_stream=res.raw)
 
 
