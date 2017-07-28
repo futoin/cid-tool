@@ -73,7 +73,10 @@ Note: it auto-disables, if Yarn tool is detected
         npmBin = config['env']['npmBin']
 
         if self._ospath.exists(self.PACKAGE_JSON) and not self._isYarnInUse(config):
-            self._executil.callExternal([npmBin, 'prune', '--production'])
+            #self._executil.callExternal([npmBin, 'prune', '--production'])
+            # https://github.com/npm/npm/issues/17781
+            self._pathutil.rmTree('node_modules')
+            self._executil.callExternal([npmBin, 'install', '--production'])
 
         if config.get('rms', None) == self._name:
             self._executil.callExternal([npmBin, 'pack'])
