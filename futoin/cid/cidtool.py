@@ -1213,7 +1213,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             return
 
         deps = set(deps)
-        tools = set(self._getKnownTools) & deps
+        tools = set(self._getKnownTools()) & deps
         self._config = {
             'tools': dict([(t, True) for t in tools])
         }
