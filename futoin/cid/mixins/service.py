@@ -225,6 +225,7 @@ class ServiceMixIn(DataSlots):
             self._deployUnlock()
 
         self._info('Starting master process')
+        self._dumpResourceStats()
 
         while self._running:
             # Reload services
@@ -446,9 +447,20 @@ class ServiceMixIn(DataSlots):
 
         self._info('Master process exit')
         self._masterUnlock()
+        self._dumpResourceStats()
 
     def _reloadServiceMaster(self):
         pid = self._serviceMasterPID()
 
         if pid:
             self._os.kill(pid, self._ext.signal.SIGUSR1)
+
+    def _dumpResourceStats(self):
+        resource = self._ext.resource
+        configutil = self._configutil
+
+        stats = resource.getrusage(resource.RUSAGE_SELF)
+        self._infoLabel('Max RSS: ', configutil.toMemory(
+            stats.ru_maxrss * 1024))
+        self._infoLabel('User Time: ', '{0}s'.format(stats.ru_utime))
+        self._infoLabel('System Time: ', '{0}s'.format(stats.ru_stime))

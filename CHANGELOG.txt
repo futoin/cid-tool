@@ -1,4 +1,7 @@
 
+=== (next) ===
+NEW: added service master resource usage statistics dump
+
 === 0.7.998 (2017-07-28) ===
 FIXED: workaround for npm v5.3 bug https://github.com/npm/npm/issues/17781
 CHANGED: changed to make sure actual PHP FPM is always available as "php-fpm" in path
