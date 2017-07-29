@@ -435,7 +435,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
 
                 #
                 config = self._config
-                t = self._tool_impl[tool]
+                t = self._getTool(tool)
 
                 if isinstance(t, RuntimeTool):
                     svc = self._ext.copy.deepcopy(ep)
@@ -509,7 +509,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
 
     def tool_exec(self, tool, args):
         self._processWcDir()
-        t = self._tool_impl[tool]
+        t = self._getTool(tool)
         t.onExec(self._env, args)
 
     def tool_envexec(self, tool, command):
@@ -529,12 +529,11 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             tools = self._config['toolOrder']
 
         env = self._env
-        tool_impl = self._tool_impl
 
         self._globalLock()
 
         for tool in tools:
-            t = tool_impl[tool]
+            t = self._getTool(tool)
             t.requireInstalled(env)
 
         self._globalUnlock()
@@ -552,12 +551,11 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             tools = reversed(self._config['toolOrder'])
 
         env = self._env
-        tool_impl = self._tool_impl
 
         self._globalLock()
 
         for tool in tools:
-            t = tool_impl[tool]
+            t = self._getTool(tool)
             if t.isInstalled(env):
                 t.uninstallTool(env)
 
@@ -576,12 +574,11 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             tools = self._config['toolOrder']
 
         env = self._env
-        tool_impl = self._tool_impl
 
         self._globalLock()
 
         for tool in tools:
-            t = tool_impl[tool]
+            t = self._getTool(tool)
             t.updateTool(env)
 
         self._globalUnlock()
@@ -595,10 +592,9 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             tools = self._config['toolOrder']
 
         env = self._env
-        tool_impl = self._tool_impl
 
         for tool in tools:
-            t = tool_impl[tool]
+            t = self._getTool(tool)
 
             if not t.isInstalled(env):
                 ver = env.get(tool + 'Ver', None)
@@ -619,7 +615,6 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
 
         res = dict(self._environ)
         env = self._env
-        tool_impl = self._tool_impl
 
         # remove unchanged vars
         for k, v in self._origEnv().items():
@@ -627,7 +622,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                 del res[k]
 
         for tool in tools:
-            tool_impl[tool].exportEnv(env, res)
+            self._getTool(tool).exportEnv(env, res)
 
         for k, v in sorted(res.items()):
             if type(v) == type(''):
@@ -640,7 +635,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         self._processWcDir()
 
         config = self._config
-        t = self._tool_impl[tool]
+        t = self._getTool(tool)
 
         if isinstance(t, base):
             t.loadConfig(config)  # see self._initTools()
@@ -671,15 +666,15 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
 
     def tool_list(self):
         print("List of tools supported by CID:")
-        for k in sorted(self._tool_impl.keys()):
-            t = self._tool_impl[k]
+        for k in sorted(self._getKnownTools()):
+            t = self._getTool(k)
             doc = t.__doc__.strip() or Coloring.warn('!! Missing documentation.')
             doc = doc.split("\n")[0]
             print(Coloring.infoLabel("  * " + k + ': ') + Coloring.info(doc))
         print('End.')
 
     def tool_describe(self, tool):
-        t = self._tool_impl[tool]
+        t = self._getTool(tool)
 
         print(Coloring.infoLabel('* Tool: ') + Coloring.warn(tool))
 
@@ -957,7 +952,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         svc = self._serviceCommon(entry_point, instance_id)
 
         tool = svc['tool']
-        t = self._tool_impl[tool]
+        t = self._getTool(tool)
 
         if isinstance(t, RuntimeTool):
             self._os.chdir(config['wcDir'])
@@ -972,7 +967,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         svc = self._serviceCommon(entry_point, instance_id)
 
         tool = svc['tool']
-        t = self._tool_impl[tool]
+        t = self._getTool(tool)
 
         if isinstance(t, RuntimeTool):
             self._serviceStop(svc, t, int(pid))
@@ -987,7 +982,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         svc = self._serviceCommon(entry_point, instance_id)
 
         tool = svc['tool']
-        t = self._tool_impl[tool]
+        t = self._getTool(tool)
 
         if isinstance(t, RuntimeTool):
             t.onReload(config, int(pid), svc['tune'])
@@ -1218,7 +1213,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             return
 
         deps = set(deps)
-        tools = set(self._tool_impl.keys()) & deps
+        tools = set(self._getKnownTools) & deps
         self._config = {
             'tools': dict([(t, True) for t in tools])
         }

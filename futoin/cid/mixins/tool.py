@@ -1,6 +1,7 @@
 
 from .data import DataSlots
 
+from ..subtool import SubTool
 from ..runtimetool import RuntimeTool
 from ..rmstool import RmsTool
 from ..vcstool import VcsTool
@@ -13,21 +14,17 @@ class ToolMixIn(DataSlots):
         super(ToolMixIn, self).__init__()
         self._tool_impl = {}
 
-    def _checkKnownTool(self, tool, tool_impl=None):
-        if tool_impl is None:
-            tool_impl = self._tool_impl
-
-        if tool not in tool_impl:
+    def _checkKnownTool(self, tool):
+        if tool not in self._tool_impl:
             self._errorExit(
                 'Implementation for "{0}" was not found'.format(tool))
 
     def _forEachTool(self, cb, allow_failure=False, base=None):
         config = self._config
-        tool_impl = self._tool_impl
         tools = config['toolOrder']
 
         for t in tools:
-            t = tool_impl[t]
+            t = self._getTool(t)
 
             if base and not isinstance(t, base):
                 continue
@@ -38,6 +35,30 @@ class ToolMixIn(DataSlots):
                 if not allow_failure:
                     raise e
 
+    def _getTool(self, name):
+        self._checkKnownTool(name)
+        tool_impl = self._tool_impl
+        timpl = tool_impl[name]
+
+        if isinstance(timpl, SubTool):
+            return timpl
+
+        tool_mod_name = timpl
+        tool_module = self._ext.importlib.import_module(tool_mod_name)
+        timpl = getattr(tool_module, name + 'Tool')(name)
+
+        try:
+            getattr(timpl, '__dict__')
+            self._errorExit(
+                'Missing __slots__ in {0}'.format(tool_mod_name))
+        except KeyError:
+            tool_impl[name] = timpl
+
+        return timpl
+
+    def _getKnownTools(self):
+        return self._tool_impl.keys()
+
     def _getVcsTool(self):
         config = self._config
         vcs = config.get('vcs', None)
@@ -46,7 +67,7 @@ class ToolMixIn(DataSlots):
             self._errorExit(
                 'Unknown VCS. Please set through --vcsRepo or project manifest')
 
-        vcstool = self._tool_impl[vcs]
+        vcstool = self._getTool(vcs)
 
         if not config.get('vcsRepo', None):  # also check it set
             try:
@@ -80,16 +101,16 @@ class ToolMixIn(DataSlots):
         self._overrides['rms'] = rms
         self._overrides['rmsRepo'] = config['rmsRepo']
 
-        return self._tool_impl[rms]
+        return self._getTool(rms)
 
     def _getTarTool(self, compressor=None):
         env = self._env
 
-        tar_tool = self._tool_impl['tar']
+        tar_tool = self._getTool('tar')
         tar_tool.requireInstalled(env)
 
         if compressor:
-            self._tool_impl[compressor].requireInstalled(env)
+            self._getTool(compressor).requireInstalled(env)
 
         return tar_tool
 
@@ -132,15 +153,7 @@ class ToolMixIn(DataSlots):
 
         for (tool, tool_mod_name) in plugins.items():
             if tool not in tool_impl:
-                tool_module = importlib.import_module(tool_mod_name)
-                timpl = getattr(tool_module, tool + 'Tool')(tool)
-
-                try:
-                    getattr(timpl, '__dict__')
-                    self._errorExit(
-                        'Missing __slots__ in {0}'.format(tool_mod_name))
-                except KeyError:
-                    tool_impl[tool] = timpl
+                tool_impl[tool] = tool_mod_name
 
         #---
         curr_tool = config.get('tool', None)
@@ -161,13 +174,14 @@ class ToolMixIn(DataSlots):
                         'futoin.json:tools must be a map of tool=>version pairs')
 
                 for (tool, v) in config_tools.items():
-                    self._checkKnownTool(tool, tool_impl)
+                    self._checkKnownTool(tool)
                     tools.append(tool)
 
                     if v != '*' and v != True:
                         env[tool + 'Ver'] = v
-            elif self._project_config is not None:
-                for (n, t) in tool_impl.items():
+            elif self._project_config is not None and config.get('toolDetect', True):
+                for n in self._getKnownTools():
+                    t = self._getTool(n)
                     if t.autoDetect(config):
                         tools.append(n)
 
@@ -177,10 +191,9 @@ class ToolMixIn(DataSlots):
                 tool = config.get(item, None)
 
                 if tool:
-                    self._checkKnownTool(tool, tool_impl)
                     tools.append(tool)
 
-                    if not isinstance(tool_impl[tool], base):
+                    if not isinstance(self._getTool(tool), base):
                         self._errorExit(
                             'Tool {0} does not suite {1} type'.format(tool, item))
 
@@ -190,10 +203,9 @@ class ToolMixIn(DataSlots):
                 tool = ed.get('tool', None)
 
                 if tool:
-                    self._checkKnownTool(tool, tool_impl)
                     tools.append(tool)
 
-                    if not isinstance(tool_impl[tool], RuntimeTool):
+                    if not isinstance(self._getTool(tool), RuntimeTool):
                         self._errorExit(
                             'Tool {0} does not suite RuntimeTool type'.format(tool))
 
@@ -211,8 +223,7 @@ class ToolMixIn(DataSlots):
 
             for g in dep_generations[curr_index:]:
                 for tn in g:
-                    self._checkKnownTool(tn, tool_impl)
-                    t = tool_impl[tn]
+                    t = self._getTool(tn)
                     moredeps = set(t.getDeps())
                     if moredeps:
                         dep_generations.append(moredeps)

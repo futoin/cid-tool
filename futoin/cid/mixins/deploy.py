@@ -376,7 +376,7 @@ class DeployMixIn(DataSlots):
 
         for svc in service_list:
             tool = svc['tool']
-            t = self._tool_impl[tool]
+            t = self._getTool(tool)
 
             if isinstance(t, RuntimeTool):
                 cfg_svc = auto_services[svc['name']][svc['instanceId']]

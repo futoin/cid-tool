@@ -253,7 +253,7 @@ class ServiceMixIn(DataSlots):
                         svc['_lastExit2'] = 0
 
                         tool = svc['tool']
-                        t = self._tool_impl[tool]
+                        t = self._getTool(tool)
 
                         if isinstance(t, RuntimeTool):
                             newsvc['toolImpl'] = t

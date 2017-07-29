@@ -256,7 +256,7 @@ class ConfigMixIn(DataSlots):
             entry_points = config.get('entryPoints', {})
 
             for (en, ep) in entry_points.items():
-                t = self._tool_impl[ep['tool']]
+                t = self._getTool(ep['tool'])
                 ep_tune = ep.setdefault('tune', {})
 
                 for (tk, tv) in t.tuneDefaults().items():
@@ -290,11 +290,10 @@ class ConfigMixIn(DataSlots):
         if not startup:
             # there is no point to export variables provided in env
             # or global configs.
-            tool_impl = self._tool_impl
             export_env = {}
 
             for tool in config.get('toolOrder', []):
-                tool_impl[tool].exportEnv(env, export_env)
+                self._getTool(tool).exportEnv(env, export_env)
 
             environ = self._environ
 

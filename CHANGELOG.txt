@@ -1,5 +1,6 @@
 
 === (next) ===
+CHANGED: to load tools on demand
 NEW: added service master resource usage statistics dump
 
 === 0.7.998 (2017-07-28) ===

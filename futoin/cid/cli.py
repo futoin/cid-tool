@@ -181,6 +181,8 @@ def runInner():
             args['env']
         )
 
+        overrides['toolDetect'] = not (args['service'] and args['master'])
+
         #---
         if args['--permissive']:
             overrides['permissiveChecks'] = True
