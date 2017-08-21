@@ -18,7 +18,7 @@ class NpmToolMixIn(SubTool):
         cmd = [env['npmBin'], 'install', '-g', self._npmName()]
 
         if self._isGlobalNpm():
-            self._executil.trySudoCall(cmd)
+            self._executil.trySudoCall(cmd + ['--unsafe-perm'])
         else:
             self._executil.callExternal(cmd)
 
@@ -26,7 +26,7 @@ class NpmToolMixIn(SubTool):
         cmd = [env['npmBin'], 'update', '-g', self._npmName()]
 
         if self._isGlobalNpm():
-            self._executil.trySudoCall(cmd)
+            self._executil.trySudoCall(cmd + ['--unsafe-perm'])
         else:
             self._executil.callExternal(cmd)
 
@@ -34,7 +34,7 @@ class NpmToolMixIn(SubTool):
         cmd = [env['npmBin'], 'uninstall', '-g', self._npmName()]
 
         if self._isGlobalNpm():
-            self._executil.trySudoCall(cmd)
+            self._executil.trySudoCall(cmd + ['--unsafe-perm'])
         else:
             self._executil.callExternal(cmd)
 
