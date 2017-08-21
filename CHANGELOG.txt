@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.7.999 (2017-08-21) ===
 FIXED: to only use "npm bin -g" folder for node-based tools
 FIXED: to use npm "--unsafe-perm" on AlpineLinux (global npm)
 CHANGED: to load tools on demand
