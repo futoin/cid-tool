@@ -47,6 +47,13 @@ Note: it auto-disables, if Yarn tool is detected
     def uninstallTool(self, env):
         pass
 
+    def initEnv(self, env, bin_name=None):
+        super(npmTool, self).initEnv(env, bin_name)
+
+        if self._have_tool:
+            env['npmBinDir'] = self._executil.callExternal(
+                [env['npmBin'], 'bin', '-g'], verbose=False).strip()
+
     def loadConfig(self, config):
         content = self._pathutil.loadJSONConfig(self.PACKAGE_JSON)
         if content is None:

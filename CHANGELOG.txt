@@ -1,5 +1,6 @@
 
 === (next) ===
+FIXED: to only use "npm bin -g" folder for node-based tools
 CHANGED: to load tools on demand
 NEW: added service master resource usage statistics dump
 
