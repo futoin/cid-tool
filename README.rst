@@ -81,9 +81,10 @@ Supported technologies & tools (so far):
     
 * **ruby** - system, rvm supported and binary builds (Brightbox, SCL)
 
-  - **gen**
+  - **gem**
   - **bundler**
   - **rvm** (implicit)
+  - **puma** - to run application behind nginx (or other web server)
     
 * **rust**
 
