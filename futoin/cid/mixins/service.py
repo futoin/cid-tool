@@ -255,7 +255,11 @@ class ServiceMixIn(DataSlots):
                         tool = svc['tool']
                         t = self._getTool(tool)
 
-                        if isinstance(t, RuntimeTool):
+                        if not t.isInstalled(self._config['env']):
+                            self._errorExit(
+                                'Tool "{0}" for "{1}" is not installed'
+                                .format(tool, newsvc['name']))
+                        elif isinstance(t, RuntimeTool):
                             newsvc['toolImpl'] = t
                         else:
                             self._errorExit(

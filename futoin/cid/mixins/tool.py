@@ -151,6 +151,10 @@ class ToolMixIn(DataSlots):
 
         tool_impl = self._tool_impl
 
+        for (tool, t) in tool_impl.items():
+            if isinstance(t, SubTool):
+                t.onConfigReset()
+
         for (tool, tool_mod_name) in plugins.items():
             if tool not in tool_impl:
                 tool_impl[tool] = tool_mod_name

@@ -150,3 +150,6 @@ updates = {
                 self._warn('Too precise version "{0}" for "{1}" - trimmed to "{2}"'
                            .format(ver, self._name, new_ver))
                 env[ver_var] = new_ver
+
+    def onConfigReset(self):
+        self._have_tool = False
