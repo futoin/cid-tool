@@ -24,7 +24,11 @@ config = {
     'url': 'https://github.com/futoin/cid-tool',
     'download_url': 'https://github.com/futoin/cid-tool/archive/master.zip',
 
-    'install_requires': ['docopt', 'requests'],
+    'install_requires': [
+        'docopt',
+        'requests>=2.18.4',
+        'urllib3>=1.21.1',
+    ],
     # temporary disabled due to py3 failures on setup of pylint
     #'setup_requires': ['autopep8', 'pylint'],
     'extras_require': {
