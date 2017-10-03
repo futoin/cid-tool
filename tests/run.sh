@@ -87,7 +87,9 @@ EOF
     
     HOME=$(dirname $HOME)/fake
     sudo mkdir -p $HOME
-    sudo chmod go+rwx $HOME
+    sudo chmod -R go+rw $HOME
+    find $HOME -type d | xargs sudo chmod go+rwx $HOME
+    sudo chown -R vagrant:vagrant $HOME
     umask 0000
     
     sudo mkdir -p /etc/futoin && sudo chmod 777 /etc/futoin
