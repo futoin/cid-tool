@@ -68,7 +68,7 @@ Note: NODE_ENV is set based on nodeEnv or .env.type
             env_to_set = self._callBash(env,
                                         'source {0} --no-use && \
                 nvm use {1} >/dev/null && \
-                env | egrep "(NVM_|\.nvm)"'
+                env | egrep "^(NVM_|PATH=)"'
                                         .format(env['nvmInit'], node_version),
                                         verbose=False
                                         )

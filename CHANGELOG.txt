@@ -1,4 +1,7 @@
 
+=== (next) ===
+FIXED: to properly init NVM (even when nvmDir has no "/.nvm/" component)
+
 === 0.7.9991 (2017-10-03) ===
 FIXED: to reset internal tool state on config reset
 CHANGED: to require specific minimal versions of urllib3 & requests
