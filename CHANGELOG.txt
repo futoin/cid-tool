@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.7.9993 (2017-10-03) ===
 FIXED: added yarn "install --production=false" workaround
 CHANGED: requests dep to be compatible with docker/docker-compose
 CHANGED: to show both stdout & stderr of meaningful commands like
