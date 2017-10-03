@@ -247,12 +247,17 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
         autoServices = deploy['autoServices']
         main = webcfg.get('main', None)
         webroot = webcfg.get('root', svc['path'])
+        serve_static = cid_tune.get('serveStatic', True)
 
         if webroot != svc['path']:
             self._errorExit('.webcfg.root mismatches nginx entrypoint .path')
 
         if main:
             mounts['/'] = main
+        elif serve_static:
+            server['location /'] = {
+                'disable_symlinks': 'if_not_owner from={0}'.format(webroot),
+            }
 
         for (prefix, app) in mounts.items():
             try:
@@ -282,11 +287,11 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
 
             http['upstream {0}'.format(app)] = upstream
 
-            if prefix == '/' and cid_tune.get('serveStatic', True):
+            if prefix == '/' and serve_static:
                 server['location @main'] = location
                 server['location /'] = {
                     'try_files': '$uri @main',
-                    'disable_symlinks': 'if_not_owner from={0}'.format(server['root']),
+                    'disable_symlinks': 'if_not_owner from={0}'.format(webroot),
                 }
             else:
                 server['location {0}'.format(prefix)] = location
