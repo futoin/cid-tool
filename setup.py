@@ -26,7 +26,9 @@ config = {
 
     'install_requires': [
         'docopt',
-        'requests>=2.18.4',
+        #'requests>=2.18.4',
+        # be compatible with docker/docker-compose
+        'requests(>=2.5.2,!=2.12.2,!=2.11.0,!=2.18.0)',
         'urllib3>=1.21.1',
     ],
     # temporary disabled due to py3 failures on setup of pylint
