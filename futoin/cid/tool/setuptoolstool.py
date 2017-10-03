@@ -46,7 +46,8 @@ Override targets with .config.toolTune.
         targets = self._getTune(config, 'build', ['sdist', 'bdist_wheel'])
         targets = self._configutil.listify(targets)
 
-        self._executil.callExternal([env['pythonBin'], 'setup.py'] + targets)
+        cmd = [env['pythonBin'], 'setup.py'] + targets
+        self._executil.callMeaningful(cmd)
 
     def onPackage(self, config):
         target = self._getTune(config, 'package', 'dist')
@@ -56,5 +57,5 @@ Override targets with .config.toolTune.
         env = config['env']
         self._requirePip(env, 'docutils')
         self._requirePip(env, 'readme')
-        self._executil.callExternal(
-            [env['pythonBin'], 'setup.py', 'check', '-mrs'])
+        cmd = [env['pythonBin'], 'setup.py', 'check', '-mrs']
+        self._executil.callMeaningful(cmd)

@@ -1,7 +1,9 @@
 
 === (next) ===
 FIXED: added yarn "install --production=false" workaround
-CHANGED: requests dep to be compatible with "docker"
+CHANGED: requests dep to be compatible with docker/docker-compose
+CHANGED: to show both stdout & stderr of meaningful commands like
+         prepare/build/package/check/etc.
 
 === 0.7.9992 (2017-10-03) ===
 FIXED: to properly init NVM (even when nvmDir has no "/.nvm/" component)

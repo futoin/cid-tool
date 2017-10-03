@@ -30,23 +30,27 @@ Requires Java >= 8.
     def autoDetectFiles(self):
         return 'build.sbt'
 
+    def _callSBT(self, config, target):
+        cmd = [config['env']['sbtBin'], target]
+        self._executil.callMeaningful(cmd)
+
     def onPrepare(self, config):
         target = self._getTune(config, 'prepare', 'clean')
-        self._executil.callExternal([config['env']['sbtBin'], target])
+        self._callSBT(config, target)
 
     def onBuild(self, config):
         target = self._getTune(config, 'build', 'compile')
-        self._executil.callExternal([config['env']['sbtBin'], target])
+        self._callSBT(config, target)
 
     def onPackage(self, config):
         target = self._getTune(config, 'package', 'package')
-        self._executil.callExternal([config['env']['sbtBin'], target])
+        self._callSBT(config, target)
         self._pathutil.addPackageFiles(config, 'target/scala-*/*.jar')
 
     def onRunDev(self, config):
         target = self._getTune(config, 'run', 'check')
-        self._executil.callExternal([config['env']['sbtBin'], target])
+        self._callSBT(config, target)
 
     def onCheck(self, config):
         target = self._getTune(config, 'check', 'test')
-        self._executil.callExternal([config['env']['sbtBin'], target])
+        self._callSBT(config, target)

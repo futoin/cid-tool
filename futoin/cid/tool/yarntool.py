@@ -25,10 +25,12 @@ Note: auto-detected only if yarn.lock is present
         try:
             self._environ['NODE_ENV'] = 'development'
             yarnBin = config['env']['yarnBin']
-            self._executil.callExternal([yarnBin, 'install', '--production=false'])
+            self._executil.callExternal(
+                [yarnBin, 'install', '--production=false'])
         finally:
             self._environ['NODE_ENV'] = node_env
 
     def onPackage(self, config):
         yarnBin = config['env']['yarnBin']
-        self._executil.callExternal([yarnBin, 'install', '--production'])
+        cmd = [yarnBin, 'install', '--production']
+        self._executil.callMeaningful(cmd)

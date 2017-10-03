@@ -38,8 +38,9 @@ Requires Java >= 7.
 
     def onPrepare(self, config):
         target = self._getTune(config, 'prepare', 'clean')
-        self._executil.callExternal([config['env']['gradleBin'],
-                                     '-q', '--no-daemon', target])
+        cmd = [config['env']['gradleBin'],
+               '-q', '--no-daemon', target]
+        self._executil.callMeaningful(cmd)
 
     def onBuild(self, config):
         target = self._getTune(config, 'build')
@@ -49,13 +50,15 @@ Requires Java >= 7.
         else:
             args = []
 
-        self._executil.callExternal([config['env']['gradleBin'],
-                                     '-q', '--no-daemon'] + args)
+        cmd = [config['env']['gradleBin'],
+               '-q', '--no-daemon'] + args
+        self._executil.callMeaningful(cmd)
 
     def onPackage(self, config):
         target = self._getTune(config, 'package', 'dists')
-        self._executil.callExternal([config['env']['gradleBin'],
-                                     '-q', '--no-daemon', target])
+        cmd = [config['env']['gradleBin'],
+               '-q', '--no-daemon', target]
+        self._executil.callMeaningful(cmd)
 
         packageGlob = self._getTune(config, 'packageGlob', 'build/libs/*.jar')
         self._pathutil.addPackageFiles(config, packageGlob)

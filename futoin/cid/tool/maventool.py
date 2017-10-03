@@ -31,19 +31,23 @@ Requires Java >= 7.
     def _binName(self):
         return 'mvn'
 
+    def _callMaven(self, config, target):
+        cmd = [config['env']['mavenBin'], target]
+        self._executil.callMeaningful(cmd)
+
     def onPrepare(self, config):
         target = self._getTune(config, 'prepare', 'clean')
-        self._executil.callExternal([config['env']['mavenBin'], target])
+        self._callMaven(config, target)
 
     def onBuild(self, config):
         target = self._getTune(config, 'build', 'compile')
-        self._executil.callExternal([config['env']['mavenBin'], target])
+        self._callMaven(config, target)
 
     def onPackage(self, config):
         target = self._getTune(config, 'package', 'package')
-        self._executil.callExternal([config['env']['mavenBin'], target])
+        self._callMaven(config, target)
         self._pathutil.addPackageFiles(config, 'target/*.jar')
 
     def onCheck(self, config):
         target = self._getTune(config, 'check', 'test')
-        self._executil.callExternal([config['env']['mavenBin'], target])
+        self._callMaven(config, target)

@@ -32,19 +32,23 @@ Override targets with .config.toolTune.
 
         super(antTool, self).initEnv(env)
 
+    def _callAnt(self, config, target):
+        cmd = [config['env']['antBin'], target]
+        self._executil.callMeaningful(cmd)
+
     def onPrepare(self, config):
         target = self._getTune(config, 'prepare', 'clean')
-        self._executil.callExternal([config['env']['antBin'], target])
+        self._callAnt(config, target)
 
     def onBuild(self, config):
         target = self._getTune(config, 'build', 'compile')
-        self._executil.callExternal([config['env']['antBin'], target])
+        self._callAnt(config, target)
 
     def onPackage(self, config):
         target = self._getTune(config, 'package', 'jar')
-        self._executil.callExternal([config['env']['antBin'], target])
+        self._callAnt(config, target)
 
         self._pathutil.addPackageFiles(config, 'build/jar/*.jar')
 
     def onRunDev(self, config):
-        self._executil.callExternal([config['env']['antBin'], 'run'])
+        self._callAnt(config, 'run')

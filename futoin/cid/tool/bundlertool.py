@@ -17,8 +17,10 @@ Home: http://bundler.io/
         super(bundlerTool, self).initEnv(env, 'bundle')
 
     def onPrepare(self, config):
-        self._executil.callExternal([config['env']['bundlerBin'], 'install'])
+        cmd = [config['env']['bundlerBin'], 'install']
+        self._executil.callMeaningful(cmd)
 
     def onPackage(self, config):
-        self._executil.callExternal([config['env']['bundlerBin'], 'install',
-                                     '--deployment', '--clean'])
+        cmd = [config['env']['bundlerBin'], 'install',
+               '--deployment', '--clean']
+        self._executil.callMeaningful(cmd)

@@ -15,5 +15,5 @@ Home: https://webpack.js.org
 
     def onBuild(self, config):
         webpackBin = config['env']['webpackBin']
-        self._executil.callExternal([
-            webpackBin, '-p', '--profile', '--display', '--verbose'])
+        cmd = [webpackBin, '-p', '--profile', '--display', '--verbose']
+        self._executil.callMeaningful(cmd)

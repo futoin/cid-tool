@@ -14,4 +14,5 @@ Home: http://gulpjs.com/
         return 'gulpfile.js'
 
     def onBuild(self, config):
-        self._executil.callExternal([config['env']['gulpBin']])
+        cmd = [config['env']['gulpBin']]
+        self._executil.callMeaningful(cmd)

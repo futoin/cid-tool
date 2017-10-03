@@ -17,5 +17,5 @@ Home: https://gruntjs.com/
         return 'grunt-cli'
 
     def onBuild(self, config):
-        gruntBin = config['env']['gruntBin']
-        self._executil.callExternal([gruntBin])
+        cmd = [config['env']['gruntBin']]
+        self._executil.callMeaningful(cmd)

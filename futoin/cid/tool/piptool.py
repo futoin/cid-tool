@@ -57,5 +57,6 @@ Home: https://pypi.python.org/pypi/pip
 
     def onPrepare(self, config):
         if self._ospath.exists(self.REQUIREMENTS_FILE):
-            self._executil.callExternal(
-                [config['env']['pipBin'], 'install', '-r', self.REQUIREMENTS_FILE])
+            cmd = [config['env']['pipBin'], 'install',
+                   '-r', self.REQUIREMENTS_FILE]
+            self._executil.callMeaningful(cmd)

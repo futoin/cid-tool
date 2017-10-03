@@ -110,11 +110,11 @@ Docker EE or other installation methods are out of scope for now.
         tag = env.get('dockerTag', ospath.basename(ospath.realpath('.')))
         cmd = [env['dockerBin'], 'build', '-t', tag, '.']
 
-        if self._isDockerAdmin():
-            self._executil.callExternal(cmd)
-        else:
+        if not self._isDockerAdmin():
             sudo = self._pathutil.which('sudo')
-            self._executil.callExternal([sudo] + cmd)
+            cmd = [sudo] + cmd
+
+        self._executil.callMeaningful(cmd)
 
     def onExec(self, env, args, replace=True):
         bin = env['dockerBin']
@@ -131,11 +131,11 @@ Docker EE or other installation methods are out of scope for now.
         env = config['env']
         cmd = [env['dockerBin'], 'run', svc['path']]
 
-        if self._isDockerAdmin():
-            self._executil.callExternal(cmd)
-        else:
+        if not self._isDockerAdmin():
             sudo = self._pathutil.which('sudo')
-            self._executil.callExternal([sudo] + cmd)
+            cmd = [sudo] + cmd
+
+        self._executil.callMeaningful(cmd)
 
     def _isDockerAdmin(self):
         detect = self._detect

@@ -16,13 +16,17 @@ def devNull():
     return ret
 
 
+def callMeaningful(cmd):
+    callExternal(cmd, show_output=True)
+
+
 def callExternal(cmd, suppress_fail=False, verbose=True,
                  output_handler=None, input=False,
                  merge_stderr=False, cwd=None,
                  user_interaction=False,
                  encoding='UTF-8',
                  binary_input=False, binary_output=False,
-                 input_stream=None):
+                 input_stream=None, show_output=False):
 
     sys = _ext.sys
     subprocess = _ext.subprocess
@@ -42,12 +46,16 @@ def callExternal(cmd, suppress_fail=False, verbose=True,
 
         if merge_stderr:
             stderr = subprocess.STDOUT
+        elif show_output:
+            stderr = sys.stderr
         elif verbose and not suppress_fail:
             stderr = sys.stderr
         else:
             stderr = devNull()
 
         if user_interaction and not output_handler:
+            stdout = None
+        elif show_output:
             stdout = None
         else:
             stdout = subprocess.PIPE

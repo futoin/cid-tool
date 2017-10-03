@@ -46,15 +46,18 @@ Override targets with .config.toolTune.
             [config['env']['cargoBin'], 'build'] + args)
 
     def onPackage(self, config):
-        self._executil.callExternal(
-            [config['env']['cargoBin'], 'package', '--allow-dirty'])
+        cmd = [config['env']['cargoBin'], 'package', '--allow-dirty']
+        self._executil.callMeaningful(cmd)
         self._pathutil.addPackageFiles(config, 'target/package/*.crate')
 
     def onCheck(self, config):
-        self._executil.callExternal([config['env']['cargoBin'], 'test'])
+        cmd = [config['env']['cargoBin'], 'test']
+        self._executil.callMeaningful(cmd)
 
     def onRunDev(self, config):
-        self._executil.callExternal([config['env']['cargoBin'], 'run'])
+        cmd = [config['env']['cargoBin'], 'run']
+        self._executil.callMeaningful(cmd)
 
     def rmsUpload(self, config, rms_pool, package_list):
-        self._executil.callExternal([config['env']['cargoBin'], 'publish'])
+        cmd = [config['env']['cargoBin'], 'publish']
+        self._executil.callMeaningful(cmd)

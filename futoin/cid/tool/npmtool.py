@@ -74,8 +74,8 @@ Note: it auto-disables, if Yarn tool is detected
     def onPrepare(self, config):
         if self._ospath.exists(self.PACKAGE_JSON) and not self._isYarnInUse(config):
             npmBin = config['env']['npmBin']
-            self._executil.callExternal(
-                [npmBin, 'install', '--production=false'])
+            cmd = [npmBin, 'install', '--production=false']
+            self._executil.callMeaningful(cmd)
 
     def onPackage(self, config):
         npmBin = config['env']['npmBin']
@@ -84,10 +84,12 @@ Note: it auto-disables, if Yarn tool is detected
             #self._executil.callExternal([npmBin, 'prune', '--production'])
             # https://github.com/npm/npm/issues/17781
             self._pathutil.rmTree('node_modules')
-            self._executil.callExternal([npmBin, 'install', '--production'])
+            cmd = [npmBin, 'install', '--production']
+            self._executil.callMeaningful(cmd)
 
         if config.get('rms', None) == self._name:
-            self._executil.callExternal([npmBin, 'pack'])
+            cmd = [npmBin, 'pack']
+            self._executil.callMeaningful(cmd)
             package = '{0}-{1}.tgz'.format(
                 config['name'], config['version'])
             self._pathutil.addPackageFiles(config, package)
@@ -116,7 +118,7 @@ Note: it auto-disables, if Yarn tool is detected
         if 'access' in tune:
             cmd += ['--access', tune['access']]
 
-        self._executil.callExternal(cmd)
+        self._executil.callMeaningful(cmd)
 
     def rmsPoolList(self, config):
         return [

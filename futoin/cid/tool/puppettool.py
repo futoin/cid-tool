@@ -57,7 +57,8 @@ Primary purpose is to support Puppet module development.
 
     def onBuild(self, config):
         puppetBin = config['env']['puppetBin']
-        self._executil.callExternal([puppetBin, 'module', 'build'])
+        cmd = [puppetBin, 'module', 'build']
+        self._executil.callMeaningful(cmd)
 
     def onPackage(self, config):
         package_file = 'pkg/{0}-{1}.tar.gz'.format(

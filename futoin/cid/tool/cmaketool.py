@@ -47,13 +47,14 @@ Build folder is configurable through cmakeBuildDir env.
         build_dir = config['env']['cmakeBuildDir']
 
         if ospath.exists(build_dir):
-            self._executil.callExternal([config['env']['cmakeBin'], build_dir])
+            cmd = [config['env']['cmakeBin'], build_dir]
+            self._executil.callMeaningful(cmd)
         else:
             os.mkdir(build_dir)
             os.chdir(build_dir)
-            self._executil.callExternal(
-                [config['env']['cmakeBin'], config['wcDir']])
+            cmd = [config['env']['cmakeBin'], config['wcDir']]
+            self._executil.callMeaningful(cmd)
             os.chdir(config['wcDir'])
 
-        self._executil.callExternal(
-            [config['env']['cmakeBin'], '--build', build_dir])
+        cmd = [config['env']['cmakeBin'], '--build', build_dir]
+        self._executil.callMeaningful(cmd)

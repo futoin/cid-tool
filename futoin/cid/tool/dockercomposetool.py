@@ -30,12 +30,12 @@ Experimental support.
         super(dockercomposeTool, self)._installTool(env)
 
     def onBuild(self, config):
-        self._executil.callExternal(
-            [config['env']['dockercomposeBin'], 'build'])
+        cmd = [config['env']['dockercomposeBin'], 'build']
+        self._executil.callMeaningful(cmd)
 
     def onPackage(self, config):
-        self._executil.callExternal(
-            [config['env']['dockercomposeBin'], 'bundle'])
+        cmd = [config['env']['dockercomposeBin'], 'bundle']
+        self._executil.callMeaningful(cmd)
 
     def initEnv(self, env):
         super(dockercomposeTool, self).initEnv(env, 'docker-compose')
