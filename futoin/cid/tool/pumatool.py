@@ -11,7 +11,7 @@ class pumaTool(GemToolMixIn, RuntimeTool):
     def _sigReload(self):
         return self._ext.signal.SIGUSR2
 
-    def tuneDefaults(self):
+    def tuneDefaults(self, env):
         return {
             'minMemory': '128M',
             'connMemory': '8M',

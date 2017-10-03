@@ -28,7 +28,7 @@ Note: file upload is OFF by default.
     def getDeps(self):
         return ['php']
 
-    def tuneDefaults(self):
+    def tuneDefaults(self, env):
         return {
             'minMemory': '1M',
             'connMemory': '8M',

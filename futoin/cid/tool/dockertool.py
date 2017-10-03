@@ -141,7 +141,7 @@ Docker EE or other installation methods are out of scope for now.
         detect = self._detect
         return detect.haveGroup('docker') or detect.isAdmin()
 
-    def tuneDefaults(self):
+    def tuneDefaults(self, env):
         return {
             'minMemory': '256M',
             'debugOverhead': '128M',

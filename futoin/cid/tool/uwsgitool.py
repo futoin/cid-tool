@@ -12,7 +12,7 @@ It's possible to override uWSGI options with .tune.uwsgi parameter map.
 """
     __slots__ = ()
 
-    def tuneDefaults(self):
+    def tuneDefaults(self, env):
         return {
             'minMemory': '1M',
             'connMemory': '12M',

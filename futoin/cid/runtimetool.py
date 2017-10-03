@@ -17,7 +17,7 @@ class RuntimeTool(SubTool):
             env[self._name + 'Bin'], svc['path']
         ] + args)
 
-    def tuneDefaults(self):
+    def tuneDefaults(self, env):
         return {
             'minMemory': '1M',
             'connMemory': '1M',

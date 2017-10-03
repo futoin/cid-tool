@@ -165,7 +165,7 @@ Mpkkl/Zpp0BirhGWNyTg8K4JrsQ=
 -----END PGP PUBLIC KEY BLOCK-----
 '''
 
-    def tuneDefaults(self):
+    def tuneDefaults(self, env):
         return {
             'minMemory': '64M',
             'debugOverhead': '128M',

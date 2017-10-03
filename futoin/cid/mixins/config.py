@@ -259,7 +259,7 @@ class ConfigMixIn(DataSlots):
                 t = self._getTool(ep['tool'])
                 ep_tune = ep.setdefault('tune', {})
 
-                for (tk, tv) in t.tuneDefaults().items():
+                for (tk, tv) in t.tuneDefaults(env).items():
                     ep_tune.setdefault(tk, tv)
 
             # run again to check tuneDefaults() from plugins

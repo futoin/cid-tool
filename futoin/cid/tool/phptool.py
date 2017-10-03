@@ -480,7 +480,7 @@ You can control installed extensions by setting:
             --with-system-tzdata \
             ' + with_systemd + with_libdir
 
-    def tuneDefaults(self):
+    def tuneDefaults(self, env):
         return {
             'minMemory': '8M',
             'socketType': 'none',

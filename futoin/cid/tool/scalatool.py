@@ -17,7 +17,7 @@ Requires Java >= 8.
     def _minJava(self):
         return '8'
 
-    def tuneDefaults(self):
+    def tuneDefaults(self, env):
         return {
             'minMemory': '256M',
             'debugOverhead': '128M',

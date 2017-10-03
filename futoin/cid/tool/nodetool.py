@@ -79,7 +79,7 @@ Note: NODE_ENV is set based on nodeEnv or .env.type
             self._pathutil.updateEnvFromOutput(env_to_set)
             super(nodeTool, self).initEnv(env)
 
-    def tuneDefaults(self):
+    def tuneDefaults(self, env):
         return {
             'minMemory': '64M',
             'debugOverhead': '32M',

@@ -49,13 +49,13 @@ Additional notes:
     def envNames(self):
         return ['nginxBin', 'nginxVer', 'nginxBaseUrl', 'nginxTrustedProxy']
 
-    def tuneDefaults(self):
+    def tuneDefaults(self, env):
         return {
             'minMemory': '4M',
             'connMemory': '32K',
             'connFD': 8,
             'socketTypes': ['unix', 'tcp', 'tcp6'],
-            'socketType': 'unix',
+            'socketType': 'tcp' if env['type'] == 'dev' else 'unix',
             'socketProtocol': 'http',
             'scalable': False,
             'reloadable': True,

@@ -2,6 +2,8 @@
 === (next) ===
 FIXED: to reset internal tool state on config reset
 CHANGED: to require specific minimal versions of urllib3 & requests
+CHANGED: tune defaults to take "env" as parameter
+ - helps conditional variables
 
 === 0.7.999 (2017-08-21) ===
 FIXED: to only use "npm bin -g" folder for node-based tools

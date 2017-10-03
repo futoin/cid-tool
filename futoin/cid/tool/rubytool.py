@@ -367,7 +367,7 @@ CRD12l8Jwxc6pl2BA/4p5DFEpGVvkgLj7/YLYCtYmZDw8i/drGbkWfIQiOgPWIf8QgpJXVME
 -----END PGP PUBLIC KEY BLOCK-----
 '''
 
-    def tuneDefaults(self):
+    def tuneDefaults(self, env):
         return {
             'minMemory': '8M',
             'socketType': 'none',
