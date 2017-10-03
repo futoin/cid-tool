@@ -93,6 +93,18 @@ Note: it auto-disables, if Yarn tool is detected
             self._pathutil.addPackageFiles(config, package)
 
     def rmsUpload(self, config, rms_pool, package_list):
+        ospath = self._ospath
+        package = '{0}-{1}.tgz'.format(
+            config['name'], config['version'])
+
+        if (len(package_list) == 1 and
+                ospath.basename(package_list[0]) == package):
+            self._warn('Workaround for known "npm publish" tarball issues')
+            self._pathutil.rmTree(package)
+        else:
+            self._errorExit('Unexpected package list: {0}'
+                            .format(package_list))
+
         npmBin = config['env']['npmBin']
         cmd = [npmBin, 'publish']
 
