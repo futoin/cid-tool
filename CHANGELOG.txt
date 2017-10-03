@@ -1,4 +1,7 @@
 
+=== (next) ===
+FIXED: added yarn "install --production=false" workaround
+
 === 0.7.9992 (2017-10-03) ===
 FIXED: to properly init NVM (even when nvmDir has no "/.nvm/" component)
 FIXED: npm upload to remove *.tgz artifacts, if matches product of build

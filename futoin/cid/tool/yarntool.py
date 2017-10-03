@@ -20,8 +20,14 @@ Note: auto-detected only if yarn.lock is present
         return 'yarn.lock'
 
     def onPrepare(self, config):
-        yarnBin = config['env']['yarnBin']
-        self._executil.callExternal([yarnBin, 'install', '--production=false'])
+        node_env = self._environ['NODE_ENV']
+
+        try:
+            self._environ['NODE_ENV'] = 'development'
+            yarnBin = config['env']['yarnBin']
+            self._executil.callExternal([yarnBin, 'install', '--production=false'])
+        finally:
+            self._environ['NODE_ENV'] = node_env
 
     def onPackage(self, config):
         yarnBin = config['env']['yarnBin']
