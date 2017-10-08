@@ -36,6 +36,97 @@ Va3l3WuB+rgKjsQ=
 
 """
 
+MIME_TYPES = """
+types {
+    text/html                             html htm shtml;
+    text/css                              css;
+    text/xml                              xml;
+    image/gif                             gif;
+    image/jpeg                            jpeg jpg;
+    application/javascript                js;
+    application/atom+xml                  atom;
+    application/rss+xml                   rss;
+
+    text/mathml                           mml;
+    text/plain                            txt;
+    text/vnd.sun.j2me.app-descriptor      jad;
+    text/vnd.wap.wml                      wml;
+    text/x-component                      htc;
+
+    image/png                             png;
+    image/tiff                            tif tiff;
+    image/vnd.wap.wbmp                    wbmp;
+    image/x-icon                          ico;
+    image/x-jng                           jng;
+    image/x-ms-bmp                        bmp;
+    image/svg+xml                         svg svgz;
+    image/webp                            webp;
+
+    application/font-woff                 woff;
+    application/java-archive              jar war ear;
+    application/json                      json;
+    application/mac-binhex40              hqx;
+    application/msword                    doc;
+    application/pdf                       pdf;
+    application/postscript                ps eps ai;
+    application/rtf                       rtf;
+    application/vnd.apple.mpegurl         m3u8;
+    application/vnd.ms-excel              xls;
+    application/vnd.ms-fontobject         eot;
+    application/vnd.ms-powerpoint         ppt;
+    application/vnd.wap.wmlc              wmlc;
+    application/vnd.google-earth.kml+xml  kml;
+    application/vnd.google-earth.kmz      kmz;
+    application/x-7z-compressed           7z;
+    application/x-cocoa                   cco;
+    application/x-java-archive-diff       jardiff;
+    application/x-java-jnlp-file          jnlp;
+    application/x-makeself                run;
+    application/x-perl                    pl pm;
+    application/x-pilot                   prc pdb;
+    application/x-rar-compressed          rar;
+    application/x-redhat-package-manager  rpm;
+    application/x-sea                     sea;
+    application/x-shockwave-flash         swf;
+    application/x-stuffit                 sit;
+    application/x-tcl                     tcl tk;
+    application/x-x509-ca-cert            der pem crt;
+    application/x-xpinstall               xpi;
+    application/xhtml+xml                 xhtml;
+    application/xspf+xml                  xspf;
+    application/zip                       zip;
+
+    application/octet-stream              bin exe dll;
+    application/octet-stream              deb;
+    application/octet-stream              dmg;
+    application/octet-stream              iso img;
+    application/octet-stream              msi msp msm;
+
+    application/vnd.openxmlformats-officedocument.wordprocessingml.document    docx;
+    application/vnd.openxmlformats-officedocument.spreadsheetml.sheet          xlsx;
+    application/vnd.openxmlformats-officedocument.presentationml.presentation  pptx;
+
+    audio/midi                            mid midi kar;
+    audio/mpeg                            mp3;
+    audio/ogg                             ogg;
+    audio/x-m4a                           m4a;
+    audio/x-realaudio                     ra;
+
+    video/3gpp                            3gpp 3gp;
+    video/mp2t                            ts;
+    video/mp4                             mp4;
+    video/mpeg                            mpeg mpg;
+    video/quicktime                       mov;
+    video/webm                            webm;
+    video/x-flv                           flv;
+    video/x-m4v                           m4v;
+    video/x-mng                           mng;
+    video/x-ms-asf                        asx asf;
+    video/x-ms-wmv                        wmv;
+    video/x-msvideo                       avi;
+}
+"""
+
 FASTCGI_PARAMS = """
 fastcgi_param  QUERY_STRING       $query_string;
 fastcgi_param  REQUEST_METHOD     $request_method;
@@ -163,8 +254,7 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
         # HTTP
         #---
         http = conf.setdefault('http', OrderedDict())
-        http.setdefault(
-            '-types', "include {0}/etc/nginx/mime.types;".format(self._prefix))
+        http.setdefault('-types', MIME_TYPES)
         http.setdefault('default_type', 'application/octet-stream')
         http.setdefault('access_log', 'off')
         http.setdefault('log_not_found', 'off')
@@ -180,11 +270,12 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
         http.setdefault('proxy_buffering', 'off')
         http.setdefault('proxy_request_buffering', 'off')
         http.setdefault('proxy_max_temp_file_size', '0')
-        http.setdefault('proxy_next_upstream', 'error')
+        http.setdefault('proxy_next_upstream',
+                        'error timeout http_502 non_idempotent')
         #
-        http.setdefault('fastcgi_buffering', 'off')
+        http.setdefault('fastcgi_buffering', 'on')
         http.setdefault('fastcgi_request_buffering', 'off')
-        http.setdefault('fastcgi_max_temp_file_size', '0')
+        http.setdefault('fastcgi_max_temp_file_size', '128k')
         http.setdefault('fastcgi_next_upstream', 'error')
         #
         if not self._detect.isMacOS():
@@ -371,7 +462,9 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
         location['proxy_set_header Host'] = '$host'
         location['proxy_set_header X-Real-IP'] = self._remote_addr_var
         location['proxy_set_header X-Forwarded-For'] = self._x_forwarded_for_var
+        location['proxy_set_header X-Forwarded-Proto'] = '$scheme'
         location['proxy_set_header Proxy'] = '""'
+        location['proxy_cache_bypass'] = '$http_upgrade'
         location['proxy_next_upstream_tries'] = len(instances)
         location['client_max_body_size'] = self._svcBodyLimit(instances)
 
@@ -382,7 +475,10 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
         location = OrderedDict()
         location['fastcgi_pass'] = app
         location['fastcgi_keep_conn'] = 'on'
+        location['fastcgi_ignore_client_abort'] = 'on'
+        location['fastcgi_intercept_errors'] = 'on'
         location['fastcgi_next_upstream_tries'] = len(instances)
+        location['fastcgi_read_timeout'] = '600s'
         location['client_max_body_size'] = self._svcBodyLimit(instances)
 
         location['-fastcgi-params'] = FASTCGI_PARAMS
