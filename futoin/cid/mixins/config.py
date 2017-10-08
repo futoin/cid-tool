@@ -87,6 +87,11 @@ class ConfigMixIn(DataSlots):
         for k in to_del:
             del environ[k]
 
+    def __initUserHome(self):
+        if 'HOME' not in self._environ:
+            self._environ['HOME'] = self._ext.pwd.getpwuid(self._os.geteuid())[
+                5]
+
     def _initConfig(self, startup=False):
         ospath = self._ospath
         os = self._os
@@ -98,7 +103,8 @@ class ConfigMixIn(DataSlots):
 
         #--
         environ = self._environ
-        user_home = environ.get('HOME', '/')
+        self.__initUserHome()
+        user_home = environ['HOME']
         user_home = ospath.realpath(user_home)
         user_config_path = ospath.join(user_home, '.' + self._FUTOIN_JSON)
 
