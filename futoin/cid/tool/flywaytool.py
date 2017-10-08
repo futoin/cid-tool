@@ -65,7 +65,7 @@ Note: for now, it gets the latest tag from GitHub and then uses
                 pass
             os.symlink(found_ver, latest)
 
-    def updateTool(self, env):
+    def _updateTool(self, env):
         self._installTool(env)
 
     def uninstallTool(self, env):

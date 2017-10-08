@@ -22,7 +22,7 @@ class NpmToolMixIn(SubTool):
         else:
             self._executil.callExternal(cmd)
 
-    def updateTool(self, env):
+    def _updateTool(self, env):
         cmd = [env['npmBin'], 'update', '-g', self._npmName()]
 
         if self._isGlobalNpm():

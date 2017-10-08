@@ -56,7 +56,7 @@ class SdkmanToolMixIn(BashToolMixIn, JavaToolMixIn):
                          )
                          )
 
-    def updateTool(self, env):
+    def _updateTool(self, env):
         self._setAutoAnswer(env)
         self._callSdkman(env,
                          'upgrade {0}'.format(

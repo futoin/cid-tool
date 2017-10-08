@@ -32,7 +32,7 @@ Home: http://sdkman.io/
         self._callBash(env, input=installer)
         del environ['SDKMAN_DIR']
 
-    def updateTool(self, env):
+    def _updateTool(self, env):
         self._callBash(env,
                        'source {0} && sdk selfupgrade'.format(
                            env['sdkmanInit'])

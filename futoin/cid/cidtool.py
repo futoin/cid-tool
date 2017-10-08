@@ -519,7 +519,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
     def tool_install(self, tool):
         self._processWcDir()
 
-        if self._detect.isExternalToolsSetup(self._env):
+        if self._detect.isDisabledToolsSetup(self._env):
             self._errorExit(
                 'environment requires external installation of tools')
 
@@ -541,7 +541,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
     def tool_uninstall(self, tool):
         self._processWcDir()
 
-        if self._detect.isExternalToolsSetup(self._env):
+        if self._detect.isDisabledToolsSetup(self._env):
             self._errorExit(
                 'environment requires external management of tools')
 
@@ -564,7 +564,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
     def tool_update(self, tool):
         self._processWcDir()
 
-        if self._detect.isExternalToolsSetup(self._env):
+        if self._detect.isDisabledToolsSetup(self._env):
             self._errorExit(
                 'environment requires external management of tools')
 
@@ -1212,12 +1212,16 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             print("\n".join(res))
             return
 
-        deps = set(deps)
-        tools = set(self._getKnownTools()) & deps
+        deps_set = set(deps)
+        tools = set(self._getKnownTools()) & deps_set
         self._config = {
             'tools': dict([(t, True) for t in tools])
         }
         self._initTools()
 
         env = self._env
-        self._builddep.require(env, list(deps - tools))
+
+        if self._detect.isExternalToolsSetup(env):
+            self._executil.externalSetup(env, ['build-dep'] + deps)
+        else:
+            self._builddep.require(env, list(deps_set - tools))

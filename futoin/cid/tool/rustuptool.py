@@ -30,7 +30,7 @@ Home: https://www.rustup.rs/
             bash_args=['--', '-y', '--no-modify-path'],
             input=installer)
 
-    def updateTool(self, env):
+    def _updateTool(self, env):
         self._executil.callExternal([
             env['rustupBin'], 'self', 'update'
         ])

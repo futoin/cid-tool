@@ -47,7 +47,7 @@ Stable RVM is used by default.
             bash_args=['--', env['rvmVer'], '--path', rvm_dir],
             input=installer)
 
-    def updateTool(self, env):
+    def _updateTool(self, env):
         self._executil.callExternal([env['rvmBin'], 'get', env['rvmVer']])
 
     def uninstallTool(self, env):

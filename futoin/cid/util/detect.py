@@ -246,8 +246,19 @@ def isZypper():
     return installerType() == 'zypper'
 
 
+def isDisabledToolsSetup(env):
+    val = env['externalSetup']
+    return (
+        val == True or
+        val == '1' or
+        val == 'yes' or
+        val == 'on'
+    )
+
+
 def isExternalToolsSetup(env):
-    return env['externalSetup'] != False
+    val = env['externalSetup']
+    return val != False and not isDisabledToolsSetup(env)
 
 
 def autoDetectByCfg(name, config, file_name):

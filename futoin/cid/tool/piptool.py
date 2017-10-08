@@ -24,14 +24,14 @@ Home: https://pypi.python.org/pypi/pip
         ospath = self._ospath
 
         if ospath.exists(env['pipBin']):
-            self.updateTool(env)
+            self._updateTool(env)
         else:
             self._executil.callExternal([
                 ospath.join(env['virtualenvDir'], 'bin',
                             'easy_install'), 'pip'
             ])
 
-    def updateTool(self, env):
+    def _updateTool(self, env):
         self._executil.callExternal([
             env['pipBin'], 'install', '-q',
             '--upgrade',

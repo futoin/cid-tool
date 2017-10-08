@@ -195,7 +195,7 @@ class DeployMixIn(DataSlots):
         config = self._config
 
         # Update tools
-        if not self._detect.isExternalToolsSetup(config['env']):
+        if not self._detect.isDisabledToolsSetup(config['env']):
             self._info('Updating tools')
             self.tool_update(None)
 

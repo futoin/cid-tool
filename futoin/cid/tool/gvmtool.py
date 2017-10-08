@@ -34,7 +34,7 @@ Home: https://github.com/moovweb/gvm
             input=gvm_installer,
             suppress_fail=True)  # error when Go is not yet installed
 
-    def updateTool(self, env):
+    def _updateTool(self, env):
         self._installTool(env)
 
     def uninstallTool(self, env):

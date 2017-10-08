@@ -25,7 +25,7 @@ Home: https://github.com/creationix/nvm
                cd {0} && git fetch && git reset --hard && git checkout {2}'
                        .format(nvm_dir, nvm_git, nvm_ver))
 
-    def updateTool(self, env):
+    def _updateTool(self, env):
         nvm_dir = env['nvmDir']
         nvm_ver = env.get('nvmVer', self.NVM_LATEST)
 

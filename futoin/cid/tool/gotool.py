@@ -37,7 +37,7 @@ through CID, but you can install source releases through
                        .format(env['gvmInit'], env['goVer'])
                        )
 
-    def updateTool(self, env):
+    def _updateTool(self, env):
         self._installTool(env)
 
     def uninstallTool(self, env):

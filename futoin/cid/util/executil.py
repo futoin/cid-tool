@@ -187,6 +187,11 @@ def trySudoCall(cmd, errmsg=None, **kwargs):
         _log.warn(errmsg)
 
 
+def externalSetup(env, args):
+    ext_cmd = env['externalSetup'].split()
+    callExternal(ext_cmd + args)
+
+
 def startService(name):
     openrc = '/sbin/rc-service'
     systemctl = '/bin/systemctl'

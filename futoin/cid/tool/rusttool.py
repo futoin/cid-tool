@@ -30,7 +30,7 @@ Home: https://www.rust-lang.org
             env['rustupBin'], 'toolchain', 'install', env['rustVer']
         ])
 
-    def updateTool(self, env):
+    def _updateTool(self, env):
         self._installTool(env)
 
     def uninstallTool(self, env):

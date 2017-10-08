@@ -138,14 +138,19 @@ Note: RUBY_ENV and RAILS_ENV are set based on rubyEnv or .env.type
             res = glob.glob('{0}{1}*'.format(f, ver))
 
             if res:
+                res = ospath.basename(res[0])
+
+                if os.readlink(f) == res:
+                    continue
+
                 try:
                     os.unlink(f)
-                except:
-                    pass
+                except Exception as e:
+                    self._warn(str(e))
 
-                os.symlink(res[0], f)
+                os.symlink(res, f)
 
-    def updateTool(self, env):
+    def _updateTool(self, env):
         if not env['rubyFoundBinary']:
             self._installTool(env)
 
@@ -249,6 +254,7 @@ Note: RUBY_ENV and RAILS_ENV are set based on rubyEnv or .env.type
                     if ospath.exists(ruby_bin_dir):
                         self._pathutil.addBinPath(ruby_bin_dir, True)
                         super(rubyTool, self).initEnv(env)
+                        self._environ['rubyVer'] = ruby_ver
                     return
                 elif detect.isDebian() or detect.isUbuntu():
                     self._fixRvmLinks(env, rvm_ruby_ver, ruby_ver)
@@ -277,6 +283,7 @@ Note: RUBY_ENV and RAILS_ENV are set based on rubyEnv or .env.type
         if env_to_set:
             self._pathutil.updateEnvFromOutput(env_to_set)
             super(rubyTool, self).initEnv(env)
+            self._environ['rubyVer'] = ruby_ver
 
     def _buildDeps(self, env):
         self._builddep.require(env, 'ssl')

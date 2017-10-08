@@ -80,7 +80,7 @@ Home: https://pypi.python.org/pypi/virtualenv
                 virtualenv_dir
             ])
 
-    def updateTool(self, env):
+    def _updateTool(self, env):
         pass
 
     def initEnv(self, env):

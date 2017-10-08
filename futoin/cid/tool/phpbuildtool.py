@@ -26,7 +26,7 @@ Home: https://github.com/php-build/php-build
                cd {0} && git fetch && git reset --hard && git checkout {2}'
                        .format(phpbuild_dir, phpbuild_git, phpbuild_ver))
 
-    def updateTool(self, env):
+    def _updateTool(self, env):
         phpbuild_dir = env['phpbuildDir']
         phpbuild_ver = env.get('phpbuildVer', self.PHPBUILD_LATEST)
 

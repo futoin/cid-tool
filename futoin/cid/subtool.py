@@ -84,15 +84,24 @@ class SubTool(LogMixIn, OnDemandMixIn):
     def requireInstalled(self, env):
         self.importEnv(env)
         self.initEnv(env)
+        self.installTool(env)
 
+    def installTool(self, env):
         if not self._have_tool:
-            if self._detect.isExternalToolsSetup(env):
+            if self._detect.isDisabledToolsSetup(env):
                 self._errorExit(
                     'Tool "{0}" must be installed externally (env config)'.format(self._name))
             else:
                 self._warn(
                     'Auto-installing required "{0}" tool'.format(self._name))
-                self._installTool(env)
+
+                if self._detect.isExternalToolsSetup(env):
+                    self._executil.externalSetup(env, [
+                        'tool', 'install',
+                        self._name,
+                        env.get(self._name + 'Ver', '')])
+                else:
+                    self._installTool(env)
 
             self.initEnv(env)
 
@@ -104,6 +113,18 @@ class SubTool(LogMixIn, OnDemandMixIn):
         return self._have_tool
 
     def updateTool(self, env):
+        if self._detect.isDisabledToolsSetup(env):
+            self._errorExit(
+                'Tool "{0}" must be updated externally (env config)'.format(self._name))
+        elif self._detect.isExternalToolsSetup(env):
+            self._executil.externalSetup(env, [
+                'tool', 'update',
+                self._name,
+                env.get(self._name + 'Ver', '')])
+        else:
+            self._updateTool(env)
+
+    def _updateTool(self, env):
         self.requireInstalled(env)
 
     def uninstallTool(self, env):

@@ -33,7 +33,7 @@ Note: NODE_ENV is set based on nodeEnv or .env.type
                        'source {0} --no-use && nvm install {1}'
                        .format(env['nvmInit'], env['nodeVer']))
 
-    def updateTool(self, env):
+    def _updateTool(self, env):
         self._installTool(env)
 
     def uninstallTool(self, env):
@@ -78,6 +78,7 @@ Note: NODE_ENV is set based on nodeEnv or .env.type
         if env_to_set:
             self._pathutil.updateEnvFromOutput(env_to_set)
             super(nodeTool, self).initEnv(env)
+            self._environ['nodeVer'] = node_version
 
     def tuneDefaults(self, env):
         return {

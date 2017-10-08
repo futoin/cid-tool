@@ -104,7 +104,7 @@ You can control installed extensions by setting:
 
         env['phpJustInstalled'] = True
 
-    def updateTool(self, env):
+    def _updateTool(self, env):
         pass
 
     def uninstallTool(self, env):

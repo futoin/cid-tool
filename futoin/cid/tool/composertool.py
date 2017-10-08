@@ -51,7 +51,7 @@ composerDir is equal to user's ~/bin/ folder by default.
             input=composer_installer,
             binary_input=True)
 
-    def updateTool(self, env):
+    def _updateTool(self, env):
         self._executil.callExternal([env['composerBin'], 'self-update'])
 
     def uninstallTool(self, env):

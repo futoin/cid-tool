@@ -38,7 +38,7 @@ Note: it auto-disables, if Yarn tool is detected
                 self._install.apk('nodejs-npm')
             return
 
-    def updateTool(self, env):
+    def _updateTool(self, env):
         if self._isGlobalNpm():
             return
 

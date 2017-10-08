@@ -30,7 +30,7 @@ Home: https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
         os.chmod(jfrog_bin, stat.S_IRWXU | stat.S_IRGRP |
                  stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
 
-    def updateTool(self, env):
+    def _updateTool(self, env):
         if self._detect.isMacOS():
             return
 

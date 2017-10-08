@@ -8,7 +8,7 @@ class ConfigMixIn(DataSlots):
     try:
         __str_type = (str, unicode)
     except NameError:
-        __str_type = str
+        __str_type = (str, )
 
     CONFIG_VARS = OrderedDict([
         ('name', __str_type),
@@ -61,7 +61,7 @@ class ConfigMixIn(DataSlots):
         ('vars', dict),
         ('plugins', dict),
         ('pluginPacks', list),
-        ('externalSetup', bool),
+        ('externalSetup', (bool,) + __str_type),
     ])
 
     __slots__ = ()

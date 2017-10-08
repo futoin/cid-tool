@@ -70,7 +70,7 @@ Others, are more JVM-specific and most likely will be bundled with JVM app.
                 pass
             os.symlink(found_ver, latest)
 
-    def updateTool(self, env):
+    def _updateTool(self, env):
         self._installTool(env)
 
     def uninstallTool(self, env):
