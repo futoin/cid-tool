@@ -414,7 +414,10 @@ class DeployMixIn(DataSlots):
         else:
             self._checkDeployLock()
 
-        os.chmod(deploy_dir, os.stat(deploy_dir).st_mode | stat.S_IWUSR)
+        st_mode = os.stat(deploy_dir).st_mode
+
+        if not st_mode & st_mode:
+            os.chmod(deploy_dir, st_mode | st_mode)
 
         if self._config is not None:
             self._info('Re-initializing config')
