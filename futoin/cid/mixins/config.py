@@ -106,7 +106,7 @@ class ConfigMixIn(DataSlots):
         self.__initUserHome()
         user_home = environ['HOME']
         user_home = ospath.realpath(user_home)
-        user_config_path = ospath.join(user_home, '.' + self._FUTOIN_JSON)
+        user_config_path = ospath.join(user_home, self._FUTOIN_USER_JSON)
 
         if not ospath.exists(user_config_path) and user_home != os.getcwd():
             user_config_path = ospath.join(user_home, self._FUTOIN_JSON)

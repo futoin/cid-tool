@@ -338,6 +338,12 @@ class DeployMixIn(DataSlots):
             self._os.getcwd()))
         self._pathutil.writeJSONConfig(self._FUTOIN_JSON, new_config)
 
+        merged_config = self._exportConfig(config)
+        merged_config['deploy'] = new_config['deploy']
+        merged_config['env'] = config['env']
+
+        self._pathutil.writeJSONConfig(self._FUTOIN_MERGED_JSON, merged_config)
+
     def _reloadServices(self):
         self._requireDeployLock()
 

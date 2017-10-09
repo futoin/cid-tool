@@ -35,3 +35,5 @@ class DataSlots(OnDemandMixIn):
     )
 
     _FUTOIN_JSON = 'futoin.json'
+    _FUTOIN_USER_JSON = '.futoin.json'
+    _FUTOIN_MERGED_JSON = '.futoin.merged.json'
