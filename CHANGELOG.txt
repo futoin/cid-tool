@@ -3,6 +3,7 @@
 FIXED: to automatically set HOME env, if one is missing
 FIXED: not to change permission of deploy dir, if not needed
 CHANGED: improvements to generated nginx config
+CHANGED: not to fail on "cid service stop" on process kill failure
 NEW: added .env.externalSetup callback support as per FTN16 v1.1
 NEW: added .futoin.merged.json to deployment dir as per FTN16 v1.1
 

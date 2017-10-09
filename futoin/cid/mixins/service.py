@@ -126,7 +126,12 @@ class ServiceMixIn(DataSlots):
         signal.signal(signal.SIGALRM, TimeoutException.alarmHandler)
 
         tune = svc['tune']
-        toolImpl.onStop(self._config, pid, tune)
+
+        try:
+            toolImpl.onStop(self._config, pid, tune)
+        except Exception as e:
+            self._warn(str(e))
+            return
 
         try:
             timeout = tune.get(
