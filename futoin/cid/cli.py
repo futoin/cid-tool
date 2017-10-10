@@ -307,7 +307,7 @@ def runInner():
                         'webcfg', args['<variable>'], args['<value>'])
                 elif args['webmount']:
                     cit.deploy_set(
-                        'webmount', args['<web_pathf>'], args['<json>'])
+                        'webmount', args['<web_path>'], args['<json>'])
                 else:
                     raise RuntimeError("Not implemented yet.")
             else:
