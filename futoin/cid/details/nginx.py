@@ -338,54 +338,85 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
         autoServices = deploy['autoServices']
         main = webcfg.get('main', None)
         webroot = webcfg.get('root', svc['path'])
-        serve_static = cid_tune.get('serveStatic', True)
 
         if webroot != svc['path']:
             self._errorExit('.webcfg.root mismatches nginx entrypoint .path')
 
         if main:
             mounts['/'] = main
-        elif serve_static:
-            server['location /'] = {
-                'disable_symlinks': 'if_not_owner from={0}'.format(webroot),
-            }
 
-        for (prefix, app) in mounts.items():
-            try:
-                instances = autoServices[app]
-                appsvc = config['entryPoints'][app]
-            except KeyError:
-                self._errorExit(
-                    'Missing "autoServices" for "{0}" entry point'.format(app))
+        def process_static_tune(loc, tune):
+            loc['etag'] = 'on' if tune.get('etag', False) else 'off'
+            loc['index'] = tune.get('etag', 'index.html')
+            loc['autoindex'] = 'on' if tune.get('etag', False) else 'off'
 
-            try:
-                protocol = instances[0]['socketProtocol']
-            except KeyError:
-                self._errorExit(
-                    'Missing "socketProtocol" for "{0}" entry point'.format(app))
+            loc['gzip'] = 'on' if tune.get('gzip', False) else 'off'
+            loc['gzip_static'] = 'on' if tune.get(
+                'staticGzip', False) else 'off'
 
-            if protocol == 'http':
-                upstream, location = self._proxyHttp(app, appsvc, instances)
-            elif protocol == 'fcgi':
-                upstream, location = self._proxyFcgi(app, appsvc, instances)
-            elif protocol == 'scgi':
-                upstream, location = self._proxyScgi(app, appsvc, instances)
-            elif protocol == 'uwsgi':
-                upstream, location = self._proxyUwsgi(app, appsvc, instances)
+        for (prefix, info) in mounts.items():
+
+            if not isinstance(info, dict):
+                info = {'app': info}
+
+            app = info.get('app', None)
+            path_tune = info.get('tune', {})
+
+            if app:
+                try:
+                    instances = autoServices[app]
+                    appsvc = config['entryPoints'][app]
+                except KeyError:
+                    self._errorExit(
+                        'Missing "autoServices" for "{0}" entry point'.format(app))
+
+                try:
+                    protocol = instances[0]['socketProtocol']
+                except KeyError:
+                    self._errorExit(
+                        'Missing "socketProtocol" for "{0}" entry point'.format(app))
+
+                if protocol == 'http':
+                    upstream, location = self._proxyHttp(
+                        app, appsvc, instances)
+                elif protocol == 'fcgi':
+                    upstream, location = self._proxyFcgi(
+                        app, appsvc, instances)
+                elif protocol == 'scgi':
+                    upstream, location = self._proxyScgi(
+                        app, appsvc, instances)
+                elif protocol == 'uwsgi':
+                    upstream, location = self._proxyUwsgi(
+                        app, appsvc, instances)
+                else:
+                    self._errorExit(
+                        'Not supported protocol "{0}" for "{1}" entry point'.format(protocol, app))
+
+                http['upstream {0}'.format(app)] = upstream
+
+                serve_static = info.get('static', False)
+
+                if serve_static:
+                    server['location @main'] = location
+                    path_location = {
+                        'try_files': '$uri $uri/ @main',
+                        'disable_symlinks': 'if_not_owner',
+                    }
+                    process_static_tune(path_location, path_tune)
+                else:
+                    path_location = location
             else:
-                self._errorExit(
-                    'Not supported protocol "{0}" for "{1}" entry point'.format(protocol, app))
-
-            http['upstream {0}'.format(app)] = upstream
-
-            if prefix == '/' and serve_static:
-                server['location @main'] = location
-                server['location /'] = {
-                    'try_files': '$uri @main',
-                    'disable_symlinks': 'if_not_owner from={0}'.format(webroot),
+                path_location = {
+                    'disable_symlinks': 'if_not_owner',
                 }
-            else:
-                server['location {0}'.format(prefix)] = location
+                process_static_tune(path_location, path_tune)
+
+            server['location {0}'.format(prefix)] = path_location
+
+        else:
+            server['location /'] = {
+                'deny': 'all',
+            }
 
         return self.getTextConfig()
 

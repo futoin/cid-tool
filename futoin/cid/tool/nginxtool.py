@@ -29,7 +29,6 @@ It's possible to override automatic variables in some cases.
 
 Additional logic tuning is available through .tune.cid:
 * .listenOptions = 'default_server deferred'
-* .serveStatic = true
 * .upstreamZoneSize = 64k - shared memory for upstream zones
 * .upstreamFailTimeout = 10 - upstream failure timeout
 * .upstreamQueue = None - paramaters to "queue", if set (commercial)
