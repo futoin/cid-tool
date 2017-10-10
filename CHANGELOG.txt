@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.7.9994 (2017-10-10) ===
 FIXED: to automatically set HOME env, if one is missing
 FIXED: not to change permission of deploy dir, if not needed
 FIXED: failure on cfsystem::pretty_json inclusion in some cases
