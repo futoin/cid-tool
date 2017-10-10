@@ -337,18 +337,20 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
         mounts = webcfg.get('mounts', {}).copy()
         autoServices = deploy['autoServices']
         main = webcfg.get('main', None)
-        webroot = webcfg.get('root', svc['path'])
+        webroot = webcfg.get('root', None)
 
         if webroot != svc['path']:
             self._errorExit('.webcfg.root mismatches nginx entrypoint .path')
 
         if main:
-            mounts['/'] = main
+            mounts.setdefault('/', {})
+            mounts['/']['app'] = main
 
         def process_static_tune(loc, tune):
+            loc['index'] = tune.get('index', 'index.html')
+            loc['autoindex'] = 'on' if tune.get('autoindex', False) else 'off'
             loc['etag'] = 'on' if tune.get('etag', False) else 'off'
-            loc['index'] = tune.get('etag', 'index.html')
-            loc['autoindex'] = 'on' if tune.get('etag', False) else 'off'
+            loc['expires'] = tune.get('expires', 'max')
 
             loc['gzip'] = 'on' if tune.get('gzip', False) else 'off'
             loc['gzip_static'] = 'on' if tune.get(
@@ -369,6 +371,9 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
                 except KeyError:
                     self._errorExit(
                         'Missing "autoServices" for "{0}" entry point'.format(app))
+
+                if appsvc.get('tool', None) == 'nginx':
+                    continue
 
                 try:
                     protocol = instances[0]['socketProtocol']
@@ -399,7 +404,7 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
                 if serve_static:
                     server['location @main'] = location
                     path_location = {
-                        'try_files': '$uri $uri/ @main',
+                        'try_files': '$uri @main',
                         'disable_symlinks': 'if_not_owner',
                     }
                     process_static_tune(path_location, path_tune)
@@ -413,10 +418,15 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
 
             server['location {0}'.format(prefix)] = path_location
 
-        else:
-            server['location /'] = {
-                'deny': 'all',
-            }
+        if '/' not in mounts:
+            if webroot:
+                server['location /'] = {
+                    'disable_symlinks': 'if_not_owner',
+                }
+            else:
+                server['location /'] = {
+                    'deny': 'all',
+                }
 
         return self.getTextConfig()
 

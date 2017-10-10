@@ -452,6 +452,7 @@ class cid_deploy_Test( cid_UTBase ) :
             'deployDir' : 'deploydst',
             'entryPoints': {
                 'scalableMono' : {
+                    'tool': 'invalid',
                     'tune': {
                         'minMemory' : '100M',
                         'connMemory' : '32K',
@@ -463,6 +464,7 @@ class cid_deploy_Test( cid_UTBase ) :
                     },
                 },
                 'scalableMulti': {
+                    'tool': 'invalid',
                     'tune': {
                         'minMemory' : '3G',
                         'connMemory' : '32M',
@@ -476,6 +478,7 @@ class cid_deploy_Test( cid_UTBase ) :
                     },
                 },
                 'nonScalable' : {
+                    'tool': 'invalid',
                     'tune': {
                         'minMemory' : '256M',
                         'maxTotalMemory': '4G',
@@ -653,8 +656,11 @@ class cid_multiphp_Test( cid_multiapp_Base ) :
             },
             'webcfg' : {
                 'root' : 'webroot',
-                'main' : 'phpapp',
                 'mounts' : {
+                    '/' : {
+                        'app' : 'phpapp',
+                        'static' : True,
+                    },
                     '/admin/' : 'phpadminapp',
                 }
             },
@@ -724,8 +730,11 @@ class cid_multijs_Test( cid_multiapp_Base ) :
             },
             'webcfg' : {
                 'root' : 'webroot',
-                'main' : 'jsapp',
                 'mounts' : {
+                    '/' : {
+                        'app' : 'jsapp',
+                        'static' : True,
+                    },
                     '/jstcpapp/' : 'jstcpapp',
                 }
             },
@@ -804,8 +813,11 @@ class cid_multipy_Test( cid_multiapp_Base ) :
             },
             'webcfg' : {
                 'root' : 'webroot',
-                'main' : 'pyapp',
                 'mounts' : {
+                    '/' : {
+                        'app' : 'pyapp',
+                        'static' : True,
+                    },
                     '/pytcpapp/' : 'pytcpapp',
                 }
             },
@@ -878,8 +890,11 @@ class cid_multirb_Test( cid_multiapp_Base ) :
             },
             'webcfg' : {
                 'root' : 'webroot',
-                'main' : 'rbapp',
                 'mounts' : {
+                    '/' : {
+                        'app' : 'rbapp',
+                        'static' : True,
+                    },
                     '/rbtcpapp/' : 'rbtcpapp',
                 }
             },
