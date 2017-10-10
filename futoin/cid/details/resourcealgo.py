@@ -101,10 +101,13 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn):
 
         services = {}
         candidates = set()
-        debug = (config.get('env', {}).get('type', 'dev') == 'dev')
+        env = config.get('env', {})
+        debug = (env.get('type', 'dev') == 'dev')
+        external_services = env.get('externalServices', [])
 
         # Init
         for (en, ei) in entryPoints.items():
+            tool = ei['tool']
             ei = ei.get('tune', {}).copy()
 
             for f in ('minMemory', 'connMemory', 'maxRequestSize'):
@@ -140,10 +143,15 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn):
 
             ei['instances'] = 1
             ei['memAlloc'] = ei['minMemory']
-            availMem -= ei['minMemory']
+
+            disabled = tool in external_services
+            ei['disabled'] = disabled
+
+            if not disabled:
+                availMem -= ei['minMemory']
+                candidates.add(en)
 
             services[en] = ei
-            candidates.add(en)
 
         if availMem < 0:
             self._errorExit(
@@ -182,6 +190,10 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn):
         min_mem_coeff = 2
 
         for (en, ei) in services.items():
+            if ei['disabled']:
+                ei['maxCpuCount'] = '1'
+                continue
+
             if not ei['scalable']:
                 ei['maxCpuCount'] = maxcpu
                 continue
@@ -219,6 +231,8 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn):
             if instance_count <= 0:
                 self._errorExit(
                     'Failed to allocate instances for "{0}"'.format(en))
+            elif ei['disabled']:
+                instance_count = 0
 
             for i in range(0, instance_count):
                 ic = {}
@@ -228,7 +242,8 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn):
                 service_mem += instance_mem
                 instances.append(ic)
 
-            instances[0]['maxMemory'] += (ei['memAlloc'] - service_mem)
+            if instance_count > 0:
+                instances[0]['maxMemory'] += (ei['memAlloc'] - service_mem)
 
             for ic in instances:
                 ic['maxConnections'] = int(

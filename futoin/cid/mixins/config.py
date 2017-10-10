@@ -62,6 +62,7 @@ class ConfigMixIn(DataSlots):
         ('plugins', dict),
         ('pluginPacks', list),
         ('externalSetup', (bool,) + __str_type),
+        ('externalServices', list),
     ])
 
     __slots__ = ()
@@ -427,6 +428,7 @@ class ConfigMixIn(DataSlots):
         env.setdefault('plugins', {})
         env.setdefault('pluginPacks', [])
         env.setdefault('externalSetup', False)
+        env.setdefault('externalServices', [])
 
         timeouts = env.setdefault('timeouts', {})
         timeouts.setdefault('connect', 10)
