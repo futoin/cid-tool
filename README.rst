@@ -547,7 +547,10 @@ Please see details in the FTN16 spec: ::
     cid deploy set webcfg <variable> [<value>] [--deployDir=<deploy_dir>]
     cid deploy set webcfg mounts <route>[=<app>] [--deployDir=<deploy_dir>]
         Set or remove .webcfg entries.
-       
+
+    cid deploy set webmount <web_path> [<json>] [--deployDir=<deploy_dir>]
+        Set complex web mount point configuration.
+
     cid migrate
         Runs data migration tasks.
 

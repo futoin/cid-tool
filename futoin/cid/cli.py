@@ -18,6 +18,7 @@ Usage:
     cid deploy set entrypoint <name> <tool> <entry_path> [<tune>...] [--deployDir=<deploy_dir>]
     cid deploy set env <variable> [<value>] [--deployDir=<deploy_dir>]
     cid deploy set webcfg <variable> [<value>] [--deployDir=<deploy_dir>]
+    cid deploy set webmount <web_path> [<json>] [--deployDir=<deploy_dir>]
     cid migrate
     cid run
     cid run <command> [--] [<command_arg>...]
@@ -304,6 +305,9 @@ def runInner():
                 elif args['webcfg']:
                     cit.deploy_set(
                         'webcfg', args['<variable>'], args['<value>'])
+                elif args['webmount']:
+                    cit.deploy_set(
+                        'webmount', args['<web_pathf>'], args['<json>'])
                 else:
                     raise RuntimeError("Not implemented yet.")
             else:

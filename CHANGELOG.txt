@@ -9,6 +9,7 @@ NEW: added .env.externalSetup callback support as per FTN16 v1.1
 NEW: added .env.externalServices support as per FTN16 v1.1
 NEW: added .futoin.merged.json to deployment dir as per FTN16 v1.1
 NEW: extended .webcfg.mounts format as per FTN16 v1.1
+NEW: "deploy set webmount" for extended .webcfg.mounts configuration
 
 === 0.7.9993 (2017-10-03) ===
 FIXED: added yarn "install --production=false" workaround

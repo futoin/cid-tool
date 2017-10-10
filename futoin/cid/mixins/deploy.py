@@ -504,5 +504,18 @@ class DeployMixIn(DataSlots):
         elif var in webcfg:
             del webcfg[var]
 
+    def _deploy_set_webmount(self, path, json):
+        dc = self._deploy_config
+        webcfg = dc.setdefault('webcfg', {})
+
+        mounts = webcfg.setdefault('mounts', {})
+
+        from collections import OrderedDict
+
+        def object_pairs_hook(pairs): return OrderedDict(pairs)
+        val = self._ext.json.loads(json, object_pairs_hook=object_pairs_hook)
+
+        mounts[path] = val
+
     def _getDeployCurrent(self):
         return self._current_dir or 'current'

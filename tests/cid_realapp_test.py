@@ -55,7 +55,9 @@ class cid_redmine_Test( cid_UTBase ) :
         self._call_cid(['deploy', 'set', 'entrypoint', 'web', 'nginx', 'public', 'socketType=tcp', 'socketPort=1234'])
         self._call_cid(['deploy', 'set', 'entrypoint', 'app', 'puma', 'config.ru', 'internal=1'])
         
+        self._call_cid(['deploy', 'set', 'webcfg', 'root', 'public'])
         self._call_cid(['deploy', 'set', 'webcfg', 'main', 'app'])
+        self._call_cid(['deploy', 'set', 'webmount', '/', '{"static": true}'])
         
         self._writeFile('.database.yml', """
 production:
