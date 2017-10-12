@@ -22,7 +22,7 @@ class BundlerMixIn(SubTool):
             self._executil.callExternal(tcmd, verbose=False)
             # self._executil.callMeaningful(tcmd)
         except Exception as e:
-            print(e)
+            self._warn(str(e))
             bundlerTools = env.setdefault('bundlerTools', {})
             bundlerTools[self._name] = ver
             return
@@ -74,5 +74,5 @@ class BundlerMixIn(SubTool):
         bin_path = env.get(self._name + 'Bin')
 
         if not bin_path or not self._ospath.exists(bin_path):
-            self._have_tool=False
+            self._have_tool = False
             self.installTool(env)

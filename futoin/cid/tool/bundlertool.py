@@ -58,7 +58,10 @@ Note:
             if v:
                 tcmd.append('--version={0}'.format(v))
 
-            self._executil.callExternal(tcmd, suppress_fail=True)
+            try:
+                self._executil.callExternal(tcmd, suppress_fail=True)
+            except Exception as e:
+                self._warn(str(e))
 
         if len(bundlerTools) > 0:
             cmd = [env['bundlerBin'], 'install']
