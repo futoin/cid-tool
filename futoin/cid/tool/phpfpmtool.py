@@ -75,7 +75,7 @@ Note: file upload is OFF by default.
             self._install.apk(fpm_pkg)
 
     def envNames(self):
-        return ['phpfpmBin', 'phpfpmVer']
+        return ['phpfpmBin', 'phpfpmVer', 'phpfpmErrorLog']
 
     def _setFPMBin(self, env, phpfpm_bin):
         os = self._os
@@ -109,7 +109,16 @@ Note: file upload is OFF by default.
         if php_ver != phpfpm_ver:
             self._errorExit(
                 'PHP mismatch FPM version {0} != {1}'.format(php_ver, phpfpm_ver))
+        #---
+        if self._detect.isMacOS():
+            # TODO: find solution
+            error_log = '/dev/null'
+        else:
+            error_log = '/proc/self/fd/2'
 
+        env.setdefault('phpfpmErrorLog', error_log)
+
+        #---
         if 'phpBin' not in env:
             return
 
