@@ -45,7 +45,28 @@ Note:
         super(bundlerTool, self).initEnv(env, 'bundle')
 
     def onPrepare(self, config):
-        cmd = [config['env']['bundlerBin'], 'install', '--quiet']
+        env = config['env']
+
+        # Dirty hack
+        #---
+        bundlerTools = env.get('bundlerTools', {})
+        do_bundler_hack = len(bundlerTools) > 0
+
+        for (k, v) in bundlerTools.items():
+            tcmd = [env['bundlerBin'], 'add', k]
+
+            if v:
+                tcmd.append('--version={0}'.format(v))
+
+            self._executil.callExternal(tcmd, suppress_fail=True)
+
+        if len(bundlerTools) > 0:
+            cmd = [env['bundlerBin'], 'install']
+            self._executil.callExternal(cmd)
+
+        # Main install
+        #---
+        cmd = [env['bundlerBin'], 'install']
 
         if self._ospath.exists('Gemfile.lock'):
             cmd.append('--deployment')
@@ -53,6 +74,6 @@ Note:
         self._executil.callMeaningful(cmd)
 
     def onPackage(self, config):
-        cmd = [config['env']['bundlerBin'], 'install', '--quiet',
+        cmd = [config['env']['bundlerBin'], 'install',
                '--deployment', '--clean']
         self._executil.callMeaningful(cmd)

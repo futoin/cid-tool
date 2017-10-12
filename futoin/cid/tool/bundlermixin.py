@@ -12,22 +12,24 @@ class BundlerMixIn(SubTool):
         return self._name
 
     def _installTool(self, env):
-        if self._detect.isExternalToolsSetup(env):
-            self._executil.externalSetup(env, ['build-dep', 'ruby'])
-        else:
-            self._builddep.require(env, 'ruby')
-
-        ver = env.get(self._name + 'Ver', None)
-
-        cmd = [env['bundlerBin'], 'add', self._gemName()]
+        tcmd = [env['bundlerBin'], 'add', self._gemName()]
+        ver = env.get(self._name + 'Ver')
 
         if ver:
-            cmd += ['--version', ver]
+            tcmd.append('--version={0}'.format(ver))
 
-        self._executil.callExternal(cmd)
+        try:
+            self._executil.callExternal(tcmd, verbose=False)
+            # self._executil.callMeaningful(tcmd)
+        except Exception as e:
+            print(e)
+            bundlerTools = env.setdefault('bundlerTools', {})
+            bundlerTools[self._name] = ver
+            return
 
-        cmd = [env['bundlerBin'], 'install', '--quiet']
-        self._executil.callExternal(cmd)
+        cmd = [env['bundlerBin'], 'install']
+        self._executil.callExternal(cmd, verbose=False)
+        # self._executil.callMeaningful(cmd)
 
     def installTool(self, env):
         if not self._have_tool:
@@ -45,18 +47,32 @@ class BundlerMixIn(SubTool):
                 self._errorExit('Failed to install "{0}"'.format(self._name))
 
     def updateTool(self, env):
-        if self._detect.isDisabledToolsSetup(env):
-            self._errorExit(
-                'Tool "{0}" must be updated externally (env config)'.format(self._name))
-        else:
-            self._updateTool(env)
+        # New version is installed, if not in project
+        # Otherwise, the project is responsible  for updates
+        self._ensureInstalled(env)
 
     def initEnv(self, env):
-        if not self._ospath.exists('Gemfile'):
+        ospath = self._ospath
+
+        if not ospath.exists('Gemfile'):
             # Fake to workaround being required outside of project root (e.g. deployment home)
             self._have_tool = True
             return
 
-        ospath = self._ospath
         bin_path = ospath.join(env['bundlePath'], 'bin', self._name)
+        env[self._name + 'Bin'] = bin_path
         self._have_tool = ospath.exists(bin_path)
+
+    def onRun(self, config, svc, args):
+        env = config['env']
+        self._ensureInstalled(env)
+        self._executil.callInteractive([
+            env['bundlerBin'], 'exec', self._gemName(), '--', svc['path']
+        ] + args)
+
+    def _ensureInstalled(self, env):
+        bin_path = env.get(self._name + 'Bin')
+
+        if not bin_path or not self._ospath.exists(bin_path):
+            self._have_tool=False
+            self.installTool(env)

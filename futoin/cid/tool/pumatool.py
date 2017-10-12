@@ -66,4 +66,5 @@ bundler
             svc['path']
         ] + puma_args + args
 
+        self._ensureInstalled(config['env'])
         self._executil.callInteractive(cmd)

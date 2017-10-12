@@ -387,7 +387,6 @@ tools_managed2 = [
     'dockercompose',
     'twine',
     'uwsgi',
-    'puma',
     'webpack',
     'yarn',
 ]
