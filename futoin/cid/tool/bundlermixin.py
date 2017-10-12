@@ -12,6 +12,7 @@ class BundlerMixIn(SubTool):
         return self._name
 
     def _installTool(self, env):
+        self._have_tool = True
         tcmd = [env['bundlerBin'], 'add', self._gemName()]
         ver = env.get(self._name + 'Ver')
 
@@ -61,7 +62,7 @@ class BundlerMixIn(SubTool):
 
         bin_path = ospath.join(env['bundlePath'], 'bin', self._name)
         env[self._name + 'Bin'] = bin_path
-        self._have_tool = ospath.exists(bin_path)
+        self._have_tool = self._have_tool or ospath.exists(bin_path)
 
     def onRun(self, config, svc, args):
         env = config['env']
