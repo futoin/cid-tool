@@ -24,16 +24,14 @@ Note:
     def initEnv(self, env):
         ospath = self._ospath
 
-        if 'CID_DEPLOY_HOME' in self._environ:
-            if ospath.exists('vendor/bundle'):
-                # packed deps
-                bundlePath = self._ospath.realpath('vendor/bundle')
-            else:
-                # per deployment
-                bundlePath = ospath.join(
-                    self._pathutil.deployHome(), '.bundle')
+        if ospath.exists('vendor/bundle'):
+            # packed deps
+            bundlePath = self._ospath.realpath('vendor/bundle')
+        elif ospath.exists('current/vendor/bundle'):
+            # packed deps
+            bundlePath = self._ospath.realpath('current/vendor/bundle')
         elif not ospath.exists('Gemfile'):
-            # global
+            # global / deployment
             bundlePath = ospath.join(self._pathutil.deployHome(), '.bundle')
         else:
             # per project

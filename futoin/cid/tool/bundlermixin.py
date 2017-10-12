@@ -55,13 +55,14 @@ class BundlerMixIn(SubTool):
     def initEnv(self, env):
         ospath = self._ospath
 
+        bin_path = ospath.join(env['bundlePath'], 'bin', self._name)
+        env[self._name + 'Bin'] = bin_path
+
         if not ospath.exists('Gemfile'):
             # Fake to workaround being required outside of project root (e.g. deployment home)
             self._have_tool = True
             return
 
-        bin_path = ospath.join(env['bundlePath'], 'bin', self._name)
-        env[self._name + 'Bin'] = bin_path
         self._have_tool = self._have_tool or ospath.exists(bin_path)
 
     def onRun(self, config, svc, args):

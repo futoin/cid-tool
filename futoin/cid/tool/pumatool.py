@@ -59,12 +59,13 @@ bundler
         ]
 
         #---
+        env = config['env']
 
         cmd = [
-            config['env']['bundlerBin'],
-            'exec', 'puma',
+            env['bundlerBin'],
+            'exec', env['pumaBin'],
             svc['path']
         ] + puma_args + args
 
-        self._ensureInstalled(config['env'])
+        self._ensureInstalled(env)
         self._executil.callInteractive(cmd)
