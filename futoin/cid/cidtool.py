@@ -59,8 +59,10 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         act = self._configutil.listify(act)
 
         if filt_args is None:
-            filt_args = list(args)
+            # replace possible None with empty strings
+            filt_args = [x or '' for x in args]
 
+            # trim only ending
             while len(filt_args) and not len(filt_args[-1]):
                 filt_args.pop()
 

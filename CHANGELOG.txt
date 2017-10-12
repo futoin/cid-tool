@@ -1,4 +1,7 @@
 
+=== (next) ===
+FIXED: critical exception in custom action processing in some cases
+
 === 0.7.9996 (2017-10-12) ===
 FIXED: handling of @default in action overrides (affects "prepare", "tag")
 FIXED: not to install phpbuild in "phpBinOnly" env
