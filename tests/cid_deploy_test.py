@@ -857,6 +857,7 @@ class cid_multirb_Test( cid_multiapp_Base ) :
     TEST_DIR = os.path.join(cid_UTBase.TEST_RUN_DIR, 'deploy_rb')
     
     def _writeFiles(self):
+        self._call_cid(['tool', 'exec', 'bundler', '--', 'init'])
         self._writeJSON('futoin.json', {
             'entryPoints' : {
                 'rbapp' : {

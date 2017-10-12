@@ -1,15 +1,21 @@
 
 from ..runtimetool import RuntimeTool
-from .gemtoolmixin import GemToolMixIn
+from .bundlermixin import BundlerMixIn
 
 
-class pumaTool(GemToolMixIn, RuntimeTool):
+class pumaTool(BundlerMixIn, RuntimeTool):
     """A ruby web server built for concurrency http://puma.io
+
+NOTE: the tool can only be used in scope of Ruby project through
+bundler
 """
     __slots__ = ()
 
     def _sigReload(self):
         return self._ext.signal.SIGUSR2
+
+    def getDeps(self):
+        return ['bundler']
 
     def tuneDefaults(self, env):
         return {
@@ -55,7 +61,8 @@ class pumaTool(GemToolMixIn, RuntimeTool):
         #---
 
         cmd = [
-            config['env']['pumaBin'],
+            config['env']['bundlerBin'],
+            'exec', 'puma',
             svc['path']
         ] + puma_args + args
 
