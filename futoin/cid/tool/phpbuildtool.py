@@ -27,6 +27,9 @@ Home: https://github.com/php-build/php-build
                        .format(phpbuild_dir, phpbuild_git, phpbuild_ver))
 
     def _updateTool(self, env):
+        if env.get('phpBinOnly', False):
+            return
+
         phpbuild_dir = env['phpbuildDir']
         phpbuild_ver = env.get('phpbuildVer', self.PHPBUILD_LATEST)
 
