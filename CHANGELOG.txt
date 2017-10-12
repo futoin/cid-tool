@@ -1,6 +1,7 @@
 
 === (next) ===
 FIXED: handling of @default in action overrides (affects "prepare", "tag")
+FIXED: not to install phpbuild in "phpBinOnly" env
 
 === 0.7.9995 (2017-10-12) ===
 BREAKING CHANGE: redesign of BUNDLE_HOME setup

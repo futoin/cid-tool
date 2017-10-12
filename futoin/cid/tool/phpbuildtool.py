@@ -49,3 +49,6 @@ Home: https://github.com/php-build/php-build
         phpbuild_bin = env.setdefault(
             'phpbuildBin', ospath.join(phpbuild_dir, 'bin', 'php-build'))
         self._have_tool = ospath.exists(phpbuild_bin)
+
+        if env['phpBinOnly']:
+            self._have_tool = True
