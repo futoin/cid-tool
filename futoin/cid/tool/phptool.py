@@ -124,6 +124,7 @@ You can control installed extensions by setting:
         os = self._os
         detect = self._detect
         phputil = self._phputil
+        environ = self._environ
 
         #---
         if 'phpfpmVer' in env:
@@ -137,6 +138,13 @@ You can control installed extensions by setting:
         if phpBinOnly and phpForceBuild:
             self._warn('"phpBinOnly" and "phpForceBuild" do not make sense'
                        ' when set together!')
+
+        php_required_ext = env.get('phpExtRequire', '')
+        php_try_ext = env.get('phpExtTry', '')
+        environ['phpExtRequire'] = php_required_ext
+        environ['phpExtTry'] = php_try_ext
+        php_required_ext = php_required_ext.split()
+        php_try_ext = php_try_ext.split()
 
         #---
         php_binaries = phputil.binaryVersions()
@@ -255,8 +263,6 @@ You can control installed extensions by setting:
                     'curl',
                 ], True)
 
-            php_required_ext = env.get('phpExtRequire', '').split()
-            php_try_ext = env.get('phpExtTry', '').split()
             phputil.installExtensions(env, php_required_ext, False)
             phputil.installExtensions(env, php_try_ext, True)
 

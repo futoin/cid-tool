@@ -143,9 +143,7 @@ def installedExtensions(env):
     for r in res:
         r = r.lower().strip()
 
-        if r == 'libxml':
-            r = 'xml'
-        elif r == 'Zend OPcache':
+        if r == 'Zend OPcache':
             r = 'opcache'
 
         if r in known:
@@ -171,7 +169,6 @@ def extPackages(env, known=None):  # NOTE: do not cache
     if detect.isDebian() or detect.isUbuntu():
         pkg2key = {
             'mysqlnd': 'mysql',
-            'sqlite3': 'sqlite',
         }
 
     elif detect.isSCLSupported():
@@ -305,7 +302,7 @@ def knownExtensions():
         'soap',
         'sockets',
         'spl',
-        'sqlite',
+        'sqlite3',
         'ssh2',
         'sysvmsg',
         'sysvsem',
@@ -344,17 +341,14 @@ def installExtensions(env, exts, permissive=True):
     mapping = extPackages(env, known)
     install = _ext.install
 
+    to_install = []
+
     for ext in exts:
         if ext in mapping:
             pkg = mapping[ext]
 
             if type(pkg) == type(''):
-                install.deb(pkg)
-                install.rpm(pkg)
-                install.brew(pkg)
-                install.apk(pkg)
-                install.pacman(pkg)
-                install.emerge(pkg)
+                to_install.append(pkg)
             elif not pkg:
                 msg = 'Not supported PHP extension: {0}'.format(ext)
 
@@ -365,3 +359,25 @@ def installExtensions(env, exts, permissive=True):
         else:
             _log.errorExit('Unknown PHP extension "{0}"\nKnown: \n* {1}'.format(
                 ext, '\n* '.join(knownExtensions())))
+
+    #---
+    detect = _ext.detect
+
+    if detect.isDisabledToolsSetup(env):
+        _log.errorExit(
+            'environment requires external management of tools')
+        return
+
+    if detect.isExternalToolsSetup(env):
+        _ext.executil.externalSetup(env, [
+            'tool', 'install', 'php'])
+        return
+
+    #---
+    for pkg in to_install:
+        install.deb(pkg)
+        install.rpm(pkg)
+        install.brew(pkg)
+        install.apk(pkg)
+        install.pacman(pkg)
+        install.emerge(pkg)
