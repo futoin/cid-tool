@@ -61,7 +61,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         if filt_args is None:
             filt_args = list(args)
 
-            while len(filt_args) and not filt_args[-1]:
+            while len(filt_args) and not len(filt_args[-1]):
                 filt_args.pop()
 
         for cmd in act:

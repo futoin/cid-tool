@@ -179,7 +179,8 @@ def runInner():
             args['uninstall'] or
             args['describe'] or
             args['detect'] or
-            args['env']
+            args['env'] or
+            (args['deploy'] and args['set'])
         )
 
         overrides['toolDetect'] = not (args['service'] and args['master'])
