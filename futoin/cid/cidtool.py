@@ -38,8 +38,7 @@ def cid_action(f):
         actions = config.get('actions', {})
 
         if fn in actions:
-            filt_args = list(filter(None, args))
-            self._call_actions(fn, actions, filt_args, f)
+            self._call_actions(fn, actions, args, f)
         else:
             f(self, *args, **kwargs)
     return custom_f
@@ -55,14 +54,20 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         self._overrides = overrides
         self._initConfig(True)
 
-    def _call_actions(self, name, actions, args, orig_action=False):
+    def _call_actions(self, name, actions, args, orig_action=False, filt_args=None):
         act = actions[name]
         act = self._configutil.listify(act)
+
+        if filt_args is None:
+            filt_args = list(args)
+
+            while len(filt_args) and not filt_args[-1]:
+                filt_args.pop()
 
         for cmd in act:
             if cmd.startswith('@cid'):
                 cmd = self._ext.shlex.split(cmd)
-                self._executil.callExternal([self._sys.executable, '-mfutoin.cid'] + cmd[1:] + args,
+                self._executil.callExternal([self._sys.executable, '-mfutoin.cid'] + cmd[1:] + filt_args,
                                             user_interaction=True)
             elif cmd == '@default':
                 if orig_action:
@@ -71,11 +76,11 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                     self._errorExit(
                         '@default is not allowed for "[0}"'.format(name))
             elif cmd in actions:
-                self._call_actions(cmd, actions, args)
+                self._call_actions(cmd, actions, args, False, filt_args)
             else:
-                if args:
+                if filt_args:
                     cmd = '{0} {1}'.format(
-                        cmd, self._ext.subprocess.list2cmdline(args))
+                        cmd, self._ext.subprocess.list2cmdline(filt_args))
                 self._executil.callExternal(
                     ['sh', '-c', cmd], user_interaction=True)
 
@@ -161,7 +166,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         vcstool.vcsPush(config, [branch, tag])
 
     @cid_action
-    def prepare(self, vcs_ref):
+    def prepare(self, vcs_ref=None):
         # implciit in @cid_action
         # self._processWcDir()
 

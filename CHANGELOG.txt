@@ -1,4 +1,7 @@
 
+=== (next) ===
+FIXED: handling of @default in action overrides (affects "prepare", "tag")
+
 === 0.7.9995 (2017-10-12) ===
 BREAKING CHANGE: redesign of BUNDLE_HOME setup
 BREAKING CHANGE: redesign of Puma support and generic concept of "bundler tools"

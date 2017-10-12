@@ -28,6 +28,7 @@ Features
 * Technology-neutral
 * Easily extendable & portable
 * Fine tune of all aspects
+* Easy integration with provisioning systems with centralized tool setup
 
 Supported technologies & tools (so far):
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
