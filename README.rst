@@ -532,6 +532,9 @@ Please see details in the FTN16 spec: ::
        
     cid deploy rms <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--build]
         Deploy from RMS.
+
+    cid deploy set tools <tools>... [--deployDir=<deploy_dir>]
+        Overrides .tools in deployment config.
        
     cid deploy set action <name> <actions>... [--deployDir=<deploy_dir>]
         Override .action in deployment config.

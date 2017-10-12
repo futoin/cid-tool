@@ -184,11 +184,7 @@ Note: file upload is OFF by default.
 
         #
         log_level = 'error'
-        if self._detect.isMacOS():
-            # TODO: find solution
-            error_log = '/dev/null'
-        else:
-            error_log = '/proc/self/fd/2'
+        error_log = env['phpfpmErrorLog']
         display_errors = 'Off'
         error_reporting = 'E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED'
 

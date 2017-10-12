@@ -380,7 +380,29 @@ class cid_deploy_Test( cid_UTBase ) :
                     'tune' : {},
                 },
             },
-            dict(cfg['entryPoints']))                    
+            dict(cfg['entryPoints']))
+                
+    def test_12_set_webmount(self):
+        cfg_file = os.path.join('setupdir', 'futoin.json')
+        
+        self._call_cid(['deploy', 'set', 'webmount', '/', '{"static":true}', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals({'static': True}, cfg['webcfg']['mounts']['/'])
+
+        self._call_cid(['deploy', 'set', 'webmount', '/gzip', '{"static":true,"gzip":false}', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals({'static': True, "gzip": False}, cfg['webcfg']['mounts']['/gzip'])
+
+    def test_13_set_tools(self):
+        cfg_file = os.path.join('setupdir', 'futoin.json')
+        
+        self._call_cid(['deploy', 'set', 'tools', 'composer=123', 'php', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals({'composer': '123', 'php': '*'}, cfg['tools'])
+
+        self._call_cid(['deploy', 'set', 'tools', 'ruby=', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals({'ruby': '*'}, cfg['tools'])
                 
     def test_20_memdetect_system(self):
         if self.IS_MACOS:

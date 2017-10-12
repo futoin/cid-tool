@@ -5,6 +5,7 @@ FIXED: not to install phpbuild in "phpBinOnly" env
 FIXED: "phpExtRequire" & "phpExtTry" to work in external setup
 FIXED: PHP extension name mapping (ext-xml, ext-sqlite3)
 CHANGED: not to initialize tools in "cid deploy set" (performance + usability in some cases)
+NEW: "cid deploy set tools" command
 
 === 0.7.9995 (2017-10-12) ===
 BREAKING CHANGE: redesign of BUNDLE_HOME setup

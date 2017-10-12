@@ -517,5 +517,15 @@ class DeployMixIn(DataSlots):
 
         mounts[path] = val
 
+    def _deploy_set_tools(self, tools):
+        dc = self._deploy_config
+        dc_tools = {}
+        dc['tools'] = dc_tools
+
+        for t in tools:
+            v = (t + '=*').split('=')
+            v = filter(None, v)
+            dc_tools[v[0]] = v[1]
+
     def _getDeployCurrent(self):
         return self._current_dir or 'current'
