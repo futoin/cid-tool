@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.7.9997 (2017-10-12) ===
 FIXED: critical exception in custom action processing in some cases
 
 === 0.7.9996 (2017-10-12) ===
