@@ -241,6 +241,7 @@ Note: file upload is OFF by default.
         pool_ini['pm.max_children'] = max_clients
         pool_ini['chdir'] = config['wcDir']
         pool_ini.setdefault('clear_env', 'yes')
+        pool_ini.setdefault('catch_workers_output', 'on')
 
         self._pathutil.writeIni(fpm_conf, fpm_ini)
 
@@ -265,7 +266,6 @@ Note: file upload is OFF by default.
         php_ini.setdefault('register_globals', 'Off')
         php_ini.setdefault('include_path', '.')
         php_ini.setdefault('error_log', error_log)
-        php_ini.setdefault('catch_workers_output', 'on')
         php_ini.setdefault('display_errors', display_errors)
         php_ini.setdefault('display_startup_errors', display_errors)
         php_ini.setdefault('error_reporting', error_reporting)

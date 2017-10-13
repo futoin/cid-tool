@@ -1,6 +1,7 @@
 
 === (next) ===
 FIXED: phpbuild failure on upgrade without pre-installed tool when "phpBinOnly" is set
+FIXED: PHP-FPM catch_workers_output to be set in pool, but not php.ini
 NEW: "cid deploy set entrypoint" to allow JSON as single tune parameter
 NEW "cid deploy set tooltune" to allow .toolTune setup
 
