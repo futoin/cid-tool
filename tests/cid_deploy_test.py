@@ -382,6 +382,24 @@ class cid_deploy_Test( cid_UTBase ) :
             },
             dict(cfg['entryPoints']))
                 
+        self._call_cid(['deploy', 'set', 'entrypoint', 'app2', 'exe', 'file2.exe', '{"a":true}', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals({
+                'app': {
+                    'tool' : 'exe',
+                    'path' : 'file.exe',
+                    'tune' : {},
+                },
+                'app2': {
+                    'tool' : 'exe',
+                    'path' : 'file2.exe',
+                    'tune' : {
+                        "a" : True,
+                    },
+                },
+            },
+            dict(cfg['entryPoints']))
+                
     def test_12_set_webmount(self):
         cfg_file = os.path.join('setupdir', 'futoin.json')
         

@@ -464,16 +464,19 @@ class DeployMixIn(DataSlots):
         ep['tool'] = tool
         ep['path'] = path
 
-        eptune = ep.setdefault('tune', {})
+        if len(tune) == 1 and len(tune[0]) and tune[0][0] == '{':
+            ep['tune'] = self._configutil.parseJSON(tune[0])
+        else:
+            eptune = ep.setdefault('tune', {})
 
-        for t in tune:
-            t = t.split('=', 1)
-            tkey = t[0]
+            for t in tune:
+                t = t.split('=', 1)
+                tkey = t[0]
 
-            if len(t) == 2 and t[1]:
-                eptune[tkey] = t[1]
-            elif tkey in eptune:
-                del eptune[tkey]
+                if len(t) == 2 and t[1]:
+                    eptune[tkey] = t[1]
+                elif tkey in eptune:
+                    del eptune[tkey]
 
     def _deploy_set_env(self, var, val):
         dc = self._deploy_config
@@ -509,13 +512,7 @@ class DeployMixIn(DataSlots):
         webcfg = dc.setdefault('webcfg', {})
 
         mounts = webcfg.setdefault('mounts', {})
-
-        from collections import OrderedDict
-
-        def object_pairs_hook(pairs): return OrderedDict(pairs)
-        val = self._ext.json.loads(json, object_pairs_hook=object_pairs_hook)
-
-        mounts[path] = val
+        mounts[path] = self._configutil.parseJSON(json)
 
     def _deploy_set_tools(self, tools):
         dc = self._deploy_config

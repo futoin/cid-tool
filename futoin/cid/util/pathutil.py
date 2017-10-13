@@ -106,13 +106,9 @@ def deployHome():
 
 def loadJSONConfig(file_name, defvalue=None):
     if _ext.ospath.exists(file_name):
-        from collections import OrderedDict
-
         with open(file_name, 'r') as content_file:
             content = content_file.read()
-
-            def object_pairs_hook(pairs): return OrderedDict(pairs)
-            return _ext.json.loads(content, object_pairs_hook=object_pairs_hook)
+            return _ext.configutil.parseJSON(content)
     else:
         return defvalue
 

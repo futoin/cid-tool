@@ -1,4 +1,6 @@
 
+from ..mixins.ondemand import ext as _ext
+
 #==================
 
 
@@ -64,3 +66,11 @@ def listify(val):
         return val
 
     return [val]
+
+
+#==================
+from collections import OrderedDict
+
+
+def parseJSON(val):
+    return _ext.json.loads(val, object_pairs_hook=lambda pairs: OrderedDict(pairs))
