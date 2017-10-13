@@ -1198,6 +1198,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             '',
             '# virtual env bootstrap',
             '/usr/bin/pip install *',
+            '/usr/local/bin/pip install *',
         ]
 
         lines.append('')

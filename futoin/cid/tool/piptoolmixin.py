@@ -17,6 +17,14 @@ class PipToolMixIn(SubTool):
         self._executil.callExternal(
             [env['pipBin'], 'install', '-q', self._pipName()])
 
+    def installTool(self, env):
+        if not self._have_tool:
+            self._installTool(env)
+            self.initEnv(env)
+
+            if not self._have_tool:
+                self._errorExit('Failed to install "{0}"'.format(self._name))
+
     def _updateTool(self, env):
         self._executil.callExternal([env['pipBin'], 'install', '-q',
                                      '--upgrade', self._pipName()])

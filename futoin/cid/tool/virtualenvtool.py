@@ -68,17 +68,23 @@ Home: https://pypi.python.org/pypi/virtualenv
                 # TODO: use  --user without sudo
                 self._executil.trySudoCall(pip_cmd)
 
-            virtualenv = self._pathutil.which('virtualenv')
+            self._setupVirtualenv(env)
 
-            if not virtualenv:
-                self._errorExit('Failed to find virtualenv')
+    def _setupVirtualenv(self, env):
+        virtualenv = self._pathutil.which('virtualenv')
 
-            self._executil.callExternal([
-                virtualenv,
-                '--python={0}'.format(env['pythonRawBin']),
-                '--clear',
-                virtualenv_dir
-            ])
+        if not virtualenv:
+            self._errorExit('Failed to find virtualenv')
+
+        self._executil.callExternal([
+            virtualenv,
+            '--python={0}'.format(env['pythonRawBin']),
+            '--clear',
+            env['virtualenvDir']
+        ])
+
+    def _afterExternalSetup(self, env):
+        self._setupVirtualenv(env)
 
     def _updateTool(self, env):
         pass

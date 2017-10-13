@@ -100,6 +100,7 @@ class SubTool(LogMixIn, OnDemandMixIn):
                         'tool', 'install',
                         self._name,
                         env.get(self._name + 'Ver', '')])
+                    self._afterExternalSetup(env)
                 else:
                     self._installTool(env)
 
@@ -107,6 +108,9 @@ class SubTool(LogMixIn, OnDemandMixIn):
 
             if not self._have_tool:
                 self._errorExit('Failed to install "{0}"'.format(self._name))
+
+    def _afterExternalSetup(self, env):
+        pass
 
     def isInstalled(self, env):
         self.initEnv(env)
