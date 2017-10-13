@@ -233,6 +233,11 @@ As alternative, you can set :code:`export CID_INTERACTIVE_SUDO=1` environment va
 to run :code:`sudo` in interactive mode. It is disabled by default to avoid hanging
 in unattended use.
 
+Another production approach is create a special user account e.g. "futoin" which
+has sudo capabilities and allow all other users to sudo-run a special callback file
+configured through :code:`.env.externalSetup` option in global /etc/futoin/futoin.json.
+Callback example: https://github.com/codingfuture/puppet-cfweb/blob/master/files/cf_cid_callback.sh
+
 Typical use cases
 -----------------
 
