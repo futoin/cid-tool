@@ -74,3 +74,20 @@ from collections import OrderedDict
 
 def parseJSON(val):
     return _ext.json.loads(val, object_pairs_hook=lambda pairs: OrderedDict(pairs))
+
+#==================
+
+
+def deepMerge(target, source):
+    for k, v in source.items():
+        if isinstance(v, dict):
+            # get node or create one
+            t = target.setdefault(k, OrderedDict())
+            deepMerge(t, v)
+        elif isinstance(v, list):
+            t = target.setdefault(k, [])
+            t.extend(v)
+        else:
+            target[k] = v
+
+    return target

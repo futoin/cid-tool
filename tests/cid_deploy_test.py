@@ -422,6 +422,51 @@ class cid_deploy_Test( cid_UTBase ) :
         cfg = self._readJSON(cfg_file)
         self.assertEquals({'ruby': '*'}, cfg['tools'])
                 
+    def test_14_set_toolstune(self):
+        cfg_file = os.path.join('setupdir', 'futoin.json')
+        
+        self._call_cid(['deploy', 'set', 'tooltune', 'exe', '{}', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals({
+                'exe': {},
+            },
+            dict(cfg['toolTune']))
+
+        self._call_cid(['deploy', 'set', 'tooltune', 'php', 'myTune=123', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals({
+                'exe': {},
+                'php': {
+                    'myTune' : '123',
+                },
+            },
+            dict(cfg['toolTune']))
+        
+        self._call_cid(['deploy', 'set', 'tooltune', 'php', 'myTune2=some', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals({
+                'exe': {},
+                'php': {
+                    'myTune' : '123',
+                    'myTune2' : 'some',
+                },
+            },
+            dict(cfg['toolTune']))
+                
+        self._call_cid(['deploy', 'set', 'tooltune', 'phpfpm', '{"a":true}', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals({
+                'exe': {},
+                'php': {
+                    'myTune' : '123',
+                    'myTune2' : 'some',
+                },
+                'phpfpm': {
+                    'a': True,
+                },
+            },
+            dict(cfg['toolTune']))
+                
     def test_20_memdetect_system(self):
         if self.IS_MACOS:
             sysmem = int(_executil.callExternal(['sysctl', '-n', 'hw.memsize'], verbose=False).strip())

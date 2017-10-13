@@ -532,9 +532,12 @@ Please see details in the FTN16 spec: ::
        
     cid deploy rms <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--build]
         Deploy from RMS.
-
+        
     cid deploy set tools <tools>... [--deployDir=<deploy_dir>]
         Overrides .tools in deployment config.
+        
+    cid deploy set tooltune <tool> {<set_name=value>...|<del_name>|<inline_json>} [--deployDir=<deploy_dir>]
+        Pverrode .toolTune in deployment config.
        
     cid deploy set action <name> <actions>... [--deployDir=<deploy_dir>]
         Override .action in deployment config.
@@ -542,7 +545,7 @@ Please see details in the FTN16 spec: ::
     cid deploy set persistent <paths>... [--deployDir=<deploy_dir>]
         Add .persistent paths in deployment config.
        
-    cid deploy set entrypoint <name> <tool> <path> [<tune_name=value>...] [--deployDir=<deploy_dir>]
+    cid deploy set entrypoint <name> <tool> <path> {<set_name=value>...|<del_name>|<inline_json>} [--deployDir=<deploy_dir>]
         Set entry point configuration in deployment.
        
     cid deploy set env <variable> [<value>] [--deployDir=<deploy_dir>]

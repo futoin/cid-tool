@@ -39,7 +39,11 @@ class ServiceMixIn(DataSlots):
     def _configServiceList(self, config):
         entry_points = config.get('entryPoints', {})
         auto_services = config.get('deploy', {}).get('autoServices', {})
+        tool_tune = config.get('toolTune', {})
         res = []
+
+        deepCopy = self._ext.copy.deepcopy
+        deepMerge = self._configutil.deepMerge
 
         for (ep, ei) in entry_points.items():
             if ep not in auto_services:
@@ -49,13 +53,17 @@ class ServiceMixIn(DataSlots):
             i = 0
 
             for svctune in auto_services[ep]:
-                r = self._ext.copy.deepcopy(ei)
+                r = deepCopy(ei)
                 r['name'] = ep
                 r['instanceId'] = i
-                r.setdefault('tune', {}).update(svctune)
+                r_tune = deepCopy(tool_tune.get(r['tool'], {}))
+                deepMerge(r_tune, r.get('tune', {}))
+                deepMerge(r_tune, svctune)
 
-                if r['tune'].get('socketAddress', None) == '0.0.0.0':
-                    r['tune']['socketAddress'] = '127.0.0.1'
+                if r_tune.get('socketAddress', None) == '0.0.0.0':
+                    r_tune['socketAddress'] = '127.0.0.1'
+
+                r['tune'] = r_tune
 
                 res.append(r)
                 i += 1

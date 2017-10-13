@@ -14,6 +14,7 @@ Usage:
     cid deploy vcsref <vcs_ref> [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--tmpDir=<tmp_dir>] [--user=<user>] [--group=<group>]
     cid deploy rms <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--build] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--tmpDir=<tmp_dir>] [--user=<user>] [--group=<group>]
     cid deploy set tools <tools>... [--deployDir=<deploy_dir>]
+    cid deploy set tooltune <tool> <tune>... [--deployDir=<deploy_dir>]
     cid deploy set action <name> <action>... [--deployDir=<deploy_dir>]
     cid deploy set persistent <path>... [--deployDir=<deploy_dir>]
     cid deploy set entrypoint <name> <tool> <entry_path> [<tune>...] [--deployDir=<deploy_dir>]
@@ -312,6 +313,8 @@ def runInner():
                         'webmount', args['<web_path>'], args['<json>'])
                 elif args['tools']:
                     cit.deploy_set('tools', args['<tools>'])
+                elif args['tooltune']:
+                    cit.deploy_set('tooltune', args['<tool>'], args['<tune>'])
                 else:
                     raise RuntimeError("Not implemented yet.")
             else:

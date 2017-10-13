@@ -463,20 +463,21 @@ class DeployMixIn(DataSlots):
         ep = epoints.setdefault(name, {})
         ep['tool'] = tool
         ep['path'] = path
+        ep['tune'] = self._deploy_set_tune_common(ep.get('tune', {}), tune)
 
+    def _deploy_set_tune_common(self, target, tune):
         if len(tune) == 1 and len(tune[0]) and tune[0][0] == '{':
-            ep['tune'] = self._configutil.parseJSON(tune[0])
+            return self._configutil.parseJSON(tune[0])
         else:
-            eptune = ep.setdefault('tune', {})
-
             for t in tune:
                 t = t.split('=', 1)
                 tkey = t[0]
 
                 if len(t) == 2 and t[1]:
-                    eptune[tkey] = t[1]
-                elif tkey in eptune:
-                    del eptune[tkey]
+                    target[tkey] = t[1]
+                elif tkey in target:
+                    del target[tkey]
+            return target
 
     def _deploy_set_env(self, var, val):
         dc = self._deploy_config
@@ -523,6 +524,12 @@ class DeployMixIn(DataSlots):
             v = (t + '=*').split('=')
             v = filter(None, v)
             dc_tools[v[0]] = v[1]
+
+    def _deploy_set_tooltune(self, tool, tune):
+        dc = self._deploy_config
+        toolTune = dc.setdefault('toolTune', {})
+        toolTune[tool] = self._deploy_set_tune_common(
+            toolTune.get(tool, {}), tune)
 
     def _getDeployCurrent(self):
         return self._current_dir or 'current'
