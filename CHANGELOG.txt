@@ -3,7 +3,8 @@
 FIXED: phpbuild failure on upgrade without pre-installed tool when "phpBinOnly" is set
 FIXED: PHP-FPM catch_workers_output to be set in pool, but not php.ini
 NEW: "cid deploy set entrypoint" to allow JSON as single tune parameter
-NEW "cid deploy set tooltune" to allow .toolTune setup
+NEW: "cid deploy set tooltune" to allow .toolTune setup
+NEW: requirements.pip file name support
 
 === 0.7.9997 (2017-10-12) ===
 FIXED: critical exception in custom action processing in some cases

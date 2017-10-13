@@ -9,10 +9,13 @@ Home: https://pypi.python.org/pypi/pip
 """
     __slots__ = ()
 
-    REQUIREMENTS_FILE = 'requirements.txt'
+    REQUIREMENTS_FILES = [
+        'requirements.txt',
+        'requirements.pip',
+    ]
 
     def autoDetectFiles(self):
-        return self.REQUIREMENTS_FILE
+        return self.REQUIREMENTS_FILES
 
     def getDeps(self):
         return ['python', 'virtualenv']
@@ -56,7 +59,7 @@ Home: https://pypi.python.org/pypi/pip
             self._have_tool = pipNeedVer <= pipFactVer
 
     def onPrepare(self, config):
-        if self._ospath.exists(self.REQUIREMENTS_FILE):
-            cmd = [config['env']['pipBin'], 'install',
-                   '-r', self.REQUIREMENTS_FILE]
-            self._executil.callMeaningful(cmd)
+        for rf in self.REQUIREMENTS_FILES:
+            if self._ospath.exists(rf):
+                cmd = [config['env']['pipBin'], 'install', '-r', rf]
+                self._executil.callMeaningful(cmd)

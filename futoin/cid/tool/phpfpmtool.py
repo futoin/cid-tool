@@ -31,8 +31,8 @@ Note: file upload is OFF by default.
     def tuneDefaults(self, env):
         return {
             'minMemory': '1M',
-            'connMemory': '8M',
-            'debugConnOverhead': '24M',
+            'connMemory': '16M',
+            'debugConnOverhead': '16M',
             'socketTypes': ['unix', 'tcp'],
             'socketType': 'unix',
             'socketProtocol': 'fcgi',
