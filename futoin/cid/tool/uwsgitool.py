@@ -14,15 +14,15 @@ It's possible to override uWSGI options with .tune.uwsgi parameter map.
 
     def tuneDefaults(self, env):
         return {
-            'minMemory': '1M',
-            'connMemory': '12M',
+            'minMemory': '2M',
+            'connMemory': '32M',
             'debugConnOverhead': '4M',
             'connFD': 8,
             'socketTypes': ['unix', 'tcp', 'tcp6'],
             'socketType': 'unix',
             'socketProtocol': 'uwsgi',
             'scalable': True,
-            'reloadable': True,
+            'reloadable': False,  # True, causes troubles
             'multiCore': False,  # make there is no uWSGI master bottleneck
             'maxRequestSize': '1M',
         }
@@ -68,7 +68,7 @@ It's possible to override uWSGI options with .tune.uwsgi parameter map.
             'virtualenv': env['virtualenvDir'],
             'single-interpreter': 1,
             'reload-on-rss': mem_limit,
-            'evil-reload-on-rss': mem_limit,
+            'evil-reload-on-rss': mem_limit * 2,
             'never-swap': 1,
             'need-app': 1,
             'reaper': 1,
