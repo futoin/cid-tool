@@ -3,6 +3,7 @@
 FIXED: phpbuild failure on upgrade without pre-installed tool when "phpBinOnly" is set
 FIXED: PHP-FPM catch_workers_output to be set in pool, but not php.ini
 FIXED: virtualenv setup with .env.externalSetup
+FIXED: uwsgi not using config tune settings
 CHANGED: increased PHP-FPM default connection memory to 16M
 NEW: "cid deploy set entrypoint" to allow JSON as single tune parameter
 NEW: "cid deploy set tooltune" to allow .toolTune setup

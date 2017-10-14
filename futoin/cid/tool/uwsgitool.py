@@ -33,6 +33,7 @@ It's possible to override uWSGI options with .tune.uwsgi parameter map.
         deploy = config['deploy']
 
         name_id = '{0}-{1}'.format(svc['name'], svc['instanceId'])
+        svc_tune = svc['tune']
 
         conf_file = 'uwsgi-{0}.ini'.format(name_id)
         conf_file = ospath.join(runtime_dir, conf_file)
@@ -44,17 +45,17 @@ It's possible to override uWSGI options with .tune.uwsgi parameter map.
         cfg_svc_tune['uwsgiPid'] = pid_file
 
         #
-        if cfg_svc_tune['socketType'] == 'unix':
-            socket = cfg_svc_tune['socketPath']
+        if svc_tune['socketType'] == 'unix':
+            socket = svc_tune['socketPath']
         else:
             socket = '{0}:{1}'.format(
-                cfg_svc_tune['socketAddress'], cfg_svc_tune['socketPort'])
+                svc_tune['socketAddress'], svc_tune['socketPort'])
 
         #
         mem_limit = int(self._configutil.parseMemory(
-            cfg_svc_tune['connMemory']) / 1024 / 1024)
+            svc_tune['connMemory']) / 1024 / 1024)
         conf = {
-            'uwsgi': cfg_svc_tune.get('uwsgi', {})
+            'uwsgi': svc_tune.get('uwsgi', {})
         }
 
         uwsgi_conf = conf['uwsgi']
@@ -62,7 +63,7 @@ It's possible to override uWSGI options with .tune.uwsgi parameter map.
         uwsgi_conf.update({
             'uwsgi-socket': socket,
             'master': 1,
-            'workers': cfg_svc_tune['maxConnections'],
+            'workers': svc_tune['maxConnections'],
             'strict': 1,
             'virtualenv': env['virtualenvDir'],
             'single-interpreter': 1,
