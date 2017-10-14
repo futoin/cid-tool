@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.7.9998 (2017-10-14) ===
 FIXED: phpbuild failure on upgrade without pre-installed tool when "phpBinOnly" is set
 FIXED: PHP-FPM catch_workers_output to be set in pool, but not php.ini
 FIXED: virtualenv setup with .env.externalSetup
