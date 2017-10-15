@@ -14,29 +14,29 @@ class Coloring:
     def wrap(cls, text, escape):
         if cls._color:
             ESC = chr(0x1B)
-            return ESC + escape + str(text) + ESC + '[0m'
+            return ESC + '[B' + ESC + escape + str(text) + ESC + '[0m'
         else:
             return text
 
     @classmethod
     def error(cls, text):
         # bright red on black
-        return cls.wrap(text, '[1;31;40m')
+        return cls.wrap(text, '[1;31m')
 
     @classmethod
     def warn(cls, text):
         # yellow on black
-        return cls.wrap(text, '[33;40m')
+        return cls.wrap(text, '[33m')
 
     @classmethod
     def info(cls, text):
         # cyan on black
-        return cls.wrap(text, '[36;40m')
+        return cls.wrap(text, '[36m')
 
     @classmethod
     def infoLabel(cls, text):
         # bright cyan on black
-        return cls.wrap(text, '[1;36;40m')
+        return cls.wrap(text, '[1;36m')
 
     @classmethod
     def label(cls, text):
