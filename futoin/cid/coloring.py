@@ -14,7 +14,7 @@ class Coloring:
     def wrap(cls, text, escape):
         if cls._color:
             ESC = chr(0x1B)
-            return ESC + '[B' + ESC + escape + str(text) + ESC + '[0m'
+            return ESC + escape + str(text) + ESC + '[0m'
         else:
             return text
 
