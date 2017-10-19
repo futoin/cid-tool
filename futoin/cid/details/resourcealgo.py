@@ -3,6 +3,7 @@
 from ..mixins.log import LogMixIn
 from ..mixins.ondemand import OnDemandMixIn
 
+from collections import OrderedDict
 
 class ResourceAlgo(LogMixIn, OnDemandMixIn):
     def pageSize(self):
@@ -235,7 +236,7 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn):
                 instance_count = 0
 
             for i in range(0, instance_count):
-                ic = {}
+                ic = OrderedDict()
                 instance_mem = ei['memAlloc'] // instance_count
                 ic['maxMemory'] = instance_mem
                 ic['connMemory'] = ei['connMemory']
