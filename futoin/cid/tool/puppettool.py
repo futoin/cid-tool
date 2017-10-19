@@ -42,7 +42,7 @@ Primary purpose is to support Puppet module development.
             if f in content and f not in config:
                 config[f] = content[f]
 
-        config['package'] = 'pkg'
+        config['package'] = [ 'pkg' ]
 
     def updateProjectConfig(self, config, updates):
         def updater(json):

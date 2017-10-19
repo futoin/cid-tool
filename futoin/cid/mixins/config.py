@@ -334,7 +334,7 @@ class ConfigMixIn(DataSlots):
 
                 errors.append(
                     'Config variable "{0}" type "{1}" is not instance of "{2}"'
-                    .format(k, v.__class__.__name__, req_t[0].__name__)
+                    .format(k, v.__class__.__name__, req_t.__name__)
                 )
 
         #---
