@@ -1,4 +1,8 @@
 
+=== (next) ===
+FIXED: force to allocate 48M for any instance
+- temporary solution until CID running is removed from systemd service startup
+
 === 0.7.99991 (2017-10-21) ===
 FIXED: python3 "cid deploy set tools" error
 FIXED: Puma to chdir on reload

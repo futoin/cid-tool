@@ -7,6 +7,8 @@ from collections import OrderedDict
 
 
 class ResourceAlgo(LogMixIn, OnDemandMixIn):
+    CID_MIN_MEMORY = '48M'
+
     def pageSize(self):
         return self._os.sysconf('SC_PAGE_SIZE')
 
@@ -91,6 +93,7 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn):
 
     def distributeResources(self, config, maxmem, maxcpu, granularity=None):
         import math
+        configutil = self._configutil
 
         if granularity is None:
             granularity = self.pageSize()
@@ -106,6 +109,8 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn):
         env = config.get('env', {})
         debug = (env.get('type', 'dev') == 'dev')
         external_services = env.get('externalServices', [])
+        cid_min_memory = configutil.parseMemory(
+            self.CID_MIN_MEMORY) // granularity
 
         # Init
         for (en, ei) in entryPoints.items():
@@ -116,11 +121,11 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn):
                 if f not in ei:
                     self._errorExit(
                         '"{0}" is missing from {1} entry point'.format(f, en))
-                ei[f] = self._configutil.parseMemory(ei[f]) // granularity
+                ei[f] = configutil.parseMemory(ei[f]) // granularity
 
             for f in ('maxMemory', 'maxTotalMemory', 'debugOverhead', 'debugConnOverhead'):
                 if f in ei:
-                    ei[f] = self._configutil.parseMemory(ei[f]) // granularity
+                    ei[f] = configutil.parseMemory(ei[f]) // granularity
 
             for f in ('socketProtocol',):
                 if f not in ei:
@@ -144,7 +149,7 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn):
                 ei['maxTotalMemory'] = ei['maxMemory']
 
             ei['instances'] = 1
-            ei['memAlloc'] = ei['minMemory']
+            ei['memAlloc'] = max(ei['minMemory'], cid_min_memory)
 
             disabled = tool in external_services
             ei['disabled'] = disabled
@@ -201,6 +206,7 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn):
                 continue
 
             reasonableMinMemory = ei['minMemory'] * min_mem_coeff
+            reasonableMinMemory = max(reasonableMinMemory, cid_min_memory)
 
             if ei['multiCore']:
                 if (not ei['reloadable']) and ei['memAlloc'] >= (reasonableMinMemory * 2):
@@ -257,7 +263,7 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn):
                 ic['socketProtocol'] = ei['socketProtocol']
 
                 for m in ('maxMemory', 'connMemory', 'maxRequestSize'):
-                    ic[m] = self._configutil.toMemory(ic[m] * granularity)
+                    ic[m] = configutil.toMemory(ic[m] * granularity)
 
             autoServices[en] = instances
 
