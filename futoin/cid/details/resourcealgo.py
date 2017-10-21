@@ -5,6 +5,7 @@ from ..mixins.ondemand import OnDemandMixIn
 
 from collections import OrderedDict
 
+
 class ResourceAlgo(LogMixIn, OnDemandMixIn):
     def pageSize(self):
         return self._os.sysconf('SC_PAGE_SIZE')

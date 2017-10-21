@@ -41,7 +41,7 @@ else
     export CIDTEST_RUN_DIR=${CWD}/testrun
 fi
 
-# ArchLinux images comes without python
+# Some images come without python
 if ! which python >/dev/null; then
     which pacman && sudo pacman -S --noconfirm --needed python
     which dnf && sudo dnf install -y python
