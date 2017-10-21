@@ -22,7 +22,7 @@ It's possible to override uWSGI options with .tune.uwsgi parameter map.
             'socketType': 'unix',
             'socketProtocol': 'uwsgi',
             'scalable': True,
-            'reloadable': True,
+            'reloadable': False,  # there are too many gotchas for graceful reload
             'multiCore': False,  # make there is no uWSGI master bottleneck
             'maxRequestSize': '1M',
         }
