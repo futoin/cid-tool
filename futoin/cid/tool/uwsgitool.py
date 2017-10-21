@@ -22,7 +22,7 @@ It's possible to override uWSGI options with .tune.uwsgi parameter map.
             'socketType': 'unix',
             'socketProtocol': 'uwsgi',
             'scalable': True,
-            'reloadable': False,  # True, causes troubles
+            'reloadable': True,
             'multiCore': False,  # make there is no uWSGI master bottleneck
             'maxRequestSize': '1M',
         }
@@ -40,6 +40,8 @@ It's possible to override uWSGI options with .tune.uwsgi parameter map.
 
         pid_file = 'uwsgi-{0}.pid'.format(name_id)
         pid_file = ospath.join(runtime_dir, pid_file)
+
+        target_cwd = config['wcDir']
 
         cfg_svc_tune['uwsgiConf'] = conf_file
         cfg_svc_tune['uwsgiPid'] = pid_file
@@ -75,6 +77,8 @@ It's possible to override uWSGI options with .tune.uwsgi parameter map.
             'logger': 'syslog:{0}'.format(name_id),
             'disable-logging': 1,
             'die-on-term': 1,
+            'chdir': target_cwd,
+            'hook-post-fork': 'chdir:{0}'.format(target_cwd),
         })
 
         uwsgi_conf.setdefault('max-requests', 5000)

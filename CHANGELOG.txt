@@ -1,6 +1,7 @@
 
 === (next) ===
 FIXED: python3 "cid deploy set tools" error
+CHANGED: restored uWSGI reload and added chdir workaround
 
 === 0.7.9999 (2017-10-19) ===
 FIXED: not to set text background color
