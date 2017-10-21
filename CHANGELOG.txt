@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.7.99991 (2017-10-21) ===
 FIXED: python3 "cid deploy set tools" error
 FIXED: Puma to chdir on reload
 FIXED: to force install "dirmngr" with "gnupg" on *.deb OSes
