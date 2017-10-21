@@ -55,7 +55,8 @@ bundler
         puma_args = [
             '-b', socket,
             '-e', self._environ['RUBY_ENV'],
-            '-t', '{0}:{0}'.format(threads)
+            '-t', '{0}:{0}'.format(threads),
+            '--dir', self._os.getcwd(),  # force chdir() on reload
         ]
 
         #---
