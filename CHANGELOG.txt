@@ -1,4 +1,7 @@
 
+=== (next) ===
+FIXED: python3 "cid deploy set tools" error
+
 === 0.7.9999 (2017-10-19) ===
 FIXED: not to set text background color
 FIXED: to stable sort .deploy.autoServices instances items

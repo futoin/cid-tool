@@ -522,7 +522,7 @@ class DeployMixIn(DataSlots):
 
         for t in tools:
             v = (t + '=*').split('=')
-            v = filter(None, v)
+            v = list(filter(None, v))
             dc_tools[v[0]] = v[1]
 
     def _deploy_set_tooltune(self, tool, tune):
