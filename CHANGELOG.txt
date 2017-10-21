@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.7.99992 (2017-10-21) ===
 FIXED: force to allocate 48M for any instance
 - temporary solution until CID running is removed from systemd service startup
 
