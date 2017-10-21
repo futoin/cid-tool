@@ -3,6 +3,7 @@
 FIXED: python3 "cid deploy set tools" error
 FIXED: Puma to chdir on reload
 FIXED: to force install "dirmngr" with "gnupg" on *.deb OSes
+CHANGED: added NO_UPDATE_NOTIFIER for npm-based tools
 
 === 0.7.9999 (2017-10-19) ===
 FIXED: not to set text background color

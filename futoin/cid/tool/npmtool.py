@@ -48,6 +48,9 @@ Note: it auto-disables, if Yarn tool is detected
         pass
 
     def initEnv(self, env, bin_name=None):
+        # prevent extra background processes
+        self._environ['NO_UPDATE_NOTIFIER'] = '1'
+
         super(npmTool, self).initEnv(env, bin_name)
 
         if self._have_tool:
