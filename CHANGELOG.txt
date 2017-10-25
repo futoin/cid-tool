@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.7.99993 (2017-10-25) ===
 FIXED: missing default tune values for some tools
 
 === 0.7.99992 (2017-10-21) ===
