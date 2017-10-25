@@ -85,4 +85,6 @@ system packages OS-specific way.
             'minMemory': '8M',
             'socketType': 'none',
             'scalable': False,
+            'reloadable': False,
+            'multiCore': True,
         }

@@ -25,4 +25,6 @@ Requires Java >= 8.
             'debugConnOverhead': '1M',
             'socketType': 'tcp',
             'scalable': False,
+            'reloadable': False,
+            'multiCore': True,
         }

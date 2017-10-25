@@ -149,4 +149,6 @@ Docker EE or other installation methods are out of scope for now.
             'debugConnOverhead': '1M',
             'socketType': 'tcp',
             'scalable': False,
+            'reloadable': False,
+            'multiCore': True,
         }

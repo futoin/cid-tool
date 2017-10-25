@@ -491,4 +491,6 @@ You can control installed extensions by setting:
             'minMemory': '8M',
             'socketType': 'none',
             'scalable': False,
+            'reloadable': False,
+            'multiCore': False,
         }

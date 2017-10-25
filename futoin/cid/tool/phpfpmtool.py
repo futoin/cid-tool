@@ -37,6 +37,7 @@ Note: file upload is OFF by default.
             'socketType': 'unix',
             'socketProtocol': 'fcgi',
             'scalable': True,
+            'reloadable': False,
             'multiCore': True,
             'maxInstances': 2,
             'maxRequestSize': '1M',

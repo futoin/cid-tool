@@ -379,4 +379,6 @@ CRD12l8Jwxc6pl2BA/4p5DFEpGVvkgLj7/YLYCtYmZDw8i/drGbkWfIQiOgPWIf8QgpJXVME
             'minMemory': '8M',
             'socketType': 'none',
             'scalable': False,
+            'reloadable': False,
+            'multiCore': True,
         }

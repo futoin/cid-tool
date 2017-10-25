@@ -173,4 +173,6 @@ Mpkkl/Zpp0BirhGWNyTg8K4JrsQ=
             'debugConnOverhead': '1M',
             'socketType': 'tcp',
             'scalable': False,
+            'reloadable': False,
+            'multiCore': True,
         }

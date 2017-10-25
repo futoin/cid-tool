@@ -89,6 +89,7 @@ Note: NODE_ENV is set based on nodeEnv or .env.type
             'socketTypes': ['unix', 'tcp', 'tcp6'],
             'socketType': 'unix',
             'scalable': True,
+            'reloadable': False,
             'multiCore': False,
             'maxRequestSize': '1M',
             'socketProtocol': 'http',
