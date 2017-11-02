@@ -1,4 +1,7 @@
 
+=== (next) ===
+FIXED: generic exception in macOS
+
 === 0.7.99994 (2017-11-02) ===
 CHANGED: to use 'lts/*' as default nodeVer
 

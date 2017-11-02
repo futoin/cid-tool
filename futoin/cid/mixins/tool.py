@@ -243,6 +243,7 @@ class ToolMixIn(DataSlots):
         if self._detect.isMacOS() and tools:
             # Make sure Homebrew is always implicit first tool
             dep_generations.append(set(['brew']))
+            self._getTool('brew')
 
         #---
         dep_generations.reverse()
