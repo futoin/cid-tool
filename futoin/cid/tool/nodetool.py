@@ -46,7 +46,7 @@ Note: NODE_ENV is set based on nodeEnv or .env.type
         return ['nodeBin', 'nodeVer', 'nodeEnv']
 
     def initEnv(self, env):
-        node_version = env.setdefault('nodeVer', 'stable')
+        node_version = env.setdefault('nodeVer', 'lts/*')
         #---
         node_env = env.get('nodeEnv', '')
 

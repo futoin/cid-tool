@@ -1,4 +1,7 @@
 
+=== (next) ===
+CHANGED: to use 'lts/*' as default nodeVer
+
 === 0.7.99993 (2017-10-25) ===
 FIXED: missing default tune values for some tools
 
