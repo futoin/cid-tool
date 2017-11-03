@@ -1147,6 +1147,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                 '/usr/local/bin/brew install *',
                 '/usr/local/bin/brew cask install *',
                 '/usr/local/bin/brew search *',
+                '/usr/local/bin/brew cask search *',
                 '# note: security problem, if optional URL paremeter is used',
                 '/usr/local/bin/brew tap homebrew/*',
                 '/usr/local/bin/brew tap caskroom/*',
