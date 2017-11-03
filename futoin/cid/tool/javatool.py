@@ -31,9 +31,9 @@ javaVer supports:
         ver = env['javaVer']
 
         if detect.isMacOS():
-            if ver == '7':
+            if ver in ('7', '8'):
                 self._install.brewTap('caskroom/versions')
-                self._install.brew('zulu7', True)
+                self._install.brew('zulu{0}'.format(ver), True)
             else:
                 self._install.brew('zulu', True)
             return
@@ -84,6 +84,7 @@ javaVer supports:
         candidates = [
             # Zulu
             '/usr/lib/jvm/zulu-{0}*/jre/bin/java'.format(ver),
+            '/usr/lib/jvm/zulu-{0}*/bin/java'.format(ver),
             # Debian / Ubuntu
             #"/usr/lib/jvm/java-{0}-openjdk*/jre/bin/java".format(ver),
             # RedHat
@@ -105,7 +106,9 @@ javaVer supports:
         elif detect.isMacOS():
             candidates += [
                 "/Library/Java/JavaVirtualMachines/zulu-{0}.jdk/Contents/Home/jre/bin/java".format(
-                    ver)
+                    ver),
+                "/Library/Java/JavaVirtualMachines/zulu-{0}.jdk/Contents/Home/bin/java".format(
+                    ver),
             ]
 
         for c in candidates:

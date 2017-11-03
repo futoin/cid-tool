@@ -1,4 +1,7 @@
 
+=== (next) ===
+FIXED: macOS javaTool 8/9 setup difference
+
 === 0.7.99995 (2017-11-02) ===
 FIXED: generic exception in macOS
 
