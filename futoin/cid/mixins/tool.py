@@ -169,7 +169,7 @@ class ToolMixIn(DataSlots):
             if tool_ver:
                 env[curr_tool + 'Ver'] = tool_ver
         else:
-            config_tools = config.get('tools', {})
+            config_tools = config.get('tools', None)
             tools = []
 
             if config_tools:

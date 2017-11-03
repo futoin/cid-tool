@@ -1,4 +1,7 @@
 
+=== (next) ===
+FIXED: previously broken tool auto-detection trigger
+
 === 0.7.99996 (2017-11-03) ===
 CHANGED: macOS javaTool to better handling future version updates in brew cask
 FIXED: macOS javaTool 8/9 setup difference
