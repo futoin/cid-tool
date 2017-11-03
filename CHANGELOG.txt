@@ -1,5 +1,6 @@
 
 === (next) ===
+BREAKING CHANGE: added symlink of current/.env -> ../.env in deploy dir
 FIXED: previously broken tool auto-detection trigger
 
 === 0.7.99996 (2017-11-03) ===

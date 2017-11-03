@@ -246,6 +246,10 @@ class DeployMixIn(DataSlots):
             self.prepare(None)
             self.build()
 
+        # Symlink .env file, if exists in deploy folder
+        if ospath.exists('../.env'):
+            os.symlink('../.env', '.env')
+
         # Complete migration
         self.migrate()
 
