@@ -1,5 +1,6 @@
 
 === (next) ===
+CHANGED: macOS javaTool to better handling future version updates in brew cask
 FIXED: macOS javaTool 8/9 setup difference
 
 === 0.7.99995 (2017-11-02) ===

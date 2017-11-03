@@ -28,36 +28,40 @@ javaVer supports:
             return
 
         detect = self._detect
+        install = self._install
         ver = env['javaVer']
 
         if detect.isMacOS():
-            if ver in ('7', '8'):
-                self._install.brewTap('caskroom/versions')
-                self._install.brew('zulu{0}'.format(ver), True)
+            install.brewTap('caskroom/versions')
+            pkg_ver = 'zulu{0}'.format(ver)
+
+            if len(install.brewSearch(pkg_ver, True)) > 0:
+                install.brew(pkg_ver, True)
             else:
-                self._install.brew('zulu', True)
+                install.brew('zulu', True)
+
             return
 
         if detect.isAlpineLinux():
-            self._install.apkCommunity()
-            self._install.apk('openjdk{0}-jre'.format(ver))
+            install.apkCommunity()
+            install.apk('openjdk{0}-jre'.format(ver))
             return
 
-        self._install.aptRepo(
+        install.aptRepo(
             'zulu', 'deb http://repos.azulsystems.com/debian stable main', self._ZULU_GPG_KEY)
-        self._install.yumRepo('zulu', 'http://repos.azulsystems.com/rhel/zulu.repo',
-                              self._ZULU_GPG_KEY, releasevermax=7)
-        self._install.zypperRepo(
+        install.yumRepo('zulu', 'http://repos.azulsystems.com/rhel/zulu.repo',
+                        self._ZULU_GPG_KEY, releasevermax=7)
+        install.zypperRepo(
             'zulu', 'http://repos.azulsystems.com/sles/latest', self._ZULU_GPG_KEY)
 
         # leaving here for possible future use
-        # self._install.deb(['openjdk-{0}-jre-headless'.format(ver)])
-        # self._install.yum(['java-1.{0}.0-openjdk'.format(ver)])
-        # self._install.zypper(['java-1_{0}_0-openjdk'.format(ver)])
-        self._install.debrpm(['zulu-{0}'.format(ver)])
+        # install.deb(['openjdk-{0}-jre-headless'.format(ver)])
+        # install.yum(['java-1.{0}.0-openjdk'.format(ver)])
+        # install.zypper(['java-1_{0}_0-openjdk'.format(ver)])
+        install.debrpm(['zulu-{0}'.format(ver)])
 
-        self._install.pacman(['jre{0}-openjdk'.format(ver)])
-        self._install.emerge(['=dev-java/oracle-jre-bin-1.{0}*'.format(ver)])
+        install.pacman(['jre{0}-openjdk'.format(ver)])
+        install.emerge(['=dev-java/oracle-jre-bin-1.{0}*'.format(ver)])
 
     def uninstallTool(self, env):
         pass

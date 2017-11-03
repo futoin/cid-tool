@@ -75,7 +75,7 @@ def brew(packages, cask=False):
         os.umask(saved_mask)
 
 
-def brewSearch(pattern):
+def brewSearch(pattern, cask=False):
     if not _ext.detect.isBrew():
         return
 
@@ -86,9 +86,14 @@ def brewSearch(pattern):
 
     pattern = '/{0}/'.format(pattern)
 
+    if cask:
+        cmd = [brew, 'cask', 'search', pattern]
+    else:
+        cmd = [brew, 'search', pattern]
+
     try:
         res = _ext.executil.callExternal(
-            brew_sudo + [brew, 'search', pattern],
+            brew_sudo + cmd,
             cwd='/', verbose=False)
     finally:
         os.umask(saved_mask)
