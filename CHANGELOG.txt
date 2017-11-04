@@ -1,4 +1,7 @@
 
+=== (next) ===
+BREAKING CHANGE: gzipTool is BuildTool now which crates *.gz files in webroot
+
 === 0.7.99997 (2017-11-03) ===
 BREAKING CHANGE: added symlink of current/.env -> ../.env in deploy dir
 FIXED: previously broken tool auto-detection trigger

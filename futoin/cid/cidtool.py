@@ -47,7 +47,6 @@ def cid_action(f):
 #=============================================================================
 class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolMixIn, DataSlots):
     __slots__ = ()
-    __TO_GZIP = '\.(js|json|css|svg|txt)$'
 
     def __init__(self, overrides):
         super(CIDTool, self).__init__()
@@ -225,25 +224,6 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                 'Found binary artifacts from tools: {0}'.format(package_files))
             self._lastPackages = package_files
             return
-
-        # Note: It is assumed that web root is in the package content
-        #---
-        if config.get('packageGzipStatic', True):
-            self._info('Generating GZip files of static content')
-            webroot = config.get('webcfg', {}).get('root', '.')
-            re = self._ext.re
-            to_gzip_re = re.compile(self.__TO_GZIP, re.I)
-
-            gzip = self._ext.gzip
-            shutil = self._ext.shutil
-
-            for (path, dirs, files) in os.walk(webroot):
-                for f in files:
-                    if to_gzip_re.search(f):
-                        f = ospath.join(path, f)
-                        with open(f, 'rb') as f_in:
-                            with gzip.open(f + '.gz', 'wb', 9) as f_out:
-                                shutil.copyfileobj(f_in, f_out)
 
         #---
         try:
