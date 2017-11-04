@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.7.99998 (2017-11-04) ===
 BREAKING CHANGE: gzipTool is BuildTool now which crates *.gz files in webroot
 
 === 0.7.99997 (2017-11-03) ===
