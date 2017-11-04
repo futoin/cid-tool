@@ -23,6 +23,7 @@ Features
 * Intelligent automation of human-like behavior
 * Automatic detection & setup of all tool dependencies
 * Resource limit auto-detection & distribution
+* Multiple entry points per project
 * Rolling deployments with zero downtime
 * Container-friendly
 * Technology-neutral
@@ -173,6 +174,7 @@ Tested on the following OSes:
 
   .. image:: https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?container=focus&refresh=3600&resize_h=100&url=https://www.macstadium.com/content/uploads/2016/07/Powered_by_MacStadium_Logo-1.png
      :align: right
+     :height: 100px
      :target: https://www.macstadium.com/
     
 * **OpenSUSE**
@@ -727,75 +729,205 @@ Please see details in the FTN16 spec: ::
         postgresql, imagemagick, etc.
         Without parameters lists available deps.
 
-Excplicit futoin.json example
------------------------------
+Excplicit :code:`futoin.json` examples
+--------------------------------------
 
-futoin.json is not strictly required, but it allows to use full power of CID.
-Below is real-world application configuration example for deployment right from VCS tag.
+:code:`futoin.json` is not strictly required, but it allows to use full power of CID.
+Below is real-world application configuration examples.
 
+1. Dynamic PHP website
+~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: json
 
     {
-        "name": "redmine",
-        "vcs": "svn",
-        "vcsRepo": "http://svn.redmine.org/redmine",
+        "vcs": "git",
+        "vcsRepo": "git@...",
+        "name": "...",
+        "version": "2.0.0",
         "entryPoints": {
-            "web": {
-                "path": "public",
-                "tool": "nginx",
+            "backend": {
+                "tool": "phpfpm",
+                "path": "web/index.php",
                 "tune": {
-                    "socketType": "tcp",
-                    "socketPort": "8080"
+                    "internal": true
                 }
             },
-            "app": {
-                "path": "config.ru",
-                "tool": "puma",
-                "tune": {
-                    "internal": "1"
-                }
+            "webserver": {
+                "tool": "nginx",
+                "path": "web"
             }
         },
         "webcfg": {
-            "main": "app"
-        },
-        "persistent": [
-            "files",
-            "log",
-            "public/plugin_assets"
-        ],
-        "actions": {
-            "prepare": [
-                "app-config",
-                "database-config",
-                "app-install"
-            ],
-            "app-config": [
-                "cp config/configuration.yml.example config/configuration.yml",
-                "rm -rf tmp && ln -s ../.tmp tmp"
-            ],
-            "database-config": [
-                "ln -s ../../.database.yml config/database.yml"
-            ],
-            "app-install": [
-                "@cid build-dep ruby mysqlclient imagemagick tzdata libxml2",
-                "@cid tool exec gem -- env",
-                "@cid tool exec bundler -- install --without \"development test rmagick\""
-            ],
-            "migrate": [
-                "@cid tool exec bundler -- exec rake generate_secret_token",
-                "@cid tool exec bundler -- exec rake db:migrate RAILS_ENV=production",
-                "@cid tool exec bundler -- exec rake redmine:load_default_data RAILS_ENV=production REDMINE_LANG=en"
-            ]
+            "root": "web",
+            "mounts": {
+                "/": {
+                    "app": "backend",
+                    "static": true,
+                    "tune": {
+                        "pattern": true,
+                        "gzip": true,
+                        "staticGzip": true
+                    }
+                }
+            }
         }
     }
 
 
+2. Static web page with small API for contact form built using :code:`webpack`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: json
+
+    {
+        "vcs": "git",
+        "vcsRepo": "git@...",
+        "name": "...",
+        "version": "1.0.16",
+        "entryPoints": {
+            "backend": {
+                "tool": "node",
+                "path": "server.js",
+                "tune": {
+                    "internal": true,
+                    "scalable": false
+                }
+            },
+            "frontend": {
+                "tool": "nginx",
+                "path": "webroot",
+                "tune": {
+                    "config": {
+                        "http": {
+                            "server": {
+                                "rewrite '^/([a-z]{2})/$'": "/index.$1.html last",
+                                "location = /": {
+                                    "return": "302 /en/"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "webcfg": {
+            "root": "webroot",
+            "mounts": {
+                "/": {
+                    "tune": {
+                        "pattern": false,
+                        "gzip": true,
+                        "staticGzip": true
+                    }
+                },
+                "/api/": "backend",
+                "~ \"^/index\\.[a-z]{2}\\.html$\"": {
+                    "tune": {
+                        "pattern": false,
+                        "gzip": true,
+                        "staticGzip": true,
+                        "expires": "epoch"
+                    }
+                },
+                "^~ /img/": {
+                    "tune": {
+                        "pattern": false
+                    }
+                },
+                "^~ /fonts/": {
+                    "tune": {
+                        "pattern": false
+                    }
+                },
+                "^~ /icons-": {
+                    "tune": {
+                        "pattern": false
+                    }
+                }
+            }
+        },
+        "actions": {
+            "upgrade-deps": "@cid tool exec yarn -- upgrade --latest",
+            "build": "@cid tool exec node -- ./node_modules/.bin/webpack"
+        }
+    }
+
+3. Deploy of Redmine without embedded :code:`futoin.json`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: bash
+
+    # select deploy root
+    DEPLOY_DIR=/target-empty-dir-or-existing-deployment
+    mkdir $DEPLOY_DIR
+    cd $DEPLOY_DIR
+    
+    # initialize with safety placeholders first
+    cid deploy setup 
+    
+    # require Ruby 2.3 instead of latest
+    cid deploy set env rubyVer '2.3'
+    
+    # hook standard prepare action
+    cid deploy set action prepare app-config database-config app-install
+    
+    # set custom-named actions for easy management
+    cid deploy set action app-config \
+        'cp config/configuration.yml.example config/configuration.yml' \
+        'rm -rf tmp && ln -s ../.tmp tmp'
+
+    # assume, database config is put in deploy root (after 'cid deploy setup')
+    cid deploy set action database-config \
+        'ln -s ../../.database.yml config/database.yml'
+    cat >.database.yml <<EOT
+    production:
+        adapter: mysql2
+        database: redmine
+        host: localhost
+        username: redmine
+        password: redmine
+        encoding: utf8
+    EOT
+        
+    # Standard Redmine HOWTO:
+    cid deploy set action app-install \
+        '@cid build-dep ruby mysql-client imagemagick tzdata libxml2' \
+        '@cid tool exec bundler -- install --without "development test"'
+
+    # hook standard migrate action
+    cid deploy set action migrate \
+        '@cid tool exec bundler -- exec rake generate_secret_token' \
+        '@cid tool exec bundler -- exec rake db:migrate RAILS_ENV=production' \
+        '@cid tool exec bundler -- exec rake redmine:load_default_data RAILS_ENV=production REDMINE_LANG=en'
+
+    # Add persistent locations
+    cid deploy set persistent  files log
+    
+    # Configure entry points
+    cid deploy set entrypoint  web nginx public socketType=tcp
+    cid deploy set entrypoint  app puma config.ru internal=1
+
+    # Configure web paths
+    cid deploy set webcfg root public
+    cid deploy set webcfg main app
+    cid deploy set webmount '/' '{"static": true}'
+
+For example, it can run with :code:`cid service master --deployDir=$DEPLOY_DIR` in container.
+
+For more advanced integration, provisioning system should examine :code:`.futoin.merged.json`
+to configure :code:`systemd` (or other) services with per-instance limits. Such instance
+can be launched through :code:`cid service exec <name> <instance>`.
+
+More advanced example can be found here: https://github.com/codingfuture/puppet-cfwebapp/blob/master/manifests/redmine.pp
 
 Development
 -----------
 
-Current goal is to get a feature-complete tool. There is a strong concept and several evolutions passed across years.
+The tool has reached its major milestone for Continuous Delivery case and use at all
+stages: local development env, static and production.
+
+A reference secure integration into provisioning system can be found here: https://github.com/codingfuture/puppet-cfweb
+
+There is a strong concept and several evolutions passed across years. Therere still major milestones planned. The tool can be extended with additional technology support either through custom plugins
+or directly in main source tree.
 
 Notes for contributing:
 
