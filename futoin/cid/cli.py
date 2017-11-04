@@ -1,3 +1,7 @@
+#
+# Copyright 2015-2017 (c) Andrey Galkin
+#
+
 #!/usr/bin/env python
 """FutoIn Continuous Integration & Delivery Tool.
 

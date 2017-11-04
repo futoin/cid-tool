@@ -1,3 +1,7 @@
+#
+# Copyright 2015-2017 (c) Andrey Galkin
+#
+
 
 class JavaToolMixIn(object):
     __slots__ = ()

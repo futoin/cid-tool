@@ -1,3 +1,7 @@
+#
+# Copyright 2015-2017 (c) Andrey Galkin
+#
+
 
 from .cid_utbase import cid_Tool_UTBase
 from nose.plugins.attrib import attr

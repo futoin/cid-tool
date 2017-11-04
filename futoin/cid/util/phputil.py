@@ -1,3 +1,7 @@
+#
+# Copyright 2015-2017 (c) Andrey Galkin
+#
+
 
 from ..mixins.ondemand import ext as _ext
 from . import simple_memo as _simple_memo

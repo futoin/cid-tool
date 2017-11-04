@@ -1,3 +1,7 @@
+#
+# Copyright 2015-2017 (c) Andrey Galkin
+#
+
 
 from .cid_utbase import cid_Tool_UTBase
 import os, re, sys, subprocess, platform, glob, stat

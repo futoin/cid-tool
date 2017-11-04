@@ -1,3 +1,7 @@
+#
+# Copyright 2015-2017 (c) Andrey Galkin
+#
+
 
 from ..buildtool import BuildTool
 from ..rmstool import RmsTool
