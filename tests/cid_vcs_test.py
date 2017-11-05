@@ -131,11 +131,8 @@ class cid_VCS_UTBase ( cid_UTBase ) :
             '.package.checksums',
             'BRANCH_A',            
             'README.txt',
-            'README.txt.gz',
             'futoin.json',
-            'futoin.json.gz',
             'test.json',
-            'test.json.gz',
         ]
         self.maxDiff = 1024
         content = sorted(content.split("\n"))
