@@ -1,4 +1,8 @@
 
+=== (next) ===
+BREAKING CHANGE: nginx to use "least_conn" balancing without "max_conn" unless "queue" is configured
+FIXED: to use "fail_timeout=0" for upstreams by default
+
 === 0.7.99998 (2017-11-04) ===
 BREAKING CHANGE: gzipTool is BuildTool now which crates *.gz files in webroot
 

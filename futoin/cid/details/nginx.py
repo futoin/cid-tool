@@ -438,18 +438,18 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
         svc_tune = svc['tune']
         cid_tune = svc_tune.get('cid', {})
         zone_size = cid_tune.get('upstreamZoneSize', '64k')
-        file_timeout = cid_tune.get('upstreamFailTimeout', '10')
+        fail_timeout = cid_tune.get('upstreamFailTimeout', '0')
         keep_alive_percent = cid_tune.get('upstreamKAPercent', 25)
         queue = cid_tune.get('upstreamQueue', None)
 
         upstream = OrderedDict()
 
-        if self._version >= (1, 9, 0):
-            upstream['zone'] = 'upstreams {0}'.format(zone_size)
-            upstream['hash'] = '$binary_remote_addr consistent'
-
         if queue:
             upstream['queue'] = queue
+            upstream['zone'] = 'upstreams {0}'.format(zone_size)
+            upstream['hash'] = '$binary_remote_addr consistent'
+        else:
+            upstream['least_conn'] = ''
 
         if keepalive and keep_alive_percent > 0:
             ka_conn = 0
@@ -462,11 +462,11 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
 
         for v in instances:
             options = []
-            if self._version >= (1, 9, 0):
+            if queue:
                 options.append('max_conns={0}'.format(v['maxConnections']))
 
             options.append('max_fails=0')
-            options.append('fail_timeout={0}'.format(file_timeout))
+            options.append('fail_timeout={0}'.format(fail_timeout))
 
             socket_type = v['socketType']
 
