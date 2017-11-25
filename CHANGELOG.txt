@@ -1,4 +1,7 @@
 
+=== (next) ===
+FIXED: license disclaimers
+
 === 0.8.1 (2017-11-05) ===
 BREAKING CHANGE: nginx to use "least_conn" balancing without "max_conn" unless "queue" is configured
 FIXED: to use "fail_timeout=0" for upstreams by default
