@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.8.2 (2017-12-13) ===
 FIXED: license disclaimers
 FIXED: JAVA_HOME/JRE_HOME setup with existing "javaBin" env
 
