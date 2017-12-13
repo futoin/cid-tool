@@ -89,7 +89,7 @@ javaVer supports:
 
         if env.get('javaBin', None):
             bin_dir = ospath.dirname(env['javaBin'])
-            java_home = ospath.dirname(env['javaBin'])
+            java_home = ospath.dirname(bin_dir)
 
             environ['JAVA_HOME'] = java_home
             environ['JRE_HOME'] = java_home

@@ -1,6 +1,7 @@
 
 === (next) ===
 FIXED: license disclaimers
+FIXED: JAVA_HOME/JRE_HOME setup with existing "javaBin" env
 
 === 0.8.1 (2017-11-05) ===
 BREAKING CHANGE: nginx to use "least_conn" balancing without "max_conn" unless "queue" is configured
