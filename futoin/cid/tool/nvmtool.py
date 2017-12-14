@@ -25,7 +25,7 @@ Home: https://github.com/creationix/nvm
 """
     __slots__ = ()
 
-    NVM_LATEST = '$(git describe --abbrev=0 --tags --match "v[0-9]*")'
+    NVM_LATEST = '$(git describe --abbrev=0 --tags --match "v[0-9]*" origin/master)'
 
     def getDeps(self):
         return ['bash', 'git']
