@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.8.3 (2017-12-14) ===
 FIXED: NVM was never updating due to bug in latest tag search
 
 === 0.8.2 (2017-12-13) ===
