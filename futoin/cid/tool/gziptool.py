@@ -29,7 +29,7 @@ Tune:
 * toGzipRe = '\.(js|json|css|svg|txt|xml|html)$'
 """
     __slots__ = ()
-    __TO_GZIP = '\.(js|json|css|svg|txt|xml|html)$'
+    __TO_GZIP = '\.(js|json|css|svg|txt|xml|html|md)$'
 
     def autoDetect(self, config):
         if not config.get('packageGzipStatic', True):
