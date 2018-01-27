@@ -1,6 +1,7 @@
 
 === 0.8.3 (next) ===
 FIXED: devserve to work without valid vcsRepo/rmsRepo
+FIXED: gzip to compress only webcfg.mounts where staticGzip != False
 NEW: gzip compresses also *.md by default
 
 === 0.8.3 (2017-12-14) ===

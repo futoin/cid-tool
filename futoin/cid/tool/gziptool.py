@@ -46,8 +46,6 @@ Tune:
                 pass
             elif v.get('app', None) is None:
                 pass
-            elif m == '/' and webroot.get('main', None) is not None:
-                pass
             else:
                 continue
 
@@ -75,7 +73,8 @@ Tune:
             return
 
         self._info('Generating GZip files of static content')
-        webroot = config.get('webcfg', {}).get('root', '.')
+        webcfg = config.get('webcfg', {})
+        webroot = webcfg.get('root', '.')
         re = self._ext.re
         to_gzip_re = self._getTune(config, 'toGzipRe', self.__TO_GZIP)
         to_gzip_re = re.compile(to_gzip_re, re.I)
@@ -84,10 +83,28 @@ Tune:
         gzip = self._ext.gzip
         shutil = self._ext.shutil
 
-        for (path, dirs, files) in self._os.walk(webroot):
-            for f in files:
-                if to_gzip_re.search(f):
-                    f = ospath.join(path, f)
-                    with open(f, 'rb') as f_in:
-                        with gzip.open(f + '.gz', 'wb', 9) as f_out:
-                            shutil.copyfileobj(f_in, f_out)
+        for (m, v) in webcfg.get('mounts', {}).items():
+            if not isinstance(v, dict):
+                continue
+
+            if v.get('static', False):
+                pass
+            elif v.get('app', None) is None:
+                pass
+            else:
+                continue
+
+            if not v.get('tune', {}).get('staticGzip', True):
+                continue
+
+            gzip_dir = ospath.join(webroot, m)
+            gzip_dir = gzip_dir.lstrip('/')
+            self._info('> ' + gzip_dir)
+
+            for (path, dirs, files) in self._os.walk(gzip_dir):
+                for f in files:
+                    if to_gzip_re.search(f):
+                        f = ospath.join(path, f)
+                        with open(f, 'rb') as f_in:
+                            with gzip.open(f + '.gz', 'wb', 9) as f_out:
+                                shutil.copyfileobj(f_in, f_out)
