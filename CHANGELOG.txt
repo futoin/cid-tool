@@ -1,4 +1,7 @@
 
+=== 0.8.3 (next) ===
+FIXED: devserve to work without valid vcsRepo/rmsRepo
+
 === 0.8.3 (2017-12-14) ===
 FIXED: NVM was never updating due to bug in latest tag search
 

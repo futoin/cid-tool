@@ -344,11 +344,11 @@ class DeployMixIn(DataSlots):
 
         if config.get('rms', None):
             new_config['rms'] = config['rms']
-            new_config['rmsRepo'] = config['rmsRepo']
+            new_config['rmsRepo'] = config.get('rmsRepo', '')
 
         if config.get('vcs', None):
             new_config['vcs'] = config['vcs']
-            new_config['vcsRepo'] = config['vcsRepo']
+            new_config['vcsRepo'] = config.get('vcsRepo', '')
 
         new_config['deploy'] = config.get('deploy', {})
         new_config['env'] = orig_config.get('env', {})
