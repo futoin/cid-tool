@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.8.5 (2018-02-04) ===
 FIXED: security issue of os.path.join() behavior with components starting from /
 
 === 0.8.4 (2018-01-28) ===
