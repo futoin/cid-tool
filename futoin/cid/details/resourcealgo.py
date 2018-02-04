@@ -290,11 +290,12 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn):
         entryPoints = config.get('entryPoints', {})
 
         ospath = self._ospath
+        pathutil = self._pathutil
         os = self._os
         base_dir = ospath.realpath(config['deployDir'])
-        run_dir = ospath.join(base_dir, '.runtime')
+        run_dir = pathutil.safeJoin(base_dir, '.runtime')
         run_dir = deploy.setdefault('runtimeDir', run_dir)
-        tmp_dir = ospath.join(base_dir, '.tmp')
+        tmp_dir = pathutil.safeJoin(base_dir, '.tmp')
         tmp_dir = deploy.setdefault('tmpDir', tmp_dir)
 
         for (en, instances) in autoServices.items():
@@ -317,7 +318,7 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn):
                 ic['socketType'] = sock_type
 
                 if sock_type == 'unix':
-                    ic['socketPath'] = ospath.join(
+                    ic['socketPath'] = pathutil.safeJoin(
                         run_dir, '{0}.{1}.sock'.format(en, i))
                 else:
                     ic['socketAddress'] = deploy.get(

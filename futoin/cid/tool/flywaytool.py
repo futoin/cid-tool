@@ -89,7 +89,7 @@ Note: for now, it gets the latest tag from GitHub and then uses
         inst_dir = env['flywayDir']
 
         if ver != 'latest':
-            inst_dir = self._ospath.join(inst_dir, ver)
+            inst_dir = self._pathutil.safeJoin(inst_dir, ver)
 
         self._pathutil.rmTree(inst_dir)
 

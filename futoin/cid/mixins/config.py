@@ -450,9 +450,10 @@ class ConfigMixIn(DataSlots):
         read_to = timeouts.setdefault('read', 60)
         timeouts.setdefault('total', read_to * 60)
 
-        env.setdefault('binDir', self._ospath.join(
+        pathutil = self._pathutil
+        env.setdefault('binDir', pathutil.safeJoin(
             self._environ['HOME'], 'bin'))
-        self._pathutil.addBinPath(env['binDir'])
+        pathutil.addBinPath(env['binDir'])
 
         #---
         env_vars = self.FUTOIN_ENV_VARS

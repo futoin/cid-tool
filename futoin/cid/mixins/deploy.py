@@ -389,11 +389,13 @@ class DeployMixIn(DataSlots):
         runtimeDir = deploy['runtimeDir']
         tmpDir = deploy['tmpDir']
 
-        # DO NOT use realpath as it may point to "old current"
-        config['wcDir'] = self._ospath.join(config['deployDir'], 'current')
+        pathutil = self._pathutil
 
-        self._pathutil.mkDir(runtimeDir)
-        self._pathutil.mkDir(tmpDir)
+        # DO NOT use realpath as it may point to "old current"
+        config['wcDir'] = pathutil.safeJoin(config['deployDir'], 'current')
+
+        pathutil.mkDir(runtimeDir)
+        pathutil.mkDir(tmpDir)
 
         auto_services = config['deploy']['autoServices']
 

@@ -308,7 +308,7 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
         # The only vhost
         #---
         server = http.setdefault('server', OrderedDict())
-        server['root'] = self._ospath.join(config['wcDir'], svc['path'])
+        server['root'] = self._pathutil.safeJoin(config['wcDir'], svc['path'])
         server.setdefault('gzip_static', 'on')
         server.setdefault('server_name', '_')
 
@@ -540,7 +540,7 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
         location['-fastcgi-params'] = FASTCGI_PARAMS
         location['fastcgi_param REMOTE_ADDR'] = self._remote_addr_var
         location['fastcgi_param REMOTE_PORT'] = self._remote_port_var
-        location['fastcgi_param SCRIPT_FILENAME'] = self._ospath.join(
+        location['fastcgi_param SCRIPT_FILENAME'] = self._pathutil.safeJoin(
             self._config['deployDir'], 'current', svc['path'])
 
         return upstream, location

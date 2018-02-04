@@ -80,7 +80,7 @@ if not set by user.
         ], verbose=False).strip()
 
     def vcsGetRepo(self, config, wc_dir=None):
-        git_dir = wc_dir or self._ospath.join(self._os.getcwd(), '.git')
+        git_dir = wc_dir or self._pathutil.safeJoin(self._os.getcwd(), '.git')
 
         return self._executil.callExternal([
             config['env']['gitBin'],

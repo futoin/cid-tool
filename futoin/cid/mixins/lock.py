@@ -90,13 +90,13 @@ class LockMixIn(DataSlots):
         self.__unlockCommon('_master_lock')
 
     def __deployLockFile(self):
-        return self._ospath.join(self._overrides['deployDir'], self.__DEPLOY_LOCK_FILE)
+        return self._pathutil.safeJoin(self._overrides['deployDir'], self.__DEPLOY_LOCK_FILE)
 
     def __masterLockFile(self):
-        return self._ospath.join(self._overrides['deployDir'], self.__MASTER_LOCK_FILE)
+        return self._pathutil.safeJoin(self._overrides['deployDir'], self.__MASTER_LOCK_FILE)
 
     def __globalLockFile(self):
-        return self._ospath.join(self._environ['HOME'], self.__GLOBAL_LOCK_FILE)
+        return self._pathutil.safeJoin(self._environ['HOME'], self.__GLOBAL_LOCK_FILE)
 
     def _checkDeployLock(self):
         ospath = self._ospath

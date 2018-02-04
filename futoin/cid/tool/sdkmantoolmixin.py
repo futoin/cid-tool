@@ -41,7 +41,7 @@ class SdkmanToolMixIn(BashToolMixIn, JavaToolMixIn):
     def _setAutoAnswer(self, env):
         self._callBash(env,
                        'grep -q "sdkman_auto_answer=true" {0} || echo "sdkman_auto_answer=true" >> {0}'
-                       .format(self._ospath.join(env['sdkmanDir'], 'etc', 'config')),
+                       .format(self._pathutil.safeJoin(env['sdkmanDir'], 'etc', 'config')),
                        verbose=False
                        )
 

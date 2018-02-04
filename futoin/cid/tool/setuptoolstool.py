@@ -66,7 +66,8 @@ Override targets with .config.toolTune.
 
     def onPackage(self, config):
         target = self._getTune(config, 'package', 'dist')
-        self._pathutil.addPackageFiles(config, self._ospath.join(target, '*'))
+        self._pathutil.addPackageFiles(
+            config, self._pathutil.safeJoin(target, '*'))
 
     def onCheck(self, config):
         env = config['env']

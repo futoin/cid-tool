@@ -231,6 +231,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         #---
         os = self._os
         ospath = self._ospath
+        pathutil = self._pathutil
         fnmatch = self._ext.fnmatch
         config = self._config
         package_files = config.get('packageFiles', None)
@@ -278,7 +279,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                 if ospath.isdir(pkg_item):
                     for (path, dirs, files) in os.walk(pkg_item):
                         for f in sorted(files):
-                            f = ospath.join(path, f)
+                            f = pathutil.safeJoin(path, f)
                             cs_files.append(f)
 
             hashlib = self._ext.hashlib
@@ -997,6 +998,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         self._devserve_mode = True
 
         ospath = self._ospath
+        pathutil = self._pathutil
         os = self._os
 
         deploy_dir = self._ext.tempfile.mkdtemp(prefix='futoin-cid-devserve')
@@ -1004,7 +1006,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         try:
             wc_dir = ospath.realpath(self._overrides['wcDir'])
             deploy_dir = ospath.realpath(deploy_dir)
-            os.symlink(wc_dir, ospath.join(deploy_dir, 'current'))
+            os.symlink(wc_dir, pathutil.safeJoin(deploy_dir, 'current'))
 
             self._overrides['devWcDir'] = wc_dir
             self._overrides['deployDir'] = deploy_dir
@@ -1017,7 +1019,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             self._serviceAdapt()
             self._serviceListPrint()
             self._serviceMaster()
-            self._pathutil.rmTree(deploy_dir)
+            pathutil.rmTree(deploy_dir)
             deploy_dir = None
         finally:
             if deploy_dir:

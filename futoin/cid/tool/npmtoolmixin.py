@@ -66,7 +66,7 @@ class NpmToolMixIn(SubTool):
             npmBinDir = env.get('npmBinDir', None)
 
             if npmBinDir:
-                tool_path = self._ospath.join(npmBinDir, bin_name)
+                tool_path = self._pathutil.safeJoin(npmBinDir, bin_name)
 
                 if self._ospath.exists(tool_path):
                     env[bin_env] = tool_path

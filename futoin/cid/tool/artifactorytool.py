@@ -216,9 +216,10 @@ Note 3: only the part before '/' of 'rms_pool' becomes actual RMS pool
         if url[-1] != '/':
             url += '/'
 
-        jfrog_cfg = self._ospath.join(
+        pathutil = self._pathutil
+        jfrog_cfg = pathutil.safeJoin(
             self._environ['HOME'], '.jfrog', 'jfrog-cli.conf')
-        jfrog_cfg = self._pathutil.loadJSONConfig(jfrog_cfg)
+        jfrog_cfg = pathutil.loadJSONConfig(jfrog_cfg)
 
         if jfrog_cfg:
             for server_cfg in jfrog_cfg.get('artifactory', []):

@@ -41,12 +41,18 @@ def cachedWhich(program, env_path):
     else:
         for path in env_path.split(os.pathsep):
             path = path.strip('"')
-            exe_file = ospath.join(path, program)
+            exe_file = safeJoin(path, program)
 
             if is_exe(exe_file):
                 return exe_file
 
     return None
+
+
+def safeJoin(*args):
+    ospath = _ext.ospath
+    paths = list(args[:1]) + [p.lstrip(ospath.sep) or '.' for p in args[1:]]
+    return ospath.join(*paths)
 
 
 def addEnvPath(env_name, add_dir, first=False):

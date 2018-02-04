@@ -1,5 +1,8 @@
 
-=== 0.8.3 (next) ===
+=== (next) ===
+FIXED: security issue of os.path.join() behavior with components starting from /
+
+=== 0.8.4 (2018-01-28) ===
 FIXED: devserve to work without valid vcsRepo/rmsRepo
 FIXED: gzip to compress only webcfg.mounts where staticGzip != False
 NEW: gzip compresses also *.md by default

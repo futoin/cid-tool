@@ -93,7 +93,7 @@ Others, are more JVM-specific and most likely will be bundled with JVM app.
         inst_dir = env['liquibaseDir']
 
         if ver != 'latest':
-            inst_dir = self._ospath.join(inst_dir, ver)
+            inst_dir = self._pathutil.safeJoin(inst_dir, ver)
 
         self._pathutil.rmTree(inst_dir)
 
