@@ -13,21 +13,22 @@ os:
 
 script:
 - >-
-    tests/run.sh nocompile
-        tests/cid_vcs_test.py
-        tests/cid_install_test.py
-        tests/cid_buildtool_test.py
-        tests/cid_runcmd_test.py
-        tests/cid_initcmd_test.py
-        tests/cid_misc_test.py
-        tests/cid_deploy_test.py
+    tests/run.sh nocompile \
+        tests/cid_vcs_test.py \
+        tests/cid_install_test.py \
+        tests/cid_buildtool_test.py \
+        tests/cid_runcmd_test.py \
+        tests/cid_initcmd_test.py \
+        tests/cid_misc_test.py \
+        tests/cid_deploy_test.py \
         tests/cid_service_test.py
+
 # allow failures, as is quite depends on changing app versions
 - >-
-    [ "${TRAVIS_OS_NAME}" = "linux" ] &&
-    tests/run.sh rmshost &&
-    tests/run.sh
-        tests/cid_realapp_test.py
-        tests/cid_rms_test.py
-        tests/cid_migrate_test.py
+    [ "${TRAVIS_OS_NAME}" = "linux" ] &&  \
+    tests/run.sh rmshost &&  \
+    tests/run.sh  \
+        tests/cid_realapp_test.py  \
+        tests/cid_rms_test.py  \
+        tests/cid_migrate_test.py  \
     || true
