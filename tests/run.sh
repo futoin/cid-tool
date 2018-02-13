@@ -113,6 +113,11 @@ if ! grep -q "$(hostname)" /etc/hosts; then
     echo "127.0.0.1 $(hostname)" | sudo tee /etc/hosts
 fi
 
+if [ "$TRAVIS" = "true" ]; then
+    export DB_HOST=127.0.0.1
+    export RMS_HOST=127.0.0.1
+fi
+
 fast=
 rmshost=
 tests=
@@ -209,9 +214,15 @@ function run_common() {
         if [ -n "$CID_SOURCE_DIR" ]; then
             export CID_SOURCE_DIR=$CID_SOURCE_DIR
         fi
+        
+        export DB_HOST=$DB_HOST
+        export RMS_HOST=$RMS_HOST
+        
         export pythonVer=$pythonVer
+        
         # detection fails for AlpineLinux
         export JAVA_OPTS="-Xmx256m"
+        
         export brewSudo='/usr/bin/sudo -n -H -u vagrant'
         \$CIDTEST_BIN tool exec python -- -m nose $tests
 EOF
@@ -227,5 +238,5 @@ fi
 
 if [ -n "$rmshost" ]; then
     sudo sed -i 's/^bind-address/#bind-address/g' /etc/mysql/my.cnf
-    sudo systemctl restart mysql
+    sudo systemctl restart mysql || sudo service mysql restart
 fi
