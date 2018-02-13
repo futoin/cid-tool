@@ -35,7 +35,7 @@ TEST_ROOT=${CID_SOURCE_DIR}
 cd ..
 CWD=$(pwd) 
 
-if [ ${CWD} = '/' ]; then
+if [ ${CWD} = '/' ] || [ "$TRAVIS" = "true" ]; then
     export CIDTEST_RUN_DIR=/testrun
 else
     export CIDTEST_RUN_DIR=${CWD}/testrun
@@ -52,7 +52,7 @@ fi
 # Run test out of sync folder
 export CIDTEST_USER=$(id -un)
 
-if [ "$CIDTEST_USER" = "vagrant" ]; then
+if [ "$CIDTEST_USER" = "vagrant" ] || [ "$TRAVIS" = "true" ]; then
     CIDTEST_USER=cidtest
     sudo mkdir -p $CIDTEST_RUN_DIR
     if ! id $CIDTEST_USER >/dev/null 2>&1; then
@@ -89,7 +89,7 @@ EOF
     sudo mkdir -p $HOME
     sudo chmod -R go+rw $HOME
     find $HOME -type d | xargs sudo chmod go+rwx $HOME
-    sudo chown -R vagrant:vagrant $HOME
+    sudo chown -R $CIDTEST_USER:$CIDTEST_USER $HOME
     umask 0000
     
     sudo mkdir -p /etc/futoin && sudo chmod 777 /etc/futoin
