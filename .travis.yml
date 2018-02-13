@@ -1,0 +1,15 @@
+language: python
+
+sudo: required
+
+dist: trusty
+
+os:
+- linux
+- osx
+
+install:
+- python setup.py -q install
+
+script:
+- tests/run.sh nocompile
