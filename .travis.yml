@@ -1,4 +1,4 @@
-language: python
+language: c
 
 sudo: required
 
@@ -8,8 +8,8 @@ os:
 - linux
 - osx
 
-install:
-- python setup.py -q install
+#install:
+#- python setup.py -q install
 
 script:
 - tests/run.sh nocompile
