@@ -1,4 +1,7 @@
 
+=== (next) ===
+FIXED: npm to work with @scoped package upload
+
 === 0.8.5 (2018-02-04) ===
 FIXED: security issue of os.path.join() behavior with components starting from /
 

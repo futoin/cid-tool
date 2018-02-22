@@ -95,6 +95,13 @@ Note: it auto-disables, if Yarn tool is detected
             cmd = [npmBin, 'install', '--production=false']
             self._executil.callMeaningful(cmd)
 
+    def _npmPackageName(self, config):
+        name = config['name'].replace('@', '').replace('/', '-')
+
+        package = '{0}-{1}.tgz'.format(name, config['version'])
+
+        return package
+
     def onPackage(self, config):
         npmBin = config['env']['npmBin']
 
@@ -108,14 +115,12 @@ Note: it auto-disables, if Yarn tool is detected
         if config.get('rms', None) == self._name:
             cmd = [npmBin, 'pack']
             self._executil.callMeaningful(cmd)
-            package = '{0}-{1}.tgz'.format(
-                config['name'], config['version'])
+            package = self._npmPackageName(config)
             self._pathutil.addPackageFiles(config, package)
 
     def rmsUpload(self, config, rms_pool, package_list):
         ospath = self._ospath
-        package = '{0}-{1}.tgz'.format(
-            config['name'], config['version'])
+        package = self._npmPackageName(config)
 
         if (len(package_list) == 1 and
                 ospath.basename(package_list[0]) == package):
