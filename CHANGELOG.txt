@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.8.6 (2018-02-22) ===
 FIXED: npm to work with @scoped package upload
 
 === 0.8.5 (2018-02-04) ===
