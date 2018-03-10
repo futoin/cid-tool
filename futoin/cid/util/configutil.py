@@ -106,3 +106,14 @@ def deepMerge(target, source):
             target[k] = v
 
     return target
+
+#==================
+
+
+def syslogTag(env, name):
+    tag = env.get('syslogTag', None)
+
+    if tag:
+        return '{0}-{1}'.format(tag, name)
+
+    return name

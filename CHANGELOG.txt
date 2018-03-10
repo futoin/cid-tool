@@ -1,4 +1,7 @@
 
+=== (next) ===
+NEW: env.syslogTag support in PHP-FPM and uWSGI
+
 === 0.8.6 (2018-02-22) ===
 FIXED: npm to work with @scoped package upload
 

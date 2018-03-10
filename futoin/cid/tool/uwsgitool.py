@@ -44,6 +44,7 @@ It's possible to override uWSGI options with .tune.uwsgi parameter map.
 
     def onPreConfigure(self, config, runtime_dir, svc, cfg_svc_tune):
         ospath = self._ospath
+        configutil = self._configutil
         env = config['env']
         deploy = config['deploy']
 
@@ -69,7 +70,7 @@ It's possible to override uWSGI options with .tune.uwsgi parameter map.
                 svc_tune['socketAddress'], svc_tune['socketPort'])
 
         #
-        mem_limit = int(self._configutil.parseMemory(
+        mem_limit = int(configutil.parseMemory(
             svc_tune['connMemory']) / 1024 / 1024)
         conf = {
             'uwsgi': svc_tune.get('uwsgi', {})
@@ -89,7 +90,7 @@ It's possible to override uWSGI options with .tune.uwsgi parameter map.
             'never-swap': 1,
             'need-app': 1,
             'reaper': 1,
-            'logger': 'syslog:{0}'.format(name_id),
+            'logger': 'syslog:{0}'.format(configutil.syslogTag(env, name_id)),
             'disable-logging': 1,
             'die-on-term': 1,
             'chdir': target_cwd,

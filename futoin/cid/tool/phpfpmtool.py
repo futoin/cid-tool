@@ -187,6 +187,7 @@ Note: file upload is OFF by default.
 
     def onPreConfigure(self, config, runtime_dir, svc, cfg_svc_tune):
         ospath = self._ospath
+        configutil = self._configutil
         env = config['env']
         deploy = config['deploy']
         name_id = '{0}-{1}'.format(svc['name'], svc['instanceId'])
@@ -229,7 +230,8 @@ Note: file upload is OFF by default.
         global_ini = fpm_ini.setdefault('global', {})
         global_ini.setdefault('error_log', error_log)
         global_ini.setdefault('log_level', log_level)
-        global_ini.setdefault('syslog.ident', name_id)
+        global_ini.setdefault(
+            'syslog.ident', configutil.syslogTag(env, name_id))
         global_ini['daemonize'] = 'no'
         global_ini['rlimit_files'] = svc_tune['maxFD']
 
@@ -274,7 +276,7 @@ Note: file upload is OFF by default.
 
         php_ini.setdefault('sys_temp_dir', tmp_dir)
         php_ini.setdefault(
-            'memory_limit', self._configutil.parseMemory(svc_tune['connMemory']))
+            'memory_limit', configutil.parseMemory(svc_tune['connMemory']))
         php_ini.setdefault('expose_php', 'Off')
         php_ini.setdefault('zend.multibyte', 'On')
         php_ini.setdefault('zend.script_encoding', 'UTF-8')
@@ -287,7 +289,7 @@ Note: file upload is OFF by default.
         php_ini.setdefault('error_reporting', error_reporting)
         php_ini.setdefault('file_uploads', 'On')
         php_ini.setdefault('upload_tmp_dir', upload_dir)
-        request_size_limit = self._configutil.parseMemory(
+        request_size_limit = configutil.parseMemory(
             svc_tune['maxRequestSize'])
         php_ini['upload_max_filesize'] = request_size_limit
         php_ini['post_max_size'] = request_size_limit
