@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.8.7 (2018-03-10) ===
 NEW: env.syslogTag support in PHP-FPM and uWSGI
 
 === 0.8.6 (2018-02-22) ===
