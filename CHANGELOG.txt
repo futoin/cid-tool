@@ -1,4 +1,7 @@
 
+=== (next) ===
+NEW: added support for markdown changelogs in futoin.cid.misc.releaseTool
+
 === 0.8.7 (2018-03-10) ===
 NEW: env.syslogTag support in PHP-FPM and uWSGI
 

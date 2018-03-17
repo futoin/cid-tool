@@ -20,8 +20,11 @@ from ..buildtool import BuildTool
 class releaseTool(BuildTool):
     """FutoIn CID-specific release processing
 
-Python: replaces "*__version__"' with "__version__ = '{version}'"
-Changelog: replaces "=== \(next\) ===" with "=== {version} ({date}) ==="
+Python:
+- replaces "*__version__"' with "__version__ = '{version}'"
+Changelog:
+- replaces "=== \(next\) ===" with "=== {version} ({date}) ==="
+- replaces "# \(next\)" with "# {version} ({date})"
 
 Tune:
     .python = [] - list of Python files
@@ -46,15 +49,24 @@ Tune:
 
         def cl_updater(content):
             if 'version' in updates:
+                version = updates['version']
                 date = self._ext.datetime.datetime.utcnow().isoformat().split('T')[
                     0]
-                return re.sub(
+                content = re.sub(
                     r'^=== \(next\) ===$',
-                    '=== {0} ({1}) ==='.format(updates['version'], date),
+                    '=== {0} ({1}) ==='.format(version, date),
                     content,
                     count=1,
                     flags=re.MULTILINE
                 )
+                content = re.sub(
+                    r'# \(next\)',
+                    '# {0} ({1})'.format(version, date),
+                    content,
+                    count=1,
+                    flags=re.MULTILINE
+                )
+                return content
 
         res = []
         #---
