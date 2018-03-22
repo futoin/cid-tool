@@ -39,6 +39,7 @@ class cid_service_Test( cid_UTBase ) :
         os.makedirs('src')
         os.chdir('src')
         os.mkdir('data')
+        os.mkdir('cache')
         
         if self.IS_MACOS:
             self._writeFile('app.sh', """#!/bin/bash
@@ -65,6 +66,7 @@ class cid_service_Test( cid_UTBase ) :
     touch data/start.txt
     touch data/reload.txt
     echo -n "1" >>data/start.txt
+    echo -n "1" >>cache/start.txt
     unlock
     
     trap "on_reload" SIGHUP
@@ -77,7 +79,7 @@ class cid_service_Test( cid_UTBase ) :
 """)
         else:
             self._writeFile('app.sh', """#!/bin/bash
-    flock data/lock -c 'echo -n "1" >>data/start.txt'
+    flock data/lock -c 'echo -n "1" >>data/start.txt; echo -n "1" >>cache/start.txt'
     trap "flock data/lock -c 'echo -n 1 >>data/reload.txt'" SIGHUP
     trap "exit 0" SIGTERM
 
@@ -95,6 +97,9 @@ class cid_service_Test( cid_UTBase ) :
             'rmsPool' : 'Releases',
             'persistent' : [
                 'data',
+            ],
+            'writable' : [
+                'cache',
             ],
             'entryPoints' : {
                 'app' : {
@@ -122,6 +127,7 @@ class cid_service_Test( cid_UTBase ) :
     def test03_exec(self):
         start_file = 'dst/persistent/data/start.txt'
         reload_file = 'dst/persistent/data/reload.txt'
+        cache_file = 'dst/current/cache/start.txt'
         
         try: os.unlink(start_file)
         except: pass
@@ -162,6 +168,17 @@ class cid_service_Test( cid_UTBase ) :
         else:
             self.assertTrue(False)
 
+        for i in range(10):
+            time.sleep(1)
+            
+            if not os.path.exists(cache_file):
+                continue
+
+            if len(self._readFile(cache_file)) == 2:
+                break
+        else:
+            self.assertTrue(False)
+            
         self._call_cid(['service', 'reload', 'app', '4', str(pid2), '--deployDir=dst'],
                        returncode=1)
         self._call_cid(['service', 'reload', 'app', '3', str(pid2), '--deployDir=dst'])
@@ -202,11 +219,14 @@ class cid_service_Test( cid_UTBase ) :
     def test05_master(self):
         start_file = 'dst/persistent/data/start.txt'
         reload_file = 'dst/persistent/data/reload.txt'
+        cache_file = 'dst/current/cache/start.txt'
         
         try: os.unlink(start_file)
         except: pass
         try: os.unlink(reload_file)
         except: pass
+    
+        self.assertFalse(os.path.exists(cache_file))
         
         pid = os.fork()
         
@@ -225,6 +245,17 @@ class cid_service_Test( cid_UTBase ) :
                 continue
 
             if len(self._readFile(start_file)) == 4:
+                break
+        else:
+            self.assertTrue(False)
+
+        for i in range(10):
+            time.sleep(1)
+            
+            if not os.path.exists(cache_file):
+                continue
+
+            if len(self._readFile(cache_file)) == 4:
                 break
         else:
             self.assertTrue(False)
