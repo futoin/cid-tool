@@ -63,7 +63,7 @@ Home: https://pypi.python.org/pypi/pip
         ospath = self._ospath
         pipBin = ospath.join(env['virtualenvDir'], 'bin', 'pip')
         pipBin = env.setdefault('pipBin', pipBin)
-        pipVer = env.setdefault('pipVer', '9.0.1')
+        pipVer = env.setdefault('pipVer', '9.0.3')
 
         if ospath.exists(pipBin):
             pipFactVer = self._executil.callExternal(

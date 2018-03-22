@@ -1,4 +1,7 @@
 
+=== (next) ===
+CHANGED: upgraded to require pip>=9.0.3 in runtime
+
 === 0.8.8 (2018-03-17) ===
 NEW: added support for markdown changelogs in futoin.cid.misc.releaseTool
 
