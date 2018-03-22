@@ -41,6 +41,7 @@ class ConfigMixIn(DataSlots):
         ('packageGzipStatic', bool),
         ('packageChecksums', bool),
         ('persistent', list),
+        ('writable', list),
         ('entryPoints', dict),
         ('configenv', dict),
         ('webcfg', dict),

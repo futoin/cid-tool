@@ -250,6 +250,34 @@ class cid_deploy_Test( cid_UTBase ) :
             ]),
             cfg['persistent'])
             
+    def test_09_set_writable(self):
+        cfg_file = os.path.join('setupdir', 'futoin.json')
+        
+        self._call_cid(['deploy', 'set', 'writable',
+                        'wpath1', 'wpath/2',
+                        '--deployDir', 'setupdir',
+                        ])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals(
+            sorted([
+                'wpath1',                
+                'wpath/2',
+            ]),
+            cfg['writable'])
+
+        self._call_cid(['deploy', 'set', 'writable',
+                        'wpath/2', 'wpath/3/a',
+                        '--deployDir', 'setupdir'
+                        ])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals(
+            sorted([
+                'wpath1',
+                'wpath/2',
+                'wpath/3/a',
+            ]),
+            cfg['writable'])
+            
     def test_09_set_env(self):
         cfg_file = os.path.join('setupdir', 'futoin.json')
         

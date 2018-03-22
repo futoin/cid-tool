@@ -14,7 +14,7 @@ development, build, deployment and running.
 *NOTE: current focus is on web projects, but other types are supported as well.*
 
 Full theoretical details are defined as FutoIn Spec FTN16 available at:
-https://github.com/futoin/specs/blob/master/draft/ftn16_cid_tool.md
+https://specs.futoin.org/final/preview/ftn16_cid_tool.html
 
 Features
 ~~~~~~~~

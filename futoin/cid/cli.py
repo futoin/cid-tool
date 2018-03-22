@@ -34,6 +34,7 @@ Usage:
     cid deploy set tooltune <tool> <tune>... [--deployDir=<deploy_dir>]
     cid deploy set action <name> <action>... [--deployDir=<deploy_dir>]
     cid deploy set persistent <path>... [--deployDir=<deploy_dir>]
+    cid deploy set writable <path>... [--deployDir=<deploy_dir>]
     cid deploy set entrypoint <name> <tool> <entry_path> [<tune>...] [--deployDir=<deploy_dir>]
     cid deploy set env <variable> [<value>] [--deployDir=<deploy_dir>]
     cid deploy set webcfg <variable> [<value>] [--deployDir=<deploy_dir>]
@@ -317,6 +318,8 @@ def runInner():
                     cit.deploy_set('action', args['<name>'], args['<action>'])
                 elif args['persistent']:
                     cit.deploy_set('persistent', args['<path>'])
+                elif args['writable']:
+                    cit.deploy_set('writable', args['<path>'])
                 elif args['entrypoint']:
                     cit.deploy_set('entrypoint', args['<name>'], args['<tool>'],
                                    args['<entry_path>'], args['<tune>'])

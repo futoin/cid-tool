@@ -279,6 +279,10 @@ class DeployMixIn(DataSlots):
         dir_perm = file_perm | stat.S_IXUSR | stat.S_IXGRP
         self._pathutil.chmodTree(tmp, dir_perm, file_perm, True)
 
+        for wdir in config.get('writable', []):
+            wdir = ospath.join(tmp, wdir)
+            self._pathutil.chmodTree(wdir, wdir_wperm, wfile_wperm, True)
+
         # Setup services
         self._deployConfig()
 
@@ -477,6 +481,12 @@ class DeployMixIn(DataSlots):
         persistent = set(dc.get('persistent', []))
         persistent.update(set(paths))
         dc['persistent'] = sorted(list(persistent))
+
+    def _deploy_set_writable(self, paths):
+        dc = self._deploy_config
+        writable = set(dc.get('writable', []))
+        writable.update(set(paths))
+        dc['writable'] = sorted(list(writable))
 
     def _deploy_set_entrypoint(self, name, tool, path, tune):
         dc = self._deploy_config
