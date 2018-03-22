@@ -134,20 +134,23 @@ class cid_VCS_UTBase ( cid_UTBase ) :
                             '--rmsRepo', 'scp:' + rms_dir ] )
         
         self._goToBase()
-        content = subprocess.check_output( 'tar tJf rms_repo/Prod/wc-CI-1.3.1-*.txz | /usr/bin/sort -f', shell=True )
+        content = subprocess.check_output( 'tar tJf rms_repo/Prod/wc-CI-1.3.1-*.txz', shell=True )
         content = executil.toString(content)
+        content = sorted(content.split("\n"))[1:]
+        
+        prefix = content[0].split('/')[0]
 
         req_content=[
-            '',
             '.package.checksums',
             'BRANCH_A',            
             'README.txt',
             'futoin.json',
             'test.json',
         ]
-        self.maxDiff = 1024
-        content = sorted(content.split("\n"))
+        req_content = [ '{0}/{1}'.format(prefix, v) for v in req_content ]
         req_content = sorted(req_content)
+        
+        self.maxDiff = 1024
         self.assertEqual( content, req_content )
         
     def test_40_release_build( self ):

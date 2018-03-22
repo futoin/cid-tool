@@ -259,8 +259,6 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             package_content = [package_content]
 
         package_content.sort()
-        package_content_cmd = self._ext.subprocess.list2cmdline(
-            package_content)
 
         self._info('Generating package from {0}'.format(package_content))
 
@@ -312,7 +310,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         # Note: unless run in clean ci_build process,
         # all builds must be treated as snapshots/CI builds
         if vcs_ref == 'v' + version:
-            package_file = '{0}-{1}-{2}'.format(
+            package_name = '{0}-{1}-{2}'.format(
                 name, version, buildTimestamp)
         else:
             vcs_ref = 'UNKNOWN'
@@ -325,17 +323,18 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                     if config.get('vcsRepo', None):
                         raise e
 
-            package_file = '{0}-CI-{1}-{2}-{3}'.format(
+            package_name = '{0}-CI-{1}-{2}-{3}'.format(
                 name, version, buildTimestamp, vcs_ref)
 
         if 'target' in config:
-            package_file += '-{0}'.format(config['target'])
+            package_name += '-{0}'.format(config['target'])
 
-        package_file += '.txz'
+        package_file = package_name + '.txz'
         self._info('Creating package {0}'.format(package_file))
 
         tar_tool = self._getTarTool('xz')
         tar_args = ['cJf', package_file,
+                    '--transform=s,^,{0}/,'.format(package_name),
                     '--exclude=' + package_file,
                     '--exclude=.git*',
                     '--exclude=.hg*',
