@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.8.9 (2018-03-22) ===
 CHANGED: upgraded to require pip>=9.0.3 in runtime
 CHANGED: to use --strip-components=1 for tar in RMS deploy
 NEW: added FTN16 v1.2 .writable support
