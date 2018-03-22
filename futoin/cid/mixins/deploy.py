@@ -84,24 +84,26 @@ class DeployMixIn(DataSlots):
         self._info('Extracting the package')
         env = config['env']
 
+        tool = None
+        tool_args = None
+        tar_common_args = ['--strip-components=1', '-C', package_noext_tmp]
+
         if package_ext == '.txz':
-            tar_tool = self._getTarTool('xz')
-            tar_args = ['xJf', package_basename, '-C', package_noext_tmp]
-            tar_tool.onExec(env, tar_args, False)
+            pkg_tool = self._getTarTool('xz')
+            tool_args = ['xJf', package_basename] + tar_common_args
         elif package_ext == '.tbz2':
-            tar_tool = self._getTarTool('bzip2')
-            tar_args = ['xjf', package_basename, '-C', package_noext_tmp]
-            tar_tool.onExec(env, tar_args, False)
+            pkg_tool = self._getTarTool('bzip2')
+            tool_args = ['xjf', package_basename] + tar_common_args
         elif package_ext == '.tgz':
-            tar_tool = self._getTarTool('gzip')
-            tar_args = ['xzf', package_basename, '-C', package_noext_tmp]
-            tar_tool.onExec(env, tar_args, False)
+            pkg_tool = self._getTarTool('gzip')
+            tool_args = ['xzf', package_basename] + tar_common_args
         elif package_ext == '.tar':
-            tar_tool = self._getTarTool()
-            tar_args = ['xf', package_basename, '-C', package_noext_tmp]
-            tar_tool.onExec(env, tar_args, False)
+            pkg_tool = self._getTarTool()
+            tool_args = ['xf', package_basename] + tar_common_args
         else:
             self._errorExit('Not supported package format: ' + package_ext)
+
+        pkg_tool.onExec(env, tool_args, False)
 
         # Common processing
         self._deployCommon(package_noext_tmp, package_noext, [package])
