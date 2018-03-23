@@ -56,6 +56,14 @@ Home: https://pypi.python.org/pypi/pip
             'pip>={0}'.format(env['pipVer']),
         ])
 
+    def installTool(self, env):
+        if not self._have_tool:
+            self._installTool(env)
+            self.initEnv(env)
+
+            if not self._have_tool:
+                self._errorExit('Failed to install "{0}"'.format(self._name))
+
     def uninstallTool(self, env):
         pass
 

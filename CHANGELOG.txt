@@ -1,4 +1,7 @@
 
+=== (next) ===
+FIXED: to pip to ignore externalSetup callback as it has to be updated inside virtualenv
+
 === 0.8.10 (2018-03-22) ===
 FIXED: to include package name as prefix of default tar-based packages
 
