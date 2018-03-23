@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.8.11 (2018-03-23) ===
 FIXED: to pip to ignore externalSetup callback as it has to be updated inside virtualenv
 
 === 0.8.10 (2018-03-22) ===
