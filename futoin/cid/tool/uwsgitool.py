@@ -29,8 +29,8 @@ It's possible to override uWSGI options with .tune.uwsgi parameter map.
 
     def tuneDefaults(self, env):
         return {
-            'minMemory': '2M',
-            'connMemory': '32M',
+            'minMemory': '64M',
+            'connMemory': '16M',
             'debugConnOverhead': '4M',
             'connFD': 8,
             'socketTypes': ['unix', 'tcp', 'tcp6'],
@@ -69,9 +69,12 @@ It's possible to override uWSGI options with .tune.uwsgi parameter map.
             socket = '{0}:{1}'.format(
                 svc_tune['socketAddress'], svc_tune['socketPort'])
 
-        #
-        mem_limit = int(configutil.parseMemory(
-            svc_tune['connMemory']) / 1024 / 1024)
+        # Most of RSS is assumed to be shared with
+        # uWSGI master process through CoW. So, each workes RSS
+        # is minMemory=master + connMemory=worker_overhead.
+        mem_limit = configutil.parseMemory(svc_tune['minMemory'])
+        mem_limit += configutil.parseMemory(svc_tune['connMemory'])
+        mem_limit = int(mem_limit / 1024 / 1024)
         conf = {
             'uwsgi': svc_tune.get('uwsgi', {})
         }

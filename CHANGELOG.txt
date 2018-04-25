@@ -1,5 +1,7 @@
 
 === (next) ===
+CHANGED: default uWSGI memory requirements
+FIXED: uWSGI worker memory limits with fork CoW in mind
 FIXED: false resource allocation when minMemory+connMemory > maxMemory
 NEW: "deploy reset" command
 
