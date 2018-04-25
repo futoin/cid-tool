@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.8.12 (2018-04-25) ===
 CHANGED: default uWSGI memory requirements
 FIXED: uWSGI worker memory limits with fork CoW in mind
 FIXED: false resource allocation when minMemory+connMemory > maxMemory
