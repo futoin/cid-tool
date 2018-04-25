@@ -30,6 +30,7 @@ Usage:
     cid deploy vcstag [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--tmpDir=<tmp_dir>] [--user=<user>] [--group=<group>]
     cid deploy vcsref <vcs_ref> [--vcsRepo=<vcs_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--tmpDir=<tmp_dir>] [--user=<user>] [--group=<group>]
     cid deploy rms <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--redeploy] [--deployDir=<deploy_dir>] [--build] [--limit-memory=<mem_limit>] [--limit-cpus=<cpu_count>] [--listen-addr=<address>] [--runtimeDir=<runtime_dir>] [--tmpDir=<tmp_dir>] [--user=<user>] [--group=<group>]
+    cid deploy reset [<set_type>] [--deployDir=<deploy_dir>]
     cid deploy set tools <tools>... [--deployDir=<deploy_dir>]
     cid deploy set tooltune <tool> <tune>... [--deployDir=<deploy_dir>]
     cid deploy set action <name> <action>... [--deployDir=<deploy_dir>]
@@ -337,6 +338,8 @@ def runInner():
                     cit.deploy_set('tooltune', args['<tool>'], args['<tune>'])
                 else:
                     raise RuntimeError("Not implemented yet.")
+            elif args['reset']:
+                cit.deploy_reset(args['<set_type>'])
             else:
                 raise RuntimeError("Not implemented yet.")
         elif args['service']:

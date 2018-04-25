@@ -418,6 +418,35 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         finally:
             self._deployUnlock()
 
+    def deploy_reset(self, action):
+        self._processDeployDir()
+
+        if action:
+            actions = [action]
+        else:
+            actions = [
+                'tools',
+                'tooltune',
+                'action',
+                'persistent',
+                'writable',
+                'entrypoint',
+                'env',
+                'webcfg',
+                #'webmount',
+            ]
+
+        for action in actions:
+            member = '_deploy_reset_{0}'.format(action)
+            getattr(self, member)()
+
+        self._deployLock()
+
+        try:
+            self._writeDeployConfig()
+        finally:
+            self._deployUnlock()
+
     def run(self, command, args):
         self._processWcDir()
 

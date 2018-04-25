@@ -478,17 +478,29 @@ class DeployMixIn(DataSlots):
         dc_actions = dc.setdefault('actions', {})
         dc_actions[name] = actions
 
+    def _deploy_reset_action(self):
+        dc = self._deploy_config
+        dc['actions'] = {}
+
     def _deploy_set_persistent(self, paths):
         dc = self._deploy_config
         persistent = set(dc.get('persistent', []))
         persistent.update(set(paths))
         dc['persistent'] = sorted(list(persistent))
 
+    def _deploy_reset_persistent(self):
+        dc = self._deploy_config
+        dc['persistent'] = []
+
     def _deploy_set_writable(self, paths):
         dc = self._deploy_config
         writable = set(dc.get('writable', []))
         writable.update(set(paths))
         dc['writable'] = sorted(list(writable))
+
+    def _deploy_reset_writable(self):
+        dc = self._deploy_config
+        dc['writable'] = []
 
     def _deploy_set_entrypoint(self, name, tool, path, tune):
         dc = self._deploy_config
@@ -497,6 +509,10 @@ class DeployMixIn(DataSlots):
         ep['tool'] = tool
         ep['path'] = path
         ep['tune'] = self._deploy_set_tune_common(ep.get('tune', {}), tune)
+
+    def _deploy_reset_entrypoint(self):
+        dc = self._deploy_config
+        dc['entryPoints'] = {}
 
     def _deploy_set_tune_common(self, target, tune):
         if len(tune) == 1 and len(tune[0]) and tune[0][0] == '{':
@@ -521,6 +537,10 @@ class DeployMixIn(DataSlots):
         elif var in env:
             del env[var]
 
+    def _deploy_reset_env(self):
+        dc = self._deploy_config
+        dc['env'] = {}
+
     def _deploy_set_webcfg(self, var, val):
         dc = self._deploy_config
         webcfg = dc.setdefault('webcfg', {})
@@ -541,6 +561,10 @@ class DeployMixIn(DataSlots):
         elif var in webcfg:
             del webcfg[var]
 
+    def _deploy_reset_webcfg(self):
+        dc = self._deploy_config
+        dc['webcfg'] = {}
+
     def _deploy_set_webmount(self, path, json):
         dc = self._deploy_config
         webcfg = dc.setdefault('webcfg', {})
@@ -548,8 +572,16 @@ class DeployMixIn(DataSlots):
         mounts = webcfg.setdefault('mounts', {})
         mounts[path] = self._configutil.parseJSON(json)
 
+    def _deploy_reset_webmount(self):
+        dc = self._deploy_config
+        webcfg = dc.setdefault('webcfg', {})
+
+        webcfg['mounts'] = {}
+
     def _deploy_set_tools(self, tools):
         dc = self._deploy_config
+
+        # set fresh
         dc_tools = {}
         dc['tools'] = dc_tools
 
@@ -558,11 +590,19 @@ class DeployMixIn(DataSlots):
             v = list(filter(None, v))
             dc_tools[v[0]] = v[1]
 
+    def _deploy_reset_tools(self):
+        dc = self._deploy_config
+        dc['tools'] = {}
+
     def _deploy_set_tooltune(self, tool, tune):
         dc = self._deploy_config
         toolTune = dc.setdefault('toolTune', {})
         toolTune[tool] = self._deploy_set_tune_common(
             toolTune.get(tool, {}), tune)
+
+    def _deploy_reset_tooltune(self):
+        dc = self._deploy_config
+        dc['toolTune'] = {}
 
     def _getDeployCurrent(self):
         return self._current_dir or 'current'

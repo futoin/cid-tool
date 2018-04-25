@@ -564,6 +564,11 @@ Please see details in the FTN16 spec: ::
 
     cid deploy set webmount <web_path> [<json>] [--deployDir=<deploy_dir>]
         Set complex web mount point configuration.
+    
+    cid deploy reset [<set_type>] [--deployDir=<deploy_dir>]
+        Reset related configuration to initial state.
+        Use any known "deploy set" type in place of <set_type>.
+        Useful for automation to ensure a clean state.
 
     cid migrate
         Runs data migration tasks.

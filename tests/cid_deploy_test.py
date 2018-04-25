@@ -225,6 +225,7 @@ class cid_deploy_Test( cid_UTBase ) :
     def test_08_set_persistent(self):
         cfg_file = os.path.join('setupdir', 'futoin.json')
         
+        #---
         self._call_cid(['deploy', 'set', 'persistent',
                         'path1', 'path/2',
                         '--deployDir', 'setupdir',
@@ -237,6 +238,7 @@ class cid_deploy_Test( cid_UTBase ) :
             ]),
             cfg['persistent'])
 
+        #---
         self._call_cid(['deploy', 'set', 'persistent',
                         'path/2', 'path/3/a',
                         '--deployDir', 'setupdir'
@@ -249,10 +251,19 @@ class cid_deploy_Test( cid_UTBase ) :
                 'path/3/a',
             ]),
             cfg['persistent'])
+
+        # Reset
+        #---
+        self._call_cid(['deploy', 'reset', 'persistent', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals([], cfg['persistent'])
+    
+        
             
     def test_09_set_writable(self):
         cfg_file = os.path.join('setupdir', 'futoin.json')
         
+        #---
         self._call_cid(['deploy', 'set', 'writable',
                         'wpath1', 'wpath/2',
                         '--deployDir', 'setupdir',
@@ -265,6 +276,7 @@ class cid_deploy_Test( cid_UTBase ) :
             ]),
             cfg['writable'])
 
+        #---
         self._call_cid(['deploy', 'set', 'writable',
                         'wpath/2', 'wpath/3/a',
                         '--deployDir', 'setupdir'
@@ -277,6 +289,12 @@ class cid_deploy_Test( cid_UTBase ) :
                 'wpath/3/a',
             ]),
             cfg['writable'])
+            
+        # Reset
+        #---
+        self._call_cid(['deploy', 'reset', 'writable', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals([], cfg['writable'])
             
     def test_09_set_env(self):
         cfg_file = os.path.join('setupdir', 'futoin.json')
@@ -292,6 +310,12 @@ class cid_deploy_Test( cid_UTBase ) :
         self._call_cid(['deploy', 'set', 'env', 'myVar','--deployDir', 'setupdir' ])
         cfg = self._readJSON(cfg_file)
         self.assertTrue('myVar' not in cfg['env'])
+        
+        # Reset
+        #---
+        self._call_cid(['deploy', 'reset', 'env', '--deployDir', 'setupdir' ])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals({}, dict(cfg['env']))
         
     def test_10_set_webcfg(self):
         cfg_file = os.path.join('setupdir', 'futoin.json')
@@ -322,6 +346,12 @@ class cid_deploy_Test( cid_UTBase ) :
         cfg = self._readJSON(cfg_file)
         self.assertTrue('/admin' not in cfg['webcfg']['mounts'])
         self.assertTrue('/admin2' not in cfg['webcfg']['mounts'])
+
+        # Reset
+        #---
+        self._call_cid(['deploy', 'reset', 'webcfg', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals({}, dict(cfg['webcfg']))
         
     def test_11_set_entrypoint(self):
         cfg_file = os.path.join('setupdir', 'futoin.json')
@@ -443,6 +473,12 @@ class cid_deploy_Test( cid_UTBase ) :
             },
             dict(cfg['entryPoints']))
                 
+        # Reset
+        #---
+        self._call_cid(['deploy', 'reset', 'entrypoint', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals({}, dict(cfg['entryPoints']))
+
     def test_12_set_webmount(self):
         cfg_file = os.path.join('setupdir', 'futoin.json')
         
@@ -454,6 +490,12 @@ class cid_deploy_Test( cid_UTBase ) :
         cfg = self._readJSON(cfg_file)
         self.assertEquals({'static': True, "gzip": False}, cfg['webcfg']['mounts']['/gzip'])
 
+        # Reset
+        #---
+        self._call_cid(['deploy', 'reset', 'webmount', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals({}, dict(cfg['webcfg']['mounts']))
+
     def test_13_set_tools(self):
         cfg_file = os.path.join('setupdir', 'futoin.json')
         
@@ -464,6 +506,12 @@ class cid_deploy_Test( cid_UTBase ) :
         self._call_cid(['deploy', 'set', 'tools', 'ruby=', '--deployDir', 'setupdir'])
         cfg = self._readJSON(cfg_file)
         self.assertEquals({'ruby': '*'}, cfg['tools'])
+
+        # Reset
+        #---
+        self._call_cid(['deploy', 'reset', 'tools', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals({}, dict(cfg['tools']))
                 
     def test_14_set_toolstune(self):
         cfg_file = os.path.join('setupdir', 'futoin.json')
@@ -509,6 +557,43 @@ class cid_deploy_Test( cid_UTBase ) :
                 },
             },
             dict(cfg['toolTune']))
+
+        # Reset
+        #---
+        self._call_cid(['deploy', 'reset', 'tooltune', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        self.assertEquals({}, dict(cfg['toolTune']))
+        
+    def test_14_reset(self):
+        cfg_file = os.path.join('setupdir', 'futoin.json')
+        
+        self._call_cid(['deploy', 'set', 'persistent',
+                        'path/2', 'path/3/a',
+                        '--deployDir', 'setupdir'
+                        ])
+        self._call_cid(['deploy', 'set', 'writable',
+                        'wpath1', 'wpath/2',
+                        '--deployDir', 'setupdir',
+                        ])
+        self._call_cid(['deploy', 'set', 'env', 'myVar', '3', '--deployDir', 'setupdir'])
+        self._call_cid(['deploy', 'set', 'webcfg', 'root', '/webroot', '--deployDir', 'setupdir'])
+        self._call_cid(['deploy', 'set', 'entrypoint', 'app', 'exe', 'file.exe', '--deployDir', 'setupdir'])
+        self._call_cid(['deploy', 'set', 'webmount', '/', '{"static":true}', '--deployDir', 'setupdir'])
+        self._call_cid(['deploy', 'set', 'tools', 'ruby=', '--deployDir', 'setupdir'])
+        self._call_cid(['deploy', 'set', 'tooltune', 'exe', '{}', '--deployDir', 'setupdir'])
+
+        # Reset
+        #---
+        self._call_cid(['deploy', 'reset', '--deployDir', 'setupdir'])
+        cfg = self._readJSON(cfg_file)
+        
+        self.assertEquals([], cfg['persistent'])
+        self.assertEquals([], cfg['writable'])
+        self.assertEquals({}, dict(cfg['env']))
+        self.assertEquals({}, dict(cfg['webcfg']))
+        self.assertEquals({}, dict(cfg['entryPoints']))
+        self.assertEquals({}, dict(cfg['tools']))
+        self.assertEquals({}, dict(cfg['toolTune']))
                 
     def test_20_memdetect_system(self):
         if self.IS_MACOS:
