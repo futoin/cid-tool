@@ -740,12 +740,44 @@ class cid_deploy_Test( cid_UTBase ) :
         self.assertEqual(1, len(autoServices['nonScalable']))
         
         base = (63-3-4)*1024
-        base -= 100
+        base -= 100 + 32
         mb = 1024*1024
         
         self.assertAlmostEqual(int(base * 50 / 350 + 100) * mb, service_mem['scalableMono'], delta=mb)
-        self.assertAlmostEqual(int(base * 300 / 350 + 3*1024) * mb, service_mem['scalableMulti'], delta=mb)
+        self.assertAlmostEqual(int(base * 300 / 350 + 3*1024 + 32) * mb, service_mem['scalableMulti'], delta=mb)
         self.assertEqual(4 * 1024 * mb, service_mem['nonScalable'])
+        
+    def test_31_distribute_fail(self):
+        ra = ResourceAlgo()
+        
+        config = {
+            'deployDir' : 'deploydst',
+            'entryPoints': {
+                'scalableMono' : {
+                    'tool': 'invalid',
+                    'tune': {
+                        'minMemory' : '32M',
+                        'connMemory' : '128M',
+                        'memWeight' : 50,
+                        'multiCore' : False,
+                        'socketTypes' : ['unix'],
+                        'maxRequestSize' : '1M',
+                        'socketProtocol': 'http',
+                    },
+                },
+            },
+            'deploy' : {
+                'maxTotalMemory' : '128M',
+                'maxCpuCount' : 1,
+            },
+        }
+        
+        try:
+            ra.configServices(config)
+        except:
+            return
+        
+        self.assertTrue( False )
 
 class cid_devserve_Test( cid_UTBase ) :
     __test__ = True

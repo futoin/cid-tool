@@ -164,13 +164,14 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn):
                 ei['maxTotalMemory'] = ei['maxMemory']
 
             ei['instances'] = 1
-            ei['memAlloc'] = max(ei['minMemory'], cid_min_memory)
+            ei['memAlloc'] = max(
+                ei['minMemory'] + ei['connMemory'], cid_min_memory)
 
             disabled = tool in external_services
             ei['disabled'] = disabled
 
             if not disabled:
-                availMem -= ei['minMemory']
+                availMem -= ei['memAlloc']
                 candidates.add(en)
 
             services[en] = ei

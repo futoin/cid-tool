@@ -1,5 +1,6 @@
 
 === (next) ===
+FIXED: false resource allocation when minMemory+connMemory > maxMemory
 NEW: "deploy reset" command
 
 === 0.8.11 (2018-03-23) ===

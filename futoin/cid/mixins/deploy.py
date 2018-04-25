@@ -570,7 +570,11 @@ class DeployMixIn(DataSlots):
         webcfg = dc.setdefault('webcfg', {})
 
         mounts = webcfg.setdefault('mounts', {})
-        mounts[path] = self._configutil.parseJSON(json)
+
+        if json is None:
+            del mounts[path]
+        else:
+            mounts[path] = self._configutil.parseJSON(json)
 
     def _deploy_reset_webmount(self):
         dc = self._deploy_config
