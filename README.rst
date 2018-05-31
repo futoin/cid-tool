@@ -470,21 +470,6 @@ Please see details in the FTN16 spec: ::
         
         If <project_name> is omitted and not known from
         auto-detection then basename of containing folder is used.
-        
-    cid tag <branch> [<next_version>] [--vcsRepo=<vcs_repo>] [--wcDir=<wc_dir>]
-        Get the latest <branch>.
-        Update source for release & commit.
-        Create tag.
-        
-        Version must be in SEMVER x.y.z. format: http://semver.org/
-        
-        If <next_version> is omitted, the PATCH version part is incremented.
-        
-        If <next_version> is one of 'patch', 'minor' or 'major then
-        the specified version part is incremented and all smaller parts are
-        set to zero.
-        
-        Current version is determined by tools (e.g. from package.json)
     
     cid prepare [<vcs_ref>] [--vcsRepo=<vcs_repo>] [--wcDir=<wc_dir>]
         Retrieved the specific <vcs_ref>, if provided.
@@ -510,10 +495,25 @@ Please see details in the FTN16 spec: ::
     cid promote <rms_pool> <packages>... [--rmsRepo=<rms_repo>]
         Promote package to Release Management System (RMS) or manage
         package across RMS pools.
-
+        
+    cid tag <branch> [<next_version>] [--vcsRepo=<vcs_repo>] [--wcDir=<wc_dir>]
+        Get the latest <branch>.
+        Update source for release & commit.
+        Create tag.
+        
+        Version must be in SEMVER x.y.z. format: http://semver.org/
+        
+        If <next_version> is omitted, the PATCH version part is incremented.
+        
+        If <next_version> is one of 'patch', 'minor' or 'major then
+        the specified version part is incremented and all smaller parts are
+        set to zero.
+        
+        Current version is determined by tools (e.g. from package.json)
+        
         
     cid deploy ...
-        Common arguments for deploy family of commands:
+        Common arguments for "deploy" family of commands:
         [--deployDir=<deploy_dir>] - target folder, CWD by default.
         [--runtimeDir=<runtime_dir>] - target runtime data folder,
           <deploy_dir>/.runtime by default.
@@ -523,7 +523,7 @@ Please see details in the FTN16 spec: ::
         [--limit-cpus=<cpu_count>] - max number of CPU cores to use.
         [--listen-addr=<address>] - address to use for IP services
         [--user=<user>] - user name to run services.
-        [--group=<group>] - user name to run services.
+        [--group=<group>] - group name to run services.
         
     cid deploy setup
         Prepare directory for deployment. Allows adjusting futoin.json
@@ -539,37 +539,43 @@ Please see details in the FTN16 spec: ::
        
     cid deploy rms <rms_pool> [<package>] [--rmsRepo=<rms_repo>] [--build]
         Deploy from RMS.
+    
+    
+    cid deploy set ...
+        Common arguments for "deploy set" family of commands:
+        [--deployDir=<deploy_dir>] - target folder, CWD by default.
         
-    cid deploy set tools <tools>... [--deployDir=<deploy_dir>]
+    cid deploy set tools <tools>...
         Overrides .tools in deployment config.
         
-    cid deploy set tooltune <tool> {<set_name=value>...|<del_name>|<inline_json>} [--deployDir=<deploy_dir>]
-        Pverrode .toolTune in deployment config.
+    cid deploy set tooltune <tool> {<set_name=value>...|<del_name>|<inline_json>}
+        Override .toolTune in deployment config.
        
-    cid deploy set action <name> <actions>... [--deployDir=<deploy_dir>]
+    cid deploy set action <name> <actions>...
         Override .action in deployment config.
        
-    cid deploy set persistent <paths>... [--deployDir=<deploy_dir>]
+    cid deploy set persistent <paths>...
         Add .persistent paths in deployment config.
        
-    cid deploy set entrypoint <name> <tool> <path> {<set_name=value>...|<del_name>|<inline_json>} [--deployDir=<deploy_dir>]
+    cid deploy set entrypoint <name> <tool> <path> {<set_name=value>...|<del_name>|<inline_json>}
         Set entry point configuration in deployment.
        
-    cid deploy set env <variable> [<value>] [--deployDir=<deploy_dir>]
+    cid deploy set env <variable> [<value>]
         Set or remote environment config .env entries.
        
-    cid deploy set webcfg <variable> [<value>] [--deployDir=<deploy_dir>]
-    cid deploy set webcfg mounts <route>[=<app>] [--deployDir=<deploy_dir>]
+    cid deploy set webcfg <variable> [<value>]
+    cid deploy set webcfg mounts <route>[=<app>]
         Set or remove .webcfg entries.
 
-    cid deploy set webmount <web_path> [<json>] [--deployDir=<deploy_dir>]
+    cid deploy set webmount <web_path> [<json>]
         Set complex web mount point configuration.
     
-    cid deploy reset [<set_type>] [--deployDir=<deploy_dir>]
+    cid deploy reset [<set_type>]
         Reset related configuration to initial state.
         Use any known "deploy set" type in place of <set_type>.
         Useful for automation to ensure a clean state.
 
+        
     cid migrate
         Runs data migration tasks.
 
@@ -695,10 +701,10 @@ Please see details in the FTN16 spec: ::
 
 
     cid service ...
-        Service execution helpers.
+        Service execution helpers. Common arguments:
+        [--deployDir=<deploy_dir>] - target folder, CWD by default.
 
-    cid service master [--deployDir=<deploy_dir>]
-        [--adapt [*generic deploy options*]]
+    cid service master [--adapt [*generic deploy options*]]
         Re-balance services, if --adapt.
         Run all entry points as children.
         Restarts services on exit.
@@ -706,22 +712,22 @@ Please see details in the FTN16 spec: ::
         Supports SIGTERM for clean shutdown.
         Supports SIGHUP for reload of service list & the services themselves.
     
-    cid service list [--deployDir=<deploy_dir>]
-        [--adapt [*generic deploy options*]]
+    cid service list [--adapt [*generic deploy options*]]
         Re-balance services, if --adapt.
         List services in the following format:
         <entry point> <TAB> <instance ID> <TAB> <socket type> <TAB> <socket address>
 
-    cid service exec <entry_point> <instance_id> [--deployDir=<deploy_dir>]
+    cid service exec <entry_point> <instance_id>
         Helper for system init to execute pre-configured service.
         
-    cid service stop <entry_point> <instance_id> <pid> [--deployDir=<deploy_dir>]
+    cid service stop <entry_point> <instance_id> <pid>
         Helper for system init to gracefully stop pre-configured service.
         
-    cid service reload <entry_point> <instance_id> <pid> [--deployDir=<deploy_dir>]
+    cid service reload <entry_point> <instance_id> <pid>
         Helper for system init to gracefully reload pre-configured service.
         Note: if reload is not supported then reload acts as "stop" to force restart.
-        
+    
+    
     cid sudoers [<sudo_entity>] [--skip-key-management]
         Output ready sudoers entries specific to current OS.
         Current user is used by default, unless overridden.
