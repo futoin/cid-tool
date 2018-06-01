@@ -11,7 +11,7 @@ many operations of different technologies like npm, composer, bundler, nvm,
 rvm, php-build and others under a single tool for runtime setup, project
 development, build, deployment and running.
 
-**Please read official [documentation](https://futoin.org/docs/cid/).**
+**Please use official documentation at https://futoin.org/docs/cid/**
 
 Features
 ~~~~~~~~
