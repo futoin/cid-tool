@@ -24,9 +24,9 @@ Home: https://www.jfrog.com/artifactory/
 
 Note 1: JFrog CLI is used for operation. So, you have all flexibility
 to setup different authentication schemes:
-> cid tool exec jfrog -- rt config --enc-password=false
-ro
-> cid tool exec jfrog -- rt config --apiKey=
+> cte jfrog rt config --enc-password=false
+or
+> cte jfrog rt config --apiKey=
 The first found matching URL will be used.
 
 Alternatively, you can set env in ~/.futoin.json. Please avoid

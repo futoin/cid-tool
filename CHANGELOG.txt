@@ -1,4 +1,7 @@
 
+=== (next) ===
+NEW: "cte" alias as standalone CLI command for "cid tool exec"
+
 === 0.8.13 (2018-06-01) ===
 Preparing for release v1.0.0
 

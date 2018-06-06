@@ -27,7 +27,7 @@ All versions are installed through GVM.
 
 Only binary releases of Golang are supported for installation
 through CID, but you can install source releases through
-"cid tool exec gvm -- install sourcetag".
+"cte gvm install sourcetag".
 """
     __slots__ = ()
 

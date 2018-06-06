@@ -57,6 +57,7 @@ config = {
     'entry_points': {
         'console_scripts': [
             'cid=futoin.cid.cli:run',
+            'cte=futoin.cid.cte:run',
             'futoin-cid=futoin.cid.cli:run',
         ],
     },
