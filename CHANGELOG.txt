@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.8.15 (2018-08-18) ===
 NEW: ctestTool to automatically run CMake tests
 
 === 0.8.14 (2018-06-06) ===
