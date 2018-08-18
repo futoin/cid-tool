@@ -1,4 +1,7 @@
 
+=== (next) ===
+NEW: ctestTool to automatically run CMake tests
+
 === 0.8.14 (2018-06-06) ===
 NEW: "cte" alias as standalone CLI command for "cid tool exec"
 
