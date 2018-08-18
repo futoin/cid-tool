@@ -28,7 +28,7 @@ CTest runs tests in CMake build folder, if any.
 
     def autoDetectFiles(self):
         return 'CMakeLists.txt'
-    
+
     def getDeps(self):
         return ['cmake']
 
