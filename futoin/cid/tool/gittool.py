@@ -99,7 +99,7 @@ if not set by user.
         vcsRepo = config['vcsRepo']
         vcs_ref = vcs_ref or 'master'
 
-        if self._ospath.isdir('.git'):
+        if self._ospath.exists('.git'):
             remote_url = self.vcsGetRepo(config, '.git')
 
             if not self._gitCompareRepo(vcsRepo, remote_url):
