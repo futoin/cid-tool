@@ -24,6 +24,9 @@ Home: https://cmake.org/
 
 CMake creates a build folder and does all processing in it.
 Build folder is configurable through cmakeBuildDir env.
+
+On release tagging, CMakeLists.txt the following replacements are done:
+1. 'VERSION ".*" # AUTO-REPLACE' -> new version
 """
     __slots__ = ()
 
@@ -73,3 +76,18 @@ Build folder is configurable through cmakeBuildDir env.
 
         cmd = [config['env']['cmakeBin'], '--build', build_dir]
         self._executil.callMeaningful(cmd)
+
+    def updateProjectConfig(self, config, updates):
+        re = self._ext.re
+
+        def cmake_updater(content):
+            if 'version' in updates:
+                return re.sub(
+                    r'VERSION.*".*".*# AUTO-REPLACE',
+                    'VERSION "{0}" # AUTO-REPLACE'.format(updates['version']),
+                    content,
+                    flags=re.MULTILINE
+                )
+
+        return self._pathutil.updateTextFile(
+            self.autoDetectFiles(), cmake_updater)
