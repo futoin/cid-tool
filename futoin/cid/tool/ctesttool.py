@@ -35,6 +35,10 @@ CTest runs tests in CMake build folder, if any.
     def envNames(self):
         return ['ctestBin']
 
+    def initEnv(self, env):
+        self._environ.setdefault('CTEST_OUTPUT_ON_FAILURE', '1')
+        super(ctestTool, self).initEnv(env)
+
     def onCheck(self, config):
         ospath = self._ospath
         os = self._os
