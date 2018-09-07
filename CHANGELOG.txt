@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.8.16 (2018-09-07) ===
 FIXED: gitTool to support submodule use case
 NEW: CTEST_OUTPUT_ON_FAILURE=1 is set for ctestTool by default
 NEW: cmakeTest supports project version update in CMakeLists.txt
