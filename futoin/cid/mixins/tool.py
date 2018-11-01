@@ -175,6 +175,19 @@ class ToolMixIn(DataSlots):
                 tool_impl[tool] = tool_mod_name
 
         #---
+        config_tools = config.get('tools', None)
+
+        if config_tools:
+            if not isinstance(config_tools, dict):
+                self._errorExit(
+                    'futoin.json:tools must be a map of tool=>version pairs')
+
+            for (tool, v) in config_tools.items():
+                self._checkKnownTool(tool)
+
+                if v != '*' and v != True:
+                    env[tool + 'Ver'] = v
+
         curr_tool = config.get('tool', None)
 
         if curr_tool:
@@ -188,16 +201,7 @@ class ToolMixIn(DataSlots):
             tools = []
 
             if config_tools:
-                if not isinstance(config_tools, dict):
-                    self._errorExit(
-                        'futoin.json:tools must be a map of tool=>version pairs')
-
-                for (tool, v) in config_tools.items():
-                    self._checkKnownTool(tool)
-                    tools.append(tool)
-
-                    if v != '*' and v != True:
-                        env[tool + 'Ver'] = v
+                tools.extend(config_tools.keys())
             elif self._project_config is not None and config.get('toolDetect', True):
                 for n in self._getKnownTools():
                     t = self._getTool(n)
