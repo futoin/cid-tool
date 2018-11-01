@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.8.17 (2018-11-01) ===
 FIXED: ignore of project .tools versions when tool is invoked directly
 
 === 0.8.16 (2018-09-07) ===
