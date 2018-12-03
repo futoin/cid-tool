@@ -56,8 +56,15 @@ On release tagging, CMakeLists.txt the following replacements are done:
         super(cmakeTool, self).initEnv(env)
 
     def onPrepare(self, config):
+        ospath = self._ospath
+        os = self._os
         build_dir = config['env']['cmakeBuildDir']
         self._pathutil.rmTree(build_dir)
+
+        os.mkdir(build_dir)
+        cmd = [config['env']['cmakeBin'], '-H' +
+               config['wcDir'], '-B' + build_dir]
+        self._executil.callMeaningful(cmd)
 
     def onBuild(self, config):
         ospath = self._ospath
@@ -68,11 +75,7 @@ On release tagging, CMakeLists.txt the following replacements are done:
             cmd = [config['env']['cmakeBin'], build_dir]
             self._executil.callMeaningful(cmd)
         else:
-            os.mkdir(build_dir)
-            os.chdir(build_dir)
-            cmd = [config['env']['cmakeBin'], config['wcDir']]
-            self._executil.callMeaningful(cmd)
-            os.chdir(config['wcDir'])
+            self.onPrepare(self, config)
 
         cmd = [config['env']['cmakeBin'], '--build', build_dir]
         self._executil.callMeaningful(cmd)

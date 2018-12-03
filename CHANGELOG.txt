@@ -1,4 +1,7 @@
 
+=== (next) ===
+CHANGED: cmake to be triggered also in prepare step
+
 === 0.8.17 (2018-11-01) ===
 FIXED: ignore of project .tools versions when tool is invoked directly
 
