@@ -188,6 +188,7 @@ def extPackages(env, known=None):  # NOTE: do not cache
         pkg2key = {
             'mysqlnd': 'mysql',
         }
+        pkg_prefix2 = 'php-'
 
     elif detect.isSCLSupported():
         if isIUSVer(ver):
@@ -230,7 +231,7 @@ def extPackages(env, known=None):  # NOTE: do not cache
             if pkg_prefix2:
                 k = p.replace(pkg_prefix2, '')
 
-            k = p.replace(pkg_prefix, '')
+            k = k.replace(pkg_prefix, '')
 
             if not k:
                 continue

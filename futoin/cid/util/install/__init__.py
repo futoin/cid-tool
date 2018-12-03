@@ -57,7 +57,7 @@ def search(pattern):
 
     if apt_cache:
         found = _ext.executil.callExternal(
-            [apt_cache, 'search', pattern],
+            [apt_cache, '--names-only', 'search', pattern],
             suppress_fail=True)
         found = found.strip().split('\n')
 
