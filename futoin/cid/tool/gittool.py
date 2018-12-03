@@ -25,6 +25,12 @@ Home: https://git-scm.com/
 
 Git tool forcibly sets user.email and user.name, 
 if not set by user.
+
+Environment variables affecting behavior:
+* gitSignTags=1 - non-empty value triggers tag signing instead of
+                  simple annotation.
+* gitIdentity=.. - non-empty value forced specific identify to be
+                  used for tag signing.
 """
     __slots__ = ()
 
@@ -151,8 +157,21 @@ if not set by user.
             [gitBin, 'commit', '-q', '-m', message] + files)
 
     def vcsTag(self, config, tag, message):
-        gitBin = config['env']['gitBin']
-        self._executil.callExternal([gitBin, 'tag', '-a', '-m', message, tag])
+        env = config['env']
+
+        gitSignTags = env.get('gitSignTags', '')
+        gitIdentity = env.get('gitIdentity', '')
+
+        if gitIdentity:
+            sign_arg = '--local-user={0}'.format(gitIdentity)
+        elif gitSignTags:
+            sign_arg = '-s'
+        else:
+            sign_arg = '-a'
+
+        gitBin = env['gitBin']
+        self._executil.callExternal(
+            [gitBin, 'tag', sign_arg, '-m', message, tag])
 
     def vcsPush(self, config, refs, repo=None, check_empty=True):
         refs = refs or []
