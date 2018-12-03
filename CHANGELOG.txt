@@ -1,6 +1,7 @@
 
 === (next) ===
 CHANGED: cmake to be triggered also in prepare step
+CHANGED: updated to support PHP 7.2
 NEW: gitSignTags and gitIdentity environment support
 
 === 0.8.17 (2018-11-01) ===

@@ -26,8 +26,9 @@ Home: http://php.net/
 
 
 By default the latest available PHP binary is used for the following OSes:
-* Debian & Ubuntu - uses Sury (https://deb.sury.org/) builds 5.6, 7.0 & 7.1.
-* CentOS, RHEL & Oracle Linux - uses SCL 5.6 & 7.0
+* Debian & Ubuntu - uses Sury (https://deb.sury.org/) builds 5.6 & 7.x.
+* CentOS, RHEL & Oracle Linux - uses SCL 5.6 & 7.x.
+* macos uses Homebrew builds 5.6 & 7.x.
 
 You can forbid source builds by setting phpBinOnly to non-empty string.
 
