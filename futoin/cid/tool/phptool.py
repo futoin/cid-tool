@@ -35,9 +35,13 @@ You can forbid source builds by setting phpBinOnly to non-empty string.
 However, if phpVer is set then we use php-build which make consume a lot of time and
 resources due to lack of trusted binary builds.
 
-You can control installed extensions by setting:
+You can control installed extensions by setting space separated environment:
 * phpExtRequire - required extensions to be installed or fail
 * phpExtTry - nice to have extensions
+
+The same can be done by setting project-specific .toolTune options as array:
+* extRequire = []
+* extTry = []
 """
     __slots__ = ()
 
@@ -281,6 +285,16 @@ You can control installed extensions by setting:
 
             phputil.installExtensions(env, php_required_ext, False)
             phputil.installExtensions(env, php_try_ext, True)
+
+    def loadConfig(self, config):
+        env = config['env']
+        phputil = self._phputil
+
+        php_required_ext = self._getTune(config, 'extRequire', [])
+        php_try_ext = self._getTune(config, 'extTry', [])
+
+        phputil.installExtensions(env, php_required_ext, False)
+        phputil.installExtensions(env, php_try_ext, True)
 
     def _buildDeps(self, env):
         ospath = self._ospath

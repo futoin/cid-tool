@@ -164,6 +164,9 @@ def installedExtensions(env):
         if r == 'Zend OPcache':
             r = 'opcache'
 
+        if r == 'mysqlnd':
+            r = 'mysql'
+
         if r in known:
             known[r] = True
 
