@@ -1,4 +1,7 @@
 
+=== (next) ===
+FIXED: build-dep command without parameters
+
 === 0.8.19 (2018-12-04) ===
 FIXED: PHP extension installation issues on Debian/Ubuntu
 NEW: PHP extension setup through .toolTune

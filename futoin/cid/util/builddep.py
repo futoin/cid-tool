@@ -65,7 +65,7 @@ def require(env, dep):
 def available():
     ret = []
 
-    for m in globals().__dict__:
+    for m in globals():
         if m.startswith(_BUIID_DEP_PREFIX):
             m = m.replace(_BUIID_DEP_PREFIX, '')
             ret.append(m)
