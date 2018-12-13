@@ -75,7 +75,7 @@ On release tagging, CMakeLists.txt the following replacements are done:
             cmd = [config['env']['cmakeBin'], build_dir]
             self._executil.callMeaningful(cmd)
         else:
-            self.onPrepare(self, config)
+            self.onPrepare(config)
 
         cmd = [config['env']['cmakeBin'], '--build', build_dir]
         self._executil.callMeaningful(cmd)

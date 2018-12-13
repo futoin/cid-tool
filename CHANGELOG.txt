@@ -1,6 +1,7 @@
 
 === (next) ===
 FIXED: build-dep command without parameters
+FIXED: cmake build without prepare (regression in v0.8.18)
 
 === 0.8.19 (2018-12-04) ===
 FIXED: PHP extension installation issues on Debian/Ubuntu
