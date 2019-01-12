@@ -86,3 +86,21 @@ def aptRepo(name, entry, gpg_key=None, codename_map=None, repo_base=None):
         ['apt-get', 'update'],
         errmsg='you may need to update APT cache manually!'
     )
+
+def dpkg(env, name, url):
+    if not _ext.detect.isDeb():
+        return
+
+    pathutil = _ext.pathutil
+    apt_cache = pathutil.which('apt-cache')
+
+    if apt_cache and _ext.executil.callExternal([apt_cache, 'show', name], suppress_fail=True):
+        _ext.install.deb(name)
+    else:
+        dpkg = pathutil.which('dpkg')
+
+        if _ext.executil.callExternal([dpkg, '-s', name], suppress_fail=True):
+            return
+
+        cache_file = pathutil.cacheDownloadFile(env, url)
+        _ext.executil.trySudoCall([dpkg, '-i', cache_file])

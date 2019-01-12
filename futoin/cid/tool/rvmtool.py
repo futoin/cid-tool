@@ -29,7 +29,10 @@ Stable RVM is used by default.
     __slots__ = ()
 
     RVM_LATEST = 'stable'
-    RVM_GPG_KEY = '409B6B1796C275462A1703113804BB82D39DC0E3'
+    RVM_GPG_KEYS = [
+        '409B6B1796C275462A1703113804BB82D39DC0E3',
+        '7D2BAF1CF37B13E2069D6956105BD0E739499BDB',
+    ]
     RVM_GET = 'https://get.rvm.io'
 
     def getDeps(self):
@@ -38,15 +41,24 @@ Stable RVM is used by default.
             BashToolMixIn.getDeps(self) +
             CurlToolMixIn.getDeps(self))
 
-    def _installTool(self, env):
-        rvm_dir = env['rvmDir']
-        rvm_get = env.get('rvmGet', self.RVM_GET)
-        rvm_gpg_key = env.get('rvmGpgKey', self.RVM_GPG_KEY)
+    def ensureGpgKeys(self, env):
+        rvm_gpg_keys = env.get('rvmGpgKeys', '')
+
+        if rvm_gpg_keys != '':
+            rvm_gpg_keys = rvm_gpg_keys.split(' ')
+        else:
+            rvm_gpg_keys = self.RVM_GPG_KEYS
 
         self._executil.callExternal([
             env['gpgBin'], '--keyserver', env['gpgKeyServer'],
-            '--recv-keys', rvm_gpg_key
-        ], suppress_fail=True)
+            '--recv-keys'] + rvm_gpg_keys,
+            suppress_fail=True)
+
+    def _installTool(self, env):
+        self.ensureGpgKeys(env)
+
+        rvm_dir = env['rvmDir']
+        rvm_get = env.get('rvmGet', self.RVM_GET)
 
         environ = self._environ
         environ['rvm_user_install_flag'] = '1'

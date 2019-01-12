@@ -325,6 +325,16 @@ def downloadFile(env, url, dst):
 
     _ext.os.rename(dst_tmp, dst)
 
+def cacheDownloadFile(env, url):
+    ospath = _ext.ospath
+    url_hash = _ext.hashlib.sha256(url).hexdigest()
+    cache_dir = _ext.pathutil.cacheDir('dl_{0}'.format(url_hash))
+    cache_file = ospath.join(cache_dir, url.split('/')[-1])
+
+    if not ospath.exists(cache_file):
+        downloadFile(env, url, cache_file)
+
+    return cache_file
 
 def downloadStream(env, url, cmd):
     kwargs = {}

@@ -16,6 +16,7 @@
 
 from ..runtimetool import RuntimeTool
 from .bashtoolmixin import BashToolMixIn
+from .rvmtool import rvmTool
 
 
 class rubyTool(BashToolMixIn, RuntimeTool):
@@ -43,6 +44,8 @@ Note: RUBY_ENV and RAILS_ENV are set based on rubyEnv or .env.type
         return ['rvm']
 
     def _installTool(self, env):
+        rvmTool('rvm').ensureGpgKeys(env)
+
         if env['rubyFoundBinary']:
             self._installBinaries(env)
             return
@@ -80,23 +83,34 @@ Note: RUBY_ENV and RAILS_ENV are set based on rubyEnv or .env.type
                 self._GPG_BIRGHTBOX_REPO,
                 codename_map={
                     # Ubuntu
-                    #'zesty': 'yakkety',
                     # Debian
                     'jessie': 'trusty',
-                    'stretch': 'zesty',
-                    'testing': 'zesty',
-                    'sid': 'zesty',
+                    'stretch': 'xenial',
+                    'testing': 'xenial',
+                    'sid': 'xenial',
                 },
                 repo_base='{0}/dists'.format(repo)
             )
 
             if ver == '1.9':
                 pkgver = '1.9.[0-9]'
+
+
+            if detect.isDebian():
+                UBUNTU_MIRROR = 'https://debian.charite.de/ubuntu'
+                UBUNTU_MIRROR += '/pool/main/r/readline6/libreadline6_6.3-8ubuntu2_amd64.deb'
+                install.dpkg(env, 'libreadline6', UBUNTU_MIRROR)
+
             install.deb([
                 'ruby{0}'.format(pkgver),
                 'ruby{0}-dev'.format(pkgver),
             ])
-            ruby_bin = self._ext.glob.glob('/usr/bin/ruby{0}*'.format(ver))[0]
+            ruby_bins = self._ext.glob.glob('/usr/bin/ruby{0}*'.format(ver))
+
+            if len(ruby_bins) == 0:
+                self._errorExit('No Ruby found for version {0}'.format(ver))
+
+            ruby_bin = ruby_bins[0]
 
         elif detect.isSCLSupported():
             sclname = self._rubySCLName(ver)
@@ -217,11 +231,11 @@ Note: RUBY_ENV and RAILS_ENV are set based on rubyEnv or .env.type
         #---
         if detect.isDebian() or detect.isUbuntu():
             bb_repo = 'http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu'
-            ruby_binaries = ['1.9', '2.0', '2.1', '2.2', '2.3', '2.4']
+            ruby_binaries = ['1.9', '2.0', '2.1', '2.2', '2.3', '2.4', '2.5', '2.6']
 
             code_name = self._detect.osCodeName()
 
-            if code_name in ['zesty', 'stretch', 'buster', 'sid', 'testing']:
+            if code_name in []:
                 # 1.9 build is broken on LaunchPad
                 bb_repo = 'http://ppa.launchpad.net/brightbox/ruby-ng-experimental/ubuntu'
 
@@ -229,11 +243,11 @@ Note: RUBY_ENV and RAILS_ENV are set based on rubyEnv or .env.type
 
         elif detect.isSCLSupported():
             if detect.isCentOS():
-                ruby_binaries = ['1.9', '2.0', '2.2', '2.3', '2.4']
+                ruby_binaries = ['1.9', '2.0', '2.2', '2.3', '2.4', '2.5']
             else:
-                ruby_binaries = ['1.9', '2.0', '2.2', '2.3']
+                ruby_binaries = ['1.9', '2.0', '2.2', '2.3', '2.4', '2.5']
         elif detect.isMacOS():
-            ruby_binaries = ['1.8', '1.9', '2.0', '2.2', '2.3', '2.4']
+            ruby_binaries = ['1.8', '1.9', '2.0', '2.2', '2.3', '2.4', '2.5', '2.6']
         else:
             ruby_binaries = None
 

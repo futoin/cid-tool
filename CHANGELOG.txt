@@ -1,3 +1,6 @@
+=== (next) ===
+FIXED: ruby stack installation issues after RVM/Ruby updates
+NEW: ruby 2.5 & 2.6 support
 
 === 0.8.20 (2018-12-13) ===
 FIXED: build-dep command without parameters
