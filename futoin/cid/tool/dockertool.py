@@ -72,9 +72,7 @@ Docker EE or other installation methods are out of scope for now.
                 'deb [arch=amd64] {0}/linux/ubuntu $codename$ stable'.format(
                     repo),
                 gpg,
-                codename_map={
-                    'zesty': 'yakkety',
-                },
+                codename_map={},
                 repo_base=repo,
             )
 

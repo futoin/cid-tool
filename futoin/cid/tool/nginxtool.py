@@ -101,9 +101,7 @@ Additional notes:
                 'nginx',
                 'deb {0}/ubuntu/ $codename$ nginx'.format(base_url),
                 self._GPG_KEY,
-                codename_map={
-                    'zesty': 'yakkety',
-                })
+                codename_map={})
 
         elif detect.isCentOS():
             dist_ver = self._detect.linuxDistMajorVer()
