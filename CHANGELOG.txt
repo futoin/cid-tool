@@ -1,4 +1,4 @@
-=== (next) ===
+=== 0.8.21 (2019-01-12) ===
 FIXED: ruby stack installation issues after RVM/Ruby updates
 NEW: ruby 2.5 & 2.6 support
 
