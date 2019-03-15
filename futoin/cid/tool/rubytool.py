@@ -71,7 +71,7 @@ Note: RUBY_ENV and RAILS_ENV are set based on rubyEnv or .env.type
         if detect.isDebian() or detect.isUbuntu():
             code_name = self._detect.osCodeName()
 
-            if code_name in ['stretch', 'buster', 'sid', 'testing']:
+            if code_name in ['stretch']:
                 install.aptRepo('jessie-ssl10bp',
                                 'deb http://deb.debian.org/debian jessie-backports main')
 
@@ -86,8 +86,9 @@ Note: RUBY_ENV and RAILS_ENV are set based on rubyEnv or .env.type
                     # Debian
                     'jessie': 'trusty',
                     'stretch': 'xenial',
-                    'testing': 'xenial',
-                    'sid': 'xenial',
+                    'buster': 'bionic',
+                    'testing': 'bionic',
+                    'sid': 'bionic',
                 },
                 repo_base='{0}/dists'.format(repo)
             )
@@ -95,11 +96,13 @@ Note: RUBY_ENV and RAILS_ENV are set based on rubyEnv or .env.type
             if ver == '1.9':
                 pkgver = '1.9.[0-9]'
 
-
             if detect.isDebian():
                 UBUNTU_MIRROR = 'https://debian.charite.de/ubuntu'
-                UBUNTU_MIRROR += '/pool/main/r/readline6/libreadline6_6.3-8ubuntu2_amd64.deb'
-                install.dpkg(env, 'libreadline6', UBUNTU_MIRROR)
+                pkg = UBUNTU_MIRROR + '/pool/main/r/readline6/libreadline6_6.3-8ubuntu2_amd64.deb'
+                install.dpkg(env, 'libreadline6', pkg)
+
+                pkg = UBUNTU_MIRROR + '/pool/main/g/gdbm/libgdbm5_1.14.1-6_amd64.deb'
+                install.dpkg(env, 'libgdbm5', pkg)
 
             install.deb([
                 'ruby{0}'.format(pkgver),
