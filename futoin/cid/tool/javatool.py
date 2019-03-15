@@ -105,13 +105,13 @@ javaVer supports:
             '/usr/lib/jvm/zulu-{0}*/jre/bin/java'.format(ver),
             '/usr/lib/jvm/zulu-{0}*/bin/java'.format(ver),
             # Debian / Ubuntu
-            #"/usr/lib/jvm/java-{0}-openjdk*/jre/bin/java".format(ver),
+            # "/usr/lib/jvm/java-{0}-openjdk*/jre/bin/java".format(ver),
             # RedHat
-            #"/usr/lib/jvm/jre-1.{0}.0/bin/java".format(ver),
+            # "/usr/lib/jvm/jre-1.{0}.0/bin/java".format(ver),
             # OpenSuse
-            #"/usr/lib*/jvm/jre-1.{0}.0/bin/java".format(ver),
+            # "/usr/lib*/jvm/jre-1.{0}.0/bin/java".format(ver),
             # Default oracle
-            #"/opt/jdk/jdk1.{0}*/bin/java".format(ver),
+            # "/opt/jdk/jdk1.{0}*/bin/java".format(ver),
         ]
 
         if detect.isGentoo() or detect.isArchLinux():

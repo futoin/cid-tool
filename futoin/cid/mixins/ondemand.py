@@ -24,7 +24,7 @@ __all__ = [
     'OnDemandMixIn',
 ]
 
-#---
+# ---
 
 
 def tailor_ondemand(demandMap):
@@ -48,7 +48,7 @@ def tailor_ondemand(demandMap):
     return TailoredDemander
 
 
-#---
+# ---
 _ext_demand_map = {
     'shlex': 'shlex',
     'subprocess': 'subprocess',
@@ -98,7 +98,7 @@ else:
 
 ext = tailor_ondemand(_ext_demand_map)()
 
-#---
+# ---
 _cid_demand_map = {
     '_os': 'os',
     '_ospath': 'os.path',

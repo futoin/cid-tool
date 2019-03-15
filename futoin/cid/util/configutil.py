@@ -14,9 +14,10 @@
 # limitations under the License.
 #
 
+from collections import OrderedDict
 from ..mixins.ondemand import ext as _ext
 
-#==================
+# ==================
 
 
 def timeouts(env, fmt):
@@ -42,7 +43,7 @@ def requestsOptions(env, kwargs):
     headers['User-Agent'] = 'FutoIn CID'
 
 
-#==================
+# ==================
 _memory_mult_table = {
     'B': 1,
     'K': (1 << 10),
@@ -73,7 +74,7 @@ def toMemory(val):
             old_v = v
 
     return res
-#==================
+# ==================
 
 
 def listify(val):
@@ -83,14 +84,13 @@ def listify(val):
     return [val]
 
 
-#==================
-from collections import OrderedDict
+# ==================
 
 
 def parseJSON(val):
     return _ext.json.loads(val, object_pairs_hook=lambda pairs: OrderedDict(pairs))
 
-#==================
+# ==================
 
 
 def deepMerge(target, source):
@@ -107,7 +107,7 @@ def deepMerge(target, source):
 
     return target
 
-#==================
+# ==================
 
 
 def syslogTag(env, name):

@@ -221,7 +221,7 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
         env = config['env']
         nginx_bin = env['nginxBin']
 
-        #---
+        # ---
         if self._detect.isMacOS():
             brew_dir = env.get('brewDir', '')
 
@@ -232,7 +232,7 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
         else:
             self._prefix = ''
 
-        #---
+        # ---
         ver = self._executil.callExternal(
             [nginx_bin, '-v'],
             verbose=False, merge_stderr=True)
@@ -249,7 +249,7 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
         cid_tune = svc_tune.get('cid', {})
 
         # Global
-        #---
+        # ---
         #conf['user'] = '{0} {1}'.format(deploy['user'], deploy['group'])
         conf['worker_processes'] = svc_tune['maxCpuCount']
         conf.setdefault('error_log', 'stderr error')
@@ -261,13 +261,13 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
         conf['pid'] = pid_file
 
         # Events
-        #---
+        # ---
         events = conf.setdefault('events', OrderedDict())
         events['worker_connections'] = int(
             svc_tune['maxFD'] // svc_tune['maxCpuCount'])
 
         # HTTP
-        #---
+        # ---
         http = conf.setdefault('http', OrderedDict())
         http.setdefault('-types', MIME_TYPES)
         http.setdefault('default_type', 'application/octet-stream')
@@ -306,7 +306,7 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
         }
 
         # The only vhost
-        #---
+        # ---
         server = http.setdefault('server', OrderedDict())
         server['root'] = self._pathutil.safeJoin(config['wcDir'], svc['path'])
         server.setdefault('gzip_static', 'on')
@@ -347,7 +347,7 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
         server['listen'] = listen
 
         # Location per each webapp
-        #---
+        # ---
         webcfg = config.get('webcfg', {})
         mounts = webcfg.get('mounts', {}).copy()
         autoServices = deploy['autoServices']

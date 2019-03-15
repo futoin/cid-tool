@@ -100,7 +100,7 @@ Others, are more JVM-specific and most likely will be bundled with JVM app.
     def initEnv(self, env):
         ospath = self._ospath
 
-        #---
+        # ---
         inst_dir = self._environ.get('LIQUIBASE_HOME', None)
         fail_on_missing = False
 

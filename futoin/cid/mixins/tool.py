@@ -140,10 +140,10 @@ class ToolMixIn(DataSlots):
             config = self._overrides.copy()
             config['env'] = env
 
-        #---
+        # ---
         config['projectRootSet'] = set(os.listdir('.'))
 
-        #---
+        # ---
         plugins = {}
         plugins.update(env.get('plugins', {}))
         plugins.update(config.get('plugins', {}))
@@ -174,7 +174,7 @@ class ToolMixIn(DataSlots):
             if tool not in tool_impl:
                 tool_impl[tool] = tool_mod_name
 
-        #---
+        # ---
         config_tools = config.get('tools', None)
 
         if config_tools:
@@ -209,7 +209,7 @@ class ToolMixIn(DataSlots):
                         tools.append(n)
 
             # Make sure deps & env are processed for cli-supplied tools
-            #--
+            # --
             for (item, base) in {'rms': RmsTool, 'vcs': VcsTool}.items():
                 tool = config.get(item, None)
 
@@ -221,7 +221,7 @@ class ToolMixIn(DataSlots):
                             'Tool {0} does not suite {1} type'.format(tool, item))
 
             # Make sure tools defined in entryPoints are auto-detected
-            #--
+            # --
             for (ep, ed) in config.get('entryPoints', {}).items():
                 tool = ed.get('tool', None)
 
@@ -233,7 +233,7 @@ class ToolMixIn(DataSlots):
                             'Tool {0} does not suite RuntimeTool type'.format(tool))
 
         # add all deps
-        #--
+        # --
         dep_generations = [set(tools)]
         tools = set(tools)
         postdeps = set()
@@ -258,25 +258,25 @@ class ToolMixIn(DataSlots):
                 tools.update(postdeps)
                 postdeps = set()
 
-        #---
+        # ---
         if self._detect.isMacOS() and tools:
             # Make sure Homebrew is always implicit first tool
             dep_generations.append(set(['brew']))
             self._getTool('brew')
 
-        #---
+        # ---
         dep_generations.reverse()
         tools = []
         for d in dep_generations:
             tools.extend(d - set(tools))
         config['toolOrder'] = tools
 
-        #--
+        # --
         for tool in tools:
             t = tool_impl[tool]
             t.envDeps(env)
 
-        #--
+        # --
         if config.get('toolTest', False):
             for tool in tools:
                 t = tool_impl[tool]

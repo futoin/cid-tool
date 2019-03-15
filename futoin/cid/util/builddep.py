@@ -130,7 +130,7 @@ def _bdep_ssl10(env):
     _ext.install.rpm('openssl-devel')
     _ext.install.rpm('libopenssl-devel')
     _ext.install.apk('libressl-dev')
-    #_ext.install.pacman('openssl')
+    # _ext.install.pacman('openssl')
     _ext.install.pacman('openssl-1.0')
     _ext.install.brew('openssl')
 

@@ -89,13 +89,13 @@ jdkVer supports:
             # Zulu
             '/usr/lib/jvm/zulu-{0}*/bin/javac'.format(ver),
             # Debian / Ubuntu
-            #"/usr/lib/jvm/java-{0}-openjdk*/bin/javac".format(ver),
+            # "/usr/lib/jvm/java-{0}-openjdk*/bin/javac".format(ver),
             # RedHat
-            #"/usr/lib/jvm/java-1.{0}.0/bin/javac".format(ver),
+            # "/usr/lib/jvm/java-1.{0}.0/bin/javac".format(ver),
             # OpenSuse
-            #"/usr/lib*/jvm/java-1.{0}.0/bin/javac".format(ver),
+            # "/usr/lib*/jvm/java-1.{0}.0/bin/javac".format(ver),
             # Default oracle
-            #"/opt/jdk/jdk1.{0}*/bin/javac".format(ver),
+            # "/opt/jdk/jdk1.{0}*/bin/javac".format(ver),
         ]
 
         if detect.isGentoo() or detect.isArchLinux():

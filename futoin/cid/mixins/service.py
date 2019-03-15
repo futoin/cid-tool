@@ -89,7 +89,7 @@ class ServiceMixIn(DataSlots):
         for svc in self._serviceList():
             svc_tune = svc['tune']
 
-            #---
+            # ---
             internal = svc_tune.get('internal', False)
 
             if not internal:
@@ -99,7 +99,7 @@ class ServiceMixIn(DataSlots):
                 print("{0}\t{1}".format(svc['name'], svc['instanceId']))
                 continue
 
-            #---
+            # ---
             socket_type = svc_tune['socketType']
 
             if socket_type == 'unix':
@@ -237,7 +237,7 @@ class ServiceMixIn(DataSlots):
         #os.setpgid(0, 0)
 
         # Main loop
-        #---
+        # ---
         self._deployLock()
         try:
             current_master = self._serviceMasterPID()
@@ -257,7 +257,7 @@ class ServiceMixIn(DataSlots):
 
         while self._running:
             # Reload services
-            #---
+            # ---
             if self._reload_services:
                 self._info('Reloading services')
 
@@ -425,7 +425,7 @@ class ServiceMixIn(DataSlots):
                 svc['name'], svc['instanceId'], pid, excode))
 
         # try terminate children
-        #---
+        # ---
         self._info('Terminating children')
 
         for svc in svc_list:
@@ -442,7 +442,7 @@ class ServiceMixIn(DataSlots):
                         svc['name'], svc['instanceId'], pid))
 
         # try wait children
-        #---
+        # ---
         self._info('Waiting for children')
         signal.signal(signal.SIGALRM, TimeoutException.alarmHandler)
 
@@ -464,7 +464,7 @@ class ServiceMixIn(DataSlots):
             signal.setitimer(signal.ITIMER_REAL, 0)
 
         # final kill
-        #---
+        # ---
         if pid_to_svc:
             self._info('Killing children')
         for pid in pid_to_svc:

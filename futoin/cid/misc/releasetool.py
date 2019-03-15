@@ -69,21 +69,21 @@ Tune:
                 return content
 
         res = []
-        #---
+        # ---
         py_files = self._getTune(config, 'python', [])
         py_files = self._configutil.listify(py_files)
 
         for pyf in py_files:
             res += self._pathutil.updateTextFile(pyf, py_updater)
 
-        #---
+        # ---
         cl_files = self._getTune(config, 'changelog', 'CHANGELOG.txt')
         cl_files = self._configutil.listify(cl_files)
 
         for clf in cl_files:
             res += self._pathutil.updateTextFile(clf, cl_updater)
 
-        #---
+        # ---
         return res
 
     def initEnv(self, env):

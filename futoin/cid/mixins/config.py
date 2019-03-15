@@ -118,7 +118,7 @@ class ConfigMixIn(DataSlots):
 
         errors = []
 
-        #--
+        # --
         environ = self._environ
         self.__initUserHome()
         user_home = environ['HOME']
@@ -150,7 +150,7 @@ class ConfigMixIn(DataSlots):
         else:
             project_config_file = ospath.realpath(self._FUTOIN_JSON)
 
-        #--
+        # --
         gc = {'env': {}}
         uc = {'env': {}}
         dc = {}
@@ -168,7 +168,7 @@ class ConfigMixIn(DataSlots):
             if deploy_config_file:
                 dc = self._pathutil.loadJSONConfig(deploy_config_file, dc)
 
-        #---
+        # ---
         self._global_config = gc
         self._user_config = uc
 
@@ -179,7 +179,7 @@ class ConfigMixIn(DataSlots):
             self._deploy_config = dc
             self._project_config = pc
 
-        #--
+        # --
 
         config = dict(pc)
 
@@ -288,7 +288,7 @@ class ConfigMixIn(DataSlots):
             # run again to check tuneDefaults() from plugins
             self.__sanitizeEntryPoints(entry_points, errors)
 
-        #---
+        # ---
         deploy = dc.get('deploy', {})
         config['deploy'] = deploy
 
@@ -309,7 +309,7 @@ class ConfigMixIn(DataSlots):
 
         self.__sanitizeDeployConfig(config, errors)
 
-        #---
+        # ---
         if not startup:
             # there is no point to export variables provided in env
             # or global configs.
@@ -330,7 +330,7 @@ class ConfigMixIn(DataSlots):
                     self._warn('Variable: {0}'.format(k))
                     raise
 
-        #---
+        # ---
         if errors:
             self._errorExit(
                 "Configuration issues are found:\n\n* " +
@@ -353,7 +353,7 @@ class ConfigMixIn(DataSlots):
                     .format(k, v.__class__.__name__, req_t.__name__)
                 )
 
-        #---
+        # ---
         # Make sure futoinTool is enabled, if futoin.json is present.
         # Otherwise, auto-detection gets disabled and futoin.json is not
         # updated
@@ -362,13 +362,13 @@ class ConfigMixIn(DataSlots):
         if tools and 'futoin' not in tools:
             tools['futoin'] = True
 
-        #---
+        # ---
         entry_points = config.get('entryPoints', None)
 
         if entry_points:
             self.__sanitizeEntryPoints(entry_points, errors)
 
-        #---
+        # ---
         toolTune = config.get('toolTune', None)
 
         if toolTune:
@@ -456,7 +456,7 @@ class ConfigMixIn(DataSlots):
             self._environ['HOME'], 'bin'))
         pathutil.addBinPath(env['binDir'])
 
-        #---
+        # ---
         env_vars = self.FUTOIN_ENV_VARS
 
         for (k, v) in env.items():

@@ -60,7 +60,7 @@ def cid_action(f):
     return custom_f
 
 
-#=============================================================================
+# =============================================================================
 class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolMixIn, DataSlots):
     __slots__ = ()
 
@@ -119,7 +119,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         vcstool = self._getVcsTool()
         vcsrepo = config['vcsRepo']
 
-        #---
+        # ---
         self._info(
             'Getting source branch {0} from {1}'.format(branch, vcsrepo))
         vcstool.vcsCheckout(config, branch)
@@ -154,7 +154,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
 
         config['version'] = next_version
 
-        #---
+        # ---
         self._info('Updating files for release')
         to_commit = []
         self._forEachTool(
@@ -163,7 +163,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             )
         )
 
-        #---
+        # ---
         if to_commit:
             self._info('Committing updated files')
             message = "Updated for release %s %s" % (
@@ -172,13 +172,13 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         else:
             self._info('Nothing to commit')
 
-        #---
+        # ---
         tag = "v%s" % next_version
         self._info('Creating a tag {0}'.format(tag))
         message = "Release %s %s" % (config['name'], config['version'])
         vcstool.vcsTag(config, tag, message)
 
-        #---
+        # ---
         self._info('Pushing changes to {0}'.format(vcsrepo))
         vcstool.vcsPush(config, [branch, tag])
 
@@ -198,7 +198,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             vcstool.vcsCheckout(config, vcs_ref)
             self._initConfig()
 
-        #--
+        # --
         self._info('Running "prepare" in tools')
         self._forEachTool(
             lambda config, t: t.onPrepare(config),
@@ -221,14 +221,14 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         # implciit in @cid_action
         # self._processWcDir()
 
-        #---
+        # ---
         self._info('Running "package" in tools')
         self._forEachTool(
             lambda config, t: t.onPackage(config),
             base=BuildTool
         )
 
-        #---
+        # ---
         os = self._os
         ospath = self._ospath
         pathutil = self._pathutil
@@ -242,7 +242,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             self._lastPackages = package_files
             return
 
-        #---
+        # ---
         try:
             package_content = config['package']
         except KeyError:
@@ -262,7 +262,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
 
         self._info('Generating package from {0}'.format(package_content))
 
-        #---
+        # ---
         if config.get('packageChecksums', True):
             self._info('Generating checksums')
             checksums_file = '.package.checksums'
@@ -301,7 +301,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             except ValueError:
                 package_content.append(checksums_file)
 
-        #---
+        # ---
         buildTimestamp = self._ext.datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
         name = config.get('name', 'UNKNOWN').split('/')[-1]
         version = config.get('version', 'UNKNOWN')
@@ -433,7 +433,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                 'entrypoint',
                 'env',
                 'webcfg',
-                #'webmount',
+                # 'webmount',
             ]
 
         for action in actions:
@@ -520,13 +520,13 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
 
         # Make sure to keep VCS info when switch to another location
         # for checkout.
-        #---
+        # ---
         if 'vcs' in config:
             self._getVcsTool()
 
             for cv in ['vcs', 'vcsRepo']:
                 self._overrides[cv] = config[cv]
-        #---
+        # ---
 
         self._processWcDir()
 

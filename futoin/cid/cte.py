@@ -16,6 +16,7 @@
 # limitations under the License.
 #
 
+from . import __version__ as version
 """FutoIn CID v{0}
 
 This command is alias for "cid tool exec" of FutoIn Continuous Integration & Delivery Tool.
@@ -40,7 +41,6 @@ if sys.version_info < (2, 7):
     print('Sorry, but only Python version >= 2.7 is supported!', file=sys.stderr)
     sys.exit(1)
 
-from . import __version__ as version
 __all__ = ['run']
 
 
@@ -66,11 +66,11 @@ def runInner():
         if tool not in ('list',):
             overrides['tool'] = tool
 
-        #---
+        # ---
         overrides['toolVer'] = None
         overrides['toolDetect'] = False
 
-        #---
+        # ---
         cit = CIDTool(overrides=overrides)
 
         if tool == 'list':

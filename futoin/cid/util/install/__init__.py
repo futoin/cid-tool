@@ -49,7 +49,7 @@ def search(pattern):
 
     found = []
 
-    #--
+    # --
     apt_cache = _ext.pathutil.which('apt-cache')
     yum = _ext.pathutil.which('yum')
     dnf = _ext.pathutil.which('dnf')

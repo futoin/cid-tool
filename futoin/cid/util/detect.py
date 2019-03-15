@@ -156,7 +156,7 @@ def isSCLSupported():
 @_simple_memo
 def installerType():
     # Known OS
-    #---
+    # ---
     if isDebian() or isUbuntu():
         return 'apt'
 
@@ -182,7 +182,7 @@ def installerType():
         return 'brew'
 
     # Fallback
-    #---
+    # ---
     pathutil = _ext.pathutil
 
     if pathutil.which('apt-get'):

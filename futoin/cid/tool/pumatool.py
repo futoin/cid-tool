@@ -49,7 +49,7 @@ bundler
     def onRun(self, config, svc, args):
         svc_tune = svc['tune']
 
-        #---
+        # ---
 
         if svc_tune['socketType'] == 'unix':
             socket = 'unix://{0}'.format(svc_tune['socketPath'])
@@ -57,14 +57,14 @@ bundler
             socket = 'tcp://{0}:{1}'.format(
                 svc_tune['socketAddress'], svc_tune['socketPort'])
 
-        #---
+        # ---
         resource = self._ext.resource
         heap_limit = self._configutil.parseMemory(svc_tune['maxMemory'])
         # both limit RAM and HEAP (not the same)
         resource.setrlimit(resource.RLIMIT_RSS, (heap_limit, heap_limit))
         resource.setrlimit(resource.RLIMIT_DATA, (heap_limit, heap_limit))
 
-        #---
+        # ---
         threads = svc_tune['maxConnections']
 
         puma_args = [
@@ -74,7 +74,7 @@ bundler
             '--dir', self._os.getcwd(),  # force chdir() on reload
         ]
 
-        #---
+        # ---
         env = config['env']
 
         cmd = [

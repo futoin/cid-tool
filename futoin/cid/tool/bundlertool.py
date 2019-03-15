@@ -61,7 +61,7 @@ Note:
         env = config['env']
 
         # Dirty hack
-        #---
+        # ---
         bundlerTools = env.get('bundlerTools', {})
         do_bundler_hack = len(bundlerTools) > 0
 
@@ -81,7 +81,7 @@ Note:
             self._executil.callExternal(cmd)
 
         # Main install
-        #---
+        # ---
         cmd = [env['bundlerBin'], 'install']
 
         if self._ospath.exists('Gemfile.lock'):

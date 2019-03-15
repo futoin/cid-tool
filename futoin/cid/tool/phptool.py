@@ -146,11 +146,11 @@ The same can be done by setting project-specific .toolTune options as array:
         phputil = self._phputil
         environ = self._environ
 
-        #---
+        # ---
         if 'phpfpmVer' in env:
             php_ver = env.setdefault('phpVer', env['phpfpmVer'])
 
-        #---
+        # ---
         phpForceBuild = env.setdefault('phpForceBuild', False)
         phpBinOnly = env.setdefault('phpBinOnly', not phpForceBuild)
         env['phpSourceBuild'] = False
@@ -166,7 +166,7 @@ The same can be done by setting project-specific .toolTune options as array:
         php_required_ext = php_required_ext.split()
         php_try_ext = php_try_ext.split()
 
-        #---
+        # ---
         php_binaries = phputil.binaryVersions()
 
         if php_binaries:
@@ -189,7 +189,7 @@ The same can be done by setting project-specific .toolTune options as array:
             foundBinary = False
             php_ver = env.setdefault('phpVer', self.SYSTEM_VER)
 
-        #---
+        # ---
         if php_ver == self.SYSTEM_VER:
             super(phpTool, self).initEnv(env)
         elif foundBinary and not phpForceBuild:
@@ -275,7 +275,7 @@ The same can be done by setting project-specific .toolTune options as array:
                 self._pathutil.addBinPath(php_bin_dir, True)
                 env.setdefault('phpBin', php_bin)
 
-        #---
+        # ---
         if self._have_tool:
             if env.get('phpJustInstalled', False):
                 self._phputil.installExtensions(env, [
@@ -312,7 +312,7 @@ The same can be done by setting project-specific .toolTune options as array:
             'postgresql',
         ])
         # APT
-        #---
+        # ---
         self._install.deb([
             'build-essential',
             'bison',
@@ -364,7 +364,7 @@ The same can be done by setting project-specific .toolTune options as array:
         ])
 
         # Extra repo before the rest
-        #---
+        # ---
         self._install.yumEPEL()
 
         self._install.rpm([
@@ -434,7 +434,7 @@ The same can be done by setting project-specific .toolTune options as array:
             'pcre',
         ])
 
-        #---
+        # ---
         systemctl = self._pathutil.which('systemctl')
 
         if systemctl:
@@ -473,7 +473,7 @@ The same can be done by setting project-specific .toolTune options as array:
             )
         else:
             with_libdir = ''
-        #---
+        # ---
         from ..details.resourcealgo import ResourceAlgo
         cpu_count = ResourceAlgo().cpuLimit({})
 

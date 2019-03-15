@@ -62,7 +62,7 @@ Note: NODE_ENV is set based on nodeEnv or .env.type
 
     def initEnv(self, env):
         node_version = env.setdefault('nodeVer', 'lts/*')
-        #---
+        # ---
         node_env = env.get('nodeEnv', '')
 
         if node_env:
@@ -73,7 +73,7 @@ Note: NODE_ENV is set based on nodeEnv or .env.type
             node_env = 'production'
 
         self._environ['NODE_ENV'] = node_env
-        #---
+        # ---
 
         if self._detect.isAlpineLinux():
             super(nodeTool, self).initEnv(env)
@@ -113,7 +113,7 @@ Note: NODE_ENV is set based on nodeEnv or .env.type
     def onRun(self, config, svc, args):
         svc_tune = svc['tune']
 
-        #---
+        # ---
         node_env = {}
 
         try:
@@ -127,7 +127,7 @@ Note: NODE_ENV is set based on nodeEnv or .env.type
 
         self._environ.update(node_env)
 
-        #---
+        # ---
         node_args = []
 
         if 'maxMemory' in svc_tune:
@@ -139,7 +139,7 @@ Note: NODE_ENV is set based on nodeEnv or .env.type
                 '--max_old_space_size={0}'.format(heap_limit)
             )
 
-        #---
+        # ---
 
         cmd = [
             config['env']['nodeBin'],

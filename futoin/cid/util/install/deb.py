@@ -87,6 +87,7 @@ def aptRepo(name, entry, gpg_key=None, codename_map=None, repo_base=None):
         errmsg='you may need to update APT cache manually!'
     )
 
+
 def dpkg(env, name, url):
     if not _ext.detect.isDeb():
         return

@@ -204,7 +204,7 @@ Note: RUBY_ENV and RAILS_ENV are set based on rubyEnv or .env.type
         detect = self._detect
         path = self._pathutil
 
-        #---
+        # ---
         ruby_env = env.get('rubyEnv', '')
 
         if ruby_env:
@@ -217,13 +217,13 @@ Note: RUBY_ENV and RAILS_ENV are set based on rubyEnv or .env.type
         environ['RUBY_ENV'] = ruby_env
         environ['RAILS_ENV'] = ruby_env
 
-        #---
+        # ---
         if 'GEM_HOME' in environ:
             path.delEnvPath('PATH', environ['GEM_HOME'])
             path.delEnvPath('GEM_PATH', environ['GEM_HOME'])
             del environ['GEM_HOME']
 
-        #---
+        # ---
         rubyForceBuild = env.setdefault('rubyForceBuild', False)
         rubyBinOnly = env.setdefault('rubyBinOnly', not rubyForceBuild)
 
@@ -231,10 +231,11 @@ Note: RUBY_ENV and RAILS_ENV are set based on rubyEnv or .env.type
             self._warn('"rubyBinOnly" and "rubyForceBuild" do not make sense'
                        ' when set together!')
 
-        #---
+        # ---
         if detect.isDebian() or detect.isUbuntu():
             bb_repo = 'http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu'
-            ruby_binaries = ['1.9', '2.0', '2.1', '2.2', '2.3', '2.4', '2.5', '2.6']
+            ruby_binaries = ['1.9', '2.0', '2.1',
+                             '2.2', '2.3', '2.4', '2.5', '2.6']
 
             code_name = self._detect.osCodeName()
 
@@ -250,11 +251,12 @@ Note: RUBY_ENV and RAILS_ENV are set based on rubyEnv or .env.type
             else:
                 ruby_binaries = ['1.9', '2.0', '2.2', '2.3', '2.4', '2.5']
         elif detect.isMacOS():
-            ruby_binaries = ['1.8', '1.9', '2.0', '2.2', '2.3', '2.4', '2.5', '2.6']
+            ruby_binaries = ['1.8', '1.9', '2.0',
+                             '2.2', '2.3', '2.4', '2.5', '2.6']
         else:
             ruby_binaries = None
 
-        #---
+        # ---
         if ruby_binaries and not rubyForceBuild:
             ruby_ver = env.setdefault('rubyVer', ruby_binaries[-1])
             foundBinary = ruby_ver in ruby_binaries
@@ -295,7 +297,7 @@ Note: RUBY_ENV and RAILS_ENV are set based on rubyEnv or .env.type
             foundBinary = ruby_ver == self.SYSTEM_VER
             rvm_ruby_ver = foundBinary and ruby_ver or 'ext-system'
 
-        #---
+        # ---
         rvm_dir = env['rvmDir']
         env['rubyFoundBinary'] = foundBinary
 
@@ -321,7 +323,7 @@ Note: RUBY_ENV and RAILS_ENV are set based on rubyEnv or .env.type
         self._builddep.require(env, 'ssl')
 
         # APT
-        #---
+        # ---
         self._install.deb([
             'build-essential',
             'gawk',
@@ -345,7 +347,7 @@ Note: RUBY_ENV and RAILS_ENV are set based on rubyEnv or .env.type
         ])
 
         # Extra repo before the rest
-        #---
+        # ---
         self._install.yumEPEL()
 
         self._install.rpm([
@@ -369,7 +371,7 @@ Note: RUBY_ENV and RAILS_ENV are set based on rubyEnv or .env.type
             'sqlite3-devel',
         ])
 
-        #---
+        # ---
         self._install.emergeDepsOnly(['dev-lang/ruby'])
         self._install.pacman(['ruby'])
         self._install.apk('build-base')

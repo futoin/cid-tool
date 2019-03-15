@@ -152,7 +152,7 @@ def isIUSVer(ver):
 
 def installedExtensions(env):
     known = {k: None for k in knownExtensions()}
-    #---
+    # ---
     res = _ext.executil.callExternal(
         [env['phpBin'], '-m'],
         verbose=False)
@@ -186,7 +186,7 @@ def extPackages(env, known=None):  # NOTE: do not cache
     pkg2key = {}
     found = []
 
-    #---
+    # ---
     if detect.isDebian() or detect.isUbuntu():
         pkg2key = {
             'mysqlnd': 'mysql',
@@ -220,14 +220,14 @@ def extPackages(env, known=None):  # NOTE: do not cache
             'process': 'pcntl',
         }
 
-    #---
+    # ---
     if pkg_prefix:
         found += install.search(pkg_prefix)
 
     if pkg_prefix2:
         found += install.search(pkg_prefix2)
 
-    #---
+    # ---
     if found:
         for p in found:
             # NOTE: in that order!
@@ -244,7 +244,7 @@ def extPackages(env, known=None):  # NOTE: do not cache
             if k in known:
                 update[k] = p
 
-    #---
+    # ---
     for (k, v) in update.items():
         if k in known:
             if not known[k]:
@@ -346,7 +346,7 @@ def knownExtensions():
 def installExtensions(env, exts, permissive=True):
     exts = _ext.configutil.listify(exts)
 
-    #---
+    # ---
     known = installedExtensions(env)
 
     for ext in exts:
@@ -359,7 +359,7 @@ def installExtensions(env, exts, permissive=True):
     else:
         return
 
-    #---
+    # ---
     mapping = extPackages(env, known)
     install = _ext.install
 
@@ -382,7 +382,7 @@ def installExtensions(env, exts, permissive=True):
             _log.errorExit('Unknown PHP extension "{0}"\nKnown: \n* {1}'.format(
                 ext, '\n* '.join(knownExtensions())))
 
-    #---
+    # ---
     detect = _ext.detect
 
     if detect.isDisabledToolsSetup(env):
@@ -395,7 +395,7 @@ def installExtensions(env, exts, permissive=True):
             'tool', 'install', 'php'])
         return
 
-    #---
+    # ---
     for pkg in to_install:
         install.deb(pkg)
         install.rpm(pkg)

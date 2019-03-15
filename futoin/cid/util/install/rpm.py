@@ -84,7 +84,7 @@ def yumRepo(name, url, gpg_key=None, releasevermax=None, repo_url=False):
     repo_info = None
     pathutil = _ext.pathutil
 
-    #---
+    # ---
     if repo_url:
         tmp_dir = pathutil.tmpCacheDir(prefix='cidrepo')
         repo_file = '{0}.repo'.format(name)
@@ -102,7 +102,7 @@ def yumRepo(name, url, gpg_key=None, releasevermax=None, repo_url=False):
         pathutil.writeTextFile(repo_file, repo_info)
         url = repo_file
 
-    #---
+    # ---
     try:
         dist_ver = _ext.detect.linuxDistMajorVer()
 
@@ -123,7 +123,7 @@ def yumRepo(name, url, gpg_key=None, releasevermax=None, repo_url=False):
             pathutil.writeTextFile(repo_file, repo_info)
             url = repo_file
 
-        #---
+        # ---
         if _dnf:
             yum(['dnf-plugins-core'])
             _ext.executil.trySudoCall(

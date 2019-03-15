@@ -106,6 +106,7 @@ from __future__ import print_function
 
 from .cidtool import CIDTool
 from .coloring import Coloring
+from . import __version__ as version
 
 try:
     from docopt import docopt
@@ -120,7 +121,6 @@ if sys.version_info < (2, 7):
     print('Sorry, but only Python version >= 2.7 is supported!', file=sys.stderr)
     sys.exit(1)
 
-from . import __version__ as version
 __all__ = ['run']
 
 
@@ -136,7 +136,7 @@ def runInner():
             Coloring.enable(os.environ['CID_COLOR'] == 'yes')
 
         overrides = {}
-        #---
+        # ---
         vcsArg = args.get('--vcsRepo', None)
 
         if vcsArg:
@@ -145,7 +145,7 @@ def runInner():
                  overrides['vcsRepo']) = vcsArg.split(':', 1)
             except ValueError:
                 raise RuntimeError('Invalid argument to --vcsRepo')
-        #---
+        # ---
         rmsArg = args.get('--rmsRepo', None)
 
         if rmsArg:
@@ -156,7 +156,7 @@ def runInner():
                 raise RuntimeError('Invalid argument to --rmsRepo')
         overrides['rmsPool'] = args['<rms_pool>']
 
-        #---
+        # ---
         if args['ci_build']:
             if 'vcs' in overrides:
                 def_wc_dir = 'ci_build'
@@ -167,7 +167,7 @@ def runInner():
         else:
             def_wc_dir = '.'
         overrides['wcDir'] = ospath.realpath(args['--wcDir'] or def_wc_dir)
-        #--
+        # --
         deploy_dir = args['--deployDir']
 
         if deploy_dir:
@@ -187,10 +187,10 @@ def runInner():
         if args['deploy'] and (args['vcsref'] or args['vcstag']):
             overrides['deployBuild'] = True
 
-        #---
+        # ---
         overrides['vcsRef'] = args['<vcs_ref>']
 
-        #---
+        # ---
         tool = args['<tool_name>']
         tool_ver = args['<tool_version>']
         overrides['tool'] = tool
@@ -206,17 +206,17 @@ def runInner():
 
         overrides['toolDetect'] = not (args['service'] and args['master'])
 
-        #---
+        # ---
         if args['--permissive']:
             overrides['permissiveChecks'] = True
 
-        #---
+        # ---
         cache_dir = args['--cacheDir']
 
         if cache_dir:
             cache_dir = ospath.realpath(cache_dir)
 
-        #---
+        # ---
         deploy = overrides.setdefault('_deploy', {})
         deploy['maxTotalMemory'] = args['--limit-memory']
         deploy['maxCpuCount'] = args['--limit-cpus']
@@ -233,7 +233,7 @@ def runInner():
             except ValueError:
                 pass
 
-        #---
+        # ---
         cit = CIDTool(overrides=overrides)
 
         if args['tool']:

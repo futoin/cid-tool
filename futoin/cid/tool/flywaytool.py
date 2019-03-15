@@ -96,7 +96,7 @@ Note: for now, it gets the latest tag from GitHub and then uses
     def initEnv(self, env):
         ospath = self._ospath
 
-        #---
+        # ---
         inst_dir = self._environ.get('FLYWAY_HOME', None)
         fail_on_missing = False
 

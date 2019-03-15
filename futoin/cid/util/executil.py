@@ -154,7 +154,7 @@ def callInteractive(cmd, replace=True, search_path=False, *args, **kwargs):
         sys.stderr.flush()
 
         # There is a problem of left FDs in Python 2
-        #---
+        # ---
         import resource
 
         maxfd = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
@@ -167,7 +167,7 @@ def callInteractive(cmd, replace=True, search_path=False, *args, **kwargs):
                 os.close(fd)
             except OSError:
                 pass
-        #---
+        # ---
 
         if search_path:
             os.execvp(cmd[0], cmd)

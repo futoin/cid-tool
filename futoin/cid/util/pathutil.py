@@ -154,7 +154,7 @@ def writeJSONConfig(file_name, content, indent=2, separators=(',', ': ')):
         content_file.write(content)
         content_file.write("\n")
 
-#---
+# ---
 
 
 def readTextFile(file_name):
@@ -325,6 +325,7 @@ def downloadFile(env, url, dst):
 
     _ext.os.rename(dst_tmp, dst)
 
+
 def cacheDownloadFile(env, url):
     ospath = _ext.ospath
     url_hash = _ext.hashlib.sha256(url).hexdigest()
@@ -335,6 +336,7 @@ def cacheDownloadFile(env, url):
         downloadFile(env, url, cache_file)
 
     return cache_file
+
 
 def downloadStream(env, url, cmd):
     kwargs = {}

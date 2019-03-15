@@ -125,7 +125,7 @@ Note: file upload is OFF by default.
         if php_ver != phpfpm_ver:
             self._errorExit(
                 'PHP mismatch FPM version {0} != {1}'.format(php_ver, phpfpm_ver))
-        #---
+        # ---
         if self._detect.isMacOS():
             # TODO: find solution
             error_log = '/dev/null'
@@ -134,7 +134,7 @@ Note: file upload is OFF by default.
 
         env.setdefault('phpfpmErrorLog', error_log)
 
-        #---
+        # ---
         if 'phpBin' not in env:
             return
 
@@ -165,7 +165,7 @@ Note: file upload is OFF by default.
                 else:
                     bin_name = 'php-fpm'
 
-            #--
+            # --
             phpfpm_bin = ospath.realpath(
                 ospath.join(php_bin, '..', '..', 'sbin',
                             '{0}*'.format(bin_name))
@@ -177,7 +177,7 @@ Note: file upload is OFF by default.
                 return
 
             # fallback, find any
-            #---
+            # ---
             self._pathutil.addBinPath('/usr/sbin')
             phpfpm_bin = self._pathutil.which(bin_name)
 

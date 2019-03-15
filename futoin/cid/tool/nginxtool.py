@@ -194,7 +194,7 @@ Additional notes:
         self._pathutil.writeTextFile(conf_file, nginx_conf)
 
         # Verify
-        #---
+        # ---
         env = config['env']
         self._executil.callExternal([
             env['nginxBin'],
