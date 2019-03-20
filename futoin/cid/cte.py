@@ -16,7 +16,6 @@
 # limitations under the License.
 #
 
-from . import __version__ as version
 """FutoIn CID v{0}
 
 This command is alias for "cid tool exec" of FutoIn Continuous Integration & Delivery Tool.
@@ -36,6 +35,8 @@ from .coloring import Coloring
 
 import os
 import sys
+
+from . import __version__ as version
 
 if sys.version_info < (2, 7):
     print('Sorry, but only Python version >= 2.7 is supported!', file=sys.stderr)
