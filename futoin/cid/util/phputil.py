@@ -27,10 +27,10 @@ def binaryVersions():
     detect = _ext.detect
 
     if detect.isDebian() or detect.isUbuntu():
-        return ['5.6', '7.0', '7.1', '7.2']
+        return ['5.6', '7.0', '7.1', '7.2', '7.3']
 
     if detect.isSCLSupported():
-        return ['5.6', '7.0', '7.1', '7.2']
+        return ['5.6', '7.0', '7.1', '7.2', '7.3']
 
     if detect.isArchLinux():
         # return ['5.6', '7.0', '7.1']
@@ -51,7 +51,7 @@ def binaryVersions():
         return ['5.6']
 
     if detect.isMacOS():
-        return ['5.6', '7.0', '7.1', '7.2']
+        return ['5.6', '7.0', '7.1', '7.2', '7.3']
 
     return None
 
