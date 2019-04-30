@@ -1,4 +1,4 @@
-=== (next) ===
+=== 0.8.22 (2019-04-30) ===
 FIXED: ruby setup on Debian Buster
 NEW: PHP v7.3 support
 
