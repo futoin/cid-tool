@@ -94,7 +94,7 @@ class SubTool(LogMixIn, OnDemandMixIn):
         return False
 
     def autoDetectFiles(self):
-        return None
+        return []
 
     def requireInstalled(self, env):
         self.importEnv(env)

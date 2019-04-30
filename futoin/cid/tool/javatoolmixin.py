@@ -21,7 +21,7 @@ class JavaToolMixIn(object):
     _LATEST_JAVA = '8'
 
     def _minJava(self):
-        return None
+        return False
 
     def envDeps(self, env):
         min_java = self._minJava()
