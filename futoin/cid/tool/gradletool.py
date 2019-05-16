@@ -48,8 +48,14 @@ Requires Java >= 7.
         if self._ospath.exists(gradlew_prop):
             with open(gradlew_prop, 'r') as f:
                 props = f.read()
-                env['gradleVer'] = self._ext.re.search(
-                    'gradle-([0-9.]+)-bin.zip', props).group(1)
+                gradleVer = self._ext.re.search(
+                    'gradle-([0-9.]+)-(all|bin).zip', props)
+
+                if gradleVer is None:
+                    self._errorExit(
+                        'Unable to find gradle version in {0}'.format(gradlew_prop))
+
+                env['gradleVer'] = gradleVer.group(1)
 
     def onPrepare(self, config):
         target = self._getTune(config, 'prepare', 'clean')
