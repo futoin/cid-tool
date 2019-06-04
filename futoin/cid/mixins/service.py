@@ -75,8 +75,15 @@ class ServiceMixIn(DataSlots):
                 deepMerge(r_tune, r.get('tune', {}))
                 deepMerge(r_tune, svctune)
 
-                if r_tune.get('socketAddress', None) == '0.0.0.0':
-                    r_tune['socketAddress'] = '127.0.0.1'
+                internal = r_tune.get('internal', False)
+
+                if internal and r_tune.get('socketType', None) != 'unix':
+                    r_sockaddr = r_tune.get('socketAddress', None)
+
+                    if r_sockaddr == '0.0.0.0':
+                        r_tune['socketAddress'] = '127.0.0.1'
+                    elif r_sockaddr == '::':
+                        r_tune['socketAddress'] = '::1'
 
                 r['tune'] = r_tune
 

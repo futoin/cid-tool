@@ -322,8 +322,13 @@ class ResourceAlgo(LogMixIn, OnDemandMixIn):
                     ic['socketPath'] = pathutil.safeJoin(
                         run_dir, '{0}.{1}.sock'.format(en, i))
                 else:
+                    if sock_type == 'tcp6':
+                        def_addr = '::'
+                    else:
+                        def_addr = '0.0.0.0'
+
                     ic['socketAddress'] = deploy.get(
-                        'listenAddress', '0.0.0.0')
+                        'listenAddress', def_addr)
 
                     if 'socketPort' in ei:
                         sock_port = int(ei['socketPort']) + i
