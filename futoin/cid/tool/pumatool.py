@@ -34,6 +34,7 @@ bundler
 
     def tuneDefaults(self, env):
         return {
+            'internal': True,
             'minMemory': '128M',
             'connMemory': '8M',
             'connFD': 8,

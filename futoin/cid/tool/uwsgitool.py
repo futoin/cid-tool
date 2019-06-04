@@ -29,6 +29,7 @@ It's possible to override uWSGI options with .tune.uwsgi parameter map.
 
     def tuneDefaults(self, env):
         return {
+            'internal': True,
             'minMemory': '64M',
             'connMemory': '16M',
             'debugConnOverhead': '4M',

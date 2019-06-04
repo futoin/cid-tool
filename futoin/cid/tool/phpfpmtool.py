@@ -45,6 +45,7 @@ Note: file upload is OFF by default.
 
     def tuneDefaults(self, env):
         return {
+            'internal': True,
             'minMemory': '1M',
             'connMemory': '16M',
             'debugConnOverhead': '16M',

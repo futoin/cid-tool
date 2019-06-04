@@ -97,6 +97,7 @@ Note: NODE_ENV is set based on nodeEnv or .env.type
 
     def tuneDefaults(self, env):
         return {
+            'internal': True,
             'minMemory': '64M',
             'debugOverhead': '32M',
             'connMemory': '32K',

@@ -1,5 +1,6 @@
 === (next) ===
 CHANGED: default listen address to all interfaces except for internal services
+CHANGED: node, phpfpm, puma and uwsgi to be marked as internal services by default
 FIXED: gradle version detection with 'all' instead of 'bin' reference
 FIXED: PHP support on MacOS after Homebrew changes
 FIXED: IPv6 listen address handling in various places
