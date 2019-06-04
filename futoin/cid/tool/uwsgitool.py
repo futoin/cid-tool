@@ -63,11 +63,16 @@ It's possible to override uWSGI options with .tune.uwsgi parameter map.
         cfg_svc_tune['uwsgiPid'] = pid_file
 
         #
-        if svc_tune['socketType'] == 'unix':
+        socket_type = svc_tune['socketType']
+
+        if socket_type == 'unix':
             socket = svc_tune['socketPath']
-        else:
+        elif socket_type == 'tcp':
             socket = '{0}:{1}'.format(
                 svc_tune['socketAddress'], svc_tune['socketPort'])
+        else:
+            self._errorExit(
+                'Unsupported socket type "{0}" for "{1}"'.format(socket_type, name_id))
 
         # Most of RSS is assumed to be shared with
         # uWSGI master process through CoW. So, each workes RSS

@@ -50,12 +50,17 @@ bundler
         svc_tune = svc['tune']
 
         # ---
+        socket_type = svc_tune['socketType']
+        name_id = '{0}-{1}'.format(svc['name'], svc['instanceId'])
 
-        if svc_tune['socketType'] == 'unix':
+        if socket_type == 'unix':
             socket = 'unix://{0}'.format(svc_tune['socketPath'])
-        else:
+        elif socket_type == 'tcp':
             socket = 'tcp://{0}:{1}'.format(
                 svc_tune['socketAddress'], svc_tune['socketPort'])
+        else:
+            self._errorExit(
+                'Unsupported socket type "{0}" for "{1}"'.format(socket_type, name_id))
 
         # ---
         resource = self._ext.resource

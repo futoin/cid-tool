@@ -111,6 +111,11 @@ class ServiceMixIn(DataSlots):
 
             if socket_type == 'unix':
                 socket_addr = svc_tune['socketPath']
+            elif socket_type == 'tcp6':
+                socket_addr = '[{0}]:{1}'.format(
+                    svc_tune['socketAddress'],
+                    svc_tune['socketPort']
+                )
             else:
                 socket_addr = '{0}:{1}'.format(
                     svc_tune['socketAddress'],

@@ -2,6 +2,7 @@
 CHANGED: default listen address to all interfaces except for internal services
 FIXED: gradle version detection with 'all' instead of 'bin' reference
 FIXED: PHP support on MacOS after Homebrew changes
+FIXED: IPv6 listen address handling in various places
 
 === 0.8.22 (2019-04-30) ===
 FIXED: ruby setup on Debian Buster
