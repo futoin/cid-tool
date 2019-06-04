@@ -1,6 +1,6 @@
 {
   "name": "futoin-cid",
-  "version": "0.8.22",
+  "version": "0.8.23",
   "plugins": {
     "release": "futoin.cid.misc.releasetool"
   },
