@@ -51,7 +51,7 @@ def binaryVersions():
         return ['5.6']
 
     if detect.isMacOS():
-        return ['5.6', '7.0', '7.1', '7.2', '7.3']
+        return ['7.1', '7.2', '7.3']
 
     return None
 
@@ -89,7 +89,7 @@ def basePackage(ver):
         return 'php'
 
     if detect.isMacOS():
-        return 'homebrew/php/php{0}'.format(ver_nodot)
+        return 'php@{0}'.format(ver)
 
     if detect.isFedora():
         return 'php'

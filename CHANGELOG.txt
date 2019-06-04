@@ -1,5 +1,6 @@
 === (next) ===
 FIXED: gradle version detection with 'all' instead of 'bin' reference
+FIXED: PHP support on MacOS after Homebrew changes
 
 === 0.8.22 (2019-04-30) ===
 FIXED: ruby setup on Debian Buster

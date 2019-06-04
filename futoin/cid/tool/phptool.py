@@ -104,8 +104,6 @@ The same can be done by setting project-specific .toolTune options as array:
                 install.yum(php_pkg)
 
         elif detect.isMacOS():
-            install.brewTap('homebrew/homebrew-php')
-            install.brewUnlink(search='/homebrew\/php\/php[0-9]{2}$/')
             install.brew(php_pkg)
 
         elif detect.isAlpineLinux():
@@ -238,7 +236,7 @@ The same can be done by setting project-specific .toolTune options as array:
 
             elif detect.isMacOS():
                 brew_prefix = env['brewDir']
-                formula = 'php' + php_ver.replace('.', '')
+                formula = phputil.basePackage(php_ver)
                 php_dir = ospath.join(brew_prefix, 'opt', formula, 'bin')
 
                 if ospath.exists(php_dir):
