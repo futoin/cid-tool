@@ -2,6 +2,7 @@
 === (next) ===
 CHANGED: Go to use 3 version components
 FIXED: issues with Go version management
+NEW: "cte" acts also as "cid run" alias
 
 === 0.8.23 (2019-06-04) ===
 CHANGED: default listen address to all interfaces except for internal services

@@ -64,20 +64,13 @@ def runInner():
         overrides = {}
         overrides['wcDir'] = ospath.realpath('.')
 
-        if tool not in ('list',):
-            overrides['tool'] = tool
-
         # ---
         overrides['toolVer'] = None
         overrides['toolDetect'] = False
 
         # ---
         cit = CIDTool(overrides=overrides)
-
-        if tool == 'list':
-            cit.tool_list()
-        else:
-            cit.tool_exec(tool, argv[2:])
+        cit.cte(tool, argv[2:])
 
 
 def run():

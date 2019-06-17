@@ -64,10 +64,11 @@ def cid_action(f):
 class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolMixIn, DataSlots):
     __slots__ = ()
 
-    def __init__(self, overrides):
+    def __init__(self, overrides, init_conf=True):
         super(CIDTool, self).__init__()
         self._overrides = overrides
-        self._initConfig(True)
+        if init_conf:
+            self._initConfig(True)
 
     def _call_actions(self, name, actions, args, orig_action=False, filt_args=None):
         act = actions[name]
@@ -1260,3 +1261,21 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             self._executil.externalSetup(env, ['build-dep'] + deps)
         else:
             self._builddep.require(env, list(deps_set - tools))
+
+    def cte(self, tool, args):
+        if tool == 'list':
+            self.tool_list()
+            return
+
+        is_tool = tool in self._getKnownTools()
+
+        if is_tool:
+            self._overrides['tool'] = tool
+
+        self._initConfig(True)
+        self._processWcDir()
+
+        if is_tool:
+            self.tool_exec(tool, args)
+        else:
+            self.run(tool, args)
