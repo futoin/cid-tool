@@ -486,7 +486,8 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
             elif socket_type == 'tcp':
                 socket = '{0}:{1}'.format(v['socketAddress'], v['socketPort'])
             elif socket_type == 'tcp6':
-                socket = '[{0}]:{1}'.format(v['socketAddress'], v['socketPort'])
+                socket = '[{0}]:{1}'.format(
+                    v['socketAddress'], v['socketPort'])
             else:
                 self._errorExit(
                     'Unsupported socket type "{0}" for "{1}"'.format(socket_type, app))
