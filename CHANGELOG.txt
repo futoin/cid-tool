@@ -1,5 +1,5 @@
 
-=== (next) ===
+=== 0.8.24 (2019-06-17) ===
 CHANGED: Go to use 3 version components
 FIXED: issues with Go version management
 FIXED: "cte" to setup full environment when run in project
