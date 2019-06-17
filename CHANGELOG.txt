@@ -1,5 +1,6 @@
 
 === (next) ===
+CHANGED: Go to use 3 version components
 FIXED: issues with Go version management
 
 === 0.8.23 (2019-06-04) ===

@@ -34,6 +34,9 @@ through CID, but you can install source releases through
     def getDeps(self):
         return ['gvm', 'bash', 'binutils', 'gcc']
 
+    def getVersionParts(self):
+        return 3
+
     def _installTool(self, env):
         if self._detect.isAlpineLinux():
             self._install.apkCommunity()
