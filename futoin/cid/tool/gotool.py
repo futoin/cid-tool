@@ -49,7 +49,7 @@ through CID, but you can install source releases through
         self._builddep.essential()
 
         self._callBash(env,
-                       'source {0} && gvm install {1} --binary'
+                       'source {0} && gvm install go{1} --binary'
                        .format(env['gvmInit'], env['goVer'])
                        )
 
@@ -58,7 +58,7 @@ through CID, but you can install source releases through
 
     def uninstallTool(self, env):
         self._callBash(env,
-                       'source {0} && gvm uninstall {1}'
+                       'source {0} && gvm uninstall go{1}'
                        .format(env['gvmInit'], env['goVer'])
                        )
         self._have_tool = False
@@ -82,7 +82,8 @@ through CID, but you can install source releases through
                 ver_list = [v.strip() for v in ver_list]
                 ver_list = filter(lambda x: x and rex.match(x), ver_list)
 
-                env['goVer'] = self._versionutil.latest(list(ver_list))
+                ver = self._versionutil.latest(list(ver_list))
+                env['goVer'] = ver.replace('go', '')
             except Exception as e:
                 self._warn(str(e))
                 return

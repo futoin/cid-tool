@@ -1,3 +1,7 @@
+
+=== (next) ===
+FIXED: issues with Go version management
+
 === 0.8.23 (2019-06-04) ===
 CHANGED: default listen address to all interfaces except for internal services
 CHANGED: node, phpfpm, puma and uwsgi to be marked as internal services by default
