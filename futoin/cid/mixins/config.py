@@ -150,6 +150,16 @@ class ConfigMixIn(DataSlots):
         else:
             project_config_file = ospath.realpath(self._FUTOIN_JSON)
 
+            if not ospath.exists(project_config_file):
+                (cwd, _) = ospath.split(os.getcwd())
+
+                while cwd != '/' and cwd != user_home:
+                    project_config_file = ospath.join(
+                        cwd, self._FUTOIN_JSON)
+                    if ospath.exists(project_config_file):
+                        break
+                    (cwd, _) = ospath.split(cwd)
+
         # --
         gc = {'env': {}}
         uc = {'env': {}}
