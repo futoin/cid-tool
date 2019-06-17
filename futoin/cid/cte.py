@@ -88,3 +88,7 @@ def run():
         print(Coloring.error('Exit on user abort'), file=sys.stderr)
         print(file=sys.stderr)
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    run()

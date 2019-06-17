@@ -25,16 +25,16 @@
   },
   "actions": {
     "autopep8": [
-      "@cid tool exec pip -- install -q autopep8",
+      "@cte pip install -q autopep8",
       "autopep8 -i -r futoin"
     ],
     "yapf": [
-      "@cid tool exec pip -- install -q yapf",
+      "@cte pip install -q yapf",
       "yapf -i -r futoin"
     ],
     "check": [
       "@default",
-      "@cid tool exec pip -- install -q pylint nose",
+      "@cte pip install -q pylint nose",
       "pylint -E futoin --ignore=contrib",
       "pylint -E tests/"
     ]
