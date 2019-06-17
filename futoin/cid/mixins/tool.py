@@ -176,6 +176,7 @@ class ToolMixIn(DataSlots):
 
         # ---
         config_tools = config.get('tools', None)
+        tools = []
 
         if config_tools:
             if not isinstance(config_tools, dict):
@@ -184,6 +185,7 @@ class ToolMixIn(DataSlots):
 
             for (tool, v) in config_tools.items():
                 self._checkKnownTool(tool)
+                tools.append(tool)
 
                 if v != '*' and v != True:
                     env[tool + 'Ver'] = v
@@ -191,46 +193,42 @@ class ToolMixIn(DataSlots):
         curr_tool = config.get('tool', None)
 
         if curr_tool:
-            tools = [curr_tool]
+            tools.append(curr_tool)
             tool_ver = config.get('toolVer', None)
 
             if tool_ver:
                 env[curr_tool + 'Ver'] = tool_ver
-        else:
-            config_tools = config.get('tools', None)
-            tools = []
+        elif (not config_tools and
+              self._project_config is not None and
+              config.get('toolDetect', True)):
+            for n in self._getKnownTools():
+                t = self._getTool(n)
+                if t.autoDetect(config):
+                    tools.append(n)
 
-            if config_tools:
-                tools.extend(config_tools.keys())
-            elif self._project_config is not None and config.get('toolDetect', True):
-                for n in self._getKnownTools():
-                    t = self._getTool(n)
-                    if t.autoDetect(config):
-                        tools.append(n)
+        # Make sure deps & env are processed for cli-supplied tools
+        # --
+        for (item, base) in {'rms': RmsTool, 'vcs': VcsTool}.items():
+            tool = config.get(item, None)
 
-            # Make sure deps & env are processed for cli-supplied tools
-            # --
-            for (item, base) in {'rms': RmsTool, 'vcs': VcsTool}.items():
-                tool = config.get(item, None)
+            if tool:
+                tools.append(tool)
 
-                if tool:
-                    tools.append(tool)
+                if not isinstance(self._getTool(tool), base):
+                    self._errorExit(
+                        'Tool {0} does not suite {1} type'.format(tool, item))
 
-                    if not isinstance(self._getTool(tool), base):
-                        self._errorExit(
-                            'Tool {0} does not suite {1} type'.format(tool, item))
+        # Make sure tools defined in entryPoints are auto-detected
+        # --
+        for (ep, ed) in config.get('entryPoints', {}).items():
+            tool = ed.get('tool', None)
 
-            # Make sure tools defined in entryPoints are auto-detected
-            # --
-            for (ep, ed) in config.get('entryPoints', {}).items():
-                tool = ed.get('tool', None)
+            if tool:
+                tools.append(tool)
 
-                if tool:
-                    tools.append(tool)
-
-                    if not isinstance(self._getTool(tool), RuntimeTool):
-                        self._errorExit(
-                            'Tool {0} does not suite RuntimeTool type'.format(tool))
+                if not isinstance(self._getTool(tool), RuntimeTool):
+                    self._errorExit(
+                        'Tool {0} does not suite RuntimeTool type'.format(tool))
 
         # add all deps
         # --

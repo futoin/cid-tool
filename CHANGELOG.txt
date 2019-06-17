@@ -2,6 +2,7 @@
 === (next) ===
 CHANGED: Go to use 3 version components
 FIXED: issues with Go version management
+FIXED: "cte" to setup full environment when run in project
 NEW: "cte" acts also as "cid run" alias
 NEW: missing "futoin.json" is searched in parent folders now
 NEW: "@cte" placeholder support in custom actions
