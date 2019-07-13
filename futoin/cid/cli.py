@@ -195,13 +195,16 @@ def runInner():
         tool_ver = args['<tool_version>']
         overrides['tool'] = tool
         overrides['toolVer'] = tool_ver != '--' and tool_ver or None
-        overrides['toolTest'] = args['tool'] and (
-            args['test'] or
-            args['uninstall'] or
-            args['describe'] or
-            args['detect'] or
-            args['env'] or
-            (args['deploy'] and args['set'])
+        overrides['toolTest'] = (
+            args['tool'] and (
+                args['test'] or
+                args['uninstall'] or
+                args['describe'] or
+                args['detect'] or
+                args['env']
+            ) or
+            (args['deploy'] and args['set']) or
+            args['tag']
         )
 
         overrides['toolDetect'] = not (args['service'] and args['master'])
