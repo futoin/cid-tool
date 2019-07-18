@@ -20,8 +20,8 @@ which apk 2>/dev/null && apk update || true
     
     vms = {
         'rmshost' => 'debian/jessie64',
-        'debian_stretch' => 'debian/stretch64',
-        'ubuntu_xenial' => 'bento/ubuntu-16.04',
+        'debian_buster' => 'debian/buster64',
+        'ubuntu_bionic' => 'bento/ubuntu-18.04',
         'centos_7' => 'centos/7',
         'opensuse_leap' => 'bento/opensuse-leap-42.2',
         'fedora_25' => 'bento/fedora-25',
@@ -40,8 +40,9 @@ which apk 2>/dev/null && apk update || true
 
         # older versions
         'debian_jessie' => 'debian/jessie64',
+        'debian_stretch' => 'debian/stretch64',
         'ubuntu_trusty' => 'bento/ubuntu-14.04',
-        'ubuntu_zesty' => 'bento/ubuntu-17.04', # non-LTS
+        'ubuntu_xenial' => 'bento/ubuntu-16.04',
         #'centos_6' => 'centos/6', # too old
     }
     
@@ -55,7 +56,15 @@ which apk 2>/dev/null && apk update || true
             
             group = 'root'
             
-            if ['ubuntu_trusty', 'centos_7', 'debian_stretch', 'alpinelinux', 'ol_7'].include? name
+            if [
+                'ubuntu_trusty',
+                'ubuntu_bionic',
+                'centos_7',
+                'debian_stretch',
+                'debian_buster',
+                'alpinelinux',
+                'ol_7',
+            ].include? name
                 nic_type = '82540EM'
             else
                 nic_type = 'virtio'
@@ -82,13 +91,13 @@ which apk 2>/dev/null && apk update || true
                 dist_controller = 'SATA Controller'
             end
             
-            node.vm.provider "virtualbox" do |v|
-                v.customize [
-                    "storagectl", :id,
-                    "--name", dist_controller,
-                    "--hostiocache", "on"
-                ]
-            end
+            #node.vm.provider "virtualbox" do |v|
+            #    v.customize [
+            #        "storagectl", :id,
+            #        "--name", dist_controller,
+            #        "--hostiocache", "on"
+            #    ]
+            #end
             
             node.vm.synced_folder ".", "/vagrant", type: "rsync", rsync__exclude: ".git/", create: true, group: group
             
