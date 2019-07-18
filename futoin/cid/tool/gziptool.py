@@ -1,5 +1,5 @@
 #
-# Copyright 2015-2018 Andrey Galkin <andrey@futoin.org>
+# Copyright 2015-2019 Andrey Galkin <andrey@futoin.org>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
