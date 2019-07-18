@@ -37,7 +37,13 @@ Supported technologies & tools (so far):
 * **docker**
 
   - **docker-compose**
-    
+
+* **erlang**
+
+  - **elixir**
+  - **mix**
+  - **phoenix**
+
 * **flyway**
 * **go**
 

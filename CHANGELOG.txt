@@ -1,5 +1,6 @@
 === (next) ===
 CHANGED: tag command not to auto-install deps
+NEW: experimental Erlang/Elixir/Mix/Phoenix support
 
 === 0.8.24 (2019-06-17) ===
 CHANGED: Go to use 3 version components

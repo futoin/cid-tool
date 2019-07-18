@@ -328,7 +328,7 @@ def downloadFile(env, url, dst):
 
 def cacheDownloadFile(env, url):
     ospath = _ext.ospath
-    url_hash = _ext.hashlib.sha256(url).hexdigest()
+    url_hash = _ext.hashlib.sha256(url.encode('utf8')).hexdigest()
     cache_dir = _ext.pathutil.cacheDir('dl_{0}'.format(url_hash))
     cache_file = ospath.join(cache_dir, url.split('/')[-1])
 

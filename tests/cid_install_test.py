@@ -165,6 +165,9 @@ system_tools = [
     'xz',
     'rust',
     'docker',
+    'erlang',
+    'elixir',
+    'mix',
 ]
 
 if not cid_Tool_UTBase.IS_LINUX:
