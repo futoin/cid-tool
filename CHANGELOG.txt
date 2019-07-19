@@ -1,3 +1,6 @@
+=== (next) ===
+CHANGED: to export .env variables from deploy/user/global config files
+
 === 0.8.25 (2019-07-18) ===
 CHANGED: tag command not to auto-install deps
 NEW: experimental Erlang/Elixir/Mix/Phoenix support

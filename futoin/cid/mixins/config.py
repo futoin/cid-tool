@@ -79,6 +79,7 @@ class ConfigMixIn(DataSlots):
         ('pluginPacks', list),
         ('externalSetup', (bool,) + __str_type),
         ('externalServices', list),
+        ('timeouts', dict),
     ])
 
     __slots__ = ()
@@ -108,6 +109,18 @@ class ConfigMixIn(DataSlots):
         if 'HOME' not in self._environ:
             self._environ['HOME'] = self._ext.pwd.getpwuid(self._os.geteuid())[
                 5]
+
+    def __exportVar(self, environ, key, value):
+        if isinstance(value, bool):
+            value = value and '1' or ''
+        elif isinstance(value, int):
+            value = str(value)
+
+        try:
+            self._environ[key] = value
+        except:
+            self._warn('Export failed: {0}'.format(key))
+            raise
 
     def _initConfig(self, startup=False):
         ospath = self._ospath
@@ -331,14 +344,7 @@ class ConfigMixIn(DataSlots):
             environ = self._environ
 
             for (k, v) in export_env.items():
-                if isinstance(v, bool):
-                    v = v and '1' or ''
-
-                try:
-                    environ[k] = v
-                except:
-                    self._warn('Variable: {0}'.format(k))
-                    raise
+                self.__exportVar(environ, k, v)
 
         # ---
         if errors:
@@ -471,6 +477,10 @@ class ConfigMixIn(DataSlots):
 
         for (k, v) in env.items():
             if k not in env_vars:
+                try:
+                    self.__exportVar(self._environ, k, v)
+                except:
+                    pass
                 continue
             elif not isinstance(v, env_vars[k]):
                 req_t = env_vars[k]
