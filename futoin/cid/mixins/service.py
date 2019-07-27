@@ -151,6 +151,8 @@ class ServiceMixIn(DataSlots):
 
         res = self._ext.copy.deepcopy(ep)
         res.setdefault('tune', {}).update(dep)
+        res['name'] = entry_point
+        res['instanceId'] = instance_id
         return res
 
     def _serviceStop(self, svc, toolImpl, pid):

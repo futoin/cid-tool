@@ -1,3 +1,6 @@
+=== (next) ===
+FIXED: to set name and instanceId on service-exec (puma regression)
+
 === 0.8.26 (2019-07-19) ===
 CHANGED: to export .env variables from deploy/user/global config files
 
