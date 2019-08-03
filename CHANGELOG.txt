@@ -1,3 +1,6 @@
+=== (next) ===
+NEW: Golang version update in misc.releasetool
+
 === 0.8.27 (2019-07-27) ===
 FIXED: to set name and instanceId on service-exec (puma regression)
 

@@ -20,6 +20,8 @@ from ..buildtool import BuildTool
 class releaseTool(BuildTool):
     """FutoIn CID-specific release processing
 
+Go:
+- replaces version parts according to .govars
 Python:
 - replaces "*__version__"' with "__version__ = '{version}'"
 Changelog:
@@ -29,6 +31,8 @@ Changelog:
 Tune:
     .python = [] - list of Python files
     .changelog = 'CHANGELOG.txt' - list of ChangeLog files
+    .go = [] - list of Go files to update
+    .govars = ['VersionMajor', 'VersionMinor', 'VersionPath']
 """
     __slots__ = ()
 
@@ -68,6 +72,20 @@ Tune:
                 )
                 return content
 
+        def go_updater(content):
+            if 'version' in updates:
+                ver = updates['version'].split('.')
+                for i in range(len(ver)):
+                    vn = go_vars[i]
+                    vv = ver[i]
+                    content = re.sub(
+                        r'^(.*){0} = \d+(.*)$'.format(vn),
+                        r'\1{0} = {1}\2'.format(vn, vv),
+                        content,
+                        flags=re.MULTILINE
+                    )
+                return content
+
         res = []
         # ---
         py_files = self._getTune(config, 'python', [])
@@ -82,6 +100,18 @@ Tune:
 
         for clf in cl_files:
             res += self._pathutil.updateTextFile(clf, cl_updater)
+
+        # ---
+        go_files = self._getTune(config, 'go', [])
+        go_files = self._configutil.listify(go_files)
+        go_vars = self._getTune(config, 'govars', [
+            'VersionMajor',
+            'VersionMinor',
+            'VersionPatch',
+        ])
+
+        for gof in go_files:
+            res += self._pathutil.updateTextFile(gof, go_updater)
 
         # ---
         return res
