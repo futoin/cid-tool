@@ -4,9 +4,9 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,6 +16,7 @@
 
 from ..runtimetool import RuntimeTool
 from ..buildtool import BuildTool
+
 
 class phoenixTool(RuntimeTool, BuildTool):
     """
@@ -44,23 +45,23 @@ It is expected that the server is installed as dependency in the project.
         self._have_tool = True
 
         try:
-            self._executil.callExternal([env['mixBin'], 'help', 'phx'], verbose=False)
+            self._executil.callExternal(
+                [env['mixBin'], 'help', 'phx'], verbose=False)
         except:
             self._info(
                 'Tool "{0}" must be installed as project dependency'.format(self._name))
 
     def onPrepare(self, config):
         target = self._getTune(
-                config, 'prepare', ['phx.digest.clean'])
+            config, 'prepare', ['phx.digest.clean'])
         cmd = [config['env']['mixBin']] + target
         self._executil.callMeaningful(cmd)
 
     def onBuild(self, config):
         target = self._getTune(
-                config, 'build', ['phx.digest'])
+            config, 'build', ['phx.digest'])
         cmd = [config['env']['mixBin']] + target
         self._executil.callMeaningful(cmd)
-
 
     def tuneDefaults(self, env):
         return {
@@ -105,4 +106,3 @@ It is expected that the server is installed as dependency in the project.
         ] + mix_args + args
 
         self._executil.callInteractive(cmd)
-

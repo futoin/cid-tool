@@ -4,9 +4,9 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,6 +16,7 @@
 
 from ..runtimetool import RuntimeTool
 from ..buildtool import BuildTool
+
 
 class mixTool(RuntimeTool, BuildTool):
     """
@@ -60,35 +61,34 @@ Note: MIX_ENV is set based on mixEnv or .env.type
 
     def onPrepare(self, config):
         prepareHex = self._getTune(
-                config, 'prepareHex', True)
+            config, 'prepareHex', True)
 
         if prepareHex:
             cmd = [config['env']['mixBin'], 'local.hex', '--force']
             self._executil.callMeaningful(cmd)
 
         prepareRebar = self._getTune(
-                config, 'prepareRebar', True)
+            config, 'prepareRebar', True)
 
         if prepareRebar:
             cmd = [config['env']['mixBin'], 'local.rebar', '--force']
             self._executil.callMeaningful(cmd)
 
         target = self._getTune(
-                config, 'prepare', ['do', 'clean,', 'deps.get'])
+            config, 'prepare', ['do', 'clean,', 'deps.get'])
         cmd = [config['env']['mixBin']] + target
         self._executil.callMeaningful(cmd)
 
     def onBuild(self, config):
         target = self._getTune(
-                config, 'build', ['do', 'deps.compile,', 'compile'])
+            config, 'build', ['do', 'deps.compile,', 'compile'])
         cmd = [config['env']['mixBin']] + target
         self._executil.callMeaningful(cmd)
 
     def onPackage(self, config):
-        target = self._getTune( config, 'package', ['release'])
+        target = self._getTune(config, 'package', ['release'])
         cmd = [config['env']['mixBin']] + target
         self._executil.callMeaningful(cmd)
-
 
     def tuneDefaults(self, env):
         return {
@@ -136,4 +136,3 @@ Note: MIX_ENV is set based on mixEnv or .env.type
         ] + mix_args + args
 
         self._executil.callInteractive(cmd)
-
