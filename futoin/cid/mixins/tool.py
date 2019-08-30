@@ -118,16 +118,54 @@ class ToolMixIn(DataSlots):
 
         return self._getTool(rms)
 
-    def _getTarTool(self, compressor=None):
+    def _getTarTool(self, compressor=None, package_ext=None):
         env = self._env
+        compress_flag = None
 
         tar_tool = self._getTool('tar')
         tar_tool.requireInstalled(env)
 
-        if compressor:
+        # Find out type
+        # ---
+        if package_ext:
+            if package_ext == '.txz':
+                compressor = 'xz'
+            elif package_ext == '.tbz2':
+                compressor = 'bzip2'
+            elif package_ext == '.tgz':
+                compressor = 'gzip'
+            elif package_ext == '.tar' or not package_ext:
+                compressor = 'tar'
+            else:
+                self._errorExit(
+                    'Not supported package format: {0}'.format(package_ext))
+        elif not compressor:
+            tool_tune = self._config.get('toolTune', {})
+            compressor = tool_tune.get('tar', {}).get('compressor', 'gzip')
+
+        # Install compressor
+        # ---
+        if compressor != 'tar':
             self._getTool(compressor).requireInstalled(env)
 
-        return tar_tool
+        # Configure based on type
+        # ---
+        if compressor == 'xz':
+            package_ext = '.txz'
+            compress_flag = 'J'
+        elif compressor == 'bzip2':
+            package_ext = '.tbz2'
+            compress_flag = 'j'
+        elif compressor == 'gzip':
+            package_ext = '.tgz'
+            compress_flag = 'z'
+        elif compressor == 'tar':
+            package_ext = '.tar'
+            compress_flag = ''
+        else:
+            self._errorExit('Not supported compressor: {9}'.format(compressor))
+
+        return tar_tool, compress_flag, package_ext
 
     def _initTools(self):
         config = self._config

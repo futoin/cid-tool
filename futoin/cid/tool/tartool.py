@@ -19,6 +19,9 @@ from ..runenvtool import RunEnvTool
 
 class tarTool(RunEnvTool):
     """The GNU version of the tar archiving utility.
+
+Tool tune:
+* .compressor=gzip ("bzip2", "gzip", "xz" or plain "tar")
 """
     __slots__ = ()
 

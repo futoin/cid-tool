@@ -1,6 +1,7 @@
 === (next) ===
 CHANGED: bower/bundler/composer/npm/yarn tools not to remove development deps on non-root-dir packaging
 NEW: Golang version update in misc.releasetool
+NEW: tar .toolTune.compressor to select package format
 
 === 0.8.27 (2019-07-27) ===
 FIXED: to set name and instanceId on service-exec (puma regression)

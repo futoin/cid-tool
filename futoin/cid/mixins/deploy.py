@@ -84,24 +84,13 @@ class DeployMixIn(DataSlots):
         self._info('Extracting the package')
         env = config['env']
 
-        tool = None
-        tool_args = None
-        tar_common_args = ['--strip-components=1', '-C', package_noext_tmp]
+        pkg_tool, compress_flag, _ = self._getTarTool(package_ext=package_ext)
 
-        if package_ext == '.txz':
-            pkg_tool = self._getTarTool('xz')
-            tool_args = ['xJf', package_basename] + tar_common_args
-        elif package_ext == '.tbz2':
-            pkg_tool = self._getTarTool('bzip2')
-            tool_args = ['xjf', package_basename] + tar_common_args
-        elif package_ext == '.tgz':
-            pkg_tool = self._getTarTool('gzip')
-            tool_args = ['xzf', package_basename] + tar_common_args
-        elif package_ext == '.tar':
-            pkg_tool = self._getTarTool()
-            tool_args = ['xf', package_basename] + tar_common_args
-        else:
-            self._errorExit('Not supported package format: ' + package_ext)
+        tool_args = [
+            'x{0}f'.format(compress_flag),
+            package_basename,
+            '--strip-components=1',
+            '-C', package_noext_tmp]
 
         pkg_tool.onExec(env, tool_args, False)
 

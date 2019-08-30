@@ -337,11 +337,13 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         if 'target' in config:
             package_name += '-{0}'.format(config['target'])
 
-        package_file = package_name + '.txz'
+        tar_tool, compress_flag, package_ext = self._getTarTool()
+
+        package_file = package_name + package_ext
         self._info('Creating package {0}'.format(package_file))
 
-        tar_tool = self._getTarTool('xz')
-        tar_args = ['cJf', package_file,
+        tar_args = ['c{0}f'.format(compress_flag),
+                    package_file,
                     '--transform=s,^,{0}/,'.format(package_name),
                     '--exclude=' + package_file,
                     '--exclude=.git*',

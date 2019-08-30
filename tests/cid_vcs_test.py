@@ -134,7 +134,7 @@ class cid_VCS_UTBase ( cid_UTBase ) :
                             '--rmsRepo', 'scp:' + rms_dir ] )
         
         self._goToBase()
-        content = subprocess.check_output( 'tar tJf rms_repo/Prod/wc-CI-1.3.1-*.txz', shell=True )
+        content = subprocess.check_output( 'tar tzf rms_repo/Prod/wc-CI-1.3.1-*.tgz', shell=True )
         content = executil.toString(content)
         content = sorted(content.split("\n"))[1:]
         
