@@ -46,6 +46,9 @@ Note: auto-detected only if yarn.lock is present
             self._environ['NODE_ENV'] = node_env
 
     def onPackage(self, config):
+        if not self._isDefaultPackage(config):
+            return
+
         yarnBin = config['env']['yarnBin']
         cmd = [yarnBin, 'install', '--production']
         self._executil.callMeaningful(cmd)

@@ -31,3 +31,6 @@ class BuildTool(SubTool):
 
     def onPackage(self, config):
         pass
+
+    def _isDefaultPackage(self, config):
+        return ('package' not in config) or (config['package'] == '.')

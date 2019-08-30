@@ -90,6 +90,9 @@ Note:
         self._executil.callMeaningful(cmd)
 
     def onPackage(self, config):
+        if not self._isDefaultPackage(config):
+            return
+
         cmd = [config['env']['bundlerBin'], 'install',
                '--deployment', '--clean']
         self._executil.callMeaningful(cmd)

@@ -116,6 +116,9 @@ composerDir is equal to user's ~/bin/ folder by default.
         self._executil.callMeaningful(cmd)
 
     def onPackage(self, config):
+        if not self._isDefaultPackage(config):
+            return
+
         composerBin = config['env']['composerBin']
         cmd = [composerBin, 'install', '--no-dev', '--no-scripts']
         self._executil.callMeaningful(cmd)

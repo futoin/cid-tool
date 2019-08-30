@@ -103,6 +103,9 @@ Note: it auto-disables, if Yarn tool is detected
         return package
 
     def onPackage(self, config):
+        if not self._isDefaultPackage(config):
+            return
+
         npmBin = config['env']['npmBin']
 
         if self._ospath.exists(self.PACKAGE_JSON) and not self._isYarnInUse(config):

@@ -56,6 +56,9 @@ Home: https://bower.io/
         self._executil.callExternal([bowerBin, 'install'])
 
     def onPackage(self, config):
+        if not self._isDefaultPackage(config):
+            return
+
         # Bower does not remove dev deps by itself
         self._pathutil.rmTree('bower_components')
 
