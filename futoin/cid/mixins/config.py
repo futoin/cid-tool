@@ -253,6 +253,15 @@ class ConfigMixIn(DataSlots):
                 persistent = set(config.get('persistent', []))
                 persistent.update(set(v))
                 config['persistent'] = list(persistent)
+            elif k == 'tools':
+                config_tools = config.setdefault('tools', {})
+                config_tools.update(v)
+            elif k == 'toolTune':
+                config_tooltune = config.setdefault('toolTune', {})
+
+                for (tname, ttune) in v.items():
+                    ctt = config_tooltune.setdefault(tname, {})
+                    ctt.update(ttune)
             else:
                 config[k] = v
 
