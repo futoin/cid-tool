@@ -159,6 +159,7 @@ if [ -n "$tests" ]; then
 elif [ -z "$1" ]; then
     tests=
     tests+=" tests/cid_packagecmd_test.py"
+    tests+=" tests/cid_config_test.py"
     tests+=" tests/cid_realapp_test.py"
     tests+=" tests/cid_vcs_test.py"
     tests+=" tests/cid_rms_test.py"

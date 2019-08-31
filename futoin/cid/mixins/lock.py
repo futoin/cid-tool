@@ -20,10 +20,6 @@ from .data import DataSlots
 class LockMixIn(DataSlots):
     __slots__ = ()
 
-    __DEPLOY_LOCK_FILE = '.futoin-deploy.lock'
-    __MASTER_LOCK_FILE = '.futoin-master.lock'
-    __GLOBAL_LOCK_FILE = '.futoin-global.lock'
-
     def __init__(self):
         super(LockMixIn, self).__init__()
         self._deploy_lock = None
@@ -90,13 +86,13 @@ class LockMixIn(DataSlots):
         self.__unlockCommon('_master_lock')
 
     def __deployLockFile(self):
-        return self._pathutil.safeJoin(self._overrides['deployDir'], self.__DEPLOY_LOCK_FILE)
+        return self._pathutil.safeJoin(self._overrides['deployDir'], self._DEPLOY_LOCK_FILE)
 
     def __masterLockFile(self):
-        return self._pathutil.safeJoin(self._overrides['deployDir'], self.__MASTER_LOCK_FILE)
+        return self._pathutil.safeJoin(self._overrides['deployDir'], self._MASTER_LOCK_FILE)
 
     def __globalLockFile(self):
-        return self._pathutil.safeJoin(self._environ['HOME'], self.__GLOBAL_LOCK_FILE)
+        return self._pathutil.safeJoin(self._environ['HOME'], self._GLOBAL_LOCK_FILE)
 
     def _checkDeployLock(self):
         ospath = self._ospath

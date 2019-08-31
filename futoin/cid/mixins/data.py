@@ -52,3 +52,7 @@ class DataSlots(OnDemandMixIn):
     _FUTOIN_JSON = 'futoin.json'
     _FUTOIN_USER_JSON = '.futoin.json'
     _FUTOIN_MERGED_JSON = '.futoin.merged.json'
+
+    _DEPLOY_LOCK_FILE = '.futoin-deploy.lock'
+    _MASTER_LOCK_FILE = '.futoin-master.lock'
+    _GLOBAL_LOCK_FILE = '.futoin-global.lock'
