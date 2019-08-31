@@ -383,11 +383,12 @@ class ConfigMixIn(DataSlots):
 
     def __sanitizeConfig(self, config, errors):
         conf_vars = self.CONFIG_VARS
+        to_del = []
 
         for (k, v) in config.items():
             if k not in conf_vars:
                 self._warn('Removing unknown config variable "{0}"'.format(k))
-                del config[k]
+                to_del.append(k)
             elif not isinstance(v, conf_vars[k]):
                 req_t = conf_vars[k]
                 if isinstance(req_t, tuple):
@@ -397,6 +398,8 @@ class ConfigMixIn(DataSlots):
                     'Config variable "{0}" type "{1}" is not instance of "{2}"'
                     .format(k, v.__class__.__name__, req_t.__name__)
                 )
+        for k in to_del:
+            del config[k]
 
         # ---
         # Make sure futoinTool is enabled, if futoin.json is present.

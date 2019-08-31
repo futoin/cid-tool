@@ -2,6 +2,7 @@
 CHANGED: bower/bundler/composer/npm/yarn tools not to remove development deps on non-root-dir packaging
 CHANGED: .tool and .toolTune deployment config behavior to merge instead of override
 CHANGED: revised config search behavior
+FIXED: Python 3 exception on sanitization of unknown config variables
 NEW: Golang version update in misc.releasetool
 NEW: tar .toolTune.compressor to select package format
 
