@@ -39,7 +39,9 @@ Home: https://docs.aws.amazon.com/cli/index.html
             package_basename = ospath.basename(package)
             self.onExec(config['env'], [
                 's3', 'cp', package,
-                's3://{0}{1}/{2}/{3}'.format(bucket, path, rms_pool, package_basename)])
+                's3://{0}{1}/{2}/{3}'.format(bucket,
+                                             path, rms_pool, package_basename),
+            ], False)
 
     def rmsGetHash(self, config, rms_pool, package, hash_type):
         raise NotImplementedError(self._name)
@@ -54,7 +56,9 @@ Home: https://docs.aws.amazon.com/cli/index.html
                 's3', 'cp',
                 's3://{0}{1}/{2}/{3}'.format(bucket,
                                              path, src_pool, package_basename),
-                's3://{0}{1}/{2}/{3}'.format(bucket, path, dst_pool, package_basename)])
+                's3://{0}{1}/{2}/{3}'.format(bucket,
+                                             path, dst_pool, package_basename),
+            ], False)
 
     def rmsGetList(self, config, rms_pool, package_hint):
         bucket, path = self._getS3Repo(config)
@@ -62,7 +66,7 @@ Home: https://docs.aws.amazon.com/cli/index.html
         res = self._executil.callExternal([
             config['env']['awsBin'],
             's3', 'ls',
-            's3://{0}{1}/{2}'.format(bucket, path, rms_pool)])
+            's3://{0}{1}/{2}/'.format(bucket, path, rms_pool)])
         return [r.split()[-1] for r in res.rstrip().split('\n')]
 
     def rmsRetrieve(self, config, rms_pool, package_list):
@@ -72,7 +76,8 @@ Home: https://docs.aws.amazon.com/cli/index.html
             self.onExec(config['env'], [
                 's3', 'cp',
                 's3://{0}{1}/{2}/{3}'.format(bucket, path, rms_pool, package),
-                package])
+                package,
+            ], False)
 
     def rmsGetHash(self, config, rms_pool, package, hash_type):
         # Note: Etag is not always MD5, so we skip

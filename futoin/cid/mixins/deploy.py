@@ -50,14 +50,14 @@ class DeployMixIn(DataSlots):
             self._errorExit("No package found")
 
         package = self._versionutil.latest(package_list)
-        self._info('Found package {0}'.format(package))
+        package_basename = ospath.basename(package)
+        self._info('Found package {0}'.format(package_basename))
 
         # cleanup first, in case of incomplete actions
         self._info('Pre-cleanup of deploy directory')
-        self._deployCleanup([package])
+        self._deployCleanup([package_basename])
 
         # Prepare package name components
-        package_basename = ospath.basename(package)
         (package_noext, package_ext) = ospath.splitext(package_basename)
 
         # Check if already deployed:
@@ -95,7 +95,8 @@ class DeployMixIn(DataSlots):
         pkg_tool.onExec(env, tool_args, False)
 
         # Common processing
-        self._deployCommon(package_noext_tmp, package_noext, [package])
+        self._deployCommon(package_noext_tmp, package_noext,
+                           [package_basename])
 
     def _vcsref_deploy(self, vcs_ref):
         self._requireDeployLock()
