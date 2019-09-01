@@ -253,6 +253,11 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
         # ---
         try:
             package_content = config['package']
+            try:
+                package_content.index(self._FUTOIN_JSON)
+            except ValueError:
+                package_content.append(self._FUTOIN_JSON)
+
         except KeyError:
             package_content = set(os.listdir('.'))
             # TODO: make it more extensible
@@ -278,7 +283,7 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             checksums = []
             cs_files = []
 
-            for pkg_item in sorted(package_content):
+            for pkg_item in package_content:
                 if ospath.isfile(pkg_item):
                     cs_files.append(pkg_item)
 

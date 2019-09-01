@@ -3,6 +3,7 @@ CHANGED: bower/bundler/composer/npm/yarn tools not to remove development deps on
 CHANGED: .tool and .toolTune deployment config behavior to merge instead of override
 CHANGED: revised config search behavior
 FIXED: Python 3 exception on sanitization of unknown config variables
+FIXED: to package futoin.json when non-default .package is used
 NEW: Golang version update in misc.releasetool
 NEW: tar .toolTune.compressor to select package format
 NEW: experimental AWS CLI & S3 RMS support
