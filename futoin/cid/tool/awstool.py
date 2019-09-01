@@ -43,9 +43,6 @@ Home: https://docs.aws.amazon.com/cli/index.html
                                              path, rms_pool, package_basename),
             ], False)
 
-    def rmsGetHash(self, config, rms_pool, package, hash_type):
-        raise NotImplementedError(self._name)
-
     def rmsPromote(self, config, src_pool, dst_pool, package_list):
         ospath = self._ospath
         bucket, path = self._getS3Repo(config)
