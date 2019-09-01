@@ -5,6 +5,7 @@ CHANGED: revised config search behavior
 FIXED: Python 3 exception on sanitization of unknown config variables
 NEW: Golang version update in misc.releasetool
 NEW: tar .toolTune.compressor to select package format
+NEW: experimental AWS CLI & S3 RMS support
 
 === 0.8.27 (2019-07-27) ===
 FIXED: to set name and instanceId on service-exec (puma regression)

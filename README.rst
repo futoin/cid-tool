@@ -120,6 +120,8 @@ Supported Release Management Systems (RMS):
 
   - NOT tested in standard test cycle as JFrog did not provide license for development.
 
+- **aws** - S3 for RMS, and the AWS CLI tool in general
+
 - **nexus** - only v2 as v3 lacks complete REST API yet.
 
   - Always tested in standard cycle.

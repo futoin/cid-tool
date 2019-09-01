@@ -93,8 +93,10 @@ _ext_demand_map = {
 
 if sys.version_info >= (3, 0):
     _ext_demand_map['urllib'] = 'urllib.request'
+    _ext_demand_map['urlparse'] = 'urllib.parse'
 else:
     _ext_demand_map['urllib'] = 'urllib2'
+    _ext_demand_map['urlparse'] = 'urlparse'
 
 ext = tailor_ondemand(_ext_demand_map)()
 
