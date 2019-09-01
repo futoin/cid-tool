@@ -1,4 +1,4 @@
-=== (next) ===
+=== 0.8.28 (2019-09-01) ===
 CHANGED: bower/bundler/composer/npm/yarn tools not to remove development deps on non-root-dir packaging
 CHANGED: .tool and .toolTune deployment config behavior to merge instead of override
 CHANGED: revised config search behavior
