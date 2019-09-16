@@ -36,6 +36,7 @@ class cid_config_Test ( cid_UTBase ) :
         os.chdir(self.TEST_DIR)
         self._goToBase()
 
+        os.mkdir('deploy_tmp')
         os.mkdir('current')
         os.mkdir('current/subdir')
         self._writeFile('.futoin-deploy.lock', '')
@@ -49,6 +50,7 @@ class cid_config_Test ( cid_UTBase ) :
         })
 
         # in deploy
+        self._call_cid(['tool', 'install'])
         res = self._call_cid(['tool', 'env'], retout=True)
         self.assertTrue('hgBin=' in res)
         self.assertFalse('svnBin=' in res)
@@ -105,6 +107,7 @@ class cid_config_Test ( cid_UTBase ) :
         })
 
         # in deploy
+        self._call_cid(['tool', 'install'])
         res = self._call_cid(['tool', 'env'], retout=True)
         self.assertTrue('hgBin=' in res)
         self.assertTrue('svnBin=' in res)
@@ -117,6 +120,37 @@ class cid_config_Test ( cid_UTBase ) :
 
         # in subdir
         os.chdir('subdir')
+        res = self._call_cid(['tool', 'env'], retout=True)
+        self.assertTrue('hgBin=' in res)
+        self.assertTrue('svnBin=' in res)
+
+    def test_in_deploy(self):
+        self._writeJSON('futoin.json', {
+            'name': 'simple',
+            'tools': {
+                'hg': True,
+            },
+        })
+        self._writeJSON('deploy_tmp/futoin.json', {
+            'name': 'simple',
+            'tools': {
+                'svn': True,
+            },
+        })
+
+        # in deploy
+        res = self._call_cid(['tool', 'env'], retout=True)
+        self.assertTrue('hgBin=' in res)
+        self.assertFalse('svnBin=' in res)
+
+        # in current
+        os.chdir('current')
+        res = self._call_cid(['tool', 'env'], retout=True)
+        self.assertTrue('hgBin=' in res)
+        self.assertFalse('svnBin=' in res)
+
+        # in deploy tmp
+        os.chdir('../deploy_tmp')
         res = self._call_cid(['tool', 'env'], retout=True)
         self.assertTrue('hgBin=' in res)
         self.assertTrue('svnBin=' in res)

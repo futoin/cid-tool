@@ -177,21 +177,24 @@ class ConfigMixIn(DataSlots):
             (parent_dir, _) = ospath.split(cwd)
             curr_lock_file = ospath.join(cwd, self._DEPLOY_LOCK_FILE)
             parent_lock_file = ospath.join(parent_dir, self._DEPLOY_LOCK_FILE)
-            current = self._getDeployCurrent()
+            override_project_config = False
 
             if ospath.exists(curr_lock_file):
                 deploy_dir = ospath.realpath(cwd)
+                override_project_config = True
             elif ospath.exists(parent_lock_file):
                 deploy_dir = ospath.realpath(parent_dir)
 
             if deploy_dir:
-                current_dir = ospath.join(deploy_dir, current)
                 self._overrides['deployDir'] = deploy_dir
-                self._overrides['wcDir'] = current_dir
                 deploy_config_file = ospath.join(
                     deploy_dir, self._FUTOIN_JSON)
-                project_config_file = ospath.join(
-                    current_dir, self._FUTOIN_JSON)
+
+                if override_project_config:
+                    current = self._getDeployCurrent()
+                    current_dir = ospath.join(deploy_dir, current)
+                    project_config_file = ospath.join(
+                        current_dir, self._FUTOIN_JSON)
 
         # --
         gc = {'env': {}}
