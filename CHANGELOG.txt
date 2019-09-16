@@ -1,4 +1,4 @@
-=== (next) ===
+=== 0.8.30 (2019-09-16) ===
 FIXED: unwanted side-effect after search config behavior change
 
 === 0.8.28 (2019-09-01) ===
