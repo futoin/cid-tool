@@ -62,6 +62,7 @@ Home: http://sdkman.io/
         ospath = self._ospath
         dir = ospath.join(self._environ['HOME'], '.sdkman')
         dir = env.setdefault('sdkmanDir', dir)
+        self._environ['SDKMAN_DIR'] = dir
         env_init = ospath.join(dir, 'bin', 'sdkman-init.sh')
         env['sdkmanInit'] = env_init
         self._have_tool = ospath.exists(env_init)

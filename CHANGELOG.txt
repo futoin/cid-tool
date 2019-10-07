@@ -1,3 +1,6 @@
+=== (next) ===
+FIXED: SDKMAN_DIR to be set in environment setup
+
 === 0.8.30 (2019-09-16) ===
 FIXED: unwanted side-effect after search config behavior change
 
