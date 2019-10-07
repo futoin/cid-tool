@@ -1,4 +1,4 @@
-=== (next) ===
+=== 0.8.31 (2019-10-07) ===
 FIXED: SDKMAN_DIR to be set in environment setup
 
 === 0.8.30 (2019-09-16) ===
