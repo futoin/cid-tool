@@ -1,4 +1,4 @@
-=== (next) ===
+=== 0.8.32 (2019-11-20) ===
 FIXED: to obey prepare overrides in ci_build
 
 === 0.8.31 (2019-10-07) ===
