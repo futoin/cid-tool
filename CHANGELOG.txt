@@ -1,3 +1,6 @@
+=== (next) ===
+FIXED: to obey prepare overrides in ci_build
+
 === 0.8.31 (2019-10-07) ===
 FIXED: SDKMAN_DIR to be set in environment setup
 

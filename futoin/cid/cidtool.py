@@ -205,6 +205,8 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                 vcs_ref, config['vcsRepo']))
             vcstool.vcsCheckout(config, vcs_ref)
             self._initConfig()
+            self.prepare()
+            return
 
         # --
         self._info('Running "prepare" in tools')
