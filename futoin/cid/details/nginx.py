@@ -236,7 +236,7 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
         ver = self._executil.callExternal(
             [nginx_bin, '-v'],
             verbose=False, merge_stderr=True)
-        ver = ver.split('/')[1].strip().split('.')
+        ver = ver.split('/')[1].split(' ')[0].strip().split('.')
         ver = [int(v) for v in ver]
         self._version = tuple(ver)
 

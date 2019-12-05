@@ -1,3 +1,6 @@
+=== (next) ===
+FIXED: to work with system nginx at Ubuntu
+
 === 0.8.32 (2019-11-20) ===
 FIXED: to obey prepare overrides in ci_build
 
