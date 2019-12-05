@@ -1,4 +1,4 @@
-=== (next) ===
+=== 0.8.33 (2019-12-05) ===
 FIXED: to work with system nginx at Ubuntu
 
 === 0.8.32 (2019-11-20) ===
