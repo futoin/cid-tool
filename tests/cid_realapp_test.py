@@ -45,7 +45,7 @@ class cid_redmine_Test( cid_UTBase ) :
             self._call_cid(['deploy', 'set', 'env', 'rubyVer', 'system'])
             db = 'redmine_trunk'
         else:
-            self._call_cid(['deploy', 'set', 'env', 'rubyVer', '2.3'])
+            #self._call_cid(['deploy', 'set', 'env', 'rubyVer', '2.3'])
             db = 'redmine'
 
         self._call_cid(['deploy', 'set', 'action', 'prepare', 'app-config', 'database-config', 'app-install'])
@@ -57,13 +57,14 @@ class cid_redmine_Test( cid_UTBase ) :
         self._call_cid(['deploy', 'set', 'action', 'app-install',
                         '@cid build-dep ruby mysql-client imagemagick tzdata libxml2',
                         #'env',
-                        #'@cid tool env bundler',
-                        "@cid tool exec gem -- env",
-                        '@cid tool exec bundler -- install --without "development test rmagick"'])
+                        '@cte bundler remove puma',
+                        "@cte gem env",
+                        "@cte gem install puma",
+                        '@cte bundler install --without "development test rmagick"'])
         self._call_cid(['deploy', 'set', 'action', 'migrate',
-                        '@cid tool exec bundler -- exec rake generate_secret_token',
-                        '@cid tool exec bundler -- exec rake db:migrate RAILS_ENV=production',
-                        '@cid tool exec bundler -- exec rake redmine:load_default_data RAILS_ENV=production REDMINE_LANG=en',])
+                        '@cte bundler exec rake generate_secret_token',
+                        '@cte bundler exec rake db:migrate RAILS_ENV=production',
+                        '@cte bundler exec rake redmine:load_default_data RAILS_ENV=production REDMINE_LANG=en',])
         
         self._call_cid(['deploy', 'set', 'persistent', 'files', 'log', 'public/plugin_assets'])
         

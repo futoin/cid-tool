@@ -1,3 +1,6 @@
+=== (next) ===
+FIXED: to support new bundler vendor folder layout
+
 === 0.8.33 (2019-12-05) ===
 FIXED: to work with system nginx at Ubuntu
 

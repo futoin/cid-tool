@@ -70,7 +70,16 @@ class BundlerMixIn(SubTool):
     def initEnv(self, env):
         ospath = self._ospath
 
-        bin_path = ospath.join(env['bundlePath'], 'bin', self._name)
+        # try newer layout first
+        bin_path = ospath.join(
+            env['bundlePath'],
+            'ruby', '{0}.0'.format(env['rubyVer']),
+            'bin', self._name)
+
+        # fallback to legacy
+        if not ospath.exists(bin_path):
+            bin_path = ospath.join(env['bundlePath'], 'bin', self._name)
+
         env[self._name + 'Bin'] = bin_path
 
         if not ospath.exists('Gemfile'):
