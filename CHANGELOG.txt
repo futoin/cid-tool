@@ -1,4 +1,4 @@
-=== (next) ===
+=== 0.8.35 (2020-01-07) ===
 FIXED: devserve to properly enforce "dev" env type
 NEW: puppet tool can act as RMS for Forge upload
 
