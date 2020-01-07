@@ -1060,7 +1060,6 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
             self._deployUnlock()
 
             self._processDeployDir()
-            self._env['type'] = 'dev'
             self._serviceAdapt()
             self._serviceListPrint()
             self._serviceMaster()

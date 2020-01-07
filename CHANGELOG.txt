@@ -1,3 +1,6 @@
+=== (next) ===
+FIXED: devserve to properly enforce "dev" env type
+
 === 0.8.34 (2019-12-25) ===
 FIXED: to support new bundler vendor folder layout
 

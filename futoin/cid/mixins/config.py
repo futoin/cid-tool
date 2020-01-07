@@ -490,7 +490,11 @@ class ConfigMixIn(DataSlots):
                 .format(key))
 
     def __initEnv(self, env):
-        env.setdefault('type', 'prod')
+        if self._devserve_mode:
+            env['type'] = 'dev'
+        else:
+            env.setdefault('type', 'prod')
+
         env.setdefault('vars', {})
         env.setdefault('plugins', {})
         env.setdefault('pluginPacks', [])
