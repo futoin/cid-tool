@@ -1,5 +1,6 @@
 === (next) ===
 FIXED: devserve to properly enforce "dev" env type
+NEW: puppet tool can act as RMS for Forge upload
 
 === 0.8.34 (2019-12-25) ===
 FIXED: to support new bundler vendor folder layout

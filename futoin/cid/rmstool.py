@@ -35,6 +35,9 @@ class RmsTool(SubTool):
 
         return super(RmsTool, self).autoDetect(config)
 
+    def rmsGetRepo(self, config):
+        return None
+
     def rmsUpload(self, config, rms_pool, package_list):
         raise NotImplementedError(self._name)
 

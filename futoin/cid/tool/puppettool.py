@@ -15,10 +15,11 @@
 #
 
 from ..buildtool import BuildTool
+from ..rmstool import RmsTool
 from .gemtoolmixin import GemToolMixIn
 
 
-class puppetTool(GemToolMixIn, BuildTool):
+class puppetTool(GemToolMixIn, BuildTool, RmsTool):
     """Puppet system automation.
 
 Home: https://puppet.com/
@@ -30,7 +31,11 @@ Primary purpose is to support Puppet module development.
     METADATA_FILE = 'metadata.json'
 
     def envNames(self):
-        return ['puppetVer', 'puppetBin']
+        return [
+            'puppetVer',
+            'puppetBin',
+            'forgeToken',
+        ]
 
     def initEnv(self, env):
         super(puppetTool, self).initEnv(env)
@@ -86,3 +91,37 @@ Primary purpose is to support Puppet module development.
                 'Puppet Module built package is missing: ' + package_file)
 
         self._pathutil.addPackageFiles(config, package_file)
+
+    def rmsGetRepo(self, config):
+        return config.get('rmsRepo', None) or 'https://forgeapi.puppet.com/v3/releases'
+
+    def rmsUpload(self, config, rms_pool, package_list):
+        env = config['env']
+
+        token = env.get('forgeToken', None)
+        url = config['rmsRepo']
+        method = 'POST'
+
+        if token is None:
+            self._errorExit(
+                'Puppet Forge upload requires forgeToken configuration')
+
+        for p in package_list:
+            kwargs = {
+                'files': {
+                    'file': open(p, 'rb'),
+                },
+                'headers': {
+                    'Authorization': 'Bearer {0}'.format(token),
+                },
+            }
+
+            self._configutil.requestsOptions(env, kwargs)
+
+            self._info('HTTP call {0} {1}'.format(method, url))
+
+            res = self._ext.requests.request(method, url, **kwargs)
+            res.raise_for_status()
+
+    def rmsPoolList(self, config):
+        return ['forge']

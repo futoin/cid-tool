@@ -108,6 +108,14 @@ class ToolMixIn(DataSlots):
             self._errorExit(
                 'Unknown RMS. Please set through --rmsRepo or project manifest')
 
+        rmstool = self._getTool(rms)
+
+        if not config.get('rmsRepo', None):
+            try:
+                config['rmsRepo'] = rmstool.rmsGetRepo(config)
+            except self._ext.subprocess.CalledProcessError as e:
+                self._warn(str(e))
+
         if not config.get('rmsRepo', None):  # also check it set
             self._errorExit(
                 'Unknown RMS repo. Please set through --rmsRepo or project manifest')
@@ -116,7 +124,7 @@ class ToolMixIn(DataSlots):
         self._overrides['rms'] = rms
         self._overrides['rmsRepo'] = config['rmsRepo']
 
-        return self._getTool(rms)
+        return rmstool
 
     def _getTarTool(self, compressor=None, package_ext=None):
         env = self._env
