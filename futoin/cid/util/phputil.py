@@ -108,7 +108,7 @@ def createBinDir(env, src_bin):
     os = _ext.os
     pathutil = _ext.pathutil
 
-    php_dir = ospath.join(os.environ['HOME'], '.php', env['phpVer'])
+    php_dir = ospath.join(_ext.environ['HOME'], '.php', env['phpVer'])
     php_dir = env.setdefault('phpDir', php_dir)
 
     php_bin_dir = ospath.join(php_dir, 'bin')

@@ -1,4 +1,5 @@
 === (next) ===
+CHANGED: major redesign of environ handling not to affect the running CID instance
 FIXED: SDKMAN tool handling issues due to its changes
 FIXED: to use rcpupdate=false for SDKMAN setup
 FIXED: to use webpack-cli due to changes in webpack

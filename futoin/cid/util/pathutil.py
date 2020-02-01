@@ -20,7 +20,7 @@ from . import complex_memo as _complex_memo
 
 
 def which(program):
-    return cachedWhich(program, _ext.os.environ["PATH"])
+    return cachedWhich(program, _ext.environ["PATH"])
 
 
 @_complex_memo
@@ -57,10 +57,10 @@ def safeJoin(*args):
 
 def addEnvPath(env_name, add_dir, first=False):
     os = _ext.os
-    environ = os.environ
+    environ = _ext.environ
 
-    if env_name in os.environ:
-        dir_list = os.environ[env_name].split(os.pathsep)
+    if env_name in environ:
+        dir_list = environ[env_name].split(os.pathsep)
     else:
         dir_list = []
 
@@ -70,12 +70,12 @@ def addEnvPath(env_name, add_dir, first=False):
         else:
             dir_list.append(add_dir)
 
-        os.environ[env_name] = os.pathsep.join(dir_list)
+        environ[env_name] = os.pathsep.join(dir_list)
 
 
 def delEnvPath(env_name, del_dir, fail=False):
     os = _ext.os
-    environ = os.environ
+    environ = _ext.environ
 
     if env_name in environ:
         dir_list = environ[env_name].split(os.pathsep)
@@ -106,7 +106,7 @@ def addPackageFiles(config, pattern):
 
 
 def updateEnvFromOutput(env_to_set):
-    environ = _ext.os.environ
+    environ = _ext.environ
     env_to_set = env_to_set.split("\n")
 
     for e in env_to_set:
@@ -117,11 +117,11 @@ def updateEnvFromOutput(env_to_set):
 
 
 def userHome():
-    return _ext.os.environ['HOME']
+    return _ext.environ['HOME']
 
 
 def deployHome():
-    environ = _ext.os.environ
+    environ = _ext.environ
     return environ.get('CID_DEPLOY_HOME', environ['HOME'])
 
 
@@ -275,7 +275,7 @@ def lchmod(target, perm):
 def cacheDir(key):
     os = _ext.os
     cache_dir = os.path.join(
-        os.environ['HOME'], '.cache', 'futoin-cid', key)
+        _ext.environ['HOME'], '.cache', 'futoin-cid', key)
 
     mkDir(cache_dir)
 

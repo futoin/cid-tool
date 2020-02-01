@@ -26,7 +26,7 @@ def deb(packages):
 
     packages = _ext.configutil.listify(packages)
 
-    _ext.os.environ['DEBIAN_FRONTEND'] = 'noninteractive'
+    _ext.environ['DEBIAN_FRONTEND'] = 'noninteractive'
     _ext.executil.trySudoCall(
         [apt_get, 'install', '-y',
             '--no-install-recommends',

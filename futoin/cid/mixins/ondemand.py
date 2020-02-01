@@ -26,11 +26,14 @@ __all__ = [
 
 # ---
 
+SHARED_ENV = dict(os.environ)
+
 
 def tailor_ondemand(demandMap):
     class TailoredDemander(object):
         __slots__ = tuple(demandMap.keys())
         __demandMap = demandMap
+        environ = SHARED_ENV
 
         def __getattr__(self, name):
             mod = TailoredDemander.__demandMap[name]
@@ -119,4 +122,4 @@ _cid_demand_map = {
 class OnDemandMixIn(tailor_ondemand(_cid_demand_map)):
     __slots__ = ()
     _ext = ext
-    _environ = os.environ
+    _environ = SHARED_ENV

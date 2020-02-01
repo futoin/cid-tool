@@ -41,7 +41,8 @@ def callExternal(cmd, suppress_fail=False, verbose=True,
                  user_interaction=False,
                  encoding='UTF-8',
                  binary_input=False, binary_output=False,
-                 input_stream=None, show_output=False):
+                 input_stream=None, show_output=False,
+                 use_orig_env=False):
 
     sys = _ext.sys
     subprocess = _ext.subprocess
@@ -75,11 +76,16 @@ def callExternal(cmd, suppress_fail=False, verbose=True,
         else:
             stdout = subprocess.PIPE
 
+        if use_orig_env:
+            env = _ext.os.environ
+        else:
+            env = _ext.environ
+
         chunk_size = 65536
         res_buffers = []
         p = subprocess.Popen(cmd, stdin=stdin, stderr=stderr,
                              bufsize=chunk_size * 2, close_fds=True,
-                             stdout=stdout, cwd=cwd)
+                             stdout=stdout, cwd=cwd, env=env)
 
         if input:
             if not binary_input:
@@ -168,11 +174,16 @@ def callInteractive(cmd, replace=True, search_path=False, *args, **kwargs):
             except OSError:
                 pass
         # ---
+        if kwargs.get('use_orig_env', False):
+            env = _ext.os.environ
+        else:
+            env = _ext.environ
+        # ---
 
         if search_path:
-            os.execvp(cmd[0], cmd)
+            os.execvpe(cmd[0], cmd, env)
         else:
-            os.execv(cmd[0], cmd)
+            os.execve(cmd[0], cmd, env)
     else:
         callExternal(cmd, user_interaction=True, *args, **kwargs)
 
@@ -183,7 +194,7 @@ def trySudoCall(cmd, errmsg=None, **kwargs):
             callExternal(cmd, **kwargs)
             return
 
-        environ = _ext.os.environ
+        environ = _ext.environ
 
         if environ.get('CID_INTERACTIVE_SUDO', '0') == '1':
             sudo_cmd = 'sudo -H'
@@ -192,7 +203,7 @@ def trySudoCall(cmd, errmsg=None, **kwargs):
             sudo_cmd = 'sudo -n -H'
             user_interaction = False
 
-        sudo_cmd = _ext.os.environ.get('cidSudo', sudo_cmd).split()
+        sudo_cmd = _ext.environ.get('cidSudo', sudo_cmd).split()
         callExternal(sudo_cmd + cmd,
                      user_interaction=user_interaction, **kwargs)
     except _ext.subprocess.CalledProcessError:

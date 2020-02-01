@@ -87,13 +87,13 @@ class CIDTool(LogMixIn, ConfigMixIn, LockMixIn, ServiceMixIn, DeployMixIn, ToolM
                 cmd = self._ext.shlex.split(cmd)
                 self._executil.callExternal(
                     [self._sys.executable, '-mfutoin.cid'] + cmd[1:] + filt_args,
-                    user_interaction=True)
+                    user_interaction=True, use_orig_env=True)
             elif cmd.startswith('@cte'):
                 cmd = self._ext.shlex.split(cmd)
                 self._executil.callExternal(
                     [self._sys.executable, '-mfutoin.cid.cte'] +
                     cmd[1:] + filt_args,
-                    user_interaction=True)
+                    user_interaction=True, use_orig_env=True)
             elif cmd == '@default':
                 if orig_action:
                     orig_action(self, *args)

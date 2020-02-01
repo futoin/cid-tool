@@ -27,7 +27,7 @@ def brewTap(tap):
         return
 
     brew = _brew()
-    brew_sudo = _ext.os.environ.get('brewSudo', '').split()
+    brew_sudo = _ext.environ.get('brewSudo', '').split()
     _ext.executil.callExternal(brew_sudo + [brew, 'tap', tap], cwd='/')
 
 
@@ -36,7 +36,7 @@ def brewUnlink(formula=None, search=None):
         return
 
     brew = _brew()
-    brew_sudo = _ext.os.environ.get('brewSudo', '').split()
+    brew_sudo = _ext.environ.get('brewSudo', '').split()
 
     flist = []
 
@@ -64,7 +64,7 @@ def brew(packages, cask=False):
 
     os = _ext.os
     brew = _brew()
-    brew_sudo = os.environ.get('brewSudo', '').split()
+    brew_sudo = _ext.environ.get('brewSudo', '').split()
     saved_mask = os.umask(0o022)
 
     try:
@@ -96,7 +96,7 @@ def brewSearch(pattern, cask=False):
 
     os = _ext.os
     brew = _brew()
-    brew_sudo = os.environ.get('brewSudo', '').split()
+    brew_sudo = _ext.environ.get('brewSudo', '').split()
     saved_mask = os.umask(0o022)
 
     pattern = '/{0}/'.format(pattern)
@@ -133,7 +133,7 @@ def dmg(packages):
 
     for package in packages:
         base_name = package.split('/')[-1]
-        local_name = os.path.join(os.environ['HOME'])
+        local_name = os.path.join(_ext.environ['HOME'])
 
         # TODO: change to use env timeouts
         _ext.executil.callExternal([

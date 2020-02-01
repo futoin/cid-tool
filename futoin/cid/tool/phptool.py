@@ -263,7 +263,7 @@ The same can be done by setting project-specific .toolTune options as array:
             env['phpForceBuild'] = True
             env['phpSourceBuild'] = True
 
-            php_dir = ospath.join(os.environ['HOME'], '.php', php_ver)
+            php_dir = ospath.join(self._environ['HOME'], '.php', php_ver)
             php_dir = env.setdefault('phpDir', php_dir)
             php_bin_dir = ospath.join(php_dir, 'bin')
             php_bin = ospath.join(php_bin_dir, 'php')
