@@ -1,5 +1,6 @@
 === (next) ===
 CHANGED: major redesign of environ handling not to affect the running CID instance
+CHANGED: major change to CID-in-virtualenv situation (proxy call to outside CID)
 FIXED: SDKMAN tool handling issues due to its changes
 FIXED: to use rcpupdate=false for SDKMAN setup
 FIXED: to use webpack-cli due to changes in webpack

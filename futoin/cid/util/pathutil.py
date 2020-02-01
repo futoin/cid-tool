@@ -163,11 +163,28 @@ def readTextFile(file_name):
 
 
 def updateTextFile(file_name, updater):
+    # Use when you need to ensure content is updated
     content = readTextFile(file_name)
     content = updater(content)
     writeTextFile(file_name, content)
 
     return [file_name]
+
+
+def checkUpdateTextFile(file_name, updater):
+    # Use when file content rarely changes
+    try:
+        content = readTextFile(file_name)
+    except:
+        content = ''
+
+    new_content = updater(content)
+
+    if new_content != content:
+        writeTextFile(file_name, new_content)
+        return [file_name]
+
+    return []
 
 
 def writeTextFile(file_name, content):
