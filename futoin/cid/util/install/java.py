@@ -20,7 +20,7 @@ from .. import log as _log
 
 def mavenCentral(env):
     return env.get('mavenCentral',
-                   'http://repo.maven.apache.org/maven2')
+                   'https://repo.maven.apache.org/maven2')
 
 
 def ensureJDBC(env, lib_dir, drivers):
