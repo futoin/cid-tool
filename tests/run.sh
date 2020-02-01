@@ -203,8 +203,9 @@ function run_common() {
         export pythonVer=$1
         echo "Python $pythonVer"
 
-        $CID_BOOT tool exec pip -- install $pip_install_opts
-        eval $($CID_BOOT tool env virtualenv)
+        pip=$(which pip$pythonVer || which pip)
+        sudo $pip install -U setuptools
+        sudo $pip install $pip_install_opts
         export CIDTEST_BIN=$(which cid)
         $CIDTEST_BIN tool exec pip -- install nose
 

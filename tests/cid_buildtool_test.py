@@ -321,8 +321,9 @@ class cid_gulp_Test(cid_BuildTool_UTBase):
 var gulp = require('gulp');
 var fs = require('fs');
 
-gulp.task('default', function() {
+gulp.task('default', function(done) {
     fs.writeFileSync('test_file.txt', 'Yes');
+    done();
 });
 ''')
         cls._writeJSON('package.json', {
