@@ -361,7 +361,7 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
             mounts.setdefault('/', {})
             mounts['/']['app'] = main
 
-        def process_static_tune(loc, tune):
+        def process_static_tune(loc, tune, prefix):
             loc['index'] = tune.get('index', 'index.html')
             loc['autoindex'] = 'on' if tune.get('autoindex', False) else 'off'
             loc['etag'] = 'on' if tune.get('etag', False) else 'off'
@@ -370,6 +370,10 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
             loc['gzip'] = 'on' if tune.get('gzip', False) else 'off'
             loc['gzip_static'] = 'on' if tune.get(
                 'staticGzip', False) else 'off'
+
+            if tune.get('spaRoutes', False) and 'try_files' not in loc:
+                loc['try_files'] = '$uri {0}/{1}'.format(
+                    prefix.rstrip('/'), loc['index'])
 
         for (prefix, info) in mounts.items():
 
@@ -417,19 +421,19 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
                 serve_static = info.get('static', False)
 
                 if serve_static:
-                    server['location @main'] = location
+                    server['location @{0}'.format(app)] = location
                     path_location = {
-                        'try_files': '$uri @main',
+                        'try_files': '$uri @{0}'.format(app),
                         'disable_symlinks': 'if_not_owner',
                     }
-                    process_static_tune(path_location, path_tune)
+                    process_static_tune(path_location, path_tune, prefix)
                 else:
                     path_location = location
             else:
                 path_location = {
                     'disable_symlinks': 'if_not_owner',
                 }
-                process_static_tune(path_location, path_tune)
+                process_static_tune(path_location, path_tune, prefix)
 
             server['location {0}'.format(prefix)] = path_location
 
