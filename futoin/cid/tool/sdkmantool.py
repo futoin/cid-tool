@@ -38,7 +38,7 @@ Home: http://sdkman.io/
 
     def _installTool(self, env):
         dir = env['sdkmanDir']
-        get = env.get('sdkmanGet', 'https://get.sdkman.io')
+        get = env.get('sdkmanGet', 'https://get.sdkman.io?rcupdate=false')
 
         installer = self._callCurl(env, [get])
 

@@ -1,5 +1,6 @@
 === (next) ===
 FIXED: SDKMAN tool handling issues due to its changes
+FIXED: to use rcpupdate=false for SDKMAN setup
 FIXED: to use webpack-cli due to changes in webpack
 NEW: FTN16 v1.3 .spaRoutes support
 
