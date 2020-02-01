@@ -78,6 +78,7 @@ class SdkmanToolMixIn(BashToolMixIn, JavaToolMixIn):
                              self._sdkName()
                          )
                          )
+        self._callSdkman(env, 'default {0}'.format(self._sdkName()))
 
     def uninstallTool(self, env):
         ospath = self._ospath
@@ -97,11 +98,20 @@ class SdkmanToolMixIn(BashToolMixIn, JavaToolMixIn):
             return
 
         try:
-            env_to_set = self._callSdkman(env,
-                                          'use {0} {1} >/dev/null && env | grep -i {0}'
-                                          .format(self._sdkName(), env.get(self._name + 'Ver', '')),
-                                          verbose=False
-                                          )
+            ver = env.get(self._name + 'Ver', '')
+
+            if ver:
+                env_to_set = self._callSdkman(
+                    env,
+                    'use {0} {1} >/dev/null && env | grep -i {0}'.format(
+                        self._sdkName(), ver),
+                    verbose=False)
+            else:
+                env_to_set = self._callSdkman(
+                    env,
+                    '>/dev/null 2>&1; env | grep -i {0}'.format(
+                        self._sdkName()),
+                    verbose=False)
         except:
             return
 

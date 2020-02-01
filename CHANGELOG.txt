@@ -1,4 +1,5 @@
 === (next) ===
+FIXED: SDKMAN tool handling issues due to its changes
 NEW: FTN16 v1.3 .spaRoutes support
 
 === 0.8.35 (2020-01-07) ===
