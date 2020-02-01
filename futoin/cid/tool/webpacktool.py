@@ -28,7 +28,44 @@ Home: https://webpack.js.org
     def autoDetectFiles(self):
         return 'webpack.config.js'
 
+    def _installTool(self, env):
+        try:
+            self._name = 'webpack-cli'
+            super(webpackTool, self)._installTool(env)
+            self._name = 'webpack'
+            super(webpackTool, self)._installTool(env)
+        finally:
+            self._name = 'webpack'
+
+    def _updateTool(self, env):
+        try:
+            self._name = 'webpack-cli'
+            super(webpackTool, self)._updateTool(env)
+            self._name = 'webpack'
+            super(webpackTool, self)._updateTool(env)
+        finally:
+            self._name = 'webpack'
+
+    def uninstallTool(self, env):
+        try:
+            self._name = 'webpack-cli'
+            super(webpackTool, self).uninstallTool(env)
+            self._name = 'webpack'
+            super(webpackTool, self).uninstallTool(env)
+        finally:
+            self._name = 'webpack'
+
+    def initEnv(self, env, bin_name=None):
+        super(webpackTool, self).initEnv(env, bin_name)
+
+        if self._have_tool:
+            cli_path = '{0}-cli'.format(env['webpackBin'])
+            self._have_tool = self._ospath.exists(cli_path)
+
+            if self._have_tool:
+                env['webpackCliBin'] = cli_path
+
     def onBuild(self, config):
-        webpackBin = config['env']['webpackBin']
+        webpackBin = config['env']['webpackCliBin']
         cmd = [webpackBin, '-p', '--profile', '--display', '--verbose']
         self._executil.callMeaningful(cmd)
