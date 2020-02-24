@@ -1,4 +1,4 @@
-=== (next) ===
+=== 0.8.37 (2020-02-24) ===
 FIXED: GVM installer updates to support non-default locations
 
 === 0.8.36 (2020-02-01) ===
