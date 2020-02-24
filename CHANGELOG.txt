@@ -1,3 +1,6 @@
+=== (next) ===
+FIXED: GVM installer updates to support non-default locations
+
 === 0.8.36 (2020-02-01) ===
 CHANGED: major redesign of environ handling not to affect the running CID instance
 CHANGED: major change to CID-in-virtualenv situation (proxy call to outside CID)

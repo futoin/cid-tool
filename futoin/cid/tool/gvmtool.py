@@ -46,6 +46,7 @@ Home: https://github.com/moovweb/gvm
         gvm_installer = self._callCurl(env, [env['gvmInstaller']])
         self._callBash(
             env,
+            bash_args=['master', self._environ['GVM_DEST']],
             input=gvm_installer,
             suppress_fail=True)  # error when Go is not yet installed
 
