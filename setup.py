@@ -45,6 +45,7 @@ config = {
         # be compatible with docker/docker-compose
         'requests>=2.5.2',
         'urllib3>=1.21.1',
+        'distro',
     ],
     # temporary disabled due to py3 failures on setup of pylint
     #'setup_requires': ['autopep8', 'pylint'],

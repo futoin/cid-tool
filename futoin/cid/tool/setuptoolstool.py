@@ -44,8 +44,7 @@ Override targets with .config.toolTune.
     def initEnv(self, env):
         ospath = self._ospath
         virtualenv_dir = env['virtualenvDir']
-        self._have_tool = ospath.exists(
-            ospath.join(virtualenv_dir, 'bin', 'easy_install'))
+        self._have_tool = self._checkPip(env, 'setuptools')
 
     def onPrepare(self, config):
         targets = self._getTune(config, 'prepare', ['build', 'dist'])

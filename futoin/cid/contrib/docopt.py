@@ -456,7 +456,7 @@ def parse_defaults(doc):
     split = re.split('\n *(<\S+?>|-\S+?)', doc)[1:]
     split = [s1 + s2 for s1, s2 in zip(split[::2], split[1::2])]
     options = [Option.parse(s) for s in split if s.startswith('-')]
-    #arguments = [Argument.parse(s) for s in split if s.startswith('<')]
+    # arguments = [Argument.parse(s) for s in split if s.startswith('<')]
     # return options, arguments
     return options
 

@@ -53,7 +53,7 @@ gemInstallArgs is forcibly set by tool depending on its version.
             environ['GEM_PATH'] = gemDir
             environ['GEM_SPEC_CACHE'] = ospath.join(gemDir, 'specs')
 
-            #self._pathutil.addEnvPath('GEM_PATH', gemDir)
+            # self._pathutil.addEnvPath('GEM_PATH', gemDir)
             self._pathutil.addBinPath(ospath.join(gemDir, 'bin'), True)
             installArgs += ['--no-user-install', '--no-format-executable']
 

@@ -216,7 +216,7 @@ Home: https://www.mercurial-scm.org/
             'archive',
             '--rev', vcs_ref,
             '--type', 'files',
-            #'--exclude', '.hg*',
+            # '--exclude', '.hg*',
             dst_path
         ])
 

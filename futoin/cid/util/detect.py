@@ -19,10 +19,16 @@ from . import simple_memo as _simple_memo
 from . import complex_memo as _complex_memo
 from . import log as _log
 
+try:
+    import distro
+except ImportError:
+    # fallback to "hardcoded"
+    import futoin.cid.contrib.distro
+
 
 @_simple_memo
 def isCentOS():
-    return _ext.platform.linux_distribution()[0].startswith('CentOS')
+    return distro.linux_distribution()[0].startswith('CentOS')
 
 
 @_simple_memo
@@ -39,37 +45,37 @@ def isGentoo():
 def isArchLinux():
     # There are cases when platform.linux_distribution() is empty on Arch
     return (_ext.ospath.exists('/etc/arch-release') or
-            _ext.platform.linux_distribution()[0].startswith('arch'))
+            distro.linux_distribution()[0].startswith('arch'))
 
 
 @_simple_memo
 def isDebian():
-    return _ext.platform.linux_distribution()[0].startswith('debian')
+    return distro.linux_distribution()[0].startswith('debian')
 
 
 @_simple_memo
 def isUbuntu():
-    return _ext.platform.linux_distribution()[0].startswith('Ubuntu')
+    return distro.linux_distribution()[0].startswith('Ubuntu')
 
 
 @_simple_memo
 def isOracleLinux():
-    return _ext.platform.linux_distribution()[0].startswith('Oracle Linux')
+    return distro.linux_distribution()[0].startswith('Oracle Linux')
 
 
 @_simple_memo
 def isRHEL():
-    return _ext.platform.linux_distribution()[0].startswith('Red Hat Enterprise Linux')
+    return distro.linux_distribution()[0].startswith('Red Hat Enterprise Linux')
 
 
 @_simple_memo
 def isOpenSUSE():
-    return _ext.platform.linux_distribution()[0].startswith('openSUSE')
+    return distro.linux_distribution()[0].startswith('openSUSE')
 
 
 @_simple_memo
 def isSLES():
-    return _ext.platform.linux_distribution()[0].startswith('SUSE Linux Enterprise')
+    return distro.linux_distribution()[0].startswith('SUSE Linux Enterprise')
 
 
 @_simple_memo
@@ -87,7 +93,7 @@ def linuxDistVersion():
     if isAlpineLinux():
         return alpineLinuxVersion()
 
-    return _ext.platform.linux_distribution()[1]
+    return distro.linux_distribution()[1]
 
 
 def linuxDistMajorVer():

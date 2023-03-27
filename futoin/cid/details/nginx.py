@@ -250,7 +250,7 @@ class ConfigBuilder(LogMixIn, OnDemandMixIn):
 
         # Global
         # ---
-        #conf['user'] = '{0} {1}'.format(deploy['user'], deploy['group'])
+        # conf['user'] = '{0} {1}'.format(deploy['user'], deploy['group'])
         conf['worker_processes'] = svc_tune['maxCpuCount']
         conf.setdefault('error_log', 'stderr error')
         conf['worker_rlimit_nofile'] = svc_tune['maxFD']

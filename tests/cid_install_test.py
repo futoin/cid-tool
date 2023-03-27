@@ -16,7 +16,8 @@
 
 from .cid_utbase import cid_Tool_UTBase
 import os, subprocess, sys
-import platform, re
+import re
+import distro
 from nose.plugins.attrib import attr
 from futoin.cid.util import detect
 
@@ -320,7 +321,7 @@ for t, ti in mixed_tools.items():
     globals()[cls] = attr(tool=t)(clstype)
     
     if 'binver' in ti:
-        linux_distro = platform.linux_distribution()
+        linux_distro = distro.linux_distribution()
         binver = ti['binver']
         
         if 'deb' in binver and (

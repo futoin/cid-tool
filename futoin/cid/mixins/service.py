@@ -248,7 +248,7 @@ class ServiceMixIn(DataSlots):
         # Still, it's not safe to assume processes continue
         # to run in set process group.
         # DO NOT use os.killpg()
-        #os.setpgid(0, 0)
+        # os.setpgid(0, 0)
 
         # Main loop
         # ---

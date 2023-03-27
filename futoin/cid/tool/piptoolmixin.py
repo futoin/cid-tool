@@ -86,3 +86,6 @@ class PipToolMixIn(SubTool):
 
     def _requirePip(self, env, package):
         self._executil.callExternal([env['pipBin'], 'install', '-q', package])
+
+    def _checkPip(self, env, package):
+        return self._executil.callExternal([env['pipBin'], 'install', '-q', package], suppress_fail=True) is not None
