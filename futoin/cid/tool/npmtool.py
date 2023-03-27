@@ -57,7 +57,8 @@ Note: it auto-disables, if Yarn tool is detected
         if self._isGlobalNpm():
             return
 
-        self._executil.callExternal([env['npmBin'], 'update', '-g', 'npm'])
+        self._executil.callExternal(
+            [env['nodeBin'], env['npmBin'], 'update', '-g', 'npm'])
 
     def uninstallTool(self, env):
         pass
@@ -69,8 +70,11 @@ Note: it auto-disables, if Yarn tool is detected
         super(npmTool, self).initEnv(env, bin_name)
 
         if self._have_tool:
-            env['npmBinDir'] = self._executil.callExternal(
-                [env['npmBin'], 'bin', '-g'], verbose=False).strip()
+            try:
+                env['npmBinDir'] = self._executil.callExternal(
+                    [env['nodeBin'], env['npmBin'], 'bin', '-g'], verbose=False).strip()
+            except self._ext.subprocess.CalledProcessError:
+                env['npmBinDir'] = self._ext.ospath.dirname(env['nodeBin'])
 
     def loadConfig(self, config):
         content = self._pathutil.loadJSONConfig(self.PACKAGE_JSON)
