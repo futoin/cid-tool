@@ -1,6 +1,7 @@
 === (next) ===
 BREAKING CHANGE: drop of Python 2 support
 FIXED: newer npm support
+FIXED: newer pylint issues
 
 === 0.8.37 (2020-02-24) ===
 FIXED: GVM installer updates to support non-default locations

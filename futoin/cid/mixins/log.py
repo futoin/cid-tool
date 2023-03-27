@@ -16,7 +16,7 @@
 
 from ..util.log import *
 
-__all__ = ('LogMixIn')
+__all__ = ('LogMixIn',)
 
 
 class LogMixIn(object):

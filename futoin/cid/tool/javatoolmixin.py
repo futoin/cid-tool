@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+# pylint: disable=no-member
 
 class JavaToolMixIn(object):
     __slots__ = ()

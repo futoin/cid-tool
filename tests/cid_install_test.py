@@ -17,9 +17,14 @@
 from .cid_utbase import cid_Tool_UTBase
 import os, subprocess, sys
 import re
-import distro
 from nose.plugins.attrib import attr
 from futoin.cid.util import detect
+
+try:
+    import distro
+except ImportError:
+    # fallback to "hardcoded"
+    import futoin.cid.contrib.distro
 
 IS_LINUX = cid_Tool_UTBase.IS_LINUX
 IS_MACOS = cid_Tool_UTBase.IS_MACOS

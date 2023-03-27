@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+# pylint: disable=no-member
 
 class CurlToolMixIn(object):
     __slots__ = ()

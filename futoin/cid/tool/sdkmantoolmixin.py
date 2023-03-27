@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+# pylint: disable=no-member
 
 from .bashtoolmixin import BashToolMixIn
 from .javatoolmixin import JavaToolMixIn

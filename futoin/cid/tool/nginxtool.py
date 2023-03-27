@@ -17,7 +17,7 @@
 from ..runtimetool import RuntimeTool
 from ..details.nginx import *
 
-__all__ = 'nginxTool'
+__all__ = ('nginxTool', )
 
 
 class nginxTool(RuntimeTool):
