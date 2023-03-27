@@ -52,7 +52,7 @@ config = {
     'extras_require': {
         'test': ['nose'],
     },
-    'python_requires': '>=2.7',
+    'python_requires': '>=3.3',
     'packages': find_packages(exclude=['bind', 'tests']),
     
     'entry_points': {
@@ -76,13 +76,14 @@ config = {
         'Programming Language :: JavaScript',
         'Programming Language :: Other',
         'Programming Language :: PHP',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Programming Language :: Ruby',
         'Programming Language :: Unix Shell',
         'Topic :: Software Development :: Build Tools',
