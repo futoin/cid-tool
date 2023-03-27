@@ -1,4 +1,4 @@
-=== (next) ===
+=== 0.9.0 (2023-03-27) ===
 BREAKING CHANGE: drop of Python 2 support
 FIXED: newer npm support
 FIXED: newer pylint issues
