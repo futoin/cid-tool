@@ -37,7 +37,7 @@ On release tagging, CMakeLists.txt the following replacements are done:
         return 'CMakeLists.txt'
 
     def envNames(self):
-        return ['cmakeBin', 'cmakeBuildDir']
+        return ['cmakeBin', 'cmakeBuildDir', 'cmakeBuildType']
 
     def _installTool(self, env):
         self._install.deb(['build-essential'])
@@ -53,17 +53,22 @@ On release tagging, CMakeLists.txt the following replacements are done:
 
     def initEnv(self, env):
         env.setdefault('cmakeBuildDir', 'build')
+        env.setdefault('cmakeBuildType', 'Debug' if env['type'] == 'dev' else 'Release')
         super(cmakeTool, self).initEnv(env)
 
     def onPrepare(self, config):
         ospath = self._ospath
         os = self._os
-        build_dir = config['env']['cmakeBuildDir']
+        env = config['env']
+        build_dir = env['cmakeBuildDir']
+        build_type = env['cmakeBuildType']
         self._pathutil.rmTree(build_dir)
 
         os.mkdir(build_dir)
-        cmd = [config['env']['cmakeBin'], '-H' +
-               config['wcDir'], '-B' + build_dir]
+        cmd = [config['env']['cmakeBin'],
+               '-H' + config['wcDir'],
+               '-B' + build_dir,
+               '-DCMAKE_BUILD_TYPE=' + build_type]
         self._executil.callMeaningful(cmd)
 
     def onBuild(self, config):
